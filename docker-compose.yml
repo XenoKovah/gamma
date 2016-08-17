@@ -1,0 +1,16 @@
+mongo:
+ image: mongo
+
+postgres:
+ image: postgres
+
+app:
+ build: .
+ command: sh /app/docker-prepare.sh
+ volumes:
+   - .:/app
+ ports:
+   - "9000:9000"
+ links:
+   - mongo
+   - postgres

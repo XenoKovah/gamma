@@ -1,0 +1,4 @@
+# Packages required for tests
+-r base.txt
+
+pytest==2.9.2
