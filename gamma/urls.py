@@ -15,7 +15,8 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, RedirectView
+from django.core.urlresolvers import reverse_lazy
 
 urlpatterns = [
     url(r'^$', TemplateView.as_view(template_name='dashboard.html')),
@@ -25,5 +26,14 @@ urlpatterns = [
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
     # Python Social Auth
-    url('', include('social.apps.django_app.urls', namespace='social'))
+    url('', include('social.apps.django_app.urls', namespace='social')),
+    url(
+        r'^accounts/login/$',
+        RedirectView.as_view(
+            url=reverse_lazy('social:begin', args=['edx-oidc']),
+            permanent=False,
+            query_string=True
+        ),
+        name='login'
+    ),
 ]

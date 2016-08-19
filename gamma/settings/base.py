@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     'social.apps.django_app.default',
 ]
 
-MIDDLEWARE = [
+MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -53,6 +53,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'social.apps.django_app.middleware.SocialAuthExceptionMiddleware',
 ]
 
 ROOT_URLCONF = 'gamma.urls'
@@ -128,3 +129,46 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# Allow authentication via edX OAuth2/OpenID Connect
+AUTHENTICATION_BACKENDS = (
+    'auth_backends.backends.EdXOpenIdConnect',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+# Set to true if using SSL and running behind a proxy
+SOCIAL_AUTH_REDIRECT_IS_HTTPS = False
+
+SOCIAL_AUTH_ADMIN_USER_SEARCH_FIELDS = ['username', 'email']
+
+SOCIAL_AUTH_PIPELINE = (
+    'social.pipeline.social_auth.social_details',
+    'social.pipeline.social_auth.social_uid',
+    'social.pipeline.social_auth.auth_allowed',
+    'social.pipeline.social_auth.social_user',
+
+    # By default python-social-auth will simply create a new user/username if the username
+    # from the provider conflicts with an existing username in this system. This custom pipeline function
+    # loads existing users instead of creating new ones.
+    'auth_backends.pipeline.get_user_if_exists',
+    'social.pipeline.user.get_username',
+    'social.pipeline.user.create_user',
+    'social.pipeline.social_auth.associate_user',
+    'social.pipeline.social_auth.load_extra_data',
+    'social.pipeline.user.user_details'
+)
+
+SOCIAL_AUTH_USER_FIELDS = ['username', 'email', 'first_name', 'last_name']
+
+# Always raise auth exceptions so that they are properly logged. Otherwise, the PSA middleware will redirect to an
+# auth error page and attempt to display the error message to the user (via Django's message framework). We do not
+# want the uer to see the message; but, we do want our downstream exception handlers to log the message.
+SOCIAL_AUTH_RAISE_EXCEPTIONS = True
+
+# Set these to the correct values for your OAuth2/OpenID Connect provider
+SOCIAL_AUTH_EDX_OIDC_KEY = None
+SOCIAL_AUTH_EDX_OIDC_SECRET = None
+SOCIAL_AUTH_EDX_OIDC_URL_ROOT = None
+
+# This value should be the same as SOCIAL_AUTH_EDX_OIDC_SECRET
+SOCIAL_AUTH_EDX_OIDC_ID_TOKEN_DECRYPTION_KEY = None
