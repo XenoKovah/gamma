@@ -176,3 +176,6 @@ SOCIAL_AUTH_EDX_OIDC_URL_ROOT = None
 
 # This value should be the same as SOCIAL_AUTH_EDX_OIDC_SECRET
 SOCIAL_AUTH_EDX_OIDC_ID_TOKEN_DECRYPTION_KEY = None
+
+# -Frame setting for loading main dashboard in IFrame
+X_FRAME_OPTIONS = "GOFORIT"
