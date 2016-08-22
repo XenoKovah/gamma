@@ -43,6 +43,10 @@ INSTALLED_APPS = [
 
     # Python Social auth
     'social.apps.django_app.default',
+
+    # Local apps
+    'core',
+    'achievements',
 ]
 
 MIDDLEWARE_CLASSES = [
