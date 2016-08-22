@@ -17,6 +17,7 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from django.views.generic import TemplateView, RedirectView
 from django.core.urlresolvers import reverse_lazy
+from django.contrib.auth.views import logout
 
 urlpatterns = [
     url(r'^$', TemplateView.as_view(template_name='dashboard.html')),
@@ -36,4 +37,5 @@ urlpatterns = [
         ),
         name='login'
     ),
+    url(r'^logout/$', logout, kwargs={'next_page': '/'}, name='logout'),
 ]

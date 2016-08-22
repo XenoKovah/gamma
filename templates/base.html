@@ -7,6 +7,10 @@
 <div class="login-button-container">
     <a href="{% url 'login' %}"><button type="button" class="btn btn-default pull-right">{% trans "Login" %}</button></a>
 </div>
+{% else %}
+<div class="logout-button-container">
+    <a href="{% url 'logout' %}"><button type="button" class="btn btn-default pull-right">{% trans "Logout" %}</button></a>
+</div>
 {% endif %}
 
 {% block content %}{% endblock %}
