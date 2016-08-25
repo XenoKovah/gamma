@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+<p>
+{% if not user.is_authenticated %}
+You need to authenticate in order to see you achievements.
+{% else %}
+You username is <b>{{ user.username }}</b>.
+{% if user.gameprofile %}
+You have {{ user.gameprofile.points }} points.
+{% endif %}
+{% endif %}
+</p>
+{% endblock %}
