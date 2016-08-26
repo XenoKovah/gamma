@@ -183,3 +183,4 @@ X_FRAME_OPTIONS = "GOFORIT"
 # Points settings saved in MongoDB
 MONGO_SETTINGS_COLLECTION = "points_settings"
 MONGO_DB_NAME = "gamma"
+MONGO_PROGRESS_COLLECTION = "progress"

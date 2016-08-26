@@ -8,6 +8,7 @@ from rest_framework.parsers import JSONParser
 
 from .models import GameProfile
 from .serializers import GameProfileSerializer
+from .utils import find_one_and_update
 
 
 CLIENT = MongoClient()
@@ -39,10 +40,16 @@ class GameProfileView(generics.RetrieveUpdateAPIView, viewsets.GenericViewSet):
         db = CLIENT[settings.MONGO_DB_NAME]
         points_settings = db[settings.MONGO_SETTINGS_COLLECTION]
         points_map = points_settings.find_one()
-        # TODO Implement saving accumulative points based on date to Mongi collection
-        game_profile.points = F('points') + points_map.get(event_type, 0)
+        points_to_update = points_map.get(event_type, 0)
+        game_profile.points = F('points') + points_to_update
         # TODO try to avoid duplicate saving in Serializer
         game_profile.save()
+        # Update point value in mongo
+        find_one_and_update(
+            filter_dict={'date': '$currentDate', 'username': user.username},
+            key='points',
+            value=points_to_update
+        )
         game_profile = GameProfile.objects.get(user=user)
         serializer = self.get_serializer(game_profile)
         return Response(serializer.data)
