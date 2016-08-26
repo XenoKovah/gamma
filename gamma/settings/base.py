@@ -133,6 +133,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR + "/static/"
 
 # Allow authentication via edX OAuth2/OpenID Connect
 AUTHENTICATION_BACKENDS = (
@@ -176,6 +177,9 @@ SOCIAL_AUTH_EDX_OIDC_URL_ROOT = None
 
 # This value should be the same as SOCIAL_AUTH_EDX_OIDC_SECRET
 SOCIAL_AUTH_EDX_OIDC_ID_TOKEN_DECRYPTION_KEY = None
+
+# Login redirect url
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/'
 
 # -Frame setting for loading main dashboard in IFrame
 X_FRAME_OPTIONS = "GOFORIT"
