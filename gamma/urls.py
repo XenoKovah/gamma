@@ -20,7 +20,7 @@ from django.core.urlresolvers import reverse_lazy
 from django.contrib.auth.views import logout
 from rest_framework.routers import SimpleRouter
 
-from core.api import GameProfileView
+from core.api import GameProfileView, ProgressView
 
 
 router = SimpleRouter()
@@ -46,5 +46,6 @@ urlpatterns = [
     ),
     url(r'^logout/$', logout, kwargs={'next_page': '/'}, name='logout'),
 
+    url(r'^progress/(?P<pk>[0-9]+)/$', ProgressView.as_view(), name='progress'),
     url(r'^', include(router.urls)),
 ]

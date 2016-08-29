@@ -9,3 +9,11 @@ class GameProfileSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = GameProfile
+
+
+class ProgressSerializer(serializers.Serializer):
+    """
+    Progress serializer.
+    """
+    date = serializers.DateTimeField()
+    points = serializers.IntegerField()
