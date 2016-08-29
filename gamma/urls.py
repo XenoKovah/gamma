@@ -21,13 +21,14 @@ from django.contrib.auth.views import logout
 from rest_framework.routers import SimpleRouter
 
 from core.api import GameProfileView, ProgressView
+from core.views import DashboardView
 
 
 router = SimpleRouter()
 router.register(r'game-profile', GameProfileView, base_name='game-profile')
 
 urlpatterns = [
-    url(r'^$', TemplateView.as_view(template_name='dashboard.html')),
+    url(r'^$', DashboardView.as_view()),
     url(r'^admin/', admin.site.urls),
 
     # Django Rest Framework

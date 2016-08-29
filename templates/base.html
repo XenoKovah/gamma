@@ -81,6 +81,11 @@
         }
       });
     </script>
+    <script>
+    {% for data in progress_data %}
+    console.log("{{ data.date }} => {{ data.points }}");
+    {% endfor %}
+    </script>
   </head>
   <body>
     <div class="header demo-layout mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">

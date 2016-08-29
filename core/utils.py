@@ -3,6 +3,7 @@ from django.conf import settings
 
 
 CLIENT = pymongo.MongoClient()
+DB = CLIENT[settings.MONGO_DB_NAME]
 
 
 def find_one_and_update(filter_dict, key, value):
@@ -12,9 +13,8 @@ def find_one_and_update(filter_dict, key, value):
     Find document in mongo collection by `filter_by` search param
     and update(increment) particular field by `key`.
     """
-    db = CLIENT[settings.MONGO_DB_NAME]
-    collection = db[settings.MONGO_PROGRESS_COLLECTION]
 
+    collection = DB[settings.MONGO_PROGRESS_COLLECTION]
     try:
         document = collection.find_one_and_update(
             filter=filter_dict,
@@ -25,3 +25,14 @@ def find_one_and_update(filter_dict, key, value):
     except Exception as e:
         # TODO configure Django Logging for this case
         print(e)
+
+
+def get_progress(user):
+    """
+    Get progress data from MongoDB.
+    """
+    collection = DB[settings.MONGO_PROGRESS_COLLECTION]
+    progress_data = collection.find(
+        {"username": user.username}, {"date": 1, "points": 1, "_id": 0}
+    ).sort("date", pymongo.DESCENDING).limit(7)
+    return progress_data

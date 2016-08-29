@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from pymongo import MongoClient, DESCENDING
+from pymongo import MongoClient
 from django.contrib.auth.models import User
 from django.db.models import F
 from django.conf import settings
@@ -11,7 +11,7 @@ from rest_framework.parsers import JSONParser
 
 from .models import GameProfile
 from .serializers import GameProfileSerializer, ProgressSerializer
-from .utils import find_one_and_update
+from .utils import find_one_and_update, get_progress
 
 
 CLIENT = MongoClient()
@@ -79,9 +79,6 @@ class ProgressView(APIView):
         Simply retrieve user GameProfile data.
         """
         user = User.objects.get(id=kwargs.get('pk'))
-        collection = DB[settings.MONGO_PROGRESS_COLLECTION]
-        progress_data = collection.find(
-            {"username": user.username}, {"date": 1, "points": 1, "_id": 0}
-        ).sort("date", DESCENDING).limit(7)
+        progress_data = get_progress(user)
         serializer = ProgressSerializer(progress_data, many=True)
         return Response(serializer.data)
