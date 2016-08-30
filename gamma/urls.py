@@ -18,14 +18,10 @@ from django.contrib import admin
 from django.views.generic import TemplateView, RedirectView
 from django.core.urlresolvers import reverse_lazy
 from django.contrib.auth.views import logout
-from rest_framework.routers import SimpleRouter
 
 from core.api import GameProfileView, ProgressView
 from core.views import DashboardView
 
-
-router = SimpleRouter()
-router.register(r'game-profile', GameProfileView, base_name='game-profile')
 
 urlpatterns = [
     url(r'^$', DashboardView.as_view()),
@@ -47,6 +43,6 @@ urlpatterns = [
     ),
     url(r'^logout/$', logout, kwargs={'next_page': '/'}, name='logout'),
 
-    url(r'^progress/(?P<pk>[0-9]+)/$', ProgressView.as_view(), name='progress'),
-    url(r'^', include(router.urls)),
+    url(r'^progress/*$', ProgressView.as_view(), name='progress'),
+    url(r'^gamma-profile/*$', GameProfileView.as_view(), name='gamma-profile'),
 ]

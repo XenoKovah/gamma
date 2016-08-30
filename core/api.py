@@ -12,33 +12,34 @@ from rest_framework.parsers import JSONParser
 from .models import GameProfile
 from .serializers import GameProfileSerializer, ProgressSerializer
 from .utils import find_one_and_update, get_progress
+from .authentication import KeySecretAuthentication
 
 
 CLIENT = MongoClient()
 DB = CLIENT[settings.MONGO_DB_NAME]
 
 
-class GameProfileView(generics.RetrieveUpdateAPIView, viewsets.GenericViewSet):
+class GameProfileView(APIView):
     """
     GET or UPDATE user points.
     """
-    parser_classes = (JSONParser,)
-    serializer_class = GameProfileSerializer
+    authentication_classes = (KeySecretAuthentication,)
 
-    def update(self, request, *args, **kwargs):
+    def put(self, request, *args, **kwargs):
         """
         Update User GameProfile info.
 
         Request example:
-        http://localhost/game-profile/:id/
+        http://localhost/gamma-profile/
         {
+          "username": :username
           "event_type": :type
         }
 
-        where :id - user id
+        where :username - username for User to update points
               :type - can be `video`, `unit` or `course`
         """
-        user = User.objects.get(id=kwargs.get('pk'))
+        user = User.objects.get(username=request.data.get('username'))
         game_profile = GameProfile.objects.get(user=user)
         event_type = self.request.data.get('event_type')
         points_settings = DB[settings.MONGO_SETTINGS_COLLECTION]
@@ -57,16 +58,18 @@ class GameProfileView(generics.RetrieveUpdateAPIView, viewsets.GenericViewSet):
             value=points_to_update
         )
         game_profile = GameProfile.objects.get(user=user)
-        serializer = self.get_serializer(game_profile)
+        serializer = GameProfileSerializer(game_profile)
+
         return Response(serializer.data)
 
-    def retrieve(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         """
         Simply retrieve user GameProfile data.
         """
-        user = User.objects.get(id=kwargs.get('pk'))
+        user = User.objects.get(username=request.data.get('username'))
         game_profile = GameProfile.objects.get(user=user)
-        serializer = self.get_serializer(game_profile)
+        serializer = GameProfileSerializer(game_profile)
+
         return Response(serializer.data)
 
 
@@ -74,11 +77,14 @@ class ProgressView(APIView):
     """
     Retrieve User progress.
     """
+    authentication_classes = (KeySecretAuthentication,)
+
     def get(self, request, *args, **kwargs):
         """
         Simply retrieve user GameProfile data.
         """
-        user = User.objects.get(id=kwargs.get('pk'))
+        user = User.objects.get(username=request.data.get('username'))
         progress_data = get_progress(user)
         serializer = ProgressSerializer(progress_data, many=True)
+
         return Response(serializer.data)

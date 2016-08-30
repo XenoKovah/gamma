@@ -5,7 +5,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from .utils import get_progress
 
 
-class DashboardView(LoginRequiredMixin, View):
+class DashboardView(View):
     """
     Provide base information for user.
     """
