@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     # Local apps
     'core',
     'achievements',
+    'pointlog',
 ]
 
 MIDDLEWARE_CLASSES = [
