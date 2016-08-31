@@ -3,4 +3,6 @@ __pycache__
 *.pyc
 local.py
 gamma/static/
+gamma/media/
 .idea
+.DS_Store
