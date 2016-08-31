@@ -13,7 +13,10 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
+
+from django.conf import settings
 from django.conf.urls import url, include
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.views.generic import TemplateView, RedirectView
 from django.core.urlresolvers import reverse_lazy
@@ -45,4 +48,4 @@ urlpatterns = [
 
     url(r'^progress/*$', ProgressView.as_view(), name='progress'),
     url(r'^gamma-profile/*$', GameProfileView.as_view(), name='gamma-profile'),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
