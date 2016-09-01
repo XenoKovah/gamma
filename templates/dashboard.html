@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% load i18n %}
 {% block content %}
 
 {% if not user.is_authenticated %}
@@ -20,6 +20,20 @@
         <text x="0.5" y="0.5" font-family="Roboto" font-size="0.3" fill="#888" text-anchor="middle" dy="0.1">{% if user.gameprofile %}{{ user.gameprofile.points }}{% endif %}<tspan font-size="0.2" dy="-0.07"></tspan></text>
       </svg>
     </div>
+      <div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
+      {% if user_achievements|length %}
+      <h4>{% trans "Your Achievements"%}</h4>
+      <div class="user-achivement-list"></div>
+          {% for achievement in user_achievements %}
+              <div class="user-achivement">
+                  <img src="{{ achievement.achievement.badge_image.url }}"
+                       title="{{ achievement.achievement.description }}"
+                  />
+                  <p>{{ achievement.achievement.name }}</p>
+              </div>
+          {% endfor %}
+      </div>
+      {% endif %}
     <div class="demo-graphs mdl-shadow--2dp mdl-color--white mdl-cell mdl-cell--8-col">
       <svg fill="currentColor" viewBox="0 0 500 250" class="demo-graph">
         <use xlink:href="#chart" />

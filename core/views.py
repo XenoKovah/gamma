@@ -11,4 +11,8 @@ class DashboardView(View):
     """
     def get(self, request):
         progress_data = get_progress(request.user)
-        return render(request, 'dashboard.html', {'progress_data': progress_data})
+        user_achievements = request.user.userachievement_set.select_related('achievement').all()
+        return render(request, 'dashboard.html', {
+            'progress_data': progress_data,
+            'user_achievements': user_achievements
+        })

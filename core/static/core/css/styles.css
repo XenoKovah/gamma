@@ -222,3 +222,10 @@ _:-ms-input-placeholder, :root .demo-graph {
       -ms-flex-align: center;
           align-items: center;
 }
+
+.user-achivement{
+    padding-right:10px;
+}
+.user-achivement img{
+    width: 200px;
+}
