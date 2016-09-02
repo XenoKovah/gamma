@@ -1,0 +1,209 @@
+From 6fef48c715ec2fb51053da6cf77bb8a42aea25c9 Mon Sep 17 00:00:00 2001
+From: xahgmah <xahgmah@yandex.ru>
+Date: Tue, 30 Aug 2016 15:05:49 +0300
+Subject: [PATCH 1/3] send achievenents for gamification
+
+---
+ cms/envs/common.py                                 |  2 ++
+ common/djangoapps/gamification_metric/__init__.py  |  0
+ common/djangoapps/gamification_metric/api_calls.py | 41 ++++++++++++++++++++++
+ common/djangoapps/gamification_metric/signals.py   | 18 ++++++++++
+ common/djangoapps/gamification_metric/startup.py   |  3 ++
+ lms/envs/common.py                                 |  2 ++
+ 6 files changed, 66 insertions(+)
+ create mode 100644 common/djangoapps/gamification_metric/__init__.py
+ create mode 100644 common/djangoapps/gamification_metric/api_calls.py
+ create mode 100644 common/djangoapps/gamification_metric/signals.py
+ create mode 100644 common/djangoapps/gamification_metric/startup.py
+
+diff --git a/cms/envs/common.py b/cms/envs/common.py
+index e3e5d63..dcf3d51 100644
+--- a/cms/envs/common.py
++++ b/cms/envs/common.py
+@@ -817,6 +817,8 @@ INSTALLED_APPS = (
+     # other apps that are.  Django 1.8 wants to have imported models supported
+     # by installed apps.
+     'lms.djangoapps.verify_student',
++
++    'gamification_metric',
+ )
+ 
+ 
+diff --git a/common/djangoapps/gamification_metric/__init__.py b/common/djangoapps/gamification_metric/__init__.py
+new file mode 100644
+index 0000000..e69de29
+diff --git a/common/djangoapps/gamification_metric/api_calls.py b/common/djangoapps/gamification_metric/api_calls.py
+new file mode 100644
+index 0000000..f1448df
+--- /dev/null
++++ b/common/djangoapps/gamification_metric/api_calls.py
+@@ -0,0 +1,41 @@
++"""
++Send user's achievements to external service during the course progress
++"""
++import requests
++from django.conf import settings
++from django.core.exceptions import ImproperlyConfigured
++
++
++class APICalls(object):
++    """
++    Send user data to the Gamification server
++    """
++
++    def __init__(self):
++        self.is_enabled = settings.FEATURES.get('ENABLE_GAMMA', False)
++        if self.is_enabled:
++            self.GAMMA_PROPERTIES = settings.FEATURES.get('GAMMA_PROPERTIES', {})
++            if not self.GAMMA_PROPERTIES:
++                raise ImproperlyConfigured(
++                    "You must set `GAMMA_PROPERTIES` when "
++                    "`FEATURES['ENABLE_GAMMA']` is True."
++                )
++            required_params = ("API_URL", "APP_KEY", "APP_SECRET")
++            for param in required_params:
++                if param not in self.GAMMA_PROPERTIES:
++                    raise ImproperlyConfigured(
++                        "You must set `{}` in `GAMMA_PROPERTIES`".format(param)
++                    )
++
++    def api_call(self, course_id, user, event_type, uid):
++        data = {
++            'course_id': course_id,
++            'user': user,
++            'event_type': event_type,
++            'uid': uid,
++        }
++        headers = {
++            'API_KEY': self.GAMMA_PROPERTIES['APP_KEY'],
++            'API_SECRET': self.GAMMA_PROPERTIES['APP_SECRET']
++        }
++        requests.put(self.GAMMA_PROPERTIES['API_URL'], data=data, headers=headers)
+diff --git a/common/djangoapps/gamification_metric/signals.py b/common/djangoapps/gamification_metric/signals.py
+new file mode 100644
+index 0000000..8fa0ce3
+--- /dev/null
++++ b/common/djangoapps/gamification_metric/signals.py
+@@ -0,0 +1,18 @@
++"""
++Catch changes in user progress and send it by API
++"""
++from django.db.models.signals import post_save
++from django.dispatch import receiver
++from api_calls import APICalls
++
++
++@receiver(post_save, sender='courseware.StudentModule')
++def send_achivenent(sender, instance, **kwargs):
++    if instance.module_type in ('video', 'problem', 'course'):
++        data = {
++            'user': instance.student.pk,
++            'course_id': unicode(instance.course_id),
++            'event_type': instance.module_type,
++            'uid': unicode(instance.module_state_key),
++        }
++        APICalls().api_call(**data)
+diff --git a/common/djangoapps/gamification_metric/startup.py b/common/djangoapps/gamification_metric/startup.py
+new file mode 100644
+index 0000000..56ceabb
+--- /dev/null
++++ b/common/djangoapps/gamification_metric/startup.py
+@@ -0,0 +1,3 @@
++# Register signal handlers
++# pylint: disable=unused-import
++import signals
+diff --git a/lms/envs/common.py b/lms/envs/common.py
+index 781d525..a0e0fc9 100644
+--- a/lms/envs/common.py
++++ b/lms/envs/common.py
+@@ -1941,6 +1941,8 @@ INSTALLED_APPS = (
+     'openedx.core.djangoapps.self_paced',
+ 
+     'sorl.thumbnail',
++
++    'gamification_metric',
+ )
+ 
+ # Migrations which are not in the standard module "migrations"
+-- 
+2.7.4
+
+
+From a77339bb2847ee927d92d0f16aba663d889ac956 Mon Sep 17 00:00:00 2001
+From: xahgmah <xahgmah@yandex.ru>
+Date: Tue, 30 Aug 2016 19:27:01 +0300
+Subject: [PATCH 2/3] rename API to APP
+
+---
+ common/djangoapps/gamification_metric/api_calls.py | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/common/djangoapps/gamification_metric/api_calls.py b/common/djangoapps/gamification_metric/api_calls.py
+index f1448df..426674c 100644
+--- a/common/djangoapps/gamification_metric/api_calls.py
++++ b/common/djangoapps/gamification_metric/api_calls.py
+@@ -35,7 +35,7 @@ class APICalls(object):
+             'uid': uid,
+         }
+         headers = {
+-            'API_KEY': self.GAMMA_PROPERTIES['APP_KEY'],
+-            'API_SECRET': self.GAMMA_PROPERTIES['APP_SECRET']
++            'APP_KEY': self.GAMMA_PROPERTIES['APP_KEY'],
++            'APP_SECRET': self.GAMMA_PROPERTIES['APP_SECRET']
+         }
+         requests.put(self.GAMMA_PROPERTIES['API_URL'], data=data, headers=headers)
+-- 
+2.7.4
+
+
+From c3b26a77dead5898ffe710776797ef77cbacf8a5 Mon Sep 17 00:00:00 2001
+From: xahgmah <xahgmah@yandex.ru>
+Date: Fri, 2 Sep 2016 14:52:09 +0300
+Subject: [PATCH 3/3] send username, fix key and secret name
+
+---
+ common/djangoapps/gamification_metric/api_calls.py | 10 +++++-----
+ common/djangoapps/gamification_metric/signals.py   |  2 +-
+ 2 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/common/djangoapps/gamification_metric/api_calls.py b/common/djangoapps/gamification_metric/api_calls.py
+index 426674c..f577a3e 100644
+--- a/common/djangoapps/gamification_metric/api_calls.py
++++ b/common/djangoapps/gamification_metric/api_calls.py
+@@ -27,15 +27,15 @@ class APICalls(object):
+                         "You must set `{}` in `GAMMA_PROPERTIES`".format(param)
+                     )
+ 
+-    def api_call(self, course_id, user, event_type, uid):
++    def api_call(self, course_id, username, event_type, uid):
+         data = {
+             'course_id': course_id,
+-            'user': user,
++            'username': username,
+             'event_type': event_type,
+             'uid': uid,
+         }
+         headers = {
+-            'APP_KEY': self.GAMMA_PROPERTIES['APP_KEY'],
+-            'APP_SECRET': self.GAMMA_PROPERTIES['APP_SECRET']
++            'App-key': self.GAMMA_PROPERTIES['APP_KEY'],
++            'App-secret': self.GAMMA_PROPERTIES['APP_SECRET']
+         }
+-        requests.put(self.GAMMA_PROPERTIES['API_URL'], data=data, headers=headers)
++        requests.put(self.GAMMA_PROPERTIES['API_URL'], data=data, headers=headers, verify=False)
+diff --git a/common/djangoapps/gamification_metric/signals.py b/common/djangoapps/gamification_metric/signals.py
+index 8fa0ce3..6d7d7c4 100644
+--- a/common/djangoapps/gamification_metric/signals.py
++++ b/common/djangoapps/gamification_metric/signals.py
+@@ -10,7 +10,7 @@ from api_calls import APICalls
+ def send_achivenent(sender, instance, **kwargs):
+     if instance.module_type in ('video', 'problem', 'course'):
+         data = {
+-            'user': instance.student.pk,
++            'username': instance.student.username,
+             'course_id': unicode(instance.course_id),
+             'event_type': instance.module_type,
+             'uid': unicode(instance.module_state_key),
+-- 
+2.7.4
+
