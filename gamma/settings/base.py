@@ -200,3 +200,13 @@ MONGO_RULES_COLLECTION = "rules"
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
+
+
+try:
+    from .local import *
+except ImportError:
+    print(
+        """You must provide a settings/local.py file,
+        e.g. by copying the provided local_example.py"""
+    )
+    raise
