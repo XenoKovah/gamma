@@ -17,7 +17,10 @@ from .authentication import KeySecretAuthentication
 from pointlog.models import LoggedEvent
 
 
-CLIENT = MongoClient()
+CLIENT = client = MongoClient(
+    settings.MONGODB_CONF.get('HOST', 'localhost'),
+    settings.MONGODB_CONF.get('PORT', 27017),
+)
 DB = CLIENT[settings.MONGO_DB_NAME]
 
 
@@ -41,7 +44,13 @@ class GameProfileView(APIView):
         where :username - username for User to update points
               :type - can be `video`, `unit` or `course`
         """
-        user = User.objects.get(username=request.data.get('username'))
+        try:
+            user = User.objects.get(username=request.data.get('username'))
+        except User.DoesNotExist:
+            return Response(
+                {"Error": "User not found"},
+                status=status.HTTP_406_NOT_ACCEPTABLE
+            )
         game_profile = GameProfile.objects.get(user=user)
         event_type = self.request.data.get('event_type')
         uniq_id = self.request.data.get('uid')

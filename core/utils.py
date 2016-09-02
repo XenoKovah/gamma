@@ -5,7 +5,10 @@ import pymongo
 from django.conf import settings
 
 
-CLIENT = pymongo.MongoClient()
+CLIENT = pymongo.MongoClient(
+    settings.MONGODB_CONF.get('HOST', 'localhost'),
+    settings.MONGODB_CONF.get('PORT', 27017),
+)
 DB = CLIENT[settings.MONGO_DB_NAME]
 
 

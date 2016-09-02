@@ -1,5 +1,4 @@
 # Packages required for local development
 -r base.txt
--r test.txt
 
 ipdb==0.10.1

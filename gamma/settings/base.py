@@ -185,10 +185,18 @@ SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/'
 # -Frame setting for loading main dashboard in IFrame
 X_FRAME_OPTIONS = "GOFORIT"
 
+
+# MongoDB configuration
+MONGODB_CONF = {
+    'HOST': 'localhost',
+    'PORT': 27017,
+}
+
 # Points settings saved in MongoDB
 MONGO_SETTINGS_COLLECTION = "points_settings"
 MONGO_DB_NAME = "gamma"
 MONGO_PROGRESS_COLLECTION = "progress"
+MONGO_RULES_COLLECTION = "rules"
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'

@@ -15,6 +15,9 @@ class Achievement(models.Model):
     badge_type = models.CharField(max_length=64)
     badge_image = models.ImageField()
 
+    def __str__(self):
+        return self.name
+
 
 class UserAchievement(models.Model):
     """
@@ -23,3 +26,6 @@ class UserAchievement(models.Model):
     date = models.DateTimeField()
     user = models.ForeignKey(User)
     achievement = models.ForeignKey(Achievement)
+
+    def __str__(self):
+        return '{0} <=> {1} : {2}'.format(self.achievement, self.user.username, self.date)
