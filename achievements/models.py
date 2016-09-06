@@ -2,6 +2,13 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
+BADGE_TYPE_CHOICES = (
+    ('video', 'video'),
+    ('problem', 'problem'),
+    ('course', 'course'),
+)
+
+
 class Achievement(models.Model):
     """
     Models for custom achievement.
@@ -9,14 +16,15 @@ class Achievement(models.Model):
     We can export new Achievements from
     any new Badges service.
     """
-    name = models.CharField(max_length=64)
+    title = models.CharField(max_length=64)
+    slug = models.SlugField(max_length=64, unique=True)
     badge_id = models.CharField(max_length=64, blank=True)
     description = models.TextField(blank=True, null=True)
-    badge_type = models.CharField(max_length=64)
+    badge_type = models.CharField(max_length=64, choices=BADGE_TYPE_CHOICES)
     badge_image = models.ImageField()
 
     def __str__(self):
-        return self.name
+        return self.slug
 
 
 class UserAchievement(models.Model):
