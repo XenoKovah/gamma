@@ -11,10 +11,10 @@ class DashboardView(View):
     """
     def get(self, request):
         user_achievements = None
-        progress_data = get_progress(request.user)
+        # progress_data = get_progress(request.user)
         if request.user.is_authenticated():
             user_achievements = request.user.userachievement_set.select_related('achievement').all()
         return render(request, 'dashboard.html', {
-            'progress_data': progress_data,
+            # 'progress_data': progress_data,
             'user_achievements': user_achievements
         })
