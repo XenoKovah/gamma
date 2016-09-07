@@ -1,6 +1,10 @@
 from django import forms
 
 from .models import Achievement
+from .services import AchievementRulesMongo
+
+
+STORAGE = AchievementRulesMongo()
 
 
 class AchievementForm(forms.ModelForm):
@@ -13,7 +17,19 @@ class AchievementForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(AchievementForm, self).__init__(*args, **kwargs)
-        self.fields.get('rules').initial = 'Need to change to value from MongDB'
+        instance = kwargs.get('instance')
+        rules = STORAGE.get_rule(instance.slug)
+        self.fields.get('rules').initial = rules
+
+    def save(self, commit, *args, **kwargs):
+        m = super(AchievementForm, self).save(commit=False)
+        STORAGE.upsert_rule(
+            self.cleaned_data.get('slug'),
+            self.cleaned_data.get('rules')
+        )
+        if commit:
+            m.save()
+        return m
 
     class Meta:
         model = Achievement
