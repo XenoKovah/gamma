@@ -15,6 +15,14 @@ class Command(BaseCommand):
         )
         db = client[settings.MONGO_DB_NAME]
 
+        username = settings.MONGODB_CONF.get('USERNAME')
+        password = settings.MONGODB_CONF.get('PASSWORD')
+
+        if username and password:
+            db.authenticate(
+                username, password, source=settings.MONGO_DB_NAME
+            )
+
         settings_collection = db[settings.MONGO_SETTINGS_COLLECTION]
         settings_collection.remove()
         settings_collection.insert_one({"video": 6, "problem": 7, "course": 11})

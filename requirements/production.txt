@@ -1,2 +1,4 @@
 # Packages required for production
 -r base.txt
+
+gunicorn==19.6.0

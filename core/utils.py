@@ -12,6 +12,13 @@ CLIENT = pymongo.MongoClient(
 DB = CLIENT[settings.MONGO_DB_NAME]
 
 
+username = settings.MONGODB_CONF.get('USERNAME')
+password = settings.MONGODB_CONF.get('PASSWORD')
+
+if username and password:
+    DB.authenticate(username, password, source=settings.MONGO_DB_NAME)
+
+
 def find_one_and_update(filter_dict, key, value):
     """
     Find and update Mongo document.

@@ -19,3 +19,12 @@ DATABASES = {
         },
     }
 }
+
+
+# MongoDB configuration
+MONGODB_CONF = {
+    'HOST': 'localhost',
+    'PORT': 27017,
+    'USERNAME': None,
+    'PASSWORD': None
+}

@@ -190,6 +190,8 @@ X_FRAME_OPTIONS = "GOFORIT"
 MONGODB_CONF = {
     'HOST': 'localhost',
     'PORT': 27017,
+    'USERNAME': None,
+    'PASSWORD': None
 }
 
 # Points settings saved in MongoDB

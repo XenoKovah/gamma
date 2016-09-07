@@ -23,6 +23,14 @@ CLIENT = client = MongoClient(
 )
 DB = CLIENT[settings.MONGO_DB_NAME]
 
+username = settings.MONGODB_CONF.get('USERNAME')
+password = settings.MONGODB_CONF.get('PASSWORD')
+
+if username and password:
+    DB.authenticate(
+        username, password, source=settings.MONGO_DB_NAME
+    )
+
 
 class GameProfileView(APIView):
     """
