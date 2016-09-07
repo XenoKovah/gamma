@@ -18,8 +18,9 @@ class AchievementForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(AchievementForm, self).__init__(*args, **kwargs)
         instance = kwargs.get('instance')
-        rules = STORAGE.get_rule(instance.slug)
-        self.fields.get('rules').initial = rules
+        if instance:
+            rules = STORAGE.get_rule(instance.slug)
+            self.fields.get('rules').initial = rules
 
     def save(self, commit, *args, **kwargs):
         m = super(AchievementForm, self).save(commit=False)

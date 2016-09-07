@@ -1,11 +1,5 @@
-from abc import ABCMeta
-
 import pymongo
 from django.conf import settings
-
-
-class AchievementRulesABS(metaclass=ABCMeta):
-    pass
 
 
 class AchievementRulesMongo:
