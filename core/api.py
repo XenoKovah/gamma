@@ -70,7 +70,10 @@ class GameProfileView(APIView):
             )
 
         if not LoggedEvent.objects.filter(
-            uniq_id=uniq_id, user=user, event_type=event_type
+            uniq_id=uniq_id,
+            user=user,
+            event_type=event_type,
+            client=request.client
         ).exists():
             points_settings = DB[settings.MONGO_SETTINGS_COLLECTION]
             points_map = points_settings.find_one()
@@ -95,7 +98,8 @@ class GameProfileView(APIView):
                 uniq_id=uniq_id,
                 user=user,
                 event_type=event_type,
-                points=game_profile.points
+                points=game_profile.points,
+                client=request.client
             )
             log_event.save()
 

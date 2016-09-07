@@ -13,5 +13,7 @@ class KeySecretAuthentication(authentication.BaseAuthentication):
 
         try:
             app_client = AppClient.objects.get(key=app_key, secret=app_secret)
+            # Adding client for event tracking
+            request.client = app_client
         except AppClient.DoesNotExist:
             raise exceptions.AuthenticationFailed('Please provide APP_KEY and APP_SECRET')
