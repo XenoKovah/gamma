@@ -1,3 +1,5 @@
+import json
+
 from django import forms
 
 from .models import Achievement
@@ -19,18 +21,31 @@ class AchievementForm(forms.ModelForm):
         super(AchievementForm, self).__init__(*args, **kwargs)
         instance = kwargs.get('instance')
         if instance:
-            rules = STORAGE.get_rule(instance.slug)
+            rules = json.dumps(STORAGE.get_rule(instance.slug))
             self.fields.get('rules').initial = rules
 
     def save(self, commit, *args, **kwargs):
         m = super(AchievementForm, self).save(commit=False)
         STORAGE.upsert_rule(
             self.cleaned_data.get('slug'),
-            self.cleaned_data.get('rules')
+            json.loads(self.cleaned_data.get('rules'))
         )
         if commit:
             m.save()
         return m
+
+    def clean_rules(self):
+        """
+        Validate input data to be convetable to JSON.
+        """
+        data = self.cleaned_data['rules']
+
+        try:
+            json_data = json.loads(data)
+        except Exception:
+            raise forms.ValidationError("Invalid data in rules field")
+
+        return data
 
     class Meta:
         model = Achievement
