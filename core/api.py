@@ -15,6 +15,7 @@ from .utils import find_one_and_update, get_progress
 from .authentication import KeySecretAuthentication
 
 from pointlog.models import LoggedEvent
+from pointlog.tasks import check_user_achievements
 
 
 CLIENT = client = MongoClient(
@@ -84,7 +85,9 @@ class GameProfileView(APIView):
             # Update point value in mongo
             find_one_and_update(
                 filter_dict={
-                    'date': datetime.strptime(str(datetime.now().date()), '%Y-%m-%d'),
+                    'date': datetime.strptime(
+                        str(datetime.now().date()), '%Y-%m-%d'
+                    ),
                     'username': user.username
                 },
                 key='points',
@@ -103,6 +106,10 @@ class GameProfileView(APIView):
             )
             log_event.save()
 
+            # emit celery task to check for achivement
+            check_user_achievements.apply_async(
+                (user.id, event_type), countdown=30
+            )
             return Response(serializer.data)
         else:
             return Response(

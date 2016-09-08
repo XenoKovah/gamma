@@ -31,7 +31,7 @@ class UserAchievement(models.Model):
     """
     Custom ManyToMany model for User<=>Achievements relation.
     """
-    date = models.DateTimeField()
+    date = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User)
     achievement = models.ForeignKey(Achievement)
 

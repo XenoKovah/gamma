@@ -25,9 +25,13 @@ class AchievementRulesMongo:
         """
         Return rules for particular achievement.
         """
-        return self.collection.find_one(
-            {'slug': achievement_slug}
-        ).get('rules')
+        try:
+            rules = self.collection.find_one(
+                {'slug': achievement_slug}
+            ).get('rules')
+        except Exception:
+            rules = None
+        return rules
 
     def upsert_rule(self, achievement_slug, rules):
         try:

@@ -208,6 +208,10 @@ MEDIA_URL = '/media/'
 
 BROKER_URL = 'amqp://guest:guest@localhost//'
 
+# For testing purpose we can use amqp BACKEND
+# uncomment this for development purpose
+# CELERY_RESULT_BACKEND = 'amqp'
+
 #: Only add pickle to this list if your broker is secured
 #: from unwanted access (see userguide/security.html)
 CELERY_ACCEPT_CONTENT = ['json']
