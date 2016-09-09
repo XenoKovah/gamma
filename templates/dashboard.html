@@ -7,6 +7,9 @@
 <main class="mdl-layout__content mdl-color--grey-100">
   <div class="mdl-grid demo-content">
     You need to authenticate in order to see you achievements.
+    <div class="login-button-container">
+        <a href="{% url 'login' %}"><button type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">{% trans "Login" %}</button></a>
+    </div>
   </div>
 </main>
 
