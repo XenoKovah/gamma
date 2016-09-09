@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n fb_versions %}
 {% block content %}
 
 {% if not user.is_authenticated %}
@@ -26,7 +26,7 @@
       <div class="user-achivement-list"></div>
           {% for achievement in user_achievements %}
               <div class="user-achivement">
-                  <img src="{{ achievement.achievement.badge_image.url }}"
+                  <img src="{% version achievement.achievement.badge_img 'small' %}"
                        title="{{ achievement.achievement.description }}"
                   />
                   <p>{{ achievement.achievement.name }}</p>

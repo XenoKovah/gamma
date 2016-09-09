@@ -21,6 +21,7 @@ from django.contrib import admin
 from django.views.generic import TemplateView, RedirectView
 from django.core.urlresolvers import reverse_lazy
 from django.contrib.auth.views import logout
+from filebrowser.sites import site
 
 from core.api import GameProfileView, ProgressView
 from core.views import DashboardView
@@ -28,6 +29,8 @@ from core.views import DashboardView
 
 urlpatterns = [
     url(r'^$', DashboardView.as_view()),
+    url(r'^admin/filebrowser/', include(site.urls)),
+    url(r'^grappelli/', include('grappelli.urls')),
     url(r'^admin/', admin.site.urls),
 
     # Django Rest Framework
