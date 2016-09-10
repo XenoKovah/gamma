@@ -6,3 +6,4 @@ gamma/static/
 gamma/media/
 .idea
 .DS_Store
+.coverage

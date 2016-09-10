@@ -1,4 +1,7 @@
 # Packages required for tests
 -r base.txt
 
-pytest==2.9.2
+pytest
+pytest-django
+pytest-cov
+pytest-xdist
