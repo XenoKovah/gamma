@@ -25,7 +25,7 @@ class Command(BaseCommand):
 
         settings_collection = db[settings.MONGO_SETTINGS_COLLECTION]
         settings_collection.remove()
-        settings_collection.insert_one({"video": 6, "problem": 7, "course": 11})
+        settings_collection.insert_one({"video": 6, "problem": 7, "course": 11, 'enrollment': 5})
 
         # rules_collection = db[settings.MONGO_RULES_COLLECTION]
         # default_rules = {

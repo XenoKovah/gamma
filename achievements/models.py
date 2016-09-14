@@ -7,6 +7,7 @@ BADGE_TYPE_CHOICES = (
     ('video', 'video'),
     ('problem', 'problem'),
     ('course', 'course'),
+    ('enrollment', 'enrollment'),
 )
 
 
