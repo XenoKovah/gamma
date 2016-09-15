@@ -23,13 +23,14 @@ def check_user_achievements(user_id, event_type):
     Task should be delayed for 30 seconds.
     Called on incoming request for particular event type.
     """
-    connector = AchievementRulesMongo()
+    conn = AchievementRulesMongo()
+    conn.connect()
     user = User.objects.get(id=user_id)
     achievement_slug_set = Achievement.objects.filter(
         badge_type=event_type
     ).values_list('slug')
     rules_set = (
-        (slug[0], connector.get_rule(achievement_slug=slug[0]))
+        (slug[0], conn.get_rule(achievement_slug=slug[0]))
         for slug in achievement_slug_set
     )
 

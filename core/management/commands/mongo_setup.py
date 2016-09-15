@@ -4,26 +4,15 @@ from pymongo import MongoClient
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 
+from core.utils import MongoConnector
+
 
 class Command(BaseCommand):
     help = 'Populate MongoDB with default settings.'
 
     def handle(self, *args, **options):
-        client = MongoClient(
-            settings.MONGODB_CONF.get('HOST', 'localhost'),
-            settings.MONGODB_CONF.get('PORT', 27017),
-        )
-        db = client[settings.MONGO_DB_NAME]
-
-        username = settings.MONGODB_CONF.get('USERNAME')
-        password = settings.MONGODB_CONF.get('PASSWORD')
-
-        if username and password:
-            db.authenticate(
-                username, password, source=settings.MONGO_DB_NAME
-            )
-
-        settings_collection = db[settings.MONGO_SETTINGS_COLLECTION]
+        conn = MongoConnector()
+        settings_collection = conn.db[settings.MONGO_SETTINGS_COLLECTION]
         settings_collection.remove()
         settings_collection.insert_one({"video": 6, "problem": 7, "course": 11, 'enrollment': 5})
 

@@ -1,25 +1,19 @@
 import pymongo
 from django.conf import settings
 
+from core.utils import MongoConnector
 
+
+# TODO maybe need to move all this logic to core.utils.MongoConnector
 class AchievementRulesMongo:
     """
     Class to work with Mongo.
     """
-    def __init__(self):
-        client = pymongo.MongoClient(
-            settings.MONGODB_CONF.get('HOST', 'localhost'),
-            settings.MONGODB_CONF.get('PORT', 27017),
-        )
-        db = client[settings.MONGO_DB_NAME]
-
-        username = settings.MONGODB_CONF.get('USERNAME')
-        password = settings.MONGODB_CONF.get('PASSWORD')
-
-        if username and password:
-            db.authenticate(username, password, source=settings.MONGO_DB_NAME)
-
-        self.collection = db[settings.MONGO_RULES_COLLECTION]
+    def connect(self):
+        conn = MongoConnector()
+        self.collection = conn.db[
+            settings.MONGO_RULES_COLLECTION
+        ]
 
     def get_rule(self, achievement_slug):
         """

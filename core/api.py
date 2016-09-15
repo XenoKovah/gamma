@@ -11,26 +11,11 @@ from rest_framework.parsers import JSONParser
 
 from .models import GameProfile
 from .serializers import GameProfileSerializer, ProgressSerializer
-from .utils import find_one_and_update, get_progress
+from .utils import MongoConnector
 from .authentication import KeySecretAuthentication
 
 from pointlog.models import LoggedEvent
 from pointlog.tasks import check_user_achievements
-
-
-CLIENT = client = MongoClient(
-    settings.MONGODB_CONF.get('HOST', 'localhost'),
-    settings.MONGODB_CONF.get('PORT', 27017),
-)
-DB = CLIENT[settings.MONGO_DB_NAME]
-
-username = settings.MONGODB_CONF.get('USERNAME')
-password = settings.MONGODB_CONF.get('PASSWORD')
-
-if username and password:
-    DB.authenticate(
-        username, password, source=settings.MONGO_DB_NAME
-    )
 
 
 class GameProfileView(APIView):
@@ -38,6 +23,8 @@ class GameProfileView(APIView):
     GET or UPDATE user points.
     """
     authentication_classes = (KeySecretAuthentication,)
+
+    conn = MongoConnector()
 
     def put(self, request, *args, **kwargs):
         """
@@ -76,14 +63,14 @@ class GameProfileView(APIView):
             event_type=event_type,
             client=request.client
         ).exists():
-            points_settings = DB[settings.MONGO_SETTINGS_COLLECTION]
+            points_settings = self.conn.db[settings.MONGO_SETTINGS_COLLECTION]
             points_map = points_settings.find_one()
             points_to_update = points_map.get(event_type, 0)
             game_profile.points = F('points') + points_to_update
             # TODO try to avoid duplicate saving in Serializer
             game_profile.save()
             # Update point value in mongo
-            find_one_and_update(
+            self.conn.find_one_and_update(
                 filter_dict={
                     'date': datetime.strptime(
                         str(datetime.now().date()), '%Y-%m-%d'
@@ -134,12 +121,14 @@ class ProgressView(APIView):
     """
     authentication_classes = (KeySecretAuthentication,)
 
+    conn = MongoConnector()
+
     def get(self, request, *args, **kwargs):
         """
         Simply retrieve user GameProfile data.
         """
         user = User.objects.get(username=request.data.get('username'))
-        progress_data = get_progress(user)
+        progress_data = conn.get_progress(user)
         serializer = ProgressSerializer(progress_data, many=True)
 
         return Response(serializer.data)

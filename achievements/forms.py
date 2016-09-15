@@ -21,11 +21,13 @@ class AchievementForm(forms.ModelForm):
         super(AchievementForm, self).__init__(*args, **kwargs)
         instance = kwargs.get('instance')
         if instance:
+            STORAGE.connect()
             rules = json.dumps(STORAGE.get_rule(instance.slug))
             self.fields.get('rules').initial = rules
 
     def save(self, commit, *args, **kwargs):
         m = super(AchievementForm, self).save(commit=False)
+        STORAGE.connect()
         STORAGE.upsert_rule(
             self.cleaned_data.get('slug'),
             json.loads(self.cleaned_data.get('rules'))

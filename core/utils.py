@@ -5,50 +5,77 @@ import pymongo
 from django.conf import settings
 
 
-CLIENT = pymongo.MongoClient(
-    settings.MONGODB_CONF.get('HOST', 'localhost'),
-    settings.MONGODB_CONF.get('PORT', 27017),
-)
-DB = CLIENT[settings.MONGO_DB_NAME]
+class Singleton(object):
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if not isinstance(cls._instance, cls):
+            cls._instance = object.__new__(cls, *args, **kwargs)
+        return cls._instance
 
 
-username = settings.MONGODB_CONF.get('USERNAME')
-password = settings.MONGODB_CONF.get('PASSWORD')
-
-if username and password:
-    DB.authenticate(username, password, source=settings.MONGO_DB_NAME)
-
-
-def find_one_and_update(filter_dict, key, value):
+class MongoConnector(Singleton):
     """
-    Find and update Mongo document.
-
-    Find document in mongo collection by `filter_by` search param
-    and update(increment) particular field by `key`.
+    Mongo connector as singleton object to utilize
+    mongo connection pool.
     """
+    _db = None
 
-    collection = DB[settings.MONGO_PROGRESS_COLLECTION]
-    try:
-        document = collection.find_one_and_update(
-            filter=filter_dict,
-            update={'$inc': {key: value}},
-            upsert=True,
-            return_document=pymongo.ReturnDocument.AFTER
+    @property
+    def db(self):
+        if not self._db:
+            self._mongo_init()
+        return self._db
+
+    def _mongo_init(self):
+        """
+        Set class _db variable.
+        """
+        client = pymongo.MongoClient(
+            settings.MONGODB_CONF.get('HOST', 'localhost'),
+            settings.MONGODB_CONF.get('PORT', 27017),
         )
-    except Exception as e:
-        # TODO configure Django Logging for this case
-        print(e)
+        self._db = client[settings.MONGO_DB_NAME]
 
+        username = settings.MONGODB_CONF.get('USERNAME')
+        password = settings.MONGODB_CONF.get('PASSWORD')
 
-def get_progress(user):
-    """
-    Get progress data from MongoDB.
-    """
-    collection = DB[settings.MONGO_PROGRESS_COLLECTION]
-    progress_data = collection.find(
-        {"username": user.username}, {"date": 1, "points": 1, "_id": 0}
-    ).sort("date", pymongo.DESCENDING).limit(7)
-    return progress_data
+        if username and password:
+            self._db.authenticate(username, password, source=settings.MONGO_DB_NAME)
+
+    def find_one_and_update(self, filter_dict, key, value):
+        """
+        Find and update Mongo document.
+
+        Find document in mongo collection by `filter_by` search param
+        and update(increment) particular field by `key`.
+        """
+
+        collection = self.db[
+            settings.MONGO_PROGRESS_COLLECTION
+        ]
+        try:
+            document = collection.find_one_and_update(
+                filter=filter_dict,
+                update={'$inc': {key: value}},
+                upsert=True,
+                return_document=pymongo.ReturnDocument.AFTER
+            )
+        except Exception as e:
+            # TODO configure Django Logging for this case
+            print(e)
+
+    def get_progress(self, user):
+        """
+        Get progress data from MongoDB.
+        """
+        collection = self.db[
+            settings.MONGO_PROGRESS_COLLECTION
+        ]
+        progress_data = collection.find(
+            {"username": user.username}, {"date": 1, "points": 1, "_id": 0}
+        ).sort("date", pymongo.DESCENDING).limit(7)
+        return progress_data
 
 
 def key_secret_generator():
