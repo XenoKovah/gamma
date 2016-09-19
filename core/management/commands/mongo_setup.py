@@ -14,22 +14,11 @@ class Command(BaseCommand):
         conn = MongoConnector()
         settings_collection = conn.db[settings.MONGO_SETTINGS_COLLECTION]
         settings_collection.remove()
-        settings_collection.insert_one({"video": 6, "problem": 7, "course": 11, 'enrollment': 5})
-
-        # rules_collection = db[settings.MONGO_RULES_COLLECTION]
-        # default_rules = {
-        #     "date": datetime.now(),
-        #     "type": None,
-        #     "badges": [
-        #         {
-        #             "badge_slug": "default_slug",
-        #             "rule": {"count": 10, "type": "default_type"}
-        #         }
-        #     ]
-        # }
-        # for event_type in ('video', 'unit', 'course'):
-        #     default_rules['type'] = event_type
-        #     rules_collection.insert_one(default_rules)
-        #     del(default_rules['_id'])
-
+        settings_collection.insert_one({
+            "video": 6,
+            "problem": 7,
+            "course": 11,
+            "enrollment": 5,
+            "referrer": 10
+        })
         self.stdout.write(self.style.SUCCESS('Mongo was successfully populated'))
