@@ -28,15 +28,34 @@
       <h4>{% trans "Your Achievements"%}</h4>
       <div class="user-achivement-list"></div>
           {% for achievement in user_achievements %}
-              <div class="user-achivement">
-                  <img src="{% version achievement.achievement.badge_img 'small' %}"
-                       title="{{ achievement.achievement.description }}"
-                  />
-                  <p>{{ achievement.achievement.name }}</p>
-              </div>
+          <div class="user-achivement">
+              <img src="{% version achievement.achievement.badge_img 'small' %}"
+                   title="{{ achievement.achievement.description }}"
+              />
+              <p>{{ achievement.achievement.name }}</p>
+          </div>
           {% endfor %}
       </div>
       {% endif %}
+      <div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
+      {% if rank %}
+      <div class="mdl-card__supporting-text mdl-color-text--grey-600">
+      {% trans "Congrants, you are in top 100! You rank is "%}{{ rank }}
+      {% else %}
+      {% trans "Sorry you rank is out of top 100. You need to learn more!"%}
+      {% endif %}
+      </div>
+      </div>
+      <div class="mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
+          <table>
+          <div class="mdl-card__supporting-text mdl-color-text--grey-600">
+            Progress data
+          </div>
+          {% for data in progress_data %}
+          <tr><td>{{ data.date }}</td><td>{{ data.points }}</td></tr>
+          {% endfor %}
+          </table>
+      </div>
     <div class="demo-graphs mdl-shadow--2dp mdl-color--white mdl-cell mdl-cell--8-col">
       <svg fill="currentColor" viewBox="0 0 500 250" class="demo-graph">
         <use xlink:href="#chart" />
