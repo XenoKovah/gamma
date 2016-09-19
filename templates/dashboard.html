@@ -25,7 +25,9 @@
     </div>
       <div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
       {% if user_achievements|length %}
-      <h4>{% trans "Your Achievements"%}</h4>
+      <div class="mdl-card__supporting-text mdl-color-text--grey-600">
+        {% trans "Your Achievements"%}
+      </div>
       <div class="user-achivement-list"></div>
           {% for achievement in user_achievements %}
           <div class="user-achivement">
