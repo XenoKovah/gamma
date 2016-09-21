@@ -1,3 +1,5 @@
+import json
+
 from django.shortcuts import render
 from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -16,6 +18,8 @@ class DashboardView(View):
         user_achievements, rank, progress_data = None, None, None
         if request.user.is_authenticated():
             progress_data = self.conn.get_progress(request.user)
+            data = self.conn.get_charted_progress(request.user)
+            charted_progress = [[_type, points] for _type, points in data.items()]
             user_achievements = request.user.userachievement_set.select_related('achievement').all()
             top = [
                 _id
@@ -28,6 +32,7 @@ class DashboardView(View):
                 pass
         return render(request, 'dashboard.html', {
             'progress_data': progress_data,
+            'charted_progress': charted_progress,
             'rank': rank,
             'user_achievements': user_achievements
         })

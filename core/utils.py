@@ -43,17 +43,21 @@ class MongoConnector(Singleton):
         if username and password:
             self._db.authenticate(username, password, source=settings.MONGO_DB_NAME)
 
-    def find_one_and_update(self, filter_dict, key, value):
+    def find_one_and_update(self, filter_dict, key, value, event_type=None):
         """
         Find and update Mongo document.
 
         Find document in mongo collection by `filter_by` search param
         and update(increment) particular field by `key`.
         """
-
-        collection = self.db[
-            settings.MONGO_PROGRESS_COLLECTION
-        ]
+        if event_type:
+            collection = self.db[
+                settings.MONGO_CHARTED_PROGRESS
+            ]
+        else:
+            collection = self.db[
+                settings.MONGO_PROGRESS_COLLECTION
+            ]
         try:
             document = collection.find_one_and_update(
                 filter=filter_dict,
@@ -76,6 +80,16 @@ class MongoConnector(Singleton):
             {"username": user.username}, {"date": 1, "points": 1, "_id": 0}
         ).sort("date", pymongo.DESCENDING).limit(7)
         return progress_data
+
+    def get_charted_progress(self, user):
+        collection = self.db[
+            settings.MONGO_CHARTED_PROGRESS
+        ]
+        charted_progress = collection.find_one(
+            {"username": user.username},
+            {"video": 1, "course": 1, "problem": 1, "enrollment": 1, "referrer": 1, "_id": 0}
+        )
+        return charted_progress
 
 
 def key_secret_generator():

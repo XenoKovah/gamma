@@ -71,6 +71,8 @@ class GameProfileView(APIView):
             game_profile.points = F('points') + points_to_update
             # TODO try to avoid duplicate saving in Serializer
             game_profile.save()
+
+            # TODO move this action to Celery
             # Update point value in mongo
             self.conn.find_one_and_update(
                 filter_dict={
@@ -82,6 +84,16 @@ class GameProfileView(APIView):
                 key='points',
                 value=points_to_update
             )
+            # TODO refactor this
+            self.conn.find_one_and_update(
+                filter_dict={
+                    'username': user.username
+                },
+                key=event_type,
+                value=points_to_update,
+                event_type='chart'
+            )
+
             game_profile = GameProfile.objects.get(user=user)
             serializer = GameProfileSerializer(game_profile)
 

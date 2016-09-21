@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n fb_versions %}
+{% load i18n fb_versions googlecharts %}
 {% block content %}
 
 {% if not user.is_authenticated %}
@@ -14,6 +14,21 @@
 </main>
 
 {% else %}
+
+{% googlecharts %}
+{% data charted_progress "out_data" %}
+    {% col "string" "Name" %}"{{ val }}"{% endcol %}
+    {% col "number" "Value" %}{{ val }}{% endcol %}
+{% enddata %}
+{% options "out_options" %}
+    kind: "PieChart",
+    options: {
+        width: 600,
+        height: 480
+    }
+{% endoptions %}
+{% graph "out" "out_data" "out_options" %}
+{% endgooglecharts %}
 
 <main class="mdl-layout__content mdl-color--grey-100">
   <div class="mdl-grid demo-content">
@@ -57,6 +72,9 @@
           <tr><td>{{ data.date }}</td><td>{{ data.points }}</td></tr>
           {% endfor %}
           </table>
+      </div>
+      <div class="mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
+          <div id="out"></div>
       </div>
     <div class="demo-graphs mdl-shadow--2dp mdl-color--white mdl-cell mdl-cell--8-col">
       <svg fill="currentColor" viewBox="0 0 500 250" class="demo-graph">

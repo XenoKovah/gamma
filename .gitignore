@@ -8,3 +8,4 @@ gamma/media/
 .DS_Store
 .coverage
 *cache*
+*.log

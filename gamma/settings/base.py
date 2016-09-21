@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'core',
     'achievements',
     'pointlog',
+    'googlecharts',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -202,6 +203,7 @@ MONGODB_CONF = {
 MONGO_SETTINGS_COLLECTION = "points_settings"
 MONGO_DB_NAME = "gamma"
 MONGO_PROGRESS_COLLECTION = "progress"
+MONGO_CHARTED_PROGRESS = "charted_progress"
 MONGO_RULES_COLLECTION = "rules"
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
