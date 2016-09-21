@@ -14,7 +14,7 @@
 </main>
 
 {% else %}
-
+{% if charted_progress %}
 {% googlecharts %}
 {% data charted_progress "out_data" %}
     {% col "string" "Name" %}"{{ val }}"{% endcol %}
@@ -29,6 +29,7 @@
 {% endoptions %}
 {% graph "out" "out_data" "out_options" %}
 {% endgooglecharts %}
+{% endif %}
 
 <main class="mdl-layout__content mdl-color--grey-100">
   <div class="mdl-grid demo-content">
