@@ -43,10 +43,11 @@ class GameProfileView(APIView):
         try:
             user = User.objects.get(username=request.data.get('username'))
         except User.DoesNotExist:
-            return Response(
-                {"Error": "User not found"},
-                status=status.HTTP_406_NOT_ACCEPTABLE
-            )
+            # Creating User instance
+            # In a future user can login with SSO
+            # Need to test it
+            user = User(username=request.data.get('username'))
+            user.save()
         game_profile = GameProfile.objects.get(user=user)
         event_type = self.request.data.get('event_type')
         uniq_id = self.request.data.get('uid')
