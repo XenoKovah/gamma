@@ -56,9 +56,6 @@ class GameProfileView(APIView):
                 {"Error": "UID field is mandatory"},
                 status=status.HTTP_406_NOT_ACCEPTABLE
             )
-
-        # TODO uniq_id can be not uniq for different clients
-        # TODO need to fix this
         if not LoggedEvent.objects.filter(
             uniq_id=uniq_id,
             user=user,

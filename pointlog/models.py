@@ -18,4 +18,4 @@ class LoggedEvent(models.Model):
     client = models.ForeignKey(AppClient, null=True)
 
     class Meta:
-        unique_together = ('uniq_id', 'client')
+        unique_together = ('user', 'uniq_id', 'client')
