@@ -11,6 +11,8 @@ class Command(BaseCommand):
     help = 'Populate MongoDB with default settings.'
 
     def handle(self, *args, **options):
+        self.stdout.write(self.style.SUCCESS('This command is deprecated.'))
+        return
         conn = MongoConnector()
         settings_collection = conn.db[settings.MONGO_SETTINGS_COLLECTION]
         settings_collection.remove()

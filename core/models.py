@@ -20,3 +20,16 @@ class AppClient(models.Model):
     name = models.CharField(max_length=32, unique=True)
     key = models.CharField(max_length=32, unique=True, db_index=True, default=key_secret_generator)
     secret = models.CharField(max_length=32, unique=True, default=key_secret_generator)
+
+
+class Event(models.Model):
+    """
+    Configiration for incomming event.
+
+    Such as points to give for particular event.
+    """
+    event_type = models.CharField(max_length=16, unique=True)
+    award = models.PositiveSmallIntegerField(verbose_name='Points to award')
+
+    def __unicode__(self):
+        return "{0}: {1} points".format(self.event_type, self.award)

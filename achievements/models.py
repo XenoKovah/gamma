@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from filebrowser.fields import FileBrowseField
 
+from core.models import Event
+
 
 BADGE_TYPE_CHOICES = (
     ('video', 'video'),
@@ -24,6 +26,7 @@ class Achievement(models.Model):
     badge_id = models.CharField(max_length=64, blank=True)
     description = models.TextField(blank=True, null=True)
     badge_type = models.CharField(max_length=64, choices=BADGE_TYPE_CHOICES)
+    event = models.ForeignKey(Event, null=True, verbose_name='Related event')
     badge_img = FileBrowseField(
         "Image",
         max_length=200,

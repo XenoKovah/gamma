@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
 
-from .models import GameProfile
+from .models import GameProfile, Event
 from .serializers import GameProfileSerializer, ProgressSerializer
 from .utils import MongoConnector
 from .authentication import KeySecretAuthentication
@@ -63,53 +63,57 @@ class GameProfileView(APIView):
             event_type=event_type,
             client=request.client
         ).exists():
-            points_settings = self.conn.db[settings.MONGO_SETTINGS_COLLECTION]
-            points_map = points_settings.find_one()
-            points_to_update = points_map.get(event_type, 0)
-            game_profile.points = F('points') + points_to_update
-            # TODO try to avoid duplicate saving in Serializer
-            game_profile.save()
+            event = Event.objects.filter(event_type=event_type).first()
+            if event and event.award:
+                game_profile.points = F('points') + event.award
+                # TODO try to avoid duplicate saving in Serializer
+                game_profile.save()
 
-            # TODO move this action to Celery
-            # Update point value in mongo
-            self.conn.find_one_and_update(
-                filter_dict={
-                    'date': datetime.strptime(
-                        str(datetime.now().date()), '%Y-%m-%d'
-                    ),
-                    'username': user.username
-                },
-                key='points',
-                value=points_to_update
-            )
-            # TODO refactor this
-            self.conn.find_one_and_update(
-                filter_dict={
-                    'username': user.username
-                },
-                key=event_type,
-                value=points_to_update,
-                event_type='chart'
-            )
+                # TODO move this action to Celery
+                # Update point value in mongo
+                self.conn.find_one_and_update(
+                    filter_dict={
+                        'date': datetime.strptime(
+                            str(datetime.now().date()), '%Y-%m-%d'
+                        ),
+                        'username': user.username
+                    },
+                    key='points',
+                    value=event.award
+                )
+                # TODO refactor this
+                self.conn.find_one_and_update(
+                    filter_dict={
+                        'username': user.username
+                    },
+                    key=event_type,
+                    value=event.award,
+                    event_type='chart'
+                )
 
-            game_profile = GameProfile.objects.get(user=user)
-            serializer = GameProfileSerializer(game_profile)
+                game_profile = GameProfile.objects.get(user=user)
+                serializer = GameProfileSerializer(game_profile)
 
-            # Logging this event to prevent repeating
-            log_event = LoggedEvent(
-                uniq_id=uniq_id,
-                user=user,
-                event_type=event_type,
-                points=game_profile.points,
-                client=request.client
-            )
-            log_event.save()
+                # Logging this event to prevent repeating
+                log_event = LoggedEvent(
+                    uniq_id=uniq_id,
+                    user=user,
+                    event_type=event_type,
+                    points=game_profile.points,
+                    client=request.client
+                )
+                log_event.save()
 
-            # emit celery task to check for achivement
-            check_user_achievements.apply_async(
-                (user.id, event_type), countdown=30
-            )
-            return Response(serializer.data)
+                # emit celery task to check for achivement
+                check_user_achievements.apply_async(
+                    (user.id, event_type), countdown=30
+                )
+                return Response(serializer.data)
+            else:
+                return Response(
+                    {"Error": "Event type is not recognizable"},
+                    status.HTTP_406_NOT_ACCEPTABLE
+                )
         else:
             return Response(
                 {"Error": "Repeated event occurs"},
