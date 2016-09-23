@@ -105,9 +105,11 @@ class GameProfileView(APIView):
                 log_event.save()
 
                 # emit celery task to check for achivement
-                check_user_achievements.apply_async(
-                    (user.id, event_type), countdown=30
-                )
+                # TODO uncomment after demo
+                # check_user_achievements.apply_async(
+                #     (user.id, event_type), countdown=30
+                # )
+                check_user_achievements(user.id, event_type)
                 return Response(serializer.data)
             else:
                 return Response(
