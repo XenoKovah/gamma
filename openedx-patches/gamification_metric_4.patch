@@ -1,0 +1,77 @@
+From 33a874611dd8127ff6ae20d7ce241a45e8dbb023 Mon Sep 17 00:00:00 2001
+From: Maksim Sokolskiy <misokolsky@gmail.com>
+Date: Thu, 22 Sep 2016 19:44:50 +0300
+Subject: [PATCH] fix(gamification_metric): fix celery task calling
+
+Changes:
+- call `delay` method instead of direct call using `__call__`
+---
+ common/djangoapps/gamification_metric/signals.py | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/common/djangoapps/gamification_metric/signals.py b/common/djangoapps/gamification_metric/signals.py
+index 5cc14e4..b16d31a 100644
+--- a/common/djangoapps/gamification_metric/signals.py
++++ b/common/djangoapps/gamification_metric/signals.py
+@@ -25,7 +25,7 @@ def send_achievement(sender, instance, **kwargs):
+             'event_type': instance.module_type,
+             'uid': unicode(instance.module_state_key),
+         }
+-        send_api_request(data)
++        send_api_request.delay(data)
+ 
+ 
+ @receiver(post_save, sender='student.CourseEnrollment')
+@@ -38,7 +38,7 @@ def send_enroll_achievement(sender, instance, created, **kwargs):
+             'event_type': 'enrollment',
+             'uid': '{}_{}'.format(instance.user.pk, course_id),
+         }
+-        send_api_request(data)
++        send_api_request.delay(data)
+ 
+         activated_link = ActivatedLinks.objects.filter(
+             user=instance.user,
+@@ -53,7 +53,7 @@ def send_enroll_achievement(sender, instance, created, **kwargs):
+                 'event_type': 'referrer',
+                 'uid': uid
+             }
+-            send_api_request(data)
++            send_api_request.delay(data)
+             activated_link.used = True
+             # TODO uncomment this after debug finishing
+             # activated_link.save()
+@@ -68,4 +68,4 @@ def send_certificate_generation(sender, instance, created, **kwargs):
+             'event_type': 'course',
+             'uid': '{}_{}'.format(instance.user.pk, course_id),
+         }
+-        send_api_request(data)
++        send_api_request.delay(data)
+-- 
+2.5.0
+
+From 3e154a66a46f1ccdf81f343274068b68b54534cc Mon Sep 17 00:00:00 2001
+From: Maksim Sokolskiy <misokolsky@gmail.com>
+Date: Fri, 23 Sep 2016 15:11:01 +0300
+Subject: [PATCH] fix(gamificartion_metric): remove `course` from searched
+ `module_type`'s
+
+---
+ common/djangoapps/gamification_metric/signals.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/common/djangoapps/gamification_metric/signals.py b/common/djangoapps/gamification_metric/signals.py
+index b16d31a..8279a3e 100644
+--- a/common/djangoapps/gamification_metric/signals.py
++++ b/common/djangoapps/gamification_metric/signals.py
+@@ -14,7 +14,7 @@ from referrals.models import ActivatedLinks
+ 
+ @receiver(post_save, sender='courseware.StudentModule')
+ def send_achievement(sender, instance, **kwargs):
+-    if instance.module_type in ('video', 'problem', 'course'):
++    if instance.module_type in ('video', 'problem'):
+         if instance.module_type == 'video' and (instance.modified - instance.created).total_seconds() <= 1:
+             return None
+         if instance.module_type == 'problem' and (not instance.grade or type(instance.grade) != float):
+-- 
+2.5.0
+
