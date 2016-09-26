@@ -155,7 +155,12 @@ chart.draw(data, options);
             <a href="http://blog.appliedmaterials.com/" target="_blank">Blog</a>
         </li>
         <li class="leaf"><a href="http://www.appliedmaterials.com/customer-portal">Customer Portals</a></li>
-        <li class="last leaf"><a href="http://www.appliedmaterials.com/suppliers">Supplier Portal</a></li>
+        <li class="leaf"><a href="http://www.appliedmaterials.com/suppliers">Supplier Portal</a></li>
+        {% if not user.is_authenticated %}
+        <li class="last leaf"><a href="{% url 'login' %}">{% trans "Login" %}</a></li>
+        {% else %}
+        <li class="last leaf"><a href="{% url 'logout' %}">{% trans "Logout" %}</a></li>
+        {% endif %}
     </ul>
     <section id="navbar" class="main-navigation navbar navbar-static-top visible-desktop clearfix">
         <div class="navbar">
