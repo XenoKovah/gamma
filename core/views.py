@@ -31,7 +31,7 @@ class DashboardView(View):
                 rank = top.index(request.user.gameprofile.id) + 1
             except ValueError:
                 pass
-        return render(request, 'dashboard.html', {
+        return render(request, 'dashboard_new.html', {
             'progress_data': progress_data,
             'charted_progress': charted_progress,
             'rank': rank,
