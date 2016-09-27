@@ -6,9 +6,11 @@ def selenium(selenium):
     return selenium
 
 
-def test_one(selenium):
-    selenium.get("http://www.python.org")
-
-
-def test_two(selenium):
-    selenium.get("http://www.google.com")
+def test_root(selenium, live_server, mongo_server, settings):
+    settings.MONGODB_CONF = {
+        'HOST': 'localhost',
+        'PORT': mongo_server,
+        'USERNAME': None,
+        'PASSWORD': None
+    }
+    selenium.get(live_server.url)

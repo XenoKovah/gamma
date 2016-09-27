@@ -1,58 +1,103 @@
-"""
-Module to test mongo setup.
-"""
-
-import time
-import uuid
-import socket
+import random
+from datetime import datetime
 
 import pytest
-import docker as libdocker
+import pymongo
 from django.core.management import call_command
-from django.conf import settings
+
+from core.utils import MongoConnector, key_secret_generator
 
 
 @pytest.fixture(scope='session')
-def unused_port():
-    def factory():
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.bind(('127.0.0.1', 0))
-        return s.getsockname()[1]
-    return factory
+def mongo_conn():
+    return MongoConnector()
 
 
 @pytest.fixture(scope='session')
-def session_id():
-    return str(uuid.uuid4())
+def current_date():
+    return datetime.strptime(
+        str(datetime.now().date()), '%Y-%m-%d'
+    )
 
 
 @pytest.fixture(scope='session')
-def docker():
-    return libdocker.Client(version='auto')
+def random_points():
+    return random.randint(1, 20)
 
 
-@pytest.yield_fixture(scope='session')
-def mongo_server(unused_port, session_id, docker):
-    docker.pull('redis:latest')
-    port = unused_port()
-    container = docker.create_container(
-        image='mongo:latest',
-        name='test-mongo-{}'.format(session_id),
-        ports=[27017],
-        detach=True,
-        host_config=docker.create_host_config(
-            port_bindings={27017: port}))
-    docker.start(container=container['Id'])
-    yield port
-    docker.kill(container=container['Id'])
-    docker.remove_container(container['Id'])
-
-
-def test_mongo(mongo_server):
+def test_mongo(mongo_server, settings):
+    """
+    Testing general mongo flow and `mongo_setup` command.
+    """
     settings.MONGODB_CONF = {
         'HOST': 'localhost',
         'PORT': mongo_server,
         'USERNAME': None,
         'PASSWORD': None
-      }
+    }
     call_command('mongo_setup')
+
+
+def test_progress(mongo_server, settings, mongo_conn, admin_user, current_date, random_points):
+    """
+    Test setting/getting progress documents.
+    """
+    settings.MONGODB_CONF = {
+        'HOST': 'localhost',
+        'PORT': mongo_server,
+        'USERNAME': None,
+        'PASSWORD': None
+    }
+    assert isinstance(mongo_conn.db, pymongo.database.Database)
+    mongo_conn.find_one_and_update(
+        filter_dict={
+            'date': current_date,
+            'username': admin_user.username
+        },
+        key='points',
+        value=random_points
+    )
+    progress = mongo_conn.get_progress(admin_user)
+    assert isinstance(progress, pymongo.cursor.Cursor)
+
+    for item in progress:
+        assert admin_user.username not in item
+        assert item['date'] == current_date
+        assert item['points'] == random_points
+
+
+def test_charted(mongo_server, settings, mongo_conn, admin_user, random_points):
+    """
+    Test setting/getting charted progress documents.
+    """
+    settings.MONGODB_CONF = {
+        'HOST': 'localhost',
+        'PORT': mongo_server,
+        'USERNAME': None,
+        'PASSWORD': None
+    }
+    mongo_conn.find_one_and_update(
+        filter_dict={
+            'username': admin_user.username
+        },
+        key='video',
+        value=random_points,
+        event_type='chart'
+    )
+    charted = mongo_conn.get_charted_progress(admin_user)
+    assert isinstance(charted, dict)
+    assert admin_user.username not in charted
+    assert charted['video'] == random_points
+
+
+def test_key_gen():
+    """
+    Test key/secret generator.
+    """
+    prev = key_secret_generator()
+    for i in range(100):
+        secret = key_secret_generator()
+        assert isinstance(secret, str)
+        assert len(secret) >= 15
+        assert secret != prev
+        prev = secret

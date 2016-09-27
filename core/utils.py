@@ -72,6 +72,9 @@ class MongoConnector(Singleton):
     def get_progress(self, user):
         """
         Get progress data from MongoDB.
+
+        # TODO change this to request username as string
+        user: Django User isinstance
         """
         collection = self.db[
             settings.MONGO_PROGRESS_COLLECTION
