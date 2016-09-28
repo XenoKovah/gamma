@@ -11,7 +11,7 @@ from rest_framework.parsers import JSONParser
 
 from .models import GameProfile, Event
 from .serializers import GameProfileSerializer, ProgressSerializer
-from .utils import MongoConnector
+from .services import MongoConnector
 from .authentication import KeySecretAuthentication
 
 from pointlog.models import LoggedEvent
@@ -126,7 +126,12 @@ class GameProfileView(APIView):
         """
         Simply retrieve user GameProfile data.
         """
-        user = User.objects.get(username=request.data.get('username'))
+        user = User.objects.filter(username=request.data.get('username')).first()
+        if not user:
+            return Response(
+                {"Error": "User not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
         game_profile = GameProfile.objects.get(user=user)
         serializer = GameProfileSerializer(game_profile)
 
@@ -145,8 +150,13 @@ class ProgressView(APIView):
         """
         Simply retrieve user GameProfile data.
         """
-        user = User.objects.get(username=request.data.get('username'))
-        progress_data = conn.get_progress(user)
+        user = User.objects.filter(username=request.data.get('username')).first()
+        if not user:
+            return Response(
+                {"Error": "User not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        progress_data = self.conn.get_progress(user)
         serializer = ProgressSerializer(progress_data, many=True)
 
         return Response(serializer.data)

@@ -4,7 +4,7 @@ from django.shortcuts import render
 from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from .utils import MongoConnector
+from .services import MongoConnector
 from .models import GameProfile
 
 

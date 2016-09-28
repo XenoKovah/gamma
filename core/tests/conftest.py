@@ -2,11 +2,15 @@ import time
 import uuid
 import socket
 import random
+import string
 from datetime import datetime
 
 import pytest
 import requests
 import docker as libdocker
+
+from core.services import MongoConnector
+from core.models import AppClient, Event
 
 
 @pytest.fixture(scope='session')
@@ -45,3 +49,40 @@ def mongo_server(unused_port, session_id, docker):
     yield port
     docker.kill(container=container['Id'])
     docker.remove_container(container['Id'])
+
+
+@pytest.fixture(scope='session')
+def mongo_conn():
+    return MongoConnector()
+
+
+@pytest.fixture(scope='function')
+def award():
+    return random.randint(1, 20)
+
+
+@pytest.fixture(scope='function')
+def rand_str():
+    chars = string.ascii_uppercase + string.digits
+    return ''.join(random.choice(chars) for _ in range(10))
+
+
+@pytest.fixture(scope='function')
+def app_client(rand_str):
+    app_cl = AppClient(name=rand_str)
+    app_cl.save()
+    return app_cl
+
+
+@pytest.fixture(scope='function')
+def event(rand_str, award):
+    ev = Event(event_type=rand_str, award=award)
+    ev.save()
+    return ev
+
+
+@pytest.fixture(scope='session')
+def current_date():
+    return datetime.strptime(
+        str(datetime.now().date()), '%Y-%m-%d'
+    )

@@ -4,7 +4,7 @@ from pymongo import MongoClient
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 
-from core.utils import MongoConnector
+from core.services import MongoConnector
 
 
 class Command(BaseCommand):

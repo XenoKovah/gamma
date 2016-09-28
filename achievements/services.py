@@ -1,10 +1,10 @@
 import pymongo
 from django.conf import settings
 
-from core.utils import MongoConnector
+from core.services import MongoConnector
 
 
-# TODO maybe need to move all this logic to core.utils.MongoConnector
+# TODO maybe need to move all this logic to core.services.MongoConnector
 class AchievementRulesMongo:
     """
     Class to work with Mongo.
