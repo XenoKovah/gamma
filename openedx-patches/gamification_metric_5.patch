@@ -1,0 +1,68 @@
+From fc8f95f4c7839da9a4c9a34e3e1e81435e8d5e19 Mon Sep 17 00:00:00 2001
+From: Maksim Sokolskiy <misokolsky@gmail.com>
+Date: Tue, 4 Oct 2016 14:14:11 +0300
+Subject: [PATCH] fix(gamification_metric): senf api request w/o Celery for
+ testing purpose
+
+---
+ common/djangoapps/gamification_metric/signals.py | 12 ++++++++----
+ common/djangoapps/gamification_metric/tasks.py   |  3 ++-
+ 2 files changed, 10 insertions(+), 5 deletions(-)
+
+diff --git a/common/djangoapps/gamification_metric/signals.py b/common/djangoapps/gamification_metric/signals.py
+index 8279a3e..2b3f50b 100644
+--- a/common/djangoapps/gamification_metric/signals.py
++++ b/common/djangoapps/gamification_metric/signals.py
+@@ -25,7 +25,8 @@ def send_achievement(sender, instance, **kwargs):
+             'event_type': instance.module_type,
+             'uid': unicode(instance.module_state_key),
+         }
+-        send_api_request.delay(data)
++        # Return back using Celery with delay after tesing
++        send_api_request(data)
+ 
+ 
+ @receiver(post_save, sender='student.CourseEnrollment')
+@@ -38,7 +39,8 @@ def send_enroll_achievement(sender, instance, created, **kwargs):
+             'event_type': 'enrollment',
+             'uid': '{}_{}'.format(instance.user.pk, course_id),
+         }
+-        send_api_request.delay(data)
++        # Return back using Celery with delay after tesing
++        send_api_request(data)
+ 
+         activated_link = ActivatedLinks.objects.filter(
+             user=instance.user,
+@@ -53,7 +55,8 @@ def send_enroll_achievement(sender, instance, created, **kwargs):
+                 'event_type': 'referrer',
+                 'uid': uid
+             }
+-            send_api_request.delay(data)
++            # Return back using Celery with delay after tesing
++            send_api_request(data)
+             activated_link.used = True
+             # TODO uncomment this after debug finishing
+             # activated_link.save()
+@@ -68,4 +71,5 @@ def send_certificate_generation(sender, instance, created, **kwargs):
+             'event_type': 'course',
+             'uid': '{}_{}'.format(instance.user.pk, course_id),
+         }
+-        send_api_request.delay(data)
++        # Return back using Celery with delay after tesing
++        send_api_request(data)
+diff --git a/common/djangoapps/gamification_metric/tasks.py b/common/djangoapps/gamification_metric/tasks.py
+index 376b570..df4deea 100644
+--- a/common/djangoapps/gamification_metric/tasks.py
++++ b/common/djangoapps/gamification_metric/tasks.py
+@@ -3,6 +3,7 @@ from celery.task import task
+ from api_calls import APICalls
+ 
+ 
+-@task()
++# Uncomment this after demo
++# @task()
+ def send_api_request(data):
+     APICalls().api_call(**data)
+-- 
+2.5.0
+
