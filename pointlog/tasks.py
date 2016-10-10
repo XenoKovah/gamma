@@ -15,8 +15,7 @@ AGGREGATIONS = {
 }
 
 
-# TODO uncomment after demo
-# @app.task
+@app.task
 def check_user_achievements(user_id, event_type):
     """
     Check user achievement by event type.
