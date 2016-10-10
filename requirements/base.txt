@@ -4,6 +4,7 @@ edx-auth-backends==0.5.2
 pymongo==3.3.0
 Pillow==3.3.1
 celery==3.1.23
+django-celery==3.1.17
 django-google-charts==0.1.1
 django-qsstats-magic==0.7.2
 python-dateutil==2.5.3

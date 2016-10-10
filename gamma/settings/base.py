@@ -53,6 +53,8 @@ INSTALLED_APPS = [
     'achievements',
     'pointlog',
     'googlecharts',
+
+    'djcelery',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -201,7 +203,7 @@ MONGODB_CONF = {
 
 # Points settings saved in MongoDB
 MONGO_SETTINGS_COLLECTION = "points_settings"
-MONGO_DB_NAME = "gamma"
+MONGO_DB_NAME = "gamma_db"
 MONGO_PROGRESS_COLLECTION = "progress"
 MONGO_CHARTED_PROGRESS = "charted_progress"
 MONGO_RULES_COLLECTION = "rules"
@@ -212,7 +214,7 @@ MEDIA_URL = '/media/'
 
 # Celery settings
 
-BROKER_URL = 'amqp://guest:guest@localhost//'
+BROKER_URL = 'amqp://celery:celery@localhost:5672//'
 
 # For testing purpose we can use amqp BACKEND
 # uncomment this for development purpose
@@ -223,7 +225,11 @@ BROKER_URL = 'amqp://guest:guest@localhost//'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-
+CELERY_DEFAULT_QUEUE = 'gamma'
+CELERY_DEFAULT_EXCHANGE = 'gamma'
+CELERY_DEFAULT_EXCHANGE_TYPE = 'direct'
+CELERY_DEFAULT_ROUTING_KEY = 'gamma'
+ELERY_QUEUES = {'gamma': {}}
 
 try:
     from .local import *
