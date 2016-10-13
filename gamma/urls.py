@@ -23,7 +23,8 @@ from django.core.urlresolvers import reverse_lazy
 from django.contrib.auth.views import logout
 from filebrowser.sites import site
 
-from core.api import GameProfileView, ProgressView
+
+from core.api import GameProfileView, ProgressView, EventPointsView
 from core.views import DashboardView
 
 
@@ -51,4 +52,7 @@ urlpatterns = [
 
     url(r'^progress/*$', ProgressView.as_view(), name='progress'),
     url(r'^gamma-profile/*$', GameProfileView.as_view(), name='gamma-profile'),
+    url(r'^event-points/*$', EventPointsView.as_view(), name='event-points'),
+    #url(r'^event-points/*$', event_points, name='event-points'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

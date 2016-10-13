@@ -2,7 +2,11 @@ from datetime import datetime
 
 from pymongo import MongoClient
 from django.contrib.auth.models import User
+from django.views.generic.edit import FormView
 from django.db.models import F
+from django.http import HttpResponseRedirect
+from django.shortcuts import render
+
 from django.conf import settings
 from rest_framework import viewsets, generics, status
 from rest_framework.views import APIView
@@ -13,10 +17,13 @@ from .models import GameProfile, Event
 from .serializers import GameProfileSerializer, ProgressSerializer
 from .services import MongoConnector
 from .authentication import KeySecretAuthentication
+from .forms import EventPointsForm
 
 from pointlog.models import LoggedEvent
 from pointlog.tasks import check_user_achievements
 
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 
 class GameProfileView(APIView):
     """
@@ -104,9 +111,7 @@ class GameProfileView(APIView):
                 )
                 log_event.save()
 
-                check_user_achievements.apply_async(
-                    (user.id, event_type), countdown=30
-                )
+                check_user_achievements(user.id, event_type)
                 return Response(serializer.data)
             else:
                 return Response(
@@ -157,3 +162,32 @@ class ProgressView(APIView):
         serializer = ProgressSerializer(progress_data, many=True)
 
         return Response(serializer.data)
+
+
+# class AuthRequiredMixin(object):
+#     @method_decorator(login_required)
+#     def dispatch(self, request, *args, **kwargs):
+#         return super(AuthRequiredMixin, self).dispatch(request, *args, **kwargs)
+
+# def event_points(request):
+#     if request.method == 'POST':
+#         form = EventPointsForm(request.POST)
+#         if form.is_valid():
+#             form.save_event_points()
+#             return HttpResponseRedirect('/')
+#
+#     else:
+#         form = EventPointsForm()
+#     return render(request, 'event_points.html', {'form': form})
+
+
+#
+#
+class EventPointsView(APIView):
+
+    def post(self, request, *args, **kwargs):
+        form = EventPointsForm(request.POST)
+        form.is_valid()
+        form.save_event_points()
+        return Response({'res': 200})
+

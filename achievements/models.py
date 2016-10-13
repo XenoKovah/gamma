@@ -11,6 +11,7 @@ BADGE_TYPE_CHOICES = (
     ('course', 'course'),
     ('enrollment', 'enrollment'),
     ('referrer', 'referrer'),
+    ('reward', 'reward'),
 )
 
 
