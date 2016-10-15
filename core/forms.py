@@ -15,30 +15,22 @@ from pointlog.tasks import check_user_achievements
 
 
 class EventPointsForm(forms.Form):
-    user_name = forms.CharField(max_length=64)
+    username = forms.CharField(max_length=64)
     points = forms.IntegerField(min_value=1)
 
     conn = MongoConnector()
 
     def save_event_points(self):
-        user = self.cleaned_data['user_name']
-
-
-        user = User.objects.filter(username=self.cleaned_data['user_name']).first()
-        print 'user:', user, type(user)
-
-        game_profile = GameProfile.objects.get(user=user)
+        user = User.objects.filter(
+            username=self.cleaned_data['username']
+        ).first()
         event_type = 'reward'
         award = self.cleaned_data['points']
 
-        print 'points:', award, type(award)
-
+        game_profile = GameProfile.objects.get(user=user)
         game_profile.points = F('points') + award
-        # TODO try to avoid duplicate saving in Serializer
         game_profile.save()
 
-        # TODO move this action to Celery
-        # Update point value in mongo
         self.conn.find_one_and_update(
             filter_dict={
                 'date': datetime.strptime(
@@ -49,20 +41,18 @@ class EventPointsForm(forms.Form):
             key='points',
             value=award
         )
-        # TODO refactor this
         self.conn.find_one_and_update(
             filter_dict={
                 'username': user.username
             },
             key=event_type,
             value=award,
-            event_type='chart' #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            event_type='chart'
         )
 
         game_profile = GameProfile.objects.get(user=user)
         serializer = GameProfileSerializer(game_profile)
         client, _ = AppClient.objects.get_or_create(name='reward')
-        # Logging this event to prevent repeating
         log_event = LoggedEvent(
             uniq_id=key_secret_generator(),
             user=user,

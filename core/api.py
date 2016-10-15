@@ -25,6 +25,7 @@ from pointlog.tasks import check_user_achievements
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
+
 class GameProfileView(APIView):
     """
     GET or UPDATE user points.
@@ -144,15 +145,13 @@ class ProgressView(APIView):
     """
     Retrieve User progress.
     """
-    authentication_classes = (KeySecretAuthentication,)
-
     conn = MongoConnector()
 
     def get(self, request, *args, **kwargs):
         """
         Simply retrieve user GameProfile data.
         """
-        user = User.objects.filter(username=request.data.get('username')).first()
+        user = User.objects.filter(username=request.GET.get('username')).first()
         if not user:
             return Response(
                 {"Error": "User not found"},
@@ -164,30 +163,62 @@ class ProgressView(APIView):
         return Response(serializer.data)
 
 
-# class AuthRequiredMixin(object):
-#     @method_decorator(login_required)
-#     def dispatch(self, request, *args, **kwargs):
-#         return super(AuthRequiredMixin, self).dispatch(request, *args, **kwargs)
-
-# def event_points(request):
-#     if request.method == 'POST':
-#         form = EventPointsForm(request.POST)
-#         if form.is_valid():
-#             form.save_event_points()
-#             return HttpResponseRedirect('/')
-#
-#     else:
-#         form = EventPointsForm()
-#     return render(request, 'event_points.html', {'form': form})
-
-
-#
-#
 class EventPointsView(APIView):
-
+    """
+    API to reward particular User with points.
+    """
     def post(self, request, *args, **kwargs):
         form = EventPointsForm(request.POST)
-        form.is_valid()
-        form.save_event_points()
-        return Response({'res': 200})
+        if form.is_valid():
+            form.save_event_points()
+            return Response({
+                'username': form.cleaned_data['username'],
+                'points': form.cleaned_data['points']
+            })
+        else:
+            return Response(
+                {'msg': "Requested reward is not valid."}, status=401
+            )
 
+
+class ChartView(APIView):
+    """
+    Retrieve User chart.
+    """
+    conn = MongoConnector()
+
+    def get(self, request, *args, **kwargs):
+        """
+        Simply retrieve user chart data.
+        """
+        user = User.objects.filter(username=request.GET.get('username')).first()
+        if not user:
+            return Response(
+                {"Error": "User not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        progress_data = self.conn.get_charted_progress(user)
+
+        return Response(progress_data)
+
+
+class PointsView(APIView):
+    """
+    Retrieve User game profile.
+
+    If User DoesNotExist - return zero points.
+    """
+    def get(self, request, *args, **kwargs):
+        """
+        Simply retrieve user GameProfile data.
+        """
+        user = User.objects.filter(username=request.GET.get('username')).first()
+        if not user:
+            return Response(
+                {"username": request.GET.get('username'), "points": 0}
+            )
+        game_profile = GameProfile.objects.get(user=user)
+        serializer = GameProfileSerializer(game_profile)
+
+        return Response(serializer.data)

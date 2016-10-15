@@ -37,6 +37,16 @@
   </ul>
 {% endif %}{% endif %}
 {% endblock %}
+<div class="reward" style="margin-bottom: 10px; margin-top: 5px">
+<p>Reward points for {{ original }}</p>
+<form method="post" id="points_change_form" >
+    {% csrf_token %}
+    <input type="hidden"  id="username" name="username" value="{{ original }}">
+    <input type="number" min="1" id="points" name="points" value="5">
+    <input type="submit" value="Submit" />
+</form>
+<div id="reward-result"></div>
+</div>
 <form {% if has_file_field %}enctype="multipart/form-data" {% endif %}action="{{ form_url }}" method="post" id="{{ opts.model_name }}_form" novalidate>{% csrf_token %}{% block form_top %}{% endblock %}
 <div>
 {% if is_popup %}<input type="hidden" name="{{ is_popup_var }}" value="1" />{% endif %}
@@ -88,40 +98,27 @@
 </form>
 
 
-<p>Points of {{ original }}</p>
-    <form method="post" id="points_change_form" >
-        {% csrf_token %}
-        <input type="hidden"  id="user_name" name="user_name" value="{{ original }}">
-        <input type="number" min="1" id="points" name="points" value="">
-        <input type="submit" value="Submit" />
-    </form>
-
-</div>
-
-
 <script type="text/javascript">
-    (function($) {
-        $(document).ready(function() {
-            $('#points_change_form').submit(function(e){
-                console.log(e);
-                var dz = $('#points_change_form');
-                var data = dz.serializeArray();
-                console.log(data);
-                $.ajax({type: "POST",
-                        url: "{% url 'event-points' %}",
-                        data: data,
-                        success:function(result) {
-                            dz = dz.serializeArray();
-                            var points = result['points'];
-                            var user_name = result['user_name'];
-                            },
-                            error: function(response, status, errorThrown) {
-                                $('#error_msg').text(response.responseJSON['message']);
-                            }});
-                e.preventDefault();
-            });
-         });
-    })(django.jQuery);
+(function($) {
+    $(document).ready(function() {
+        $('#points_change_form').submit(function(e){
+            console.log(e);
+            var dz = $('#points_change_form');
+            var data = dz.serializeArray();
+            $.ajax({type: "POST",
+                    url: "{% url 'event-points' %}",
+                    data: data,
+                    success:function(result) {
+                        var points = result['points'];
+                        var user_name = result['username'];
+                        $("#reward-result").text("User "+user_name+" was rewarded for "+points+" points.")
+                    },
+                    error: function(response, status, errorThrown) {
+                        $('#reward-result').text(response.responseJSON['msg']);
+                    }});
+            e.preventDefault();
+        });
+     });
+})(django.jQuery);
 </script>
 {% endblock %}
-
