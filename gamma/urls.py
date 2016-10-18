@@ -28,7 +28,8 @@ from core.api import (
     ProgressView,
     ChartView,
     PointsView,
-    EventPointsView
+    BadgesView,
+    EventPointsView,
 )
 from core.views import DashboardView
 
@@ -59,5 +60,6 @@ urlpatterns = [
     url(r'^chart/*$', ChartView.as_view(), name='chart'),
     url(r'^points/*$', PointsView.as_view(), name='points'),
     url(r'^gamma-profile/*$', GameProfileView.as_view(), name='gamma-profile'),
+    url(r'^badges/*$', BadgesView.as_view(), name='badges'),
     url(r'^event-points/*$', EventPointsView.as_view(), name='event-points'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

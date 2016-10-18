@@ -14,16 +14,18 @@ from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
 
 from .models import GameProfile, Event
-from .serializers import GameProfileSerializer, ProgressSerializer
+from .serializers import (
+    GameProfileSerializer,
+    ProgressSerializer,
+    BadgesSerializer,
+)
 from .services import MongoConnector
 from .authentication import KeySecretAuthentication
 from .forms import EventPointsForm
 
 from pointlog.models import LoggedEvent
 from pointlog.tasks import check_user_achievements
-
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
+from achievements.models import UserAchievement
 
 
 class GameProfileView(APIView):
@@ -221,4 +223,32 @@ class PointsView(APIView):
         game_profile = GameProfile.objects.get(user=user)
         serializer = GameProfileSerializer(game_profile)
 
+        return Response(serializer.data)
+
+
+class BadgesView(APIView):
+    """
+    Badges API.
+    """
+    def get(self, request, *args, **kwargs):
+        """
+        Get badges for particular User.
+
+        If UserNotFount - return status 404 w/ msg User not found.
+        """
+        user = User.objects.filter(
+            username=request.GET.get('username')
+        ).first()
+        if not user:
+            return Response(
+                {"Error": "User not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        badges = (
+            achive.achievement for achive in
+            UserAchievement.objects.filter(user=user)
+        )
+        serializer = BadgesSerializer(
+            badges, context={'request': request}, many=True
+        )
         return Response(serializer.data)
