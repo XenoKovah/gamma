@@ -1,7 +1,6 @@
 from rest_framework import serializers
 
-from .models import GameProfile
-
+from core.models import GameProfile
 from achievements.models import Achievement
 
 
@@ -11,6 +10,7 @@ class GameProfileSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = GameProfile
+        fields = ('points',)
 
 
 class ProgressSerializer(serializers.Serializer):

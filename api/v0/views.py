@@ -13,16 +13,16 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
 
-from .models import GameProfile, Event
-from .serializers import (
+from ..forms import EventPointsForm
+from ..serializers import (
     GameProfileSerializer,
     ProgressSerializer,
     BadgesSerializer,
 )
-from .services import MongoConnector
-from .authentication import KeySecretAuthentication
-from .forms import EventPointsForm
 
+from core.services import MongoConnector
+from core.authentication import KeySecretAuthentication
+from core.models import GameProfile, Event
 from pointlog.models import LoggedEvent
 from pointlog.tasks import check_user_achievements
 from achievements.models import UserAchievement
@@ -41,7 +41,7 @@ class GameProfileView(APIView):
         Update User GameProfile info.
 
         Request example:
-        http://localhost/gamma-profile/
+        http://localhost/api/v0/gamma-profile/
         {
           "username": :username
           "event_type": :type
@@ -67,6 +67,7 @@ class GameProfileView(APIView):
                 {"Error": "UID field is mandatory"},
                 status=status.HTTP_406_NOT_ACCEPTABLE
             )
+        # TODO think about uniq_together and event_type
         if not LoggedEvent.objects.filter(
             uniq_id=uniq_id,
             user=user,
@@ -161,8 +162,11 @@ class ProgressView(APIView):
             )
         progress_data = self.conn.get_progress(user)
         serializer = ProgressSerializer(progress_data, many=True)
+        data = serializer.data
+        # TODO reverse on Mongo side
+        data.reverse()
 
-        return Response(serializer.data)
+        return Response(data)
 
 
 class EventPointsView(APIView):

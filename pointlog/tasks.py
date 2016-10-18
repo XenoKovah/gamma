@@ -3,8 +3,9 @@ from __future__ import absolute_import
 from django.db.models import Avg, Sum
 from django.contrib.auth.models import User
 
-from gamma.celery import app
 from .models import LoggedEvent
+
+from gamma.celery import app
 from achievements.models import Achievement, UserAchievement
 from achievements.services import AchievementRulesMongo
 

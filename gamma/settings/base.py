@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'core',
     'achievements',
     'pointlog',
+    'api',
     'googlecharts',
 
     'djcelery',

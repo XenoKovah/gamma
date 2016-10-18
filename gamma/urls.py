@@ -23,21 +23,17 @@ from django.core.urlresolvers import reverse_lazy
 from django.contrib.auth.views import logout
 from filebrowser.sites import site
 
-from core.api import (
-    GameProfileView,
-    ProgressView,
-    ChartView,
-    PointsView,
-    BadgesView,
-    EventPointsView,
-)
 from core.views import DashboardView
 
 
 urlpatterns = [
+    # Dashboard page
     url(r'^$', DashboardView.as_view()),
+
     url(r'^admin/filebrowser/', include(site.urls)),
     url(r'^grappelli/', include('grappelli.urls')),
+
+    # Native admin page
     url(r'^admin/', admin.site.urls),
 
     # Django Rest Framework
@@ -56,10 +52,6 @@ urlpatterns = [
     ),
     url(r'^logout/$', logout, kwargs={'next_page': '/'}, name='logout'),
 
-    url(r'^progress/*$', ProgressView.as_view(), name='progress'),
-    url(r'^chart/*$', ChartView.as_view(), name='chart'),
-    url(r'^points/*$', PointsView.as_view(), name='points'),
-    url(r'^gamma-profile/*$', GameProfileView.as_view(), name='gamma-profile'),
-    url(r'^badges/*$', BadgesView.as_view(), name='badges'),
-    url(r'^event-points/*$', EventPointsView.as_view(), name='event-points'),
+    # API
+    url(r'^api/', include('api.urls', namespace='api')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

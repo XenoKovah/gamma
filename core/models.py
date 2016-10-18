@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
+
 from .utils import key_secret_generator
+
 from core import signals  # NOQA
 
 

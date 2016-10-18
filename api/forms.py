@@ -2,14 +2,13 @@ from datetime import datetime
 
 from django.contrib.auth.models import User
 from django.db.models import F
-
 from django import forms
 
-from .models import GameProfile, AppClient
-from .services import MongoConnector
 from .serializers import GameProfileSerializer
-from .utils import key_secret_generator
 
+from core.models import GameProfile, AppClient
+from core.services import MongoConnector
+from core.utils import key_secret_generator
 from pointlog.models import LoggedEvent
 from pointlog.tasks import check_user_achievements
 

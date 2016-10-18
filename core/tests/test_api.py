@@ -29,7 +29,7 @@ def test_api(
         user.save()
 
     res = requests.put(
-        live_server+'/gamma-profile/',
+        live_server+'/api/v0/gamma-profile/',
         data={
             'username': rand_str,
             'event_type': event.event_type,
@@ -69,7 +69,7 @@ def test_uniq_id_required(mongo_server, settings, live_server, rand_str, app_cli
         'PASSWORD': None
     }
     res = requests.put(
-        live_server+'/gamma-profile/',
+        live_server+'/api/v0/gamma-profile/',
         data={
             'username': rand_str,
             'event_type': rand_str,
@@ -96,7 +96,7 @@ def test_event_not_created(mongo_server, settings, live_server, rand_str, app_cl
         'PASSWORD': None
     }
     res = requests.put(
-        live_server+'/gamma-profile/',
+        live_server+'/api/v0/gamma-profile/',
         data={
             'username': rand_str,
             # this event not created in the system
@@ -131,7 +131,7 @@ def test_event_not_created(
         'PASSWORD': None
     }
     res = requests.put(
-        live_server+'/gamma-profile/',
+        live_server+'/api/v0/gamma-profile/',
         data={
             'username': rand_str,
             'event_type': rand_str,
@@ -143,7 +143,7 @@ def test_event_not_created(
         }
     )
     res = requests.put(
-        live_server+'/gamma-profile/',
+        live_server+'/api/v0/gamma-profile/',
         data={
             'username': rand_str,
             'event_type': rand_str,
@@ -170,7 +170,7 @@ def test_put_403(mongo_server, settings, live_server, rand_str):
         'PASSWORD': None
     }
     res = requests.put(
-        live_server+'/gamma-profile/',
+        live_server+'/api/v0/gamma-profile/',
         data={'username': rand_str},
     )
     assert res.status_code == 403
@@ -191,8 +191,9 @@ def test_get(mongo_server, settings, live_server, rand_str, app_client, event):
     user = User(username=rand_str)
     user.save()
 
+    # TODO add tests for :points API
     res = requests.get(
-        live_server+'/gamma-profile/',
+        live_server+'/api/v0/gamma-profile/',
         data={'username': rand_str},
         headers={
             'App-key': app_client.key,
@@ -201,7 +202,6 @@ def test_get(mongo_server, settings, live_server, rand_str, app_client, event):
     )
     assert res.status_code == 200
     data = res.json()
-    assert data['user'] == user.id
     assert data['points'] == 0
 
 
@@ -216,7 +216,7 @@ def test_get_404(mongo_server, settings, live_server, rand_str, app_client):
         'PASSWORD': None
     }
     res = requests.get(
-        live_server+'/gamma-profile/',
+        live_server+'/api/v0/gamma-profile/',
         data={'username': rand_str},
         headers={
             'App-key': app_client.key,
@@ -239,7 +239,7 @@ def test_get_403(mongo_server, settings, live_server, rand_str):
         'PASSWORD': None
     }
     res = requests.get(
-        live_server+'/gamma-profile/',
+        live_server+'/api/v0/gamma-profile/',
         data={'username': rand_str},
     )
     assert res.status_code == 403
@@ -261,12 +261,8 @@ def test_progress(mongo_server, settings, live_server, rand_str, app_client):
     user.save()
 
     res = requests.get(
-        live_server+'/progress/',
-        data={'username': rand_str},
-        headers={
-            'App-key': app_client.key,
-            'App-secret': app_client.secret
-        }
+        live_server+'/api/v0/progress/',
+        params={'username': rand_str},
     )
     assert res.status_code == 200
     data = res.json()
@@ -284,7 +280,7 @@ def test_progress_404(mongo_server, settings, live_server, rand_str, app_client)
     }
 
     res = requests.get(
-        live_server+'/progress/',
+        live_server+'/api/v0/progress/',
         data={'username': rand_str},
         headers={
             'App-key': app_client.key,
@@ -294,22 +290,3 @@ def test_progress_404(mongo_server, settings, live_server, rand_str, app_client)
     assert res.status_code == 404
     data = res.json()
     assert data['Error'] == 'User not found'
-
-
-def test_progress_403(mongo_server, settings, live_server, rand_str):
-    """
-    Get request for non existent user should return 404.
-    """
-    settings.MONGODB_CONF = {
-        'HOST': 'localhost',
-        'PORT': mongo_server,
-        'USERNAME': None,
-        'PASSWORD': None
-    }
-    res = requests.get(
-        live_server+'/progress/',
-        data={'username': rand_str},
-    )
-    assert res.status_code == 403
-    data = res.json()
-    assert data['detail'] == 'Please provide APP_KEY and APP_SECRET'

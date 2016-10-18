@@ -116,7 +116,7 @@
             var dz = $('#points_change_form');
             var data = dz.serializeArray();
             $.ajax({type: "POST",
-                    url: "{% url 'event-points' %}",
+                    url: "{% url 'api:v0:event-points' %}",
                     data: data,
                     success:function(result) {
                         var points = result['points'];
