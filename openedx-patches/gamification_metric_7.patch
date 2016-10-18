@@ -1,0 +1,537 @@
+From 3a99f2aa88ce9eeeb26b7456cc7f76186a2bba5b Mon Sep 17 00:00:00 2001
+From: Maksim Sokolskiy <misokolsky@gmail.com>
+Date: Mon, 17 Oct 2016 19:25:04 +0300
+Subject: [PATCH] feat(gamafication_metric): add `d3.js animated pie chart` for
+ user points
+
+Changes:
+- add js, css directly into dashboard.html
+- change `GAMMA_PROPERTIES` structure: `API_URL` should contains basic API url w/o `gamma-profile`
+- API request from browser uses `GAMMA_PROPERTIES`
+
+TODO:
+- move js, css into includable files
+---
+ common/djangoapps/gamification_metric/api_calls.py |   7 +-
+ common/djangoapps/gamification_metric/tasks.py     |   4 +-
+ common/djangoapps/student/views.py                 |   8 ++
+ lms/templates/courseware/progress.html             |  20 ++-
+ lms/templates/dashboard.html                       | 137 ++++++++++++++++++++-
+ 5 files changed, 171 insertions(+), 5 deletions(-)
+
+diff --git a/common/djangoapps/gamification_metric/api_calls.py b/common/djangoapps/gamification_metric/api_calls.py
+index f577a3e..9132eac 100644
+--- a/common/djangoapps/gamification_metric/api_calls.py
++++ b/common/djangoapps/gamification_metric/api_calls.py
+@@ -38,4 +38,9 @@ class APICalls(object):
+             'App-key': self.GAMMA_PROPERTIES['APP_KEY'],
+             'App-secret': self.GAMMA_PROPERTIES['APP_SECRET']
+         }
+-        requests.put(self.GAMMA_PROPERTIES['API_URL'], data=data, headers=headers, verify=False)
++        requests.put(
++            self.GAMMA_PROPERTIES['API_URL']+'gamma-profile/',
++            data=data,
++            headers=headers,
++            verify=False
++        )
+diff --git a/common/djangoapps/gamification_metric/tasks.py b/common/djangoapps/gamification_metric/tasks.py
+index 376b570..71d29aa 100644
+--- a/common/djangoapps/gamification_metric/tasks.py
++++ b/common/djangoapps/gamification_metric/tasks.py
+@@ -5,4 +5,6 @@ from api_calls import APICalls
+ 
+ @task()
+ def send_api_request(data):
+-    APICalls().api_call(**data)
++    api = APICalls()
++    if api.is_enabled:
++        api.api_call(**data)
+diff --git a/common/djangoapps/student/views.py b/common/djangoapps/student/views.py
+index a64b054..2e812fb 100644
+--- a/common/djangoapps/student/views.py
++++ b/common/djangoapps/student/views.py
+@@ -682,6 +682,13 @@ def dashboard(request):
+     else:
+         redirect_message = ''
+ 
++    if (
++        settings.FEATURES.get('ENABLE_GAMMA', False) and
++        settings.FEATURES.get('GAMMA_PROPERTIES', {}) and
++        settings.FEATURES.get('GAMMA_PROPERTIES', {}).get('API_URL')
++    ):
++        api_url = settings.FEATURES.get('GAMMA_PROPERTIES', {}).get('API_URL')
++
+     context = {
+         'enrollment_message': enrollment_message,
+         'redirect_message': redirect_message,
+@@ -713,6 +720,7 @@ def dashboard(request):
+         'nav_hidden': True,
+         'course_programs': course_programs,
+     	'honor_code_accepted': is_honor_code_accepted(request),
++        'api_url': api_url,
+     }
+ 
+     return render_to_response('dashboard.html', context)
+diff --git a/lms/templates/courseware/progress.html b/lms/templates/courseware/progress.html
+index 7d430a7..698e8d9 100644
+--- a/lms/templates/courseware/progress.html
++++ b/lms/templates/courseware/progress.html
+@@ -29,6 +29,19 @@ from django.utils.http import urlquote_plus
+ <script>
+   ${progress_graph.body(grade_summary, course.grade_cutoffs, "grade-detail-graph", not course.no_grade, not course.no_grade) | h}
+ </script>
++<script type="text/javascript" charset="utf-8">
++$(document).ready(function () {
++    var domain_address = document.location.origin
++    $(".course-referral-button").click(function () {
++        $.post(domain_address + "/api/get_referral_hash_key/", {'course_id': '${str(course.id)}'},
++            function (data) {
++                $('.course-referral-link').val(domain_address + data.hashkey).show();
++                document.execCommand("copy");
++            });
++
++    });
++});
++</script>
+ </%block>
+ 
+ 
+@@ -38,6 +51,10 @@ from django.utils.http import urlquote_plus
+   <div class="profile-wrapper">
+ 
+     <div class="course-info" id="course-info-progress" aria-label="${_('Course Progress')}">
++        <div class="course-referral">
++            <button class="course-referral-button">Invite friend</button>
++            <input class="course-referral-link" type="text" size="70" disabled>
++        </div>
+       % if staff_access and studio_url is not None:
+         <div class="wrap-instructor-info">
+           <a class="instructor-info-action studio-view" href="${studio_url | h}">${_("View Grading in studio")}</a>
+@@ -72,7 +89,7 @@ from django.utils.http import urlquote_plus
+                 	},
+                         error: function(result){
+                                 if(result != null) $("#course-success").prepend("<div>You have requested credit for taking the course on " + result.responseText + ". To reinitiate credit request, please click <a onclick='javascript:window.open($(\"#credit_button\").attr(\"href\"))'>here</a></div>")
+-                                else $("#credit_button").show(); 
++                                else $("#credit_button").show();
+                         }
+                 });
+ 		$("#credit_button").click(function(){
+@@ -288,4 +305,3 @@ from django.utils.http import urlquote_plus
+     </div>
+   </div>
+ </div>
+-
+diff --git a/lms/templates/dashboard.html b/lms/templates/dashboard.html
+index fc43619..e069c3a 100644
+--- a/lms/templates/dashboard.html
++++ b/lms/templates/dashboard.html
+@@ -39,6 +39,54 @@ if(localStorage["honor_code_skipped"] == undefined || localStorage["honor_code_s
+     <%static:include path="search/${template_name}.underscore" />
+ </script>
+ % endfor
++<style>
++#view-source {
++  position: fixed;
++  display: block;
++  right: 0;
++  bottom: 0;
++  margin-right: 40px;
++  margin-bottom: 40px
++  z-index: 900;
++}
++
++
++#donut text {
++  font-family: "RamaGothicM-Heavy",Impact,Haettenschweiler,"Franklin Gothic Bold",Charcoal,"Helvetica Inserat","Bitstream Vera Sans Bold","Arial Black",sans-serif;
++  font-size: 4rem;
++  font-weight: 200;
++  line-height: 8rem;
++  fill: #1072b8;
++}
++
++#donut {
++  width: 29rem;
++  height: 29rem;
++  margin: 0 auto;
++}
++
++path.color0 {
++  fill: #1072b8;
++}
++
++path.color1 {
++  fill: #35526b;
++}
++
++
++.animated-ring {
++    margin-left: auto;
++    margin-right: auto;
++    margin-top: 50px;
++    width: 200px;
++}
++
++.selection {
++    text-align:center;
++    margin-top: 20px;
++}
++</style>
++
+ </%block>
+ 
+ <%block name="js_extra">
+@@ -79,8 +127,92 @@ if(localStorage["honor_code_skipped"] == undefined || localStorage["honor_code_s
+         $("input[name='enrollment_action'", $("#class_enroll_form")).val("enroll")
+         $("#class_enroll_form").submit();
+       }
++
+     });
+   </script>
++  <script>
++
++$(function() {
++  var duration  = 500,
++    transition = 200;
++
++    function drawDonutChart(element, percent, width, height, text_y) {
++      width = typeof width !== 'undefined' ? width : 290;
++      height = typeof height !== 'undefined' ? height : 290;
++      text_y = typeof text_y !== 'undefined' ? text_y : "-.10em";
++
++      var dataset = {
++            lower: calcPercent(0),
++            upper: calcPercent(percent)
++          },
++          radius = Math.min(width, height) / 2,
++          pie = d3.layout.pie().sort(null),
++          format = d3.format(".0");
++
++      var arc = d3.svg.arc()
++            .innerRadius(radius - 20)
++            .outerRadius(radius);
++
++      var svg = d3.select(element).append("svg")
++            .attr("width", width)
++            .attr("height", height)
++            .append("g")
++            .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
++
++      var path = svg.selectAll("path")
++            .data(pie(dataset.lower))
++            .enter().append("path")
++            .attr("class", function(d, i) { return "color" + i })
++            .attr("d", arc)
++            .each(function(d) { this._current = d; }); // store the initial values
++
++      var text = svg.append("text")
++            .attr("text-anchor", "middle")
++            .attr("dy", text_y);
++
++      if (typeof(percent) === "string") {
++        text.text(percent);
++      }
++      else {
++        var progress = 0;
++        var timeout = setTimeout(function () {
++          clearTimeout(timeout);
++          path = path.data(pie(dataset.upper)); // update the data
++          path.transition().duration(duration).attrTween("d", function (a) {
++            // Store the displayed angles in _current.
++            // Then, interpolate from _current to the new angles.
++            // During the transition, _current is updated in-place by d3.interpolate.
++            var i  = d3.interpolate(this._current, a);
++            var i2 = d3.interpolate(progress, percent)
++            this._current = i(0);
++            return function(t) {
++              text.text( format(i2(t)) );
++              return arc(i(t));
++            };
++          }); // redraw the arcs
++        }, 200);
++      }
++    };
++
++    function calcPercent(percent) {
++      return [percent, 100-percent];
++    };
++
++    $.get(
++        "${api_url}"+"points/",
++        data={"username": "${ user.username | h }"},
++        function( data ) {
++            drawDonutChart(
++              '#donut',
++              data.points,
++              190,
++              190,
++              ".25em"
++            );
++        }
++    );
++});
++  </script>
+   % if settings.FEATURES.get('ENABLE_DASHBOARD_SEARCH'):
+     <%static:require_module module_name="js/search/dashboard/dashboard_search_factory" class_name="DashboardSearchFactory">
+         DashboardSearchFactory();
+@@ -115,7 +247,6 @@ if(localStorage["honor_code_skipped"] == undefined || localStorage["honor_code_s
+       <h2 class="header-courses">${_("My Courses")}</h2>
+     </header>
+ 
+-
+     % if len(course_enrollments) > 0:
+       <ul class="listing-courses">
+       <% share_settings = getattr(settings, 'SOCIAL_SHARING_SETTINGS', {}) %>
+@@ -180,6 +311,10 @@ if(localStorage["honor_code_skipped"] == undefined || localStorage["honor_code_s
+           </button>
+         </div>
+       </form>
++      <br>
++    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
++    <script src="http://d3js.org/d3.v3.min.js"></script>
++    <div id="donut"></div>
+     </div>
+   % endif
+ 
+-- 
+2.5.0
+
+From 6cffa22191e5e72f6d64b05e21264cb98f4b6b0f Mon Sep 17 00:00:00 2001
+From: Maksim Sokolskiy <misokolsky@gmail.com>
+Date: Mon, 17 Oct 2016 20:38:59 +0300
+Subject: [PATCH] feat(dashboard): add animated rind to render user rewards by
+ category
+
+---
+ lms/templates/dashboard.html | 140 +++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 129 insertions(+), 11 deletions(-)
+
+diff --git a/lms/templates/dashboard.html b/lms/templates/dashboard.html
+index e069c3a..2bfd97b 100644
+--- a/lms/templates/dashboard.html
++++ b/lms/templates/dashboard.html
+@@ -60,8 +60,6 @@ if(localStorage["honor_code_skipped"] == undefined || localStorage["honor_code_s
+ }
+ 
+ #donut {
+-  width: 29rem;
+-  height: 29rem;
+   margin: 0 auto;
+ }
+ 
+@@ -72,21 +70,18 @@ path.color0 {
+ path.color1 {
+   fill: #35526b;
+ }
++</style>
+ 
+-
++<style>
+ .animated-ring {
+     margin-left: auto;
+     margin-right: auto;
+     margin-top: 50px;
+     width: 200px;
+ }
+-
+-.selection {
+-    text-align:center;
+-    margin-top: 20px;
+-}
+ </style>
+ 
++
+ </%block>
+ 
+ <%block name="js_extra">
+@@ -213,6 +208,126 @@ $(function() {
+     );
+ });
+   </script>
++<script>
++$(function() {
++
++$.get(
++    "${api_url}"+"chart/",
++    data={"username": "${ user.username | h }"},
++    function( data ) {
++        var employees = [];
++
++        for (var key in data) {
++            employees.push({type: key, count : data[key]});
++        }
++        // Render the initial ring
++        drawAnimatedRingChart({
++            el: '.animated-ring svg',
++            outerRadius: outerRadius,
++            innerRadius: outerRadius - ringWidth,
++            data: employees
++        });
++    }
++);
++
++var maxWidth = 200;
++var maxHeight = 200;
++var outerRadius = 100;
++var ringWidth = 20;
++
++// This function helps you figure out when all
++// the elements have finished transitioning
++// Reference: https://groups.google.com/d/msg/d3-js/WC_7Xi6VV50/j1HK0vIWI-EJ
++function checkEndAll(transition, callback) {
++    var n = 0;
++    transition
++    .each(function() { ++n; })
++    .each("end", function() {
++        if (!--n) callback.apply(this, arguments);
++    });
++}
++
++function drawAnimatedRingChart(config) {
++    var pie = d3.layout.pie().value(function (d) {
++        return d.count;
++    });
++
++    var color = d3.scale.category10();
++    var arc = d3.svg.arc();
++
++    // This function helps transition between
++    // a starting point and an ending point
++    // Also see: http://jsfiddle.net/Nw62g/3/
++    function tweenPie(finish) {
++        var start = {
++                startAngle: 0,
++                endAngle: 0
++            };
++        var i = d3.interpolate(start, finish);
++        return function(d) { return arc(i(d)); };
++    }
++    arc.outerRadius(config.outerRadius || outerRadius)
++        .innerRadius(config.innerRadius || innerRadius);
++
++    // Remove the previous ring
++    d3.select(config.el).selectAll('g').remove();
++
++    var svg = d3.select(config.el)
++        .attr({
++            width : maxWidth,
++            height: maxHeight
++        });
++
++    // Add the groups that will hold the arcs
++    var groups = svg.selectAll('g.arc')
++    .data(pie(config.data))
++    .enter()
++    .append('g')
++    .attr({
++        'class': 'arc',
++        'transform': 'translate(' + outerRadius + ', ' + outerRadius + ')'
++    });
++
++    // Create the actual slices of the pie
++    groups.append('path')
++    .attr({
++        'fill': function (d, i) {
++            return color(i);
++        }
++    })
++    .transition()
++    .duration(config.duration || 1000)
++    .attrTween('d', tweenPie)
++    .call(checkEndAll, function () {
++
++        // Finally append the title of the text to the node
++        groups.append('text')
++        .attr({
++            'text-anchor': 'middle',
++            'transform': function (d) {
++                return 'translate(' + arc.centroid(d) + ')';
++            }
++        })
++        .text(function (d) {
++            // Notice the usage of d.data to access the raw data item
++            return d.data.type;
++        });
++    });
++}
++
++// Listen to changes on the select element
++document.querySelector('#numberOfDepartments')
++  .addEventListener('change', function (e) {
++      drawAnimatedRingChart({
++        el: '.animated-ring svg',
++        outerRadius: outerRadius,
++        innerRadius: outerRadius - ringWidth,
++        data: employees.slice(0, parseInt(this.value))
++    });
++  });
++});
++</script>
++
+   % if settings.FEATURES.get('ENABLE_DASHBOARD_SEARCH'):
+     <%static:require_module module_name="js/search/dashboard/dashboard_search_factory" class_name="DashboardSearchFactory">
+         DashboardSearchFactory();
+@@ -312,9 +427,6 @@ $(function() {
+         </div>
+       </form>
+       <br>
+-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+-    <script src="http://d3js.org/d3.v3.min.js"></script>
+-    <div id="donut"></div>
+     </div>
+   % endif
+ 
+@@ -334,6 +446,12 @@ $(function() {
+       <h2 class="account-status-title sr">${_("Account Status Info")}: </h2>
+     </header>
+     <section class="user-info">
++
++        <script src="http://d3js.org/d3.v3.min.js"></script>
++        <div id="donut"></div>
++        <div class="animated-ring">
++            <svg></svg>
++        </div>
+       <ul>
+ 
+         % if len(order_history_list):
+-- 
+2.5.0
+
+From d813ab40be858da426c8541301d2eed2e6a2cdd9 Mon Sep 17 00:00:00 2001
+From: Maksim Sokolskiy <misokolsky@gmail.com>
+Date: Tue, 18 Oct 2016 15:59:34 +0300
+Subject: [PATCH] makrup(dashboard): fix markup for gamification widgets
+
+---
+ lms/templates/dashboard.html | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/lms/templates/dashboard.html b/lms/templates/dashboard.html
+index 2bfd97b..c65169c 100644
+--- a/lms/templates/dashboard.html
++++ b/lms/templates/dashboard.html
+@@ -63,6 +63,11 @@ if(localStorage["honor_code_skipped"] == undefined || localStorage["honor_code_s
+   margin: 0 auto;
+ }
+ 
++#donut svg {
++    margin: 0 auto;
++    display: block;
++}
++
+ path.color0 {
+   fill: #1072b8;
+ }
+@@ -200,8 +205,8 @@ $(function() {
+             drawDonutChart(
+               '#donut',
+               data.points,
+-              190,
+-              190,
++              200,
++              200,
+               ".25em"
+             );
+         }
+-- 
+2.5.0
+
