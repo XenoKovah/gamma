@@ -1,7 +1,12 @@
+import logging
+
 import pymongo
 from django.conf import settings
 
 from .models import Event
+
+
+logger = logging.getLogger('events')
 
 
 class Singleton(object):
@@ -65,8 +70,11 @@ class MongoConnector(Singleton):
                 return_document=pymongo.ReturnDocument.AFTER
             )
         except Exception as e:
-            # TODO configure Django Logging for this case
-            print(e)
+            logger.debug(
+                'MongoDB Exception: {0}::filter_dict=>{1}::key=>{2}::value=>{3}'.format(
+                    e, filter_dict, key, value
+                )
+            )
 
     def get_progress(self, user):
         """
@@ -78,10 +86,15 @@ class MongoConnector(Singleton):
         collection = self.db[
             settings.MONGO_PROGRESS_COLLECTION
         ]
-        progress_data = collection.find(
-            {"username": user.username}, {"date": 1, "points": 1, "_id": 0}
-        ).sort("date", pymongo.DESCENDING).limit(7)
-        return progress_data
+        try:
+            progress_data = collection.find(
+                {"username": user.username}, {"date": 1, "points": 1, "_id": 0}
+            ).sort("date", pymongo.DESCENDING).limit(7)
+            return progress_data
+        except Exception as e:
+            logger.debug('MongoDB Exception: {0}::user=>{1}'.format(
+                e, user.username
+            ))
 
     def get_charted_progress(self, user):
         projection = {event.event_type: 1 for event in Event.objects.all()}
@@ -89,8 +102,13 @@ class MongoConnector(Singleton):
         collection = self.db[
             settings.MONGO_CHARTED_PROGRESS
         ]
-        charted_progress = collection.find_one(
-            {"username": user.username},
-            projection
-        )
-        return charted_progress
+        try:
+            charted_progress = collection.find_one(
+                {"username": user.username},
+                projection
+            )
+            return charted_progress
+        except Exception as e:
+            logger.debug('MongoDB Exception: {0}::user=>{1}'.format(
+                e, user.username
+            ))

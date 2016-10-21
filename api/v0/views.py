@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 
 from pymongo import MongoClient
@@ -26,6 +27,9 @@ from core.models import GameProfile, Event
 from pointlog.models import LoggedEvent
 from pointlog.tasks import check_user_achievements
 from achievements.models import UserAchievement
+
+
+logger = logging.getLogger('events')
 
 
 class GameProfileView(APIView):
@@ -63,6 +67,9 @@ class GameProfileView(APIView):
         uniq_id = self.request.data.get('uid')
 
         if not uniq_id:
+            logger.debug('For user {0} msg: {1} event_type=>{2}'.format(
+                user.username, 'UID field is mandatory', event_type
+            ))
             return Response(
                 {"Error": "UID field is mandatory"},
                 status=status.HTTP_406_NOT_ACCEPTABLE
@@ -114,15 +121,30 @@ class GameProfileView(APIView):
                     client=request.client
                 )
                 log_event.save()
-
+                logger.debug('For user {0} msg: {1}'.format(
+                    user.username,
+                    'Event logged::uniq_id=>{0}::event_type=>{1}::points=>{2}'.format(
+                        uniq_id, event_type, event.award
+                    )
+                ))
                 check_user_achievements(user.id, event_type)
                 return Response(serializer.data)
             else:
+                logger.debug('For user {0} msg: {1}: {2}'.format(
+                    user.username,
+                    'Event type is not recognizable',
+                    event_type
+                ))
                 return Response(
                     {"Error": "Event type is not recognizable"},
                     status.HTTP_406_NOT_ACCEPTABLE
                 )
         else:
+            logger.debug('For user {0} msg: {1}: {2}::{3}'.format(
+                user.username,
+                'Repeated event occurs',
+                event_type, uniq_id
+            ))
             return Response(
                 {"Error": "Repeated event occurs"},
                 status=status.HTTP_406_NOT_ACCEPTABLE

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
 import os
+from datetime import datetime
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -233,6 +234,38 @@ CELERY_DEFAULT_EXCHANGE = 'gamma'
 CELERY_DEFAULT_EXCHANGE_TYPE = 'direct'
 CELERY_DEFAULT_ROUTING_KEY = 'gamma'
 ELERY_QUEUES = {'gamma': {}}
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs/{}.log'.format(
+                datetime.now().date())
+            ),
+            'formatter': 'verbose'
+        },
+    },
+    'loggers': {
+        'events': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True
+        },
+    },
+}
+
 
 try:
     from .local import *

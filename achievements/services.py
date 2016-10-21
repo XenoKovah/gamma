@@ -1,7 +1,12 @@
+import logging
+
 import pymongo
 from django.conf import settings
 
 from core.services import MongoConnector
+
+
+logger = logging.getLogger('events')
 
 
 # TODO maybe need to move all this logic to core.services.MongoConnector
@@ -23,7 +28,10 @@ class AchievementRulesMongo:
             rules = self.collection.find_one(
                 {'slug': achievement_slug}
             ).get('rules')
-        except Exception:
+        except Exception as e:
+            logger.debug(
+                'MongoDB Exception: {0}::badge_slug=>{1}'.format(e, achievement_slug)
+            )
             rules = None
         return rules
 
@@ -35,5 +43,6 @@ class AchievementRulesMongo:
                 upsert=True
             )
         except Exception as e:
-            # TODO configure Django Logging for this case
-            print(e)
+            logger.debug('MongoDB Exception: {0}::badge_slug=>{1}::rules=>{2}'.format(
+                e, achievement_slug, rules
+            ))
