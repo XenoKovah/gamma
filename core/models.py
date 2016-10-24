@@ -31,6 +31,7 @@ class Event(models.Model):
     Such as points to give for particular event.
     """
     event_type = models.CharField(max_length=16, unique=True)
+    title = models.CharField(max_length=16, blank=True)
     award = models.PositiveSmallIntegerField(verbose_name='Points to award')
 
     def __unicode__(self):

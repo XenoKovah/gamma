@@ -227,8 +227,17 @@ class ChartView(APIView):
             )
 
         progress_data = self.conn.get_charted_progress(user)
+        data = {}
+        for key in progress_data:
+            event_title = Event.objects.values_list(
+                'title', flat=True
+            ).filter(event_type=key).first()
+            if event_title:
+                data[event_title] = progress_data[key]
+            else:
+                data[key] = progress_data[key]
 
-        return Response(progress_data)
+        return Response(data)
 
 
 class PointsView(APIView):
