@@ -65,6 +65,15 @@
   });
 </script>
 <script>
+Highcharts.setOptions({
+     colors: [
+         '#33ACD4',
+         '#008E00',
+         '#0094C2',
+         '#8CDEEB',
+         '#55C900',
+     ]
+});
 $(function() {
     $.get(
         "/api/v0/points/",
