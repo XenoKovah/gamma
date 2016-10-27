@@ -35,7 +35,16 @@ class BadgesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Achievement
-        fields = ('url', 'title', 'slug', 'description')
+        fields = (
+            'url',
+            'title',
+            'slug',
+            'description',
+            'status_badge',
+            'status_points',
+            'status_color'
+        )
 
     def get_url(self, obj):
-        return self.context['request'].build_absolute_uri(obj.badge_img.url)
+        if obj.badge_img:
+            return self.context['request'].build_absolute_uri(obj.badge_img.url)

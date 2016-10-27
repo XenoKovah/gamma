@@ -27,11 +27,12 @@ class AchievementForm(forms.ModelForm):
 
     def save(self, commit, *args, **kwargs):
         m = super(AchievementForm, self).save(commit=False)
-        STORAGE.connect()
-        STORAGE.upsert_rule(
-            self.cleaned_data.get('slug'),
-            json.loads(self.cleaned_data.get('rules'))
-        )
+        if self.cleaned_data.get('rules'):
+            STORAGE.connect()
+            STORAGE.upsert_rule(
+                self.cleaned_data.get('slug'),
+                json.loads(self.cleaned_data.get('rules'))
+            )
         if commit:
             m.save()
         return m
@@ -40,14 +41,15 @@ class AchievementForm(forms.ModelForm):
         """
         Validate input data to be convetable to JSON.
         """
-        data = self.cleaned_data['rules']
+        if self.cleaned_data['rules']:
+            data = self.cleaned_data['rules']
 
-        try:
-            json_data = json.loads(data)
-        except Exception:
-            raise forms.ValidationError("Invalid data in rules field")
+            try:
+                json_data = json.loads(data)
+            except Exception:
+                raise forms.ValidationError("Invalid data in rules field")
 
-        return data
+            return data
 
     class Meta:
         model = Achievement

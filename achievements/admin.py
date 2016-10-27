@@ -8,10 +8,26 @@ from .forms import AchievementForm
 
 class AchievementAdmin(admin.ModelAdmin):
     list_display = (
-        'title', 'slug', 'show_badge_img', 'badge_id', 'badge_type'
+        'title',
+        'slug',
+        'show_badge_img',
+        'badge_id',
+        'badge_type',
+        'status_badge',
+        'status_points',
+        'status_color'
     )
     fields = (
-        'title', 'slug', 'badge_img', 'badge_id', 'badge_type', 'description', 'rules'
+        'title',
+        'slug',
+        'badge_img',
+        'badge_id',
+        'badge_type',
+        'description',
+        'rules',
+        'status_badge',
+        'status_points',
+        'status_color',
     )
     prepopulated_fields = {"slug": ("title",)}
 

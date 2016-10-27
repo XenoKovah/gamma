@@ -12,6 +12,13 @@ BADGE_TYPE_CHOICES = (
     ('enrollment', 'enrollment'),
     ('referrer', 'referrer'),
     ('reward', 'reward'),
+    ('status', 'status')
+)
+
+BADGE_STATUS_COLORS = (
+    ('blue', 'blue'),
+    ('yellow', 'yellow'),
+    ('red', 'red'),
 )
 
 
@@ -28,6 +35,13 @@ class Achievement(models.Model):
     description = models.TextField(blank=True, null=True)
     badge_type = models.CharField(max_length=64, choices=BADGE_TYPE_CHOICES)
     event = models.ForeignKey(Event, null=True, verbose_name='Related event')
+    status_badge = models.BooleanField(default=False)
+    status_points = models.PositiveIntegerField(
+        unique=True, blank=True, null=True
+    )
+    status_color = models.CharField(
+        max_length=16, choices=BADGE_STATUS_COLORS, blank=True
+    )
     badge_img = FileBrowseField(
         "Image",
         max_length=200,

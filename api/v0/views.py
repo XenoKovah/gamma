@@ -26,7 +26,7 @@ from core.authentication import KeySecretAuthentication
 from core.models import GameProfile, Event
 from pointlog.models import LoggedEvent
 from pointlog.tasks import check_user_achievements
-from achievements.models import UserAchievement
+from achievements.models import UserAchievement, Achievement
 
 
 logger = logging.getLogger('events')
@@ -283,6 +283,21 @@ class BadgesView(APIView):
             achive.achievement for achive in
             UserAchievement.objects.filter(user=user)
         )
+        serializer = BadgesSerializer(
+            badges, context={'request': request}, many=True
+        )
+        return Response(serializer.data)
+
+
+class StatusView(APIView):
+    """
+    Statuses API.
+    """
+    def get(self, request, *args, **kwargs):
+        """
+        Get configured statuses.
+        """
+        badges = Achievement.objects.filter(status_badge=True)
         serializer = BadgesSerializer(
             badges, context={'request': request}, many=True
         )

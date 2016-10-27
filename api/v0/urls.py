@@ -9,6 +9,7 @@ from .views import (
     GameProfileView,
     BadgesView,
     EventPointsView,
+    StatusView,
 )
 
 
@@ -18,5 +19,6 @@ urlpatterns = [
     url(r'^points/*$', PointsView.as_view(), name='points'),
     url(r'^gamma-profile/*$', GameProfileView.as_view(), name='gamma-profile'),
     url(r'^badges/*$', BadgesView.as_view(), name='badges'),
+    url(r'^statuses/*$', StatusView.as_view(), name='statuses'),
     url(r'^event-points/*$', EventPointsView.as_view(), name='event-points'),
 ]
