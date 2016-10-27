@@ -25,7 +25,7 @@ from core.services import MongoConnector
 from core.authentication import KeySecretAuthentication
 from core.models import GameProfile, Event
 from pointlog.models import LoggedEvent
-from pointlog.tasks import check_user_achievements
+from pointlog.tasks import check_user_achievements, assign_status
 from achievements.models import UserAchievement, Achievement
 
 
@@ -127,7 +127,8 @@ class GameProfileView(APIView):
                         uniq_id, event_type, event.award
                     )
                 ))
-                check_user_achievements(user.id, event_type)
+                check_user_achievements.delay(user.id, event_type)
+                assign_status.delay(user.id, game_profile.points)
                 return Response(serializer.data)
             else:
                 logger.debug('For user {0} msg: {1}: {2}'.format(

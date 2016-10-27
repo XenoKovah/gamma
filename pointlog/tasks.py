@@ -73,3 +73,23 @@ def check_user_achievements(user_id, event_type):
         results.append(msg)
 
     return results
+
+
+@app.task
+def assign_status(user_id, points):
+    """
+    Check for status updation.
+    """
+    user = User.objects.get(id=user_id)
+    qs = Achievement.objects.filter(status_badge=True, status_points__lte=points)
+    results = []
+    for achievement in qs:
+        _, created = UserAchievement.objects.get_or_create(
+           user=user, achievement=achievement
+        )
+        msg = (
+            'Assigned badge {}'.format(achievement.title) if created else
+            'Already exists badge {}'.format(achievement.title)
+        )
+        results.append(msg)
+    return results
