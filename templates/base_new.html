@@ -245,6 +245,97 @@ $(function() {
     );
 });
 </script>
+<script>
+$(function () {
+    $.get(
+        "/api/v0/progress/",
+        data={"username": "{{ request.user.username }}"},
+        function( data ) {
+            var points_by_day = [];
+            var accumulative_data = [];
+            for (var i in data) {
+                points_by_day.push([Date.parse(data[i].date), data[i].points]);
+                var accum = 0;
+                if (accumulative_data.length != 0) {
+                    accum = accumulative_data[accumulative_data.length-1][1] + data[i].points;
+                }
+                else {
+                    accum = data[i].points;
+                }
+                accumulative_data.push([Date.parse(data[i].date), accum]);
+            }
+
+            $('#container-progress-accumulated').highcharts({
+                chart: {
+                    type: 'spline'
+                },
+                title: {
+                    text: 'Your progress'
+                },
+                xAxis: {
+                    type: 'datetime',
+                    dateTimeLabelFormats: {
+                        month: '%e. %b',
+                        year: '%b'
+                    },
+                    title: {
+                        text: 'Date'
+                    }
+                },
+                yAxis: [{
+                    title: {
+                        text: null
+                    },
+                    labels: {
+                        align: 'left',
+                        x: 3,
+                        y: 16,
+                        format: '{value:.,0f}'
+                    },
+                    showFirstLabel: false
+                }, {
+                    gridLineWidth: 0,
+                    opposite: true,
+                    title: {
+                        text: null
+                    },
+                    labels: {
+                        align: 'right',
+                        x: -3,
+                        y: 16,
+                        format: '{value:.,0f}'
+                    },
+                    showFirstLabel: false
+                }],
+                tooltip: {
+                    headerFormat: '<b>{series.name}</b><br>',
+                    pointFormat: '{point.x:%e. %b}: {point.y:.2f}'
+                },
+
+                plotOptions: {
+                    spline: {
+                        marker: {
+                            enabled: true
+                         }
+                     }
+                },
+
+                series: [{
+                    name: 'Points',
+                    type: 'column',
+                    data: points_by_day
+                },
+                {
+                    name: 'Progress',
+                    type: 'area',
+                    yAxis: 1,
+                    data: accumulative_data
+                }]
+            });
+        }
+    );
+});
+</script>
 
 </head>
 <body class="html front not-logged-in no-sidebars page-node page-node- page-node-3332104 node-type-page-landing-with-hero i18n-en   lang-en">
