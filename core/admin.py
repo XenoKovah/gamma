@@ -16,7 +16,7 @@ class UserAdmin(BaseUserAdmin):
 
 
 class EventAdmin(admin.ModelAdmin):
-    list_display = ('event_type', 'award', 'title')
+    list_display = ('event_type', 'award', 'title', 'order')
 
 
 admin.site.unregister(User)

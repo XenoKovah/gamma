@@ -33,6 +33,7 @@ class Event(models.Model):
     event_type = models.CharField(max_length=16, unique=True)
     title = models.CharField(max_length=16, blank=True)
     award = models.PositiveSmallIntegerField(verbose_name='Points to award')
+    order = models.PositiveIntegerField(default=0, verbose_name='Position')
 
     def __unicode__(self):
         return "{0}: {1} points".format(self.event_type, self.award)

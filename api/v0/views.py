@@ -230,13 +230,13 @@ class ChartView(APIView):
         progress_data = self.conn.get_charted_progress(user)
         data = {}
         for key in progress_data:
-            event_title = Event.objects.values_list(
-                'title', flat=True
+            event_title, order = Event.objects.values_list(
+                'title', 'order'
             ).filter(event_type=key).first()
             if event_title:
-                data[event_title] = progress_data[key]
+                data[event_title] = (order, progress_data[key])
             else:
-                data[key] = progress_data[key]
+                data[key] = (order, progress_data[key])
 
         return Response(data)
 
