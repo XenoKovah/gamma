@@ -94,7 +94,7 @@ $(function() {
                             plotShadow: false
                         },
                         title: {
-                            text: '<h1>Your points</h1>',
+                            text: '<h1>Your Enlightenment Points</h1>',
                             align: 'center'
                         },
                         subtitle: {
@@ -137,7 +137,7 @@ $(function() {
                 function( data ) {
                     for (i in data) {
                         $('#container-badges').append(
-                            '<img src="'+data[i].url+'" alt="'+data[i].description+'" title="'+data[i].description+'"'+'" height="100" width="100">'
+                            '<img src="'+data[i].url+'" alt="'+data[i].description+'" title="'+data[i].description+'"'+'" height="200" width="200">'
                         );
                     }
                 }
@@ -184,7 +184,7 @@ $(function() {
                             type: 'bar'
                         },
                         title: {
-                            text: 'Your Points Progress'
+                            text: 'Points to the Next Level'
                         },
                         subtitle: {
                             text: ''
