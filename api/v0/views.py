@@ -231,7 +231,7 @@ class ChartView(APIView):
         data = {}
         for key in progress_data:
             event_title, order = Event.objects.values_list(
-                'title', 'order'
+                'title', 'color'
             ).filter(event_type=key).first()
             if event_title:
                 data[event_title] = (order, progress_data[key])

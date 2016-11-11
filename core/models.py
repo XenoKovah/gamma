@@ -6,6 +6,18 @@ from .utils import key_secret_generator
 from core import signals  # NOQA
 
 
+COLOR_CHOOCES = (
+    (1, 'Applied Blue'),
+    (2, 'Green'),
+    (3, 'Yellow'),
+    (4, 'Orange'),
+    (5, 'Bright Blue'),
+    (6, 'Purple'),
+    (7, 'Light Gray'),
+    (8, 'Red'),
+)
+
+
 class GameProfile(models.Model):
     """
     Game User profile.
@@ -33,7 +45,7 @@ class Event(models.Model):
     event_type = models.CharField(max_length=16, unique=True)
     title = models.CharField(max_length=16, blank=True)
     award = models.PositiveSmallIntegerField(verbose_name='Points to award')
-    order = models.PositiveIntegerField(default=0, verbose_name='Position')
+    color = models.PositiveSmallIntegerField(choices=COLOR_CHOOCES, default=1)
 
     def __unicode__(self):
         return "{0}: {1} points".format(self.event_type, self.award)
