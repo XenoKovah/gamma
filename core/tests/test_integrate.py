@@ -25,8 +25,6 @@ def test_dashboard(live_server, mongo_server, settings, client, rand_str):
     res = client.get(live_server.url)
     content = res.content.decode('utf-8')
     assert 'Logout' in content
-    assert 'You logged in as user {}.'.format(user.username) in content
-    assert 'Congrants, you are in top 100! You rank is 1' in content
     assert 'header-nav-wrap' in content
     assert 'footer' in content
 

@@ -1,6 +1,11 @@
-import pytest
 import requests
+from datetime import datetime, timedelta
+
+import pytest
 from django.contrib.auth.models import User
+
+from pointlog.models import LoggedEvent
+from achievements.models import UserAchievement, Achievement
 
 
 @pytest.mark.parametrize("need_old_user", [True, False])
@@ -113,7 +118,7 @@ def test_event_not_created(mongo_server, settings, live_server, rand_str, app_cl
     assert data['Error'] == 'Event type is not recognizable'
 
 
-def test_event_not_created(
+def test_event_repeated(
     mongo_server,
     settings,
     live_server,
@@ -290,3 +295,222 @@ def test_progress_404(mongo_server, settings, live_server, rand_str, app_client)
     assert res.status_code == 404
     data = res.json()
     assert data['Error'] == 'User not found'
+
+
+def test_eventlog_404(live_server, rand_str):
+    """
+    Test getting events w/ nonexistent user.
+    """
+    res = requests.get(
+        live_server+'/api/v0/logged-event/',
+        params={'username': rand_str}
+    )
+    assert res.status_code == 404
+    data = res.json()
+    assert data['Error'] == 'User not found'
+
+
+def test_eventlog(mongo_server, settings, live_server, rand_str, app_client, event):
+    """
+    Test getting events for last 5 mins.
+    """
+    settings.MONGODB_CONF = {
+        'HOST': 'localhost',
+        'PORT': mongo_server,
+        'USERNAME': None,
+        'PASSWORD': None
+    }
+    res = requests.put(
+        live_server+'/api/v0/gamma-profile/',
+        data={
+            'username': rand_str,
+            'event_type': event.event_type,
+            'uid': rand_str
+        },
+        headers={
+            'App-key': app_client.key,
+            'App-secret': app_client.secret
+        }
+    )
+    # This event should not be returned by API.
+    old_event = LoggedEvent(
+        user=User.objects.get(username=rand_str),
+        uniq_id='some_dummy_test_str',
+        event_type=event.event_type,
+        points=100,
+        client=app_client,
+        rewarded_points=8
+    )
+    old_event.save()
+    old_event.date = datetime.now()-timedelta(minutes=6)
+    old_event.save()
+    res = requests.get(
+        live_server+'/api/v0/logged-event/',
+        params={'username': rand_str}
+    )
+    assert res.status_code == 200
+    data = res.json()
+    assert len(data) == 1
+    assert data[0]['event_type'] == event.event_type
+    assert data[0]['rewarded_points'] == event.award
+
+
+def test_pointsview(live_server, admin_user, award, rand_str):
+    """
+    Test getting points for particular User.
+    """
+    admin_user.gameprofile.points = award
+    admin_user.gameprofile.save()
+    res = requests.get(
+        live_server+'/api/v0/points/',
+        params={'username': admin_user.username}
+    )
+    assert res.status_code == 200
+    data = res.json()
+    assert data['points'] == award
+
+    res = requests.get(
+        live_server+'/api/v0/points/',
+    )
+    assert res.status_code == 200
+    data = res.json()
+    assert data['username'] == None
+    assert data['points'] == 0
+
+    res = requests.get(
+        live_server+'/api/v0/points/',
+        params={'username': rand_str}
+    )
+    assert res.status_code == 200
+    data = res.json()
+    assert data['username'] == rand_str
+    assert data['points'] == 0
+
+
+def test_chartview(mongo_server, settings, live_server, rand_str, app_client, event):
+    """
+    ChartView should return points by category/event_type.
+    """
+    settings.MONGODB_CONF = {
+        'HOST': 'localhost',
+        'PORT': mongo_server,
+        'USERNAME': None,
+        'PASSWORD': None
+    }
+    res = requests.put(
+        live_server+'/api/v0/gamma-profile/',
+        data={
+            'username': rand_str,
+            'event_type': event.event_type,
+            'uid': rand_str
+        },
+        headers={
+            'App-key': app_client.key,
+            'App-secret': app_client.secret
+        }
+    )
+    res = requests.get(
+        live_server+'/api/v0/chart/',
+        params={'username': rand_str}
+    )
+    assert res.status_code == 200
+    data = res.json()
+    assert isinstance(data[event.event_type], list)
+    assert data[event.event_type] == [1, event.award]
+
+    res = requests.get(
+        live_server+'/api/v0/chart/'
+    )
+    assert res.status_code == 404
+    assert res.json()['Error'] == 'User not found'
+
+
+def test_eventpointsview(mongo_server, settings, live_server, rand_str, award, admin_user):
+    """
+    Emulate rewarding user from admin page.
+    """
+    settings.MONGODB_CONF = {
+        'HOST': 'localhost',
+        'PORT': mongo_server,
+        'USERNAME': None,
+        'PASSWORD': None
+    }
+    res = requests.post(
+        live_server+'/api/v0/event-points/',
+        data={
+            'username': admin_user.username,
+            'points': award
+        }
+    )
+    res = requests.get(
+        live_server+'/api/v0/points/',
+        params={'username': admin_user.username}
+    )
+    assert res.status_code == 200
+    data = res.json()
+    assert data['points'] == award
+
+    res = requests.post(
+        live_server+'/api/v0/event-points/',
+        data={
+            'username': admin_user.username,
+        }
+    )
+    assert res.status_code == 401
+    data = res.json()
+    assert data['msg'] == "Requested reward is not valid."
+
+
+def test_badgesview(live_server, rand_str, event, admin_user):
+    """
+    Get Badges for User.
+    """
+    achievement = Achievement(
+        title=rand_str,
+        slug=rand_str,
+        badge_type=event.event_type,
+        event=event,
+    )
+    achievement.save()
+    user_achiev = UserAchievement(achievement=achievement, user=admin_user)
+    user_achiev.save()
+    res = requests.get(
+        live_server+'/api/v0/badges/',
+        params={'username': admin_user.username}
+    )
+    assert res.status_code == 200
+    data = res.json()
+    assert len(data) == 1
+    assert data[0]['title'] == rand_str
+    assert data[0]['slug'] == rand_str
+    assert data[0]['status_badge'] == False
+
+    res = requests.get(
+        live_server+'/api/v0/badges/'
+    )
+    assert res.status_code == 404
+    assert res.json()['Error'] == 'User not found'
+
+
+def test_statusview(live_server, rand_str, award):
+    """
+    Get all Statuses/Status Badges.
+    """
+    achievement = Achievement(
+        title=rand_str,
+        slug=rand_str,
+        badge_type=rand_str,
+        status_badge=True,
+        status_points=award
+    )
+    achievement.save()
+    res = requests.get(
+        live_server+'/api/v0/statuses/'
+    )
+    assert res.status_code == 200
+    data = res.json()
+    assert len(data) == 1
+    assert data[0]['title'] == rand_str
+    assert data[0]['slug'] == rand_str
+    assert data[0]['status_badge'] == True
+    assert data[0]['status_points'] == award

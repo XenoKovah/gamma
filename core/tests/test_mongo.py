@@ -1,6 +1,7 @@
 import pytest
 import pymongo
 from django.core.management import call_command
+from django.contrib.auth.models import User
 
 from core.models import key_secret_generator
 from achievements.services import AchievementRulesMongo
@@ -19,7 +20,8 @@ def test_mongo(mongo_server, settings):
     call_command('mongo_setup')
 
 
-def test_progress(mongo_server, settings, mongo_conn, admin_user, current_date, award):
+@pytest.mark.django_db
+def test_progress_mongo(mongo_server, settings, mongo_conn, current_date, award, rand_str):
     """
     Test setting/getting progress documents.
     """
@@ -29,21 +31,22 @@ def test_progress(mongo_server, settings, mongo_conn, admin_user, current_date, 
         'USERNAME': None,
         'PASSWORD': None
     }
+    user = User.objects.create(username=rand_str)
     assert isinstance(mongo_conn.db, pymongo.database.Database)
     mongo_conn.find_one_and_update(
         filter_dict={
             'date': current_date,
-            'username': admin_user.username
+            'username': rand_str
         },
         key='points',
         value=award
     )
-    progress = mongo_conn.get_progress(admin_user)
+    progress = mongo_conn.get_progress(user)
     assert isinstance(progress, pymongo.cursor.Cursor)
 
     assert progress.count() == 1
     for item in progress:
-        assert admin_user.username not in item
+        assert user.username not in item
         assert item['date'] == current_date
         assert item['points'] == award
 
