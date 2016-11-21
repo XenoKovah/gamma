@@ -57,7 +57,8 @@ class EventPointsForm(forms.Form):
             user=user,
             event_type=event_type,
             points=game_profile.points,
-            client=client
+            client=client,
+            rewarded_points=award
         )
         log_event.save()
 

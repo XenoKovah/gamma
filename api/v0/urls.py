@@ -10,6 +10,7 @@ from .views import (
     BadgesView,
     EventPointsView,
     StatusView,
+    LoggedEventView,
 )
 
 
@@ -21,4 +22,5 @@ urlpatterns = [
     url(r'^badges/*$', BadgesView.as_view(), name='badges'),
     url(r'^statuses/*$', StatusView.as_view(), name='statuses'),
     url(r'^event-points/*$', EventPointsView.as_view(), name='event-points'),
+    url(r'^logged-event/*$', LoggedEventView.as_view(), name='logged-event'),
 ]

@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from core.models import GameProfile
 from achievements.models import Achievement
+from pointlog.models import LoggedEvent
 
 
 class GameProfileSerializer(serializers.ModelSerializer):
@@ -48,3 +49,11 @@ class BadgesSerializer(serializers.ModelSerializer):
     def get_url(self, obj):
         if obj.badge_img:
             return self.context['request'].build_absolute_uri(obj.badge_img.url)
+
+
+class LoggedEventSerializer(serializers.ModelSerializer):
+    """
+    EventLogged model serializer.
+    """
+    class Meta:
+        model = LoggedEvent

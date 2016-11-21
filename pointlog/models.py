@@ -16,6 +16,7 @@ class LoggedEvent(models.Model):
     points = models.IntegerField()
     date = models.DateTimeField(auto_now_add=True)
     client = models.ForeignKey(AppClient, null=True)
+    rewarded_points = models.IntegerField(null=True, blank=True)
 
     class Meta:
         unique_together = ('user', 'uniq_id', 'client')

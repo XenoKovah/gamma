@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from pymongo import MongoClient
 from django.contrib.auth.models import User
@@ -19,6 +19,7 @@ from ..serializers import (
     GameProfileSerializer,
     ProgressSerializer,
     BadgesSerializer,
+    LoggedEventSerializer,
 )
 
 from core.services import MongoConnector
@@ -118,7 +119,8 @@ class GameProfileView(APIView):
                     user=user,
                     event_type=event_type,
                     points=game_profile.points,
-                    client=request.client
+                    client=request.client,
+                    rewarded_points=event.award
                 )
                 log_event.save()
                 logger.debug('For user {0} msg: {1}'.format(
@@ -302,4 +304,29 @@ class StatusView(APIView):
         serializer = BadgesSerializer(
             badges, context={'request': request}, many=True
         )
+        return Response(serializer.data)
+
+
+class LoggedEventView(APIView):
+    """
+    Return all new Events for user.
+
+    Computed based on request time.
+    """
+    def get(self, request, *args, **kwargs):
+        """
+        Get latest LoggedEvents.
+        """
+        user = User.objects.filter(
+            username=request.GET.get('username')
+        ).first()
+        if not user:
+            return Response(
+                {"Error": "User not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        qs = LoggedEvent.objects.filter(
+            user=user, date__gte=datetime.now()-timedelta(minutes=5)
+        )
+        serializer = LoggedEventSerializer(qs, many=True)
         return Response(serializer.data)
