@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from core.models import GameProfile
 from achievements.models import Achievement
-from pointlog.models import LoggedEvent
+from pointlog.models import LoggedEvent, ApiAccessEvent
 
 
 class GameProfileSerializer(serializers.ModelSerializer):
@@ -57,3 +57,10 @@ class LoggedEventSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = LoggedEvent
+
+class ApiAccessEventSerializer(serializers.ModelSerializer):
+    """
+    EventLogged model serializer.
+    """
+    class Meta:
+        model = ApiAccessEvent

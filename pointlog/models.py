@@ -20,3 +20,17 @@ class LoggedEvent(models.Model):
 
     class Meta:
         unique_together = ('user', 'uniq_id', 'client')
+
+class ApiAccessEvent(models.Model):
+    """
+    Model to track incoming events.
+
+    This data structure allow us to check for repeated events by unique_id.
+    """
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    date = models.DateTimeField(auto_now_add=True)
+    api_name = models.CharField(max_length=16)
+
+    class Meta:
+        unique_together = ('user', 'api_name')
+

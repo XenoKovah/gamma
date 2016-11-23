@@ -20,12 +20,14 @@ from ..serializers import (
     ProgressSerializer,
     BadgesSerializer,
     LoggedEventSerializer,
+    ApiAccessEventSerializer,
 )
 
 from core.services import MongoConnector
 from core.authentication import KeySecretAuthentication
 from core.models import GameProfile, Event
 from pointlog.models import LoggedEvent
+from pointlog.models import ApiAccessEvent
 from pointlog.tasks import check_user_achievements, assign_status
 from achievements.models import UserAchievement, Achievement
 
@@ -211,7 +213,6 @@ class EventPointsView(APIView):
                 {'msg': "Requested reward is not valid."}, status=401
             )
 
-
 class ChartView(APIView):
     """
     Retrieve User chart.
@@ -239,6 +240,16 @@ class ChartView(APIView):
                 data[event_title] = (order, progress_data[key])
             else:
                 data[key] = (order, progress_data[key])
+
+	logged_api_access = ApiAccessEvent.objects.get(user=user, api_name="Charts")
+        if logged_api_access is not None:
+            logged_api_access.delete()
+
+        log_api_access = ApiAccessEvent(
+            user=user,
+            api_name='Charts'
+        )
+        log_api_access.save()
 
         return Response(data)
 
@@ -289,6 +300,17 @@ class BadgesView(APIView):
         serializer = BadgesSerializer(
             badges, context={'request': request}, many=True
         )
+
+        logged_api_access = ApiAccessEvent.objects.get(user=user, api_name='Badges')
+        if logged_api_access is not None:
+            logged_api_access.delete()
+
+        log_api_access = ApiAccessEvent(
+            user=user,
+            api_name='Badges'
+        )
+        log_api_access.save()
+
         return Response(serializer.data)
 
 
@@ -304,6 +326,7 @@ class StatusView(APIView):
         serializer = BadgesSerializer(
             badges, context={'request': request}, many=True
         )
+
         return Response(serializer.data)
 
 
@@ -329,4 +352,19 @@ class LoggedEventView(APIView):
             user=user, date__gte=datetime.now()-timedelta(minutes=5)
         )
         serializer = LoggedEventSerializer(qs, many=True)
+        return Response(serializer.data)
+
+
+class ApiAccessEventView(APIView):
+    """
+    Return all new Events for user.
+
+    Computed based on request time.
+    """
+    def get(self, request, *args, **kwargs):
+        """
+        Get latest LoggedEvents.
+        """
+        qs = ApiAccessEvent.objects.all()
+        serializer = ApiAccessEventSerializer(qs, many=True)
         return Response(serializer.data)
