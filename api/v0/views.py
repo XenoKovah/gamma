@@ -241,9 +241,9 @@ class ChartView(APIView):
             else:
                 data[key] = (order, progress_data[key])
 
-	logged_api_access = ApiAccessEvent.objects.get(user=user, api_name="Charts")
-        if logged_api_access is not None:
-            logged_api_access.delete()
+#	logged_api_access = ApiAccessEvent.objects.get(user=user, api_name="Charts")
+#        if logged_api_access is not None:
+#            logged_api_access.delete()
 
         log_api_access = ApiAccessEvent(
             user=user,
@@ -300,10 +300,6 @@ class BadgesView(APIView):
         serializer = BadgesSerializer(
             badges, context={'request': request}, many=True
         )
-
-        logged_api_access = ApiAccessEvent.objects.get(user=user, api_name='Badges')
-        if logged_api_access is not None:
-            logged_api_access.delete()
 
         log_api_access = ApiAccessEvent(
             user=user,

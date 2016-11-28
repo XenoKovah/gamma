@@ -32,5 +32,5 @@ class ApiAccessEvent(models.Model):
     api_name = models.CharField(max_length=16)
 
     class Meta:
-        unique_together = ('user', 'api_name')
+        unique_together = ('user', 'api_name', 'date')
 
