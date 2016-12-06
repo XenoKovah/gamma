@@ -13,6 +13,7 @@ class LoggedEvent(models.Model):
     uniq_id = models.CharField(max_length=255)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     event_type = models.CharField(max_length=16)
+    org = models.CharField(max_length=128, blank=True)
     points = models.IntegerField()
     date = models.DateTimeField(auto_now_add=True)
     client = models.ForeignKey(AppClient, null=True)
@@ -20,6 +21,7 @@ class LoggedEvent(models.Model):
 
     class Meta:
         unique_together = ('user', 'uniq_id', 'client')
+
 
 class ApiAccessEvent(models.Model):
     """
@@ -33,4 +35,3 @@ class ApiAccessEvent(models.Model):
 
     class Meta:
         unique_together = ('user', 'api_name', 'date')
-

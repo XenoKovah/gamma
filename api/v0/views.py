@@ -67,6 +67,7 @@ class GameProfileView(APIView):
             user.save()
         game_profile = GameProfile.objects.get(user=user)
         event_type = self.request.data.get('event_type')
+        org = self.request.data.get('org')
         uniq_id = self.request.data.get('uid')
 
         if not uniq_id:
@@ -120,6 +121,7 @@ class GameProfileView(APIView):
                     uniq_id=uniq_id,
                     user=user,
                     event_type=event_type,
+                    org=org,
                     points=game_profile.points,
                     client=request.client,
                     rewarded_points=event.award
