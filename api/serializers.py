@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from core.models import GameProfile
+from core.models import GameProfile, Event
 from achievements.models import Achievement
 from pointlog.models import LoggedEvent, ApiAccessEvent
 
@@ -55,8 +55,18 @@ class LoggedEventSerializer(serializers.ModelSerializer):
     """
     EventLogged model serializer.
     """
+    color = serializers.SerializerMethodField()
+
     class Meta:
         model = LoggedEvent
+
+    def get_color(self, obj):
+        """
+        Return Event color.
+        """
+        color = Event.objects.values_list('color').get(event_type=obj.event_type)
+        return color[0]-1 if color else None
+
 
 class ApiAccessEventSerializer(serializers.ModelSerializer):
     """
