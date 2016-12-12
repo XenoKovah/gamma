@@ -38,6 +38,7 @@ def test_api(
         data={
             'username': rand_str,
             'event_type': event.event_type,
+            'org': rand_str,
             'uid': rand_str
         },
         headers={
@@ -140,6 +141,7 @@ def test_event_repeated(
         data={
             'username': rand_str,
             'event_type': rand_str,
+            'org': rand_str,
             'uid': rand_str
         },
         headers={
@@ -152,6 +154,7 @@ def test_event_repeated(
         data={
             'username': rand_str,
             'event_type': rand_str,
+            'org': rand_str,
             'uid': rand_str
         },
         headers={
@@ -325,6 +328,7 @@ def test_eventlog(mongo_server, settings, live_server, rand_str, app_client, eve
         data={
             'username': rand_str,
             'event_type': event.event_type,
+            'org': rand_str,
             'uid': rand_str
         },
         headers={
@@ -374,7 +378,7 @@ def test_pointsview(live_server, admin_user, award, rand_str):
     )
     assert res.status_code == 200
     data = res.json()
-    assert data['username'] == None
+    assert data['username'] is None
     assert data['points'] == 0
 
     res = requests.get(
@@ -483,7 +487,7 @@ def test_badgesview(live_server, rand_str, event, admin_user):
     assert len(data) == 1
     assert data[0]['title'] == rand_str
     assert data[0]['slug'] == rand_str
-    assert data[0]['status_badge'] == False
+    assert data[0]['status_badge'] is False
 
     res = requests.get(
         live_server+'/api/v0/badges/'
@@ -512,5 +516,5 @@ def test_statusview(live_server, rand_str, award):
     assert len(data) == 1
     assert data[0]['title'] == rand_str
     assert data[0]['slug'] == rand_str
-    assert data[0]['status_badge'] == True
+    assert data[0]['status_badge']
     assert data[0]['status_points'] == award

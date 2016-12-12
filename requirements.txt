@@ -1,0 +1,3 @@
+# Inherits from requirements/test.txt
+
+-r requirements/test.txt
