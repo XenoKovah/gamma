@@ -215,6 +215,7 @@ class EventPointsView(APIView):
                 {'msg': "Requested reward is not valid."}, status=401
             )
 
+
 class ChartView(APIView):
     """
     Retrieve User chart.
@@ -242,11 +243,6 @@ class ChartView(APIView):
                 data[event_title] = (order, progress_data[key])
             else:
                 data[key] = (order, progress_data[key])
-
-#	logged_api_access = ApiAccessEvent.objects.get(user=user, api_name="Charts")
-#        if logged_api_access is not None:
-#            logged_api_access.delete()
-
         log_api_access = ApiAccessEvent(
             user=user,
             api_name='Charts'

@@ -16,11 +16,15 @@ class UserAdmin(BaseUserAdmin):
 
 
 class EventAdmin(admin.ModelAdmin):
-    list_display = ('event_type', 'award', 'title', 'color')
+    list_display = ('event_type', 'award', 'title', 'color', 'notification_message')
+
+
+class AppClientAdmin(admin.ModelAdmin):
+    list_display = ('name', 'key', 'secret')
 
 
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
 
-admin.site.register(AppClient, admin.ModelAdmin)
+admin.site.register(AppClient, AppClientAdmin)
 admin.site.register(Event, EventAdmin)

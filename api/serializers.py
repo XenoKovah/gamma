@@ -56,6 +56,7 @@ class LoggedEventSerializer(serializers.ModelSerializer):
     EventLogged model serializer.
     """
     color = serializers.SerializerMethodField()
+    msg = serializers.SerializerMethodField()
 
     class Meta:
         model = LoggedEvent
@@ -64,8 +65,14 @@ class LoggedEventSerializer(serializers.ModelSerializer):
         """
         Return Event color.
         """
-        color = Event.objects.values_list('color').get(event_type=obj.event_type)
-        return color[0]-1 if color else None
+        if not hasattr(obj, 'related_event'):
+            obj.event = Event.objects.get(event_type=obj.event_type)
+        return obj.event.color-1
+
+    def get_msg(self, obj):
+        if not hasattr(obj, 'related_event'):
+            obj.related_event = Event.objects.get(event_type=obj.event_type)
+        return obj.event.notification_message.format(obj.rewarded_points)
 
 
 class ApiAccessEventSerializer(serializers.ModelSerializer):

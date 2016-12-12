@@ -46,6 +46,11 @@ class Event(models.Model):
     title = models.CharField(max_length=16, blank=True)
     award = models.PositiveSmallIntegerField(verbose_name='Points to award')
     color = models.PositiveSmallIntegerField(choices=COLOR_CHOOCES, default=1)
+    notification_message = models.CharField(
+        max_length=128,
+        default='You have got {} point.',
+        help_text="You can use {} to insert awarded points into correct place. e.g. Congrats! You've earned {} points for watching videos"
+    )
 
     def __unicode__(self):
         return "{0}: {1} points".format(self.event_type, self.award)
