@@ -60,6 +60,7 @@ class LoggedEventSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = LoggedEvent
+        fields = '__all__'
 
     def get_color(self, obj):
         """
@@ -67,7 +68,7 @@ class LoggedEventSerializer(serializers.ModelSerializer):
         """
         if not hasattr(obj, 'related_event'):
             obj.event = Event.objects.get(event_type=obj.event_type)
-        return obj.event.color-1
+        return obj.event.color - 1
 
     def get_msg(self, obj):
         if not hasattr(obj, 'related_event'):

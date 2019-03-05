@@ -15,12 +15,10 @@ Including another URLconf
 """
 
 from django.conf import settings
-from django.conf.urls import url, include
+from django.urls import include, path
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.views.generic import TemplateView, RedirectView
-from django.core.urlresolvers import reverse_lazy
-from django.contrib.auth.views import logout
+from django.contrib.auth import logout
 from filebrowser.sites import site
 
 from core.views import DashboardView
@@ -28,30 +26,19 @@ from core.views import DashboardView
 
 urlpatterns = [
     # Dashboard page
-    url(r'^$', DashboardView.as_view()),
+    path('', DashboardView.as_view()),
 
-    url(r'^admin/filebrowser/', include(site.urls)),
-    url(r'^grappelli/', include('grappelli.urls')),
+    path('admin/filebrowser/', site.urls),
+    path('grappelli/', include('grappelli.urls')),
 
     # Native admin page
-    url(r'^admin/', admin.site.urls),
+    path('admin/', admin.site.urls),
 
     # Django Rest Framework
-    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
-    # Python Social Auth
-    url('', include('social.apps.django_app.urls', namespace='social')),
-    url(
-        r'^accounts/login/$',
-        RedirectView.as_view(
-            url=reverse_lazy('social:begin', args=['edx-oidc']),
-            permanent=False,
-            query_string=True
-        ),
-        name='login'
-    ),
-    url(r'^logout/$', logout, kwargs={'next_page': '/'}, name='logout'),
+    path('logout/', logout, kwargs={'next_page': '/'}, name='logout'),
 
     # API
-    url(r'^api/', include('api.urls', namespace='api')),
+    path('api/', include(('api.urls', 'api'), namespace='api')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

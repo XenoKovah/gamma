@@ -1,4 +1,3 @@
-import time
 import uuid
 import socket
 import random
@@ -6,7 +5,6 @@ import string
 from datetime import datetime
 
 import pytest
-import requests
 import docker as libdocker
 
 from core.services import MongoConnector

@@ -347,7 +347,7 @@ $(function () {
     <div class="container logo-container header-navbar">
     <ul class="menu global-nav pull-right">
         {% if not user.is_authenticated %}
-        <li class="last leaf"><a href="{% url 'login' %}">{% trans "Login" %}</a></li>
+        <li class="last leaf"><a href=admin/login>{% trans "Login" %}</a></li>
         {% else %}
         <li class="last leaf"><a href="{% url 'logout' %}">{% trans "Logout" %}</a></li>
         {% endif %}

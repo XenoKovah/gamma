@@ -16,7 +16,7 @@ class LoggedEvent(models.Model):
     org = models.CharField(max_length=128, blank=True)
     points = models.IntegerField()
     date = models.DateTimeField(auto_now_add=True)
-    client = models.ForeignKey(AppClient, null=True)
+    client = models.ForeignKey(AppClient, null=True, on_delete=models.DO_NOTHING)
     rewarded_points = models.IntegerField(null=True, blank=True)
 
     class Meta:

@@ -1,8 +1,9 @@
 # Packages required for tests
--r base.txt
+-r dev.txt
 
 pytest
 pytest-django
 pytest-cov
 pytest-xdist
 docker-py
+diff-cover

@@ -7,30 +7,12 @@ from core.models import key_secret_generator
 from achievements.services import AchievementRulesMongo
 
 
-def test_mongo(mongo_server, settings):
-    """
-    Testing general mongo flow and `mongo_setup` command.
-    """
-    settings.MONGODB_CONF = {
-        'HOST': 'localhost',
-        'PORT': mongo_server,
-        'USERNAME': None,
-        'PASSWORD': None
-    }
-    call_command('mongo_setup')
-
-
 @pytest.mark.django_db
-def test_progress_mongo(mongo_server, settings, mongo_conn, current_date, award, rand_str):
+def test_progress_mongo(settings, mongo_conn, current_date, award, rand_str):
     """
     Test setting/getting progress documents.
     """
-    settings.MONGODB_CONF = {
-        'HOST': 'localhost',
-        'PORT': mongo_server,
-        'USERNAME': None,
-        'PASSWORD': None
-    }
+    settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
     user = User.objects.create(username=rand_str)
     assert isinstance(mongo_conn.db, pymongo.database.Database)
     mongo_conn.find_one_and_update(
@@ -51,16 +33,11 @@ def test_progress_mongo(mongo_server, settings, mongo_conn, current_date, award,
         assert item['points'] == award
 
 
-def test_charted(mongo_server, settings, mongo_conn, admin_user, award):
+def test_charted(settings, mongo_conn, admin_user, award, rand_str):
     """
     Test setting/getting charted progress documents.
     """
-    settings.MONGODB_CONF = {
-        'HOST': 'localhost',
-        'PORT': mongo_server,
-        'USERNAME': None,
-        'PASSWORD': None
-    }
+    settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
     mongo_conn.find_one_and_update(
         filter_dict={
             'username': admin_user.username
@@ -88,10 +65,11 @@ def test_key_gen():
         prev = secret
 
 
-def test_rules(mongo_server, rand_str, award):
+def test_rules(settings, rand_str, award):
     """
     Set/get rules by achievement slug.
     """
+    settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
     storage = AchievementRulesMongo()
     storage.connect()
     storage.upsert_rule(rand_str, {"count": award})
@@ -101,10 +79,11 @@ def test_rules(mongo_server, rand_str, award):
     assert rules['count'] == award
 
 
-def test_rules(mongo_server, rand_str, award):
+def test_rules(settings, rand_str, award):
     """
     Get non existent achievement slug.
     """
+    settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
     storage = AchievementRulesMongo()
     storage.connect()
     rules = storage.get_rule(rand_str)

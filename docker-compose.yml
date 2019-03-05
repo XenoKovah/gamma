@@ -1,16 +1,52 @@
-mongo:
- image: mongo
+version: '3'
 
-postgres:
- image: postgres
+services:
 
-app:
- build: .
- command: sh /app/docker-prepare.sh
- volumes:
-   - .:/app
- ports:
-   - "9000:9000"
- links:
-   - mongo
-   - postgres
+  mongo:
+    image: mongo
+    volumes:
+      - gamma_mongo:/data/db
+
+  postgres:
+    image: postgres
+    env_file: ./envs/local.env
+    volumes:
+        - gamma_db:/var/lib/postgresql/data/
+
+  app:
+    build: .
+    env_file: ./envs/local.env
+    command: python manage.py runserver 0.0.0.0:9000
+    volumes:
+      - .:/app
+    ports:
+      - "9000:9000"
+    links:
+      - mongo
+      - postgres
+      - celery
+
+  celery:
+    container_name: gamma_celery
+    build:
+      context: .
+      dockerfile: Dockerfile.celery
+    command: celery worker --config ../.conf/celery/celeryconfig.py -A gamma --loglevel=INFO -B
+    env_file: ./envs/local.env
+    volumes:
+      - ./:/home/user/app
+    links:
+      - rabbit
+      - redis
+
+  rabbit:
+    container_name: gamma_rabbit
+    image: rabbitmq:latest
+  
+  redis:
+    container_name: gamma_redis
+    image: redis:latest
+
+volumes:
+  gamma_db:
+  gamma_mongo:

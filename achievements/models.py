@@ -34,7 +34,7 @@ class Achievement(models.Model):
     badge_id = models.CharField(max_length=64, blank=True)
     description = models.TextField(blank=True, null=True)
     badge_type = models.CharField(max_length=64, choices=BADGE_TYPE_CHOICES)
-    event = models.ForeignKey(Event, null=True, verbose_name='Related event')
+    event = models.ForeignKey(Event, null=True, verbose_name='Related event', on_delete=models.DO_NOTHING)
     status_badge = models.BooleanField(default=False)
     status_points = models.PositiveIntegerField(
         unique=True, blank=True, null=True
@@ -60,8 +60,8 @@ class UserAchievement(models.Model):
     Custom ManyToMany model for User<=>Achievements relation.
     """
     date = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(User)
-    achievement = models.ForeignKey(Achievement)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    achievement = models.ForeignKey(Achievement, on_delete=models.CASCADE)
 
     def __str__(self):
         return '{0} <=> {1} : {2}'.format(self.achievement, self.user.username, self.date)

@@ -16,7 +16,7 @@ class DashboardView(View):
 
     def get(self, request):
         user_achievements, rank, progress_data, charted_progress = None, None, None, None
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             progress_data = self.conn.get_progress(request.user)
             data = self.conn.get_charted_progress(request.user)
             if data:

@@ -9,7 +9,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'gamma.settings')
 
 from django.conf import settings  # noqa
 
-app = Celery('gamma')
+app = Celery('gamma', backend=settings.CELERY_RESULT_BACKEND, broker=settings.CELERY_BROKER_URL)
 
 # Using a string here means the worker will not have to
 # pickle the object when using Windows.

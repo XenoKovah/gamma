@@ -3,21 +3,11 @@ import pytest
 from django.contrib.auth.models import User
 
 
-# @pytest.fixture
-# def selenium(selenium):
-#     return selenium
-
-
-def test_dashboard(live_server, mongo_server, settings, client, rand_str):
+def test_dashboard(live_server, settings, client, rand_str):
     """
     Test dashboard page for logged user.
     """
-    settings.MONGODB_CONF = {
-        'HOST': 'localhost',
-        'PORT': mongo_server,
-        'USERNAME': None,
-        'PASSWORD': None
-    }
+    settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
     user = User(username=rand_str, password=rand_str)
     user.save()
     client.force_login(user=user)

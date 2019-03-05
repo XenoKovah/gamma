@@ -10,7 +10,6 @@ from achievements.models import UserAchievement, Achievement
 
 @pytest.mark.parametrize("need_old_user", [True, False])
 def test_api(
-    mongo_server,
     settings,
     live_server,
     rand_str,
@@ -22,19 +21,14 @@ def test_api(
     """
     Test setting/getting progress documents.
     """
-    settings.MONGODB_CONF = {
-        'HOST': 'localhost',
-        'PORT': mongo_server,
-        'USERNAME': None,
-        'PASSWORD': None
-    }
+    settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
     if need_old_user:
         # Creating User
         user = User(username=rand_str)
         user.save()
 
     res = requests.put(
-        live_server+'/api/v0/gamma-profile/',
+        live_server + '/api/v0/gamma-profile/',
         data={
             'username': rand_str,
             'event_type': event.event_type,
@@ -64,18 +58,13 @@ def test_api(
     assert chart[event.event_type] == event.award
 
 
-def test_uniq_id_required(mongo_server, settings, live_server, rand_str, app_client):
+def test_uniq_id_required(settings, live_server, rand_str, app_client):
     """
     `uniq_id` field is required.
     """
-    settings.MONGODB_CONF = {
-        'HOST': 'localhost',
-        'PORT': mongo_server,
-        'USERNAME': None,
-        'PASSWORD': None
-    }
+    settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
     res = requests.put(
-        live_server+'/api/v0/gamma-profile/',
+        live_server + '/api/v0/gamma-profile/',
         data={
             'username': rand_str,
             'event_type': rand_str,
@@ -91,18 +80,13 @@ def test_uniq_id_required(mongo_server, settings, live_server, rand_str, app_cli
     assert data['Error'] == 'UID field is mandatory'
 
 
-def test_event_not_created(mongo_server, settings, live_server, rand_str, app_client):
+def test_event_not_created(settings, live_server, rand_str, app_client):
     """
     Event should be created in DB.
     """
-    settings.MONGODB_CONF = {
-        'HOST': 'localhost',
-        'PORT': mongo_server,
-        'USERNAME': None,
-        'PASSWORD': None
-    }
+    settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
     res = requests.put(
-        live_server+'/api/v0/gamma-profile/',
+        live_server + '/api/v0/gamma-profile/',
         data={
             'username': rand_str,
             # this event not created in the system
@@ -120,7 +104,6 @@ def test_event_not_created(mongo_server, settings, live_server, rand_str, app_cl
 
 
 def test_event_repeated(
-    mongo_server,
     settings,
     live_server,
     rand_str,
@@ -130,14 +113,9 @@ def test_event_repeated(
     """
     Repeated events is not acceptable.
     """
-    settings.MONGODB_CONF = {
-        'HOST': 'localhost',
-        'PORT': mongo_server,
-        'USERNAME': None,
-        'PASSWORD': None
-    }
+    settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
     res = requests.put(
-        live_server+'/api/v0/gamma-profile/',
+        live_server + '/api/v0/gamma-profile/',
         data={
             'username': rand_str,
             'event_type': rand_str,
@@ -150,7 +128,7 @@ def test_event_repeated(
         }
     )
     res = requests.put(
-        live_server+'/api/v0/gamma-profile/',
+        live_server + '/api/v0/gamma-profile/',
         data={
             'username': rand_str,
             'event_type': rand_str,
@@ -167,18 +145,13 @@ def test_event_repeated(
     assert data['Error'] == 'Repeated event occurs'
 
 
-def test_put_403(mongo_server, settings, live_server, rand_str):
+def test_put_403(settings, live_server, rand_str):
     """
     Get request for non existent user should return 404.
     """
-    settings.MONGODB_CONF = {
-        'HOST': 'localhost',
-        'PORT': mongo_server,
-        'USERNAME': None,
-        'PASSWORD': None
-    }
+    settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
     res = requests.put(
-        live_server+'/api/v0/gamma-profile/',
+        live_server + '/api/v0/gamma-profile/',
         data={'username': rand_str},
     )
     assert res.status_code == 403
@@ -186,22 +159,17 @@ def test_put_403(mongo_server, settings, live_server, rand_str):
     assert data['detail'] == 'Please provide APP_KEY and APP_SECRET'
 
 
-def test_get(mongo_server, settings, live_server, rand_str, app_client, event):
+def test_get(settings, live_server, rand_str, app_client, event):
     """
     Get request should return user game data.
     """
-    settings.MONGODB_CONF = {
-        'HOST': 'localhost',
-        'PORT': mongo_server,
-        'USERNAME': None,
-        'PASSWORD': None
-    }
+    settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
     user = User(username=rand_str)
     user.save()
 
     # TODO add tests for :points API
     res = requests.get(
-        live_server+'/api/v0/gamma-profile/',
+        live_server + '/api/v0/gamma-profile/',
         data={'username': rand_str},
         headers={
             'App-key': app_client.key,
@@ -213,18 +181,13 @@ def test_get(mongo_server, settings, live_server, rand_str, app_client, event):
     assert data['points'] == 0
 
 
-def test_get_404(mongo_server, settings, live_server, rand_str, app_client):
+def test_get_404(settings, live_server, rand_str, app_client):
     """
     Get request for non existent user should return 404.
     """
-    settings.MONGODB_CONF = {
-        'HOST': 'localhost',
-        'PORT': mongo_server,
-        'USERNAME': None,
-        'PASSWORD': None
-    }
+    settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
     res = requests.get(
-        live_server+'/api/v0/gamma-profile/',
+        live_server + '/api/v0/gamma-profile/',
         data={'username': rand_str},
         headers={
             'App-key': app_client.key,
@@ -236,18 +199,13 @@ def test_get_404(mongo_server, settings, live_server, rand_str, app_client):
     assert data['Error'] == 'User not found'
 
 
-def test_get_403(mongo_server, settings, live_server, rand_str):
+def test_get_403(settings, live_server, rand_str):
     """
     Get request for non existent user should return 404.
     """
-    settings.MONGODB_CONF = {
-        'HOST': 'localhost',
-        'PORT': mongo_server,
-        'USERNAME': None,
-        'PASSWORD': None
-    }
+    settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
     res = requests.get(
-        live_server+'/api/v0/gamma-profile/',
+        live_server + '/api/v0/gamma-profile/',
         data={'username': rand_str},
     )
     assert res.status_code == 403
@@ -255,21 +213,16 @@ def test_get_403(mongo_server, settings, live_server, rand_str):
     assert data['detail'] == 'Please provide APP_KEY and APP_SECRET'
 
 
-def test_progress(mongo_server, settings, live_server, rand_str, app_client):
+def test_progress(settings, live_server, rand_str, app_client):
     """
     Get request for `progress` url should return user progress data.
     """
-    settings.MONGODB_CONF = {
-        'HOST': 'localhost',
-        'PORT': mongo_server,
-        'USERNAME': None,
-        'PASSWORD': None
-    }
+    settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
     user = User(username=rand_str)
     user.save()
 
     res = requests.get(
-        live_server+'/api/v0/progress/',
+        live_server + '/api/v0/progress/',
         params={'username': rand_str},
     )
     assert res.status_code == 200
@@ -278,17 +231,13 @@ def test_progress(mongo_server, settings, live_server, rand_str, app_client):
     assert isinstance(data, list)
 
 
-def test_progress_404(mongo_server, settings, live_server, rand_str, app_client):
+def test_progress_404(settings, live_server, rand_str, app_client):
     """
     Get request for non existent user should return 404.
     """
-    settings.MONGODB_CONF = {
-        'HOST': 'localhost',
-        'PORT': mongo_server,
-    }
-
+    settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
     res = requests.get(
-        live_server+'/api/v0/progress/',
+        live_server + '/api/v0/progress/',
         data={'username': rand_str},
         headers={
             'App-key': app_client.key,
@@ -300,12 +249,13 @@ def test_progress_404(mongo_server, settings, live_server, rand_str, app_client)
     assert data['Error'] == 'User not found'
 
 
-def test_eventlog_404(live_server, rand_str):
+def test_eventlog_404(live_server, rand_str, settings):
     """
     Test getting events w/ nonexistent user.
     """
+    settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
     res = requests.get(
-        live_server+'/api/v0/logged-event/',
+        live_server + '/api/v0/logged-event/',
         params={'username': rand_str}
     )
     assert res.status_code == 404
@@ -313,18 +263,13 @@ def test_eventlog_404(live_server, rand_str):
     assert data['Error'] == 'User not found'
 
 
-def test_eventlog(mongo_server, settings, live_server, rand_str, app_client, event):
+def test_eventlog(settings, live_server, rand_str, app_client, event):
     """
     Test getting events for last 5 mins.
     """
-    settings.MONGODB_CONF = {
-        'HOST': 'localhost',
-        'PORT': mongo_server,
-        'USERNAME': None,
-        'PASSWORD': None
-    }
+    settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
     res = requests.put(
-        live_server+'/api/v0/gamma-profile/',
+        live_server + '/api/v0/gamma-profile/',
         data={
             'username': rand_str,
             'event_type': event.event_type,
@@ -349,7 +294,7 @@ def test_eventlog(mongo_server, settings, live_server, rand_str, app_client, eve
     old_event.date = datetime.now()-timedelta(minutes=6)
     old_event.save()
     res = requests.get(
-        live_server+'/api/v0/logged-event/',
+        live_server + '/api/v0/logged-event/',
         params={'username': rand_str}
     )
     assert res.status_code == 200
@@ -359,10 +304,11 @@ def test_eventlog(mongo_server, settings, live_server, rand_str, app_client, eve
     assert data[0]['rewarded_points'] == event.award
 
 
-def test_pointsview(live_server, admin_user, award, rand_str):
+def test_pointsview(live_server, admin_user, award, rand_str, settings):
     """
     Test getting points for particular User.
     """
+    settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
     admin_user.gameprofile.points = award
     admin_user.gameprofile.save()
     res = requests.get(
@@ -391,16 +337,11 @@ def test_pointsview(live_server, admin_user, award, rand_str):
     assert data['points'] == 0
 
 
-def test_chartview(mongo_server, settings, live_server, rand_str, app_client, event):
+def test_chartview(settings, live_server, rand_str, app_client, event):
     """
     ChartView should return points by category/event_type.
     """
-    settings.MONGODB_CONF = {
-        'HOST': 'localhost',
-        'PORT': mongo_server,
-        'USERNAME': None,
-        'PASSWORD': None
-    }
+    settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
     res = requests.put(
         live_server+'/api/v0/gamma-profile/',
         data={
@@ -429,16 +370,11 @@ def test_chartview(mongo_server, settings, live_server, rand_str, app_client, ev
     assert res.json()['Error'] == 'User not found'
 
 
-def test_eventpointsview(mongo_server, settings, live_server, rand_str, award, admin_user):
+def test_eventpointsview(settings, live_server, rand_str, award, admin_user):
     """
     Emulate rewarding user from admin page.
     """
-    settings.MONGODB_CONF = {
-        'HOST': 'localhost',
-        'PORT': mongo_server,
-        'USERNAME': None,
-        'PASSWORD': None
-    }
+    settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
     res = requests.post(
         live_server+'/api/v0/event-points/',
         data={
@@ -465,10 +401,11 @@ def test_eventpointsview(mongo_server, settings, live_server, rand_str, award, a
     assert data['msg'] == "Requested reward is not valid."
 
 
-def test_badgesview(live_server, rand_str, event, admin_user):
+def test_badgesview(live_server, rand_str, event, admin_user, settings):
     """
     Get Badges for User.
     """
+    settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
     achievement = Achievement(
         title=rand_str,
         slug=rand_str,
@@ -496,10 +433,11 @@ def test_badgesview(live_server, rand_str, event, admin_user):
     assert res.json()['Error'] == 'User not found'
 
 
-def test_statusview(live_server, rand_str, award):
+def test_statusview(live_server, rand_str, award, settings):
     """
     Get all Statuses/Status Badges.
     """
+    settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
     achievement = Achievement(
         title=rand_str,
         slug=rand_str,
