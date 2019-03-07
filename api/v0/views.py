@@ -203,7 +203,7 @@ class EventPointsView(APIView):
     API to reward particular User with points.
     """
     def post(self, request, *args, **kwargs):
-        form = EventPointsForm(request.POST)
+        form = EventPointsForm(request.data)
         if form.is_valid():
             form.save_event_points()
             return Response({
