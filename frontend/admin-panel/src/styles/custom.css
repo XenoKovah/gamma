@@ -1,0 +1,47 @@
+/* .FloatLeft {
+
+}
+
+.FloatRight {
+} */
+
+.Filter {
+    border: 1px solid;
+    margin: 20px;
+    padding: 10px;
+}
+
+.Wrapper {
+    width: 800px;
+    margin: 0 auto;
+}
+
+.FormSubmit {
+    width: 100% !important;
+    margin-bottom: 20px;
+}
+
+.BlockFilter {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-right: 20px;
+}
+
+.AndOrBlock {
+    display:flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+}
+
+.BlockFilter-item {
+    margin-right: 20px;
+}
+
+.AndOrButtonItem {
+    margin-right: 20px;
+}
+
+.ConditionDivider {
+    margin-right: 20px;
+}

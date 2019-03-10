@@ -37,3 +37,10 @@ class DashboardView(View):
             'rank': rank,
             'user_achievements': user_achievements
         })
+
+
+class AdminPanelView(View):
+
+    def get(self, request):
+        if request.user.is_authenticated and request.user.is_superuser:
+            return render(request, 'admin_panel.html', {})

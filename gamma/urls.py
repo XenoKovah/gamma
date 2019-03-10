@@ -21,12 +21,15 @@ from django.contrib import admin
 from django.contrib.auth import logout
 from filebrowser.sites import site
 
-from core.views import DashboardView
+from core.views import DashboardView, AdminPanelView
 
 
 urlpatterns = [
     # Dashboard page
     path('', DashboardView.as_view()),
+
+    # Admin panel
+    path('admin_panel/', AdminPanelView.as_view()),
 
     path('admin/filebrowser/', site.urls),
     path('grappelli/', include('grappelli.urls')),
