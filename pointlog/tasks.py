@@ -8,6 +8,7 @@ from .models import LoggedEvent
 from gamma.celery import app
 from achievements.models import Achievement, UserAchievement
 from achievements.services import AchievementRulesMongo
+from datetime import datetime
 
 
 AGGREGATIONS = {
@@ -17,7 +18,7 @@ AGGREGATIONS = {
 
 
 @app.task
-def check_user_achievements(user_id, event_type):
+def check_user_achievements(user_id, log_event):
     """
     Check user achievement by event type.
 
@@ -27,51 +28,18 @@ def check_user_achievements(user_id, event_type):
     conn = AchievementRulesMongo()
     conn.connect()
     user = User.objects.get(id=user_id)
-    achievement_slug_set = Achievement.objects.filter(
-        badge_type=event_type
-    ).values_list('slug')
-    rules_set = (
-        (slug[0], conn.get_rule(achievement_slug=slug[0]))
-        for slug in achievement_slug_set
-    )
+    rules_set = conn.collection.find({"rules.actions.{}".format(log_event.event_type): {"$exists": True}})
 
-    log_model_fields = [field.name for field in LoggedEvent._meta.fields]
     results = []
-    for slug, rules in rules_set:
-        qs = LoggedEvent.objects.filter(user=user, event_type=event_type)
-        count = rules.get('count')
-        if count:
-            del rules['count']
-        else:
-            count = 10
-
-        # Agregations is not used now
-        # TODO need to improve aggregation logic
-        aggregators = []
-        for key, value in rules.items():
-            if key in AGGREGATIONS:
-                aggregators.append((key, value))
-                del rules[key]
-            elif key not in log_model_fields:
-                del rules[key]
-
-        if rules:
-            qs = qs.filter(**rules)
-
-        result = qs.count()
-        if result >= count:
-            achievement = Achievement.objects.get(slug=slug)
-            _, created = UserAchievement.objects.get_or_create(
-               user=user, achievement=achievement
-            )
-            msg = (
-                'Assigned for slug: {}'.format(slug) if created else
-                'Already exists for slug: {}'.format(slug)
-            )
-        else:
-            msg = 'Not assigned slug: {}'.format(slug)
-        results.append(msg)
-
+    for rules in rules_set:
+        conn.collection.update(
+            {"_id": rules["_id"]},
+            {
+                "$inc": {"rules.{}.{}.count".format(user.id, log_event.event_type): 1},
+                "$set": {"rules.{}.{}.last".format(user.id, log_event.event_type): datetime.now()}
+            },
+            upsert=True
+        )
     return results
 
 

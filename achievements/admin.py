@@ -12,7 +12,6 @@ class AchievementAdmin(admin.ModelAdmin):
         'slug',
         'show_badge_img',
         'badge_id',
-        'badge_type',
         'status_badge',
         'status_points',
         'status_color'
@@ -22,7 +21,6 @@ class AchievementAdmin(admin.ModelAdmin):
         'slug',
         'badge_img',
         'badge_id',
-        'badge_type',
         'description',
         'rules',
         'status_badge',

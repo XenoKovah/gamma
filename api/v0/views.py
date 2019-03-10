@@ -25,7 +25,9 @@ from ..serializers import (
 
 from core.services import MongoConnector
 from core.authentication import KeySecretAuthentication
-from core.models import GameProfile, Event
+from core.models import GameProfile, Event, AppClient
+from core.mongo import c_badges
+from achievements.services import AchievementRulesMongo
 from pointlog.models import LoggedEvent
 from pointlog.models import ApiAccessEvent
 from pointlog.tasks import check_user_achievements, assign_status
@@ -39,9 +41,9 @@ class GameProfileView(APIView):
     """
     GET or UPDATE user points.
     """
-    authentication_classes = (KeySecretAuthentication,)
 
     conn = MongoConnector()
+
 
     def put(self, request, *args, **kwargs):
         """
@@ -67,7 +69,7 @@ class GameProfileView(APIView):
             user.save()
         game_profile = GameProfile.objects.get(user=user)
         event_type = self.request.data.get('event_type')
-        org = self.request.data.get('org')
+        org = self.request.data.get('org', 'org')
         uniq_id = self.request.data.get('uid')
 
         if not uniq_id:
@@ -83,7 +85,7 @@ class GameProfileView(APIView):
             uniq_id=uniq_id,
             user=user,
             event_type=event_type,
-            client=request.client
+            client=AppClient.objects.get(id=1)
         ).exists():
             event = Event.objects.filter(event_type=event_type).first()
             if event and event.award:
@@ -123,7 +125,7 @@ class GameProfileView(APIView):
                     event_type=event_type,
                     org=org,
                     points=game_profile.points,
-                    client=request.client,
+                    client=AppClient.objects.get(id=1),
                     rewarded_points=event.award
                 )
                 log_event.save()
@@ -133,7 +135,7 @@ class GameProfileView(APIView):
                         uniq_id, event_type, event.award
                     )
                 ))
-                check_user_achievements.delay(user.id, event_type)
+                check_user_achievements(user.id, log_event)
                 assign_status.delay(user.id, game_profile.points)
                 return Response(serializer.data)
             else:
@@ -291,13 +293,19 @@ class BadgesView(APIView):
                 {"Error": "User not found"},
                 status=status.HTTP_404_NOT_FOUND
             )
-        badges = (
-            achive.achievement for achive in
-            UserAchievement.objects.filter(user=user)
-        )
-        serializer = BadgesSerializer(
-            badges, context={'request': request}, many=True
-        )
+
+        conn = AchievementRulesMongo()
+        conn.connect()
+        badges = conn.collection.find()
+        for badge in badges:
+            print(badge)
+            c_badges().update(
+                {"user_id": user.id},
+                {
+                    "$set": {"{}".format(badge.get("slug")): badge.get("rules").get(str(user.id))}
+                },
+                upsert=True
+            )
 
         log_api_access = ApiAccessEvent(
             user=user,
@@ -305,7 +313,7 @@ class BadgesView(APIView):
         )
         log_api_access.save()
 
-        return Response(serializer.data)
+        return Response([_ for _ in c_badges().find({"user_id": user.id}, {"_id": 0})])
 
 
 class StatusView(APIView):

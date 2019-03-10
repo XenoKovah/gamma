@@ -33,8 +33,6 @@ class Achievement(models.Model):
     slug = models.SlugField(max_length=64, unique=True)
     badge_id = models.CharField(max_length=64, blank=True)
     description = models.TextField(blank=True, null=True)
-    badge_type = models.CharField(max_length=64, choices=BADGE_TYPE_CHOICES)
-    event = models.ForeignKey(Event, null=True, verbose_name='Related event', on_delete=models.DO_NOTHING)
     status_badge = models.BooleanField(default=False)
     status_points = models.PositiveIntegerField(
         unique=True, blank=True, null=True
