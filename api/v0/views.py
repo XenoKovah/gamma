@@ -297,20 +297,27 @@ class BadgesView(APIView):
 
         conn = AchievementRulesMongo()
         conn.connect()
-        badges = conn.collection.find()
+        badges = conn.collection.find({"active": True})
         for badge in badges:
             c_badges().update(
                 {"user_id": user.id},
                 {
                     "$set": {
-                        "badges.{}".format(badge.get("slug")): badge.get("users", {}).get(str(user.id))
+                        "badges.{}".format(badge.get("slug")): badge.get("users", {}).get(str(user.id), {})
                     }
                 },
                 upsert=True
             )
 
-            rule = badge.get("users", {}).get(str(user.id))
-            done = all(map(lambda x: x[0] >= x[1], ((rule[i].get('count'), rule[i].get('goal')) for i in rule if not i == 'done')))
+            rule = badge.get("users", {}).get(str(user.id), {})
+            done = all(
+                map(
+                    lambda x: x[0] >= x[1],
+                    (
+                        (rule[i].get('count'), badge.get("rules", {}).get("actions", {}).get(i))
+                        for i in rule if not i == 'done')
+                )
+            ) if rule else False
 
             c_badges().update(
                 {"user_id": user.id},

@@ -33,7 +33,12 @@ def check_user_achievements(user_id, log_event):
     conn = AchievementRulesMongo()
     conn.connect()
     user = User.objects.get(id=user_id)
-    rules_set = conn.collection.find({"rules.actions.{}".format(log_event.event_type): {"$exists": True}})
+    rules_set = conn.collection.find(
+        {
+            "rules.actions.{}".format(log_event.event_type): {"$exists": True},
+            "active": True
+        }
+    )
 
     results = []
     for rules in rules_set:
