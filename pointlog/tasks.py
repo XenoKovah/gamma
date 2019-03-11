@@ -1,6 +1,9 @@
 from __future__ import absolute_import
 
 from datetime import timedelta, datetime
+import pytz
+
+utc=pytz.UTC
 
 
 from django.db.models import Avg, Sum
@@ -40,16 +43,20 @@ def check_user_achievements(user_id, log_event):
         filter_set = [getattr(log_event, key, '') == value for key, value in
                       rules.get('rules', {}).get('filters', {}).items() if getattr(log_event, key, '')]
 
+        frequency = rules.get('rules', {}).get('filters', {}).get('frequency', None)
         interval = rules.get('rules', {}).get('filters', {}).get('interval', None)
-        if interval:
+        if frequency:
             try:
-                delta = timedelta(interval)
+                delta = timedelta(frequency)
                 document = conn.collection.find_one({"_id": rules["_id"]})
                 last = document.get('users', {}).get(str(user.id), {}).get(log_event.event_type, {}).get('last')
                 if datetime.now() - last > delta:
                     continue
             except Exception:
                 pass
+        if interval:
+            if not (utc.localize(interval.get('start')) <= log_event.date <=  utc.localize(interval.get('end'))):
+                continue
 
         if not filter_set or all(filter_set):
             conn.collection.update(
