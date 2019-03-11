@@ -32,14 +32,28 @@ def check_user_achievements(user_id, log_event):
 
     results = []
     for rules in rules_set:
-        conn.collection.update(
-            {"_id": rules["_id"]},
-            {
-                "$inc": {"rules.{}.{}.count".format(user.id, log_event.event_type): 1},
-                "$set": {"rules.{}.{}.last".format(user.id, log_event.event_type): datetime.now()}
-            },
-            upsert=True
-        )
+        if rules.get('users', {}).get(str(user.id), {}).get('done'):
+            continue
+
+        filter_set = [getattr(log_event, key, '') == value for key, value in
+                      rules.get('rules', {}).get('filters', {}).items() if getattr(log_event, key, '')]
+
+        if not filter_set or all(filter_set):
+            conn.collection.update(
+                {
+                    "_id": rules["_id"]
+                },
+                {
+                    "$inc": {"users.{}.{}.count".format(user.id, log_event.event_type): 1},
+                    "$set": {
+                        "users.{}.{}.last".format(user.id, log_event.event_type): datetime.now(),
+                        "users.{}.{}.goal".format(
+                            user.id, log_event.event_type): rules.get(
+                                'rules', {}).get('actions', {}).get(log_event.event_type)
+                    }
+                },
+                upsert=True
+            )
     return results
 
 

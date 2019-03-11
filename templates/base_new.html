@@ -139,10 +139,25 @@ $(function() {
                 "/api/v0/badges/",
                 data={"username": "{{ request.user.username }}"},
                 function( data ) {
-                    for (i in data) {
+                    for (i in data) {                      
+                        if ( !data[i].done ) {
+                            var style = 'style="-webkit-filter: grayscale(100%); filter: grayscale(100%);"';
+                        }   
+                        else {  
+                            var style = ''
+                        }
                         $('#container-badges').append(
-                            '<img src="'+data[i].url+'" alt="'+data[i].description+'" title="'+data[i].description+'"'+'" height="200" width="200">'
+                            '<img src="https://youtrack.raccoongang.com/_classpath/smartui/img/default/youtrack-sign.svg"' + style + 'height="200" width="200">'
                         );
+
+                        if ( !data[i]["done"] ) {
+                            for (_ in data[i]) {
+                                console.log(data[i][_]["count"]);
+                                if ( _ !== 'done' ) {
+                                    $('#container-badges').append(_ + ": " + data[i][_]["count"] + " of " + data[i][_]["goal"] + "  || ");
+                                }
+                            }
+                        }
                     }
                 }
             );

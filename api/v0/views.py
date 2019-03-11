@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime, timedelta
 
+import pymongo
 from pymongo import MongoClient
 from django.contrib.auth.models import User
 from django.views.generic.edit import FormView
@@ -298,13 +299,26 @@ class BadgesView(APIView):
         conn.connect()
         badges = conn.collection.find()
         for badge in badges:
-            print(badge)
             c_badges().update(
                 {"user_id": user.id},
                 {
-                    "$set": {"{}".format(badge.get("slug")): badge.get("rules").get(str(user.id))}
+                    "$set": {
+                        "badges.{}".format(badge.get("slug")): badge.get("users", {}).get(str(user.id))
+                    }
                 },
                 upsert=True
+            )
+
+            rule = badge.get("users", {}).get(str(user.id))
+            done = all(map(lambda x: x[0] >= x[1], ((rule[i].get('count'), rule[i].get('goal')) for i in rule if not i == 'done')))
+
+            c_badges().update(
+                {"user_id": user.id},
+                {
+                    "$set": {
+                        "badges.{}.done".format(badge.get("slug")): done
+                    }
+                },
             )
 
         log_api_access = ApiAccessEvent(
@@ -313,7 +327,7 @@ class BadgesView(APIView):
         )
         log_api_access.save()
 
-        return Response([_ for _ in c_badges().find({"user_id": user.id}, {"_id": 0})])
+        return Response(c_badges().find_one({"user_id": user.id}, {"_id": 0}).get('badges'))
 
 
 class StatusView(APIView):
