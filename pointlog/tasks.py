@@ -1,5 +1,8 @@
 from __future__ import absolute_import
 
+from datetime import timedelta, datetime
+
+
 from django.db.models import Avg, Sum
 from django.contrib.auth.models import User
 
@@ -8,7 +11,6 @@ from .models import LoggedEvent
 from gamma.celery import app
 from achievements.models import Achievement, UserAchievement
 from achievements.services import AchievementRulesMongo
-from datetime import datetime
 
 
 AGGREGATIONS = {
@@ -38,6 +40,17 @@ def check_user_achievements(user_id, log_event):
         filter_set = [getattr(log_event, key, '') == value for key, value in
                       rules.get('rules', {}).get('filters', {}).items() if getattr(log_event, key, '')]
 
+        interval = rules.get('rules', {}).get('filters', {}).get('interval', None)
+        if interval:
+            try:
+                delta = timedelta(interval)
+                document = conn.collection.find_one({"_id": rules["_id"]})
+                last = document.get('users', {}).get(str(user.id), {}).get(log_event.event_type, {}).get('last')
+                if datetime.now() - last > delta:
+                    continue
+            except Exception:
+                pass
+
         if not filter_set or all(filter_set):
             conn.collection.update(
                 {
@@ -47,6 +60,7 @@ def check_user_achievements(user_id, log_event):
                     "$inc": {"users.{}.{}.count".format(user.id, log_event.event_type): 1},
                     "$set": {
                         "users.{}.{}.last".format(user.id, log_event.event_type): datetime.now(),
+                        # TODO change the logic when we update goal
                         "users.{}.{}.goal".format(
                             user.id, log_event.event_type): rules.get(
                                 'rules', {}).get('actions', {}).get(log_event.event_type)
