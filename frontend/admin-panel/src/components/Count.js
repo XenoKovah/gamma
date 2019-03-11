@@ -8,7 +8,9 @@ class Count extends React.Component {
     }
 
     onChange(event) {
-        this.props.onChange({count: event.currentTarget.value});
+        this.setState({
+            count: event.currentTarget.value
+        }, () => {this.props.onChange(this.state)})
     }
 
 

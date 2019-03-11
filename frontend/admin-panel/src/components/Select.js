@@ -3,13 +3,15 @@ import React from 'react';
 class Select extends React.Component {
     constructor(props) {
         super(props);
-        this.items = props.items ? props.items : ['one', 'two', 'three', 'four'];
+        this.items = ['one', 'two', 'three', 'four'];
         
         this.handleChange = this.handleChange.bind(this);
     }
 
     handleChange(event) {
-        this.props.onChange({action: event.currentTarget.value});
+        this.setState({
+            action: event.currentTarget.value
+        }, () => {this.props.onChange(this.state)} )
     }
 
     render() {
@@ -19,7 +21,7 @@ class Select extends React.Component {
         return (
             <label>Choose action
                 <select onChange={this.handleChange}>
-                    <option value="----" selected>-----</option>
+                    <option value="----" defaultValue>-----</option>
                     {options}
                 </select>
             </label>

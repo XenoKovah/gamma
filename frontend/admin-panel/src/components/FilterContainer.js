@@ -9,7 +9,10 @@ class FilterContainer extends React.Component {
 
     constructor(props) {
         super(props);
+
         this.selectChanged = this.selectChanged.bind(this);
+        this.deleteBlock = this.deleteBlock.bind(this);
+
         this.state = {
             action: "",
             count:0
@@ -19,8 +22,15 @@ class FilterContainer extends React.Component {
     selectChanged(data) {
         this.setState({
             ...data
-        }, () => {this.props.onChange(this.props.id, this.state, this.props.value)})
+        }, () => {
+            this.props.onChange(this.props.id, this.state, this.props.value);
+        })
         
+    }
+
+    deleteBlock(event) {
+        event.preventDefault();
+        this.props.deleteBlock(this.props.id);
     }
 
     render() {
@@ -33,6 +43,9 @@ class FilterContainer extends React.Component {
                 <div className="BlockFilter-item">
                     <Count onChange={this.selectChanged}/>
                 </div>
+                {
+                    this.props.value ? <button onClick={this.deleteBlock}>Delete</button> : false
+                }
             </div>
         )
     }
