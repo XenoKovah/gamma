@@ -12,7 +12,7 @@ from django.contrib.auth.models import User
 from .models import LoggedEvent
 
 from gamma.celery import app
-from achievements.models import Achievement, UserAchievement
+from achievements.models import Achievement, UserAchievement, StatusBadge, UserStatus
 from achievements.services import AchievementRulesMongo
 
 
@@ -89,15 +89,15 @@ def assign_status(user_id, points):
     Check for status updation.
     """
     user = User.objects.get(id=user_id)
-    qs = Achievement.objects.filter(status_badge=True, status_points__lte=points)
+    qs = StatusBadge.objects.filter(status_points__lte=points)
     results = []
-    for achievement in qs:
-        _, created = UserAchievement.objects.get_or_create(
-           user=user, achievement=achievement
+    for status in qs:
+        _, created = UserStatus.objects.get_or_create(
+           user=user, status=status
         )
         msg = (
-            'Assigned badge {}'.format(achievement.title) if created else
-            'Already exists badge {}'.format(achievement.title)
+            'Assigned badge {}'.format(status.title) if created else
+            'Already exists badge {}'.format(status.title)
         )
         results.append(msg)
     return results

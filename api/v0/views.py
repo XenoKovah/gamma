@@ -22,17 +22,19 @@ from ..serializers import (
     BadgesSerializer,
     LoggedEventSerializer,
     ApiAccessEventSerializer,
+    UserStatusSerializer,
+    EventSerializer
 )
 
 from core.services import MongoConnector
 from core.authentication import KeySecretAuthentication
-from core.models import GameProfile, Event, AppClient
+from core.models import GameProfile, AppClient
 from core.mongo import c_badges
 from achievements.services import AchievementRulesMongo
 from pointlog.models import LoggedEvent
 from pointlog.models import ApiAccessEvent
 from pointlog.tasks import check_user_achievements, assign_status
-from achievements.models import UserAchievement, Achievement
+from achievements.models import UserAchievement, Achievement, StatusBadge, Event, UserStatus
 
 
 logger = logging.getLogger('events')
@@ -137,7 +139,7 @@ class GameProfileView(APIView):
                     )
                 ))
                 check_user_achievements(user.id, log_event)
-                assign_status.delay(user.id, game_profile.points)
+                assign_status(user.id, game_profile.points)
                 return Response(serializer.data)
             else:
                 logger.debug('For user {0} msg: {1}: {2}'.format(
@@ -337,6 +339,30 @@ class BadgesView(APIView):
         return Response(c_badges().find_one({"user_id": user.id}, {"_id": 0}).get('badges'))
 
 
+class UserStatuses(APIView):
+    """
+    Return achieved statuses.
+    """
+    def get(self, request, *args, **kwargs):
+        """
+        Get user's statuses.
+        """
+        user = User.objects.filter(
+            username=request.GET.get('username')
+        ).first()
+        if not user:
+            return Response(
+                {"Error": "User not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        user_statuses = UserStatus.objects.filter(user=user)
+        serializer = UserStatusSerializer(
+            [i.status for i in user_statuses], context={'request': request}, many=True
+        )
+
+        return Response(serializer.data)
+
+
 class StatusView(APIView):
     """
     Statuses API.
@@ -345,9 +371,9 @@ class StatusView(APIView):
         """
         Get configured statuses.
         """
-        badges = Achievement.objects.filter(status_badge=True)
-        serializer = BadgesSerializer(
-            badges, context={'request': request}, many=True
+        statuses = StatusBadge.objects.filter()
+        serializer = UserStatusSerializer(
+            statuses, context={'request': request}, many=True
         )
 
         return Response(serializer.data)
@@ -391,3 +417,48 @@ class ApiAccessEventView(APIView):
         qs = ApiAccessEvent.objects.all()
         serializer = ApiAccessEventSerializer(qs, many=True)
         return Response(serializer.data)
+
+
+class EventsView(APIView):
+    """
+    Return all available Events.
+    """
+    def get(self, request, *args, **kwargs):
+        """
+        Get all Events.
+        """
+        qs = Event.objects.all()
+        serializer = EventSerializer(qs, many=True)
+        return Response(serializer.data)
+
+
+class FiltersView(APIView):
+    """
+    Return all available Filters.
+    """
+    def get(self, request, *args, **kwargs):
+        """
+        Get all Filters.
+        """
+        return Response([
+            {'org': 'String'},
+            {'interval': {'start': 'Date', 'end': 'Date'}},
+            {'frequency': 'Int32'}])
+
+
+class BadgeRuleView(APIView):
+    """
+    Return Badge rules.
+    """
+    conn = AchievementRulesMongo()
+    conn.connect()
+
+    def get(self, request, *args, **kwargs):
+        """
+        Get rules for badge by a slug.
+        """
+        slug = request.GET.get('slug')
+        if not slug:
+            return Response({})
+        badge = self.conn.collection.find_one({"slug": slug}, {"_id": 0})
+        return Response(badge.get('rules', {}) if badge else {})

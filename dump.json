@@ -33,7 +33,7 @@
       "max"
     ],
     "open_badges_id": "",
-    "points": 1530
+    "points": 1650
   }
 },
 {
@@ -46,47 +46,12 @@
   }
 },
 {
-  "model": "core.event",
-  "pk": 1,
-  "fields": {
-    "event_type": "problem",
-    "title": "",
-    "award": 10,
-    "color": 1,
-    "notification_message": "You have got {} point."
-  }
-},
-{
-  "model": "core.event",
+  "model": "core.appclient",
   "pk": 2,
   "fields": {
-    "event_type": "video",
-    "title": "",
-    "award": 20,
-    "color": 1,
-    "notification_message": "You have got {} point."
-  }
-},
-{
-  "model": "core.event",
-  "pk": 3,
-  "fields": {
-    "event_type": "forum",
-    "title": "",
-    "award": 30,
-    "color": 1,
-    "notification_message": "You have got {} point."
-  }
-},
-{
-  "model": "core.event",
-  "pk": 4,
-  "fields": {
-    "event_type": "course",
-    "title": "",
-    "award": 40,
-    "color": 1,
-    "notification_message": "You have got {} point."
+    "name": "reward",
+    "key": "776018db643444da2fd0",
+    "secret": "d539fe2964bd2472ed9a"
   }
 },
 {
@@ -97,9 +62,6 @@
     "slug": "test",
     "badge_id": "",
     "description": "",
-    "status_badge": false,
-    "status_points": null,
-    "status_color": "",
     "badge_img": "uploads/badges/screenshot_at_jan_22_22-07-12.png"
   }
 },
@@ -111,9 +73,6 @@
     "slug": "test2",
     "badge_id": "",
     "description": "",
-    "status_badge": false,
-    "status_points": null,
-    "status_color": "",
     "badge_img": "uploads/badges/enroll_code.png"
   }
 },
@@ -125,10 +84,110 @@
     "slug": "test3",
     "badge_id": "",
     "description": "",
-    "status_badge": false,
-    "status_points": null,
-    "status_color": "",
     "badge_img": "uploads/badges/start_thread_5.png"
+  }
+},
+{
+  "model": "achievements.achievement",
+  "pk": 4,
+  "fields": {
+    "title": "Performance",
+    "slug": "performance",
+    "badge_id": "",
+    "description": "",
+    "badge_img": "uploads/badges/screenshot_at_jan_22_22-07-12.png"
+  }
+},
+{
+  "model": "achievements.statusbadge",
+  "pk": 1,
+  "fields": {
+    "title": "Gold men",
+    "slug": "gold",
+    "badge_id": "",
+    "description": "",
+    "status_points": 1600,
+    "status_color": "blue",
+    "badge_img": "uploads/badges/screenshot_at_dec_05_12-14-28.png"
+  }
+},
+{
+  "model": "achievements.statusbadge",
+  "pk": 2,
+  "fields": {
+    "title": "Purple",
+    "slug": "purple",
+    "badge_id": "",
+    "description": "",
+    "status_points": 2000,
+    "status_color": "yellow",
+    "badge_img": "uploads/badges/screenshot_at_jan_22_22-07-12.png"
+  }
+},
+{
+  "model": "achievements.userstatus",
+  "pk": 1,
+  "fields": {
+    "date": "2019-03-12T11:58:40.789Z",
+    "user": [
+      "max"
+    ],
+    "status": 1
+  }
+},
+{
+  "model": "achievements.event",
+  "pk": 1,
+  "fields": {
+    "event_type": "problem",
+    "title": "",
+    "award": 10,
+    "color": 1,
+    "notification_message": "You have got {} point."
+  }
+},
+{
+  "model": "achievements.event",
+  "pk": 2,
+  "fields": {
+    "event_type": "video",
+    "title": "",
+    "award": 10,
+    "color": 1,
+    "notification_message": "You have got {} point."
+  }
+},
+{
+  "model": "achievements.event",
+  "pk": 3,
+  "fields": {
+    "event_type": "forum",
+    "title": "",
+    "award": 40,
+    "color": 1,
+    "notification_message": "You have got {} point."
+  }
+},
+{
+  "model": "achievements.event",
+  "pk": 4,
+  "fields": {
+    "event_type": "course",
+    "title": "",
+    "award": 20,
+    "color": 1,
+    "notification_message": "You have got {} point."
+  }
+},
+{
+  "model": "achievements.event",
+  "pk": 5,
+  "fields": {
+    "event_type": "reward",
+    "title": "",
+    "award": 5,
+    "color": 1,
+    "notification_message": "You have got {} point."
   }
 },
 {
@@ -1665,6 +1724,118 @@
     "date": "2019-03-11T20:42:53.302Z",
     "client": 1,
     "rewarded_points": 20
+  }
+},
+{
+  "model": "pointlog.loggedevent",
+  "pk": 101,
+  "fields": {
+    "uniq_id": "b5d3e189a6f2fa89799c",
+    "user": [
+      "max"
+    ],
+    "event_type": "reward",
+    "org": "",
+    "points": 1535,
+    "date": "2019-03-12T11:45:57.004Z",
+    "client": 2,
+    "rewarded_points": 5
+  }
+},
+{
+  "model": "pointlog.loggedevent",
+  "pk": 102,
+  "fields": {
+    "uniq_id": "edb9181afbda54d7cf27",
+    "user": [
+      "max"
+    ],
+    "event_type": "reward",
+    "org": "",
+    "points": 1540,
+    "date": "2019-03-12T11:46:42.864Z",
+    "client": 2,
+    "rewarded_points": 5
+  }
+},
+{
+  "model": "pointlog.loggedevent",
+  "pk": 103,
+  "fields": {
+    "uniq_id": "48c3623106f3212f4e05",
+    "user": [
+      "max"
+    ],
+    "event_type": "reward",
+    "org": "",
+    "points": 1590,
+    "date": "2019-03-12T11:47:03.459Z",
+    "client": 2,
+    "rewarded_points": 50
+  }
+},
+{
+  "model": "pointlog.loggedevent",
+  "pk": 104,
+  "fields": {
+    "uniq_id": "sdfsdsddfsddfsdffsdfgfvsfsdfddffsdfsdfgdffgdff",
+    "user": [
+      "max"
+    ],
+    "event_type": "video",
+    "org": "Microsoft",
+    "points": 1610,
+    "date": "2019-03-12T11:57:53.592Z",
+    "client": 1,
+    "rewarded_points": 20
+  }
+},
+{
+  "model": "pointlog.loggedevent",
+  "pk": 105,
+  "fields": {
+    "uniq_id": "sdfsdsddfsddfsdffsdfgfvsffddffsdfsdfgdffgdff",
+    "user": [
+      "max"
+    ],
+    "event_type": "video",
+    "org": "Microsoft",
+    "points": 1630,
+    "date": "2019-03-12T11:58:40.769Z",
+    "client": 1,
+    "rewarded_points": 20
+  }
+},
+{
+  "model": "pointlog.loggedevent",
+  "pk": 106,
+  "fields": {
+    "uniq_id": "sdfsddfsdfgdffgdff",
+    "user": [
+      "max"
+    ],
+    "event_type": "video",
+    "org": "Microsoft",
+    "points": 1640,
+    "date": "2019-03-12T15:51:59.035Z",
+    "client": 1,
+    "rewarded_points": 10
+  }
+},
+{
+  "model": "pointlog.loggedevent",
+  "pk": 107,
+  "fields": {
+    "uniq_id": "sdfsddfsdfgf",
+    "user": [
+      "max"
+    ],
+    "event_type": "problem",
+    "org": "Microsoft",
+    "points": 1650,
+    "date": "2019-03-12T15:52:07.976Z",
+    "client": 1,
+    "rewarded_points": 10
   }
 },
 {
@@ -4242,6 +4413,732 @@
   }
 },
 {
+  "model": "pointlog.apiaccessevent",
+  "pk": 266,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T11:31:18.294Z",
+    "api_name": "Badges"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 267,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T11:33:58.598Z",
+    "api_name": "Badges"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 268,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T11:46:06.559Z",
+    "api_name": "Charts"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 269,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T11:46:06.580Z",
+    "api_name": "Badges"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 270,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T11:46:35.103Z",
+    "api_name": "Badges"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 271,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T11:46:35.137Z",
+    "api_name": "Charts"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 272,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T11:46:46.966Z",
+    "api_name": "Badges"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 273,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T11:46:46.999Z",
+    "api_name": "Charts"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 274,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T11:47:05.959Z",
+    "api_name": "Charts"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 275,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T11:47:05.962Z",
+    "api_name": "Badges"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 276,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T11:58:23.796Z",
+    "api_name": "Charts"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 277,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T11:58:23.802Z",
+    "api_name": "Badges"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 278,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T11:58:51.718Z",
+    "api_name": "Charts"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 279,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T11:58:51.723Z",
+    "api_name": "Badges"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 280,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T12:00:20.908Z",
+    "api_name": "Charts"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 281,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T12:00:20.944Z",
+    "api_name": "Badges"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 282,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T12:47:21.929Z",
+    "api_name": "Badges"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 283,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T12:47:21.941Z",
+    "api_name": "Charts"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 284,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T14:59:43.437Z",
+    "api_name": "Charts"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 285,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T14:59:43.458Z",
+    "api_name": "Badges"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 286,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:15:09.904Z",
+    "api_name": "Charts"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 287,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:15:09.931Z",
+    "api_name": "Badges"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 288,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:23:15.950Z",
+    "api_name": "Charts"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 289,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:23:15.989Z",
+    "api_name": "Badges"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 290,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:23:23.379Z",
+    "api_name": "Badges"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 291,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:23:23.381Z",
+    "api_name": "Charts"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 292,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:24:24.982Z",
+    "api_name": "Charts"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 293,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:24:25.014Z",
+    "api_name": "Badges"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 294,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:28:02.024Z",
+    "api_name": "Charts"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 295,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:28:02.025Z",
+    "api_name": "Badges"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 296,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:30:09.695Z",
+    "api_name": "Badges"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 297,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:30:09.701Z",
+    "api_name": "Charts"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 298,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:31:07.373Z",
+    "api_name": "Badges"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 299,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:31:07.386Z",
+    "api_name": "Charts"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 300,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:31:38.927Z",
+    "api_name": "Badges"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 301,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:31:38.953Z",
+    "api_name": "Charts"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 302,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:31:47.391Z",
+    "api_name": "Badges"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 303,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:31:47.416Z",
+    "api_name": "Charts"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 304,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:32:39.998Z",
+    "api_name": "Charts"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 305,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:32:40.000Z",
+    "api_name": "Badges"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 306,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:33:05.986Z",
+    "api_name": "Badges"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 307,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:33:05.997Z",
+    "api_name": "Charts"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 308,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:33:58.300Z",
+    "api_name": "Badges"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 309,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:33:58.344Z",
+    "api_name": "Charts"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 310,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:34:12.324Z",
+    "api_name": "Badges"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 311,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:34:12.330Z",
+    "api_name": "Charts"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 339,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:48:26.288Z",
+    "api_name": "Charts"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 340,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:48:26.369Z",
+    "api_name": "Badges"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 341,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:49:09.396Z",
+    "api_name": "Charts"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 342,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:49:09.427Z",
+    "api_name": "Badges"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 343,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:50:23.496Z",
+    "api_name": "Charts"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 344,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:50:23.514Z",
+    "api_name": "Badges"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 345,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:51:09.055Z",
+    "api_name": "Badges"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 346,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:51:09.084Z",
+    "api_name": "Charts"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 347,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:52:12.732Z",
+    "api_name": "Charts"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 348,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:52:12.735Z",
+    "api_name": "Badges"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 349,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:53:58.297Z",
+    "api_name": "Charts"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 350,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:53:58.347Z",
+    "api_name": "Badges"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 351,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:55:05.848Z",
+    "api_name": "Charts"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 352,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:55:05.943Z",
+    "api_name": "Badges"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 353,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:56:52.782Z",
+    "api_name": "Charts"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 354,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:56:52.801Z",
+    "api_name": "Badges"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 355,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:59:45.909Z",
+    "api_name": "Charts"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 356,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:59:45.939Z",
+    "api_name": "Badges"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 357,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:59:50.205Z",
+    "api_name": "Charts"
+  }
+},
+{
+  "model": "pointlog.apiaccessevent",
+  "pk": 358,
+  "fields": {
+    "user": [
+      "max"
+    ],
+    "date": "2019-03-12T15:59:50.215Z",
+    "api_name": "Badges"
+  }
+},
+{
   "model": "admin.logentry",
   "pk": 1,
   "fields": {
@@ -4381,6 +5278,222 @@
     ],
     "object_id": "4",
     "object_repr": "Event object (4)",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 9,
+  "fields": {
+    "action_time": "2019-03-12T11:46:32.595Z",
+    "user": [
+      "max"
+    ],
+    "content_type": [
+      "core",
+      "event"
+    ],
+    "object_id": "5",
+    "object_repr": "Event object (5)",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 10,
+  "fields": {
+    "action_time": "2019-03-12T11:51:39.948Z",
+    "user": [
+      "max"
+    ],
+    "content_type": [
+      "achievements",
+      "statusbadge"
+    ],
+    "object_id": "1",
+    "object_repr": "gold",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 11,
+  "fields": {
+    "action_time": "2019-03-12T11:53:13.368Z",
+    "user": [
+      "max"
+    ],
+    "content_type": [
+      "achievements",
+      "statusbadge"
+    ],
+    "object_id": "1",
+    "object_repr": "gold",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"badge_img\", \"status_points\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 12,
+  "fields": {
+    "action_time": "2019-03-12T11:58:34.992Z",
+    "user": [
+      "max"
+    ],
+    "content_type": [
+      "achievements",
+      "statusbadge"
+    ],
+    "object_id": "1",
+    "object_repr": "gold",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"badge_img\", \"status_points\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 13,
+  "fields": {
+    "action_time": "2019-03-12T14:59:00.762Z",
+    "user": [
+      "max"
+    ],
+    "content_type": [
+      "achievements",
+      "event"
+    ],
+    "object_id": "1",
+    "object_repr": "Event object (1)",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 14,
+  "fields": {
+    "action_time": "2019-03-12T14:59:06.071Z",
+    "user": [
+      "max"
+    ],
+    "content_type": [
+      "achievements",
+      "event"
+    ],
+    "object_id": "2",
+    "object_repr": "Event object (2)",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 15,
+  "fields": {
+    "action_time": "2019-03-12T14:59:14.933Z",
+    "user": [
+      "max"
+    ],
+    "content_type": [
+      "achievements",
+      "event"
+    ],
+    "object_id": "3",
+    "object_repr": "Event object (3)",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 16,
+  "fields": {
+    "action_time": "2019-03-12T14:59:21.555Z",
+    "user": [
+      "max"
+    ],
+    "content_type": [
+      "achievements",
+      "event"
+    ],
+    "object_id": "4",
+    "object_repr": "Event object (4)",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 17,
+  "fields": {
+    "action_time": "2019-03-12T14:59:36.552Z",
+    "user": [
+      "max"
+    ],
+    "content_type": [
+      "achievements",
+      "event"
+    ],
+    "object_id": "5",
+    "object_repr": "Event object (5)",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 18,
+  "fields": {
+    "action_time": "2019-03-12T15:33:55.766Z",
+    "user": [
+      "max"
+    ],
+    "content_type": [
+      "achievements",
+      "statusbadge"
+    ],
+    "object_id": "2",
+    "object_repr": "purple",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 19,
+  "fields": {
+    "action_time": "2019-03-12T15:34:09.988Z",
+    "user": [
+      "max"
+    ],
+    "content_type": [
+      "achievements",
+      "statusbadge"
+    ],
+    "object_id": "2",
+    "object_repr": "purple",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"badge_img\", \"status_color\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 51,
+  "fields": {
+    "action_time": "2019-03-12T15:48:53.995Z",
+    "user": [
+      "max"
+    ],
+    "content_type": [
+      "achievements",
+      "achievement"
+    ],
+    "object_id": "4",
+    "object_repr": "performance",
     "action_flag": 1,
     "change_message": "[{\"added\": {}}]"
   }

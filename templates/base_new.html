@@ -162,6 +162,23 @@ $(function() {
                 }
             );
             $.get(
+                "/api/v0/user-statuses/",
+                data={"username": "{{ request.user.username }}"},
+                function( data ) {
+                    for (i in data) {                      
+                        if ( !data[i].done ) {
+                            var style = 'style="-webkit-filter: grayscale(100%); filter: grayscale(100%);"';
+                        }   
+                        else {  
+                            var style = ''
+                        }
+                        $('#container-statuses').append(
+                            '<img src="'+data[i].url+'" alt="'+data[i].description+'" title="'+data[i].description+'"'+'" height="200" width="200">'
+                        );
+                    }
+                }
+            );
+            $.get(
                 "/api/v0/statuses/",
                 function( data ) {
                     var status_lines = [];
