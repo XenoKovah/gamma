@@ -5,7 +5,7 @@
 .FloatRight {
 } */
 
-.Filter {
+.Action {
     border: 1px solid;
     margin: 20px;
     padding: 10px;
@@ -21,7 +21,7 @@
     margin-bottom: 20px;
 }
 
-.BlockFilter {
+.BlockAction {
     width: 100%;
     display: flex;
     justify-content: center;
@@ -34,7 +34,7 @@
     margin-bottom: 20px;
 }
 
-.BlockFilter-item {
+.BlockAction-item {
     margin-right: 20px;
 }
 

@@ -13,7 +13,7 @@ class AndOrBlock extends Component {
         return (
             <div className="AndOrBlock">
                 <And onClick={this.props.addCondition}/>
-                <Or onClick={this.props.addCondition}/>
+                {/* <Or onClick={this.props.addCondition}/> */}
             </div>
         )
     }

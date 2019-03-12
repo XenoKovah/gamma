@@ -11,17 +11,18 @@ class Select extends React.Component {
     handleChange(event) {
         this.setState({
             action: event.currentTarget.value
-        }, () => {this.props.onChange(this.state)} )
+        }, () => {this.props.onChanged(this.state)} )
     }
 
     render() {
         let options = this.items.map((el, ind) => {
-            return <option key={ind} value={el}>{el}</option>
+            let defaultValue = el === this.props.action;
+            return <option key={ind} value={el} selected={defaultValue}>{el}</option>
         });
         return (
             <label>Choose action
                 <select onChange={this.handleChange}>
-                    <option value="----" defaultValue>-----</option>
+                    <option value="----">-----</option>
                     {options}
                 </select>
             </label>
