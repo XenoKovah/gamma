@@ -3,7 +3,7 @@ LABEL maintainer="cmltaWt0@gmail.com"
 
 RUN apt-get -y update && \
     apt-get install -y \
-    git gcc python-dev zlib1g-dev libjpeg-dev
+    git gcc python-dev zlib1g-dev libjpeg-dev mongo-tools
 
 RUN mkdir /requirements
 ADD ./requirements/* /requirements/

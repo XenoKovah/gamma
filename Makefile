@@ -38,6 +38,13 @@ endif
 	docker-compose run app \
 			python manage.py mongo_setup
 
+.sql_init:
+	docker-compose run app \
+			python manage.py loaddata dump.json
+
+.mongo_init:
+	docker-compose run app mongorestore --host=mongo dump
+
 stop:
 	docker-compose  stop
 

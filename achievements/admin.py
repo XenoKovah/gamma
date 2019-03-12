@@ -22,14 +22,11 @@ class AchievementAdmin(admin.ModelAdmin):
         'badge_img',
         'badge_id',
         'description',
-        'rules',
         'status_badge',
         'status_points',
         'status_color',
     )
     prepopulated_fields = {"slug": ("title",)}
-
-    form = AchievementForm
 
     def show_badge_img(self, obj):
         return format_html(

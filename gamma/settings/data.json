@@ -1,0 +1,10 @@
+{
+  "actions": {
+    "problem": 10,
+    "video": 11
+  },
+  "filters": {
+      "org": "Microsoft",
+      "interval": 3600
+  }
+}
