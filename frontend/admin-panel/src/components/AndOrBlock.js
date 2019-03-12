@@ -11,10 +11,7 @@ class AndOrBlock extends Component {
 
     render() {
         return (
-            <div className="AndOrBlock">
-                <And onClick={this.props.addCondition}/>
-                {/* <Or onClick={this.props.addCondition}/> */}
-            </div>
+            <And onClick={this.props.addCondition}/>
         )
     }
 }

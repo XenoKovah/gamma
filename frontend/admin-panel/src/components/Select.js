@@ -1,9 +1,12 @@
 import React from 'react';
+import Select from '@material-ui/core/Select';
+import InputLabel from '@material-ui/core/InputLabel';
+import FormControl from '@material-ui/core/FormControl';
 
-class Select extends React.Component {
+class EventType extends React.Component {
     constructor(props) {
         super(props);
-        this.items = ['one', 'two', 'three', 'four'];
+        this.items = this.props.actions || [];
         
         this.handleChange = this.handleChange.bind(this);
     }
@@ -15,19 +18,21 @@ class Select extends React.Component {
     }
 
     render() {
-        let options = this.items.map((el, ind) => {
-            let defaultValue = el === this.props.action;
-            return <option key={ind} value={el} selected={defaultValue}>{el}</option>
-        });
         return (
-            <label>Choose action
-                <select onChange={this.handleChange}>
-                    <option value="----">-----</option>
-                    {options}
-                </select>
-            </label>
+            <FormControl>
+                <InputLabel htmlFor="problem-select">Event</InputLabel>
+                <Select id="problem-select" native defaultValue={this.props.action} onChange={this.handleChange}>
+                    <option key={0} value="-----">-----</option>
+                    {
+                        this.items.map((el, ind) => {
+                            return <option key={ind+1} value={el}>{el}</option>
+                        })
+                    }
+                </Select>
+
+            </FormControl>
         )
     }
 }
 
-export default Select;
+export default EventType;

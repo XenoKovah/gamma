@@ -5,6 +5,11 @@ from achievements.models import Achievement
 from pointlog.models import LoggedEvent, ApiAccessEvent
 
 
+class EventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Event
+        fields = '__all__'
+
 class GameProfileSerializer(serializers.ModelSerializer):
     """
     GameProfile Model Serializer.

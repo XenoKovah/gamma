@@ -1,11 +1,12 @@
 import React from 'react';
+import Button from '@material-ui/core/Button';
 
 import ActionContainer from '../components/ActionContainer';
 import AndOrBlock from '../components/AndOrBlock';
 
 import '../styles/custom.css';
 
-class Action extends React.Component {
+class Actions extends React.Component {
     constructor(props) {
         super(props);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -15,7 +16,7 @@ class Action extends React.Component {
         this.getConditions = this.getConditions.bind(this);
 
         this.state = {
-            conditions: [{condition: "", action: "", count: 0, id: 0}]
+            conditions: [{action: "", count: 0, id: Math.random()}]
         }
 
     }
@@ -24,25 +25,47 @@ class Action extends React.Component {
         return []
     }
 
-    containerChanged(id, key, value) {
-        console.log(id, key, value);
-        let newConditions = Object.assign([], this.state.conditions);
+    getConditionIndex(conditions, id) {
+        let index;
+        conditions.map((el, ind) => {
+            if (el.id === id) {
+                index = ind;
+            }
+        });
+        return index;
+    }
 
-        newConditions[id][key] = value;
+    containerChanged(id, key, value) {
+        console.log('ID - ', id);
+        let conditions = Object.assign([], this.state.conditions);
+        console.log(conditions[this.getConditionIndex(conditions, id)]);
+        conditions[this.getConditionIndex(conditions, id)][key] = value;
         this.setState({
-            conditions: newConditions
+            conditions: conditions
         })
     }
 
     get() {
-        fetch('/api/v0/points?username=staff')
+        fetch('http://localhost:9000/api/v0/events/')
         .then(res => res.json())
         .then(result => {
-            console.log(result);
+            let actions = [];
+            let data = result.map(el => {
+                actions.push(el.event_type);
+                return {action: el.event_type, count: el.award, id: el.id};
+            });
+            this.setState({
+                conditions: data,
+                actions: actions
+            })
         },
         error => {
             console.log(error);
         })
+    }
+
+    componentDidMount() {
+        this.get();
     }
 
     handleSubmit(event) {
@@ -51,7 +74,12 @@ class Action extends React.Component {
             let validConditions = this.state.conditions.filter((condition, ind) => {
                 return condition.count && condition.action
             })
-            console.log(validConditions);
+            const data = validConditions.map((el) => {
+                let item = {};
+                item[el.action] = el.count;
+                return item;
+            });
+            console.log(data);
         } else {
             alert('You havent choosen anything!');
         }
@@ -59,8 +87,7 @@ class Action extends React.Component {
 
     addCondition(event) {
         const newConditions = Object.assign([], this.state.conditions);
-        let id = this.state.conditions.length;
-        newConditions.push({condition: event.currentTarget.value, action: "", count: 0, id: id});
+        newConditions.push({action: "", count: 0, id: Math.random(), condition: "and"});
         this.setState({
             conditions: newConditions
         });
@@ -68,41 +95,44 @@ class Action extends React.Component {
     }
 
     deleteBlock(id) {
-        const newCond = Object.assign([], this.state.conditions);
-        newCond.splice(id, 1);
+        const { conditions } = this.state;
+        conditions.splice(this.getConditionIndex(conditions, id), 1);
         this.setState({
-            conditions: newCond
+            conditions: conditions
         })
     }
 
     render() {
-        const conditions = Object.assign([], this.state.conditions);
         return (
-            <div className="Action">
-                <form onSubmit={this.handleSubmit}>
-                    <h3>Action</h3>
+
+                <form>
+                    <h3>Actions</h3>
                     {
-                        conditions.map((el, ind) => {
+                        this.state.conditions.map((el, ind) => {
+                            console.log('MAP, el = ', el);
                             return (
                                 <ActionContainer 
                                     key={el.id}
-                                    id={ind} 
+                                    id={el.id} 
                                     onChange={this.containerChanged} 
                                     deleteBlock={this.deleteBlock}
                                     action={el.action}
-                                    condition={el.condition}
                                     count={el.count}  
+                                    actions={this.state.actions}
+                                    condition={el.condition}
                                 />
                             )
                         })
                     }
                     <AndOrBlock addCondition={this.addCondition}/>
-                    <input type="submit" value="Submit" className="FormSubmit" />
+                    <hr/>
+                    <Button onClick={this.handleSubmit} size="large" color="primary">Save</Button>
+                    <Button size="large" color="primary">Delete</Button>
                 </form>
-            </div>
+
         )
     }
 
 }
 
-export default Action;
+export default Actions;

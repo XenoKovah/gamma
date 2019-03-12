@@ -6,7 +6,6 @@
 } */
 
 .Action {
-    border: 1px solid;
     margin: 20px;
     padding: 10px;
 }
@@ -39,7 +38,7 @@
 }
 
 .AndOrButtonItem {
-    margin-right: 20px;
+    margin: 20px 0 !important;
 }
 
 .ConditionDivider {

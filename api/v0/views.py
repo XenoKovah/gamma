@@ -21,6 +21,7 @@ from ..serializers import (
     BadgesSerializer,
     LoggedEventSerializer,
     ApiAccessEventSerializer,
+    EventSerializer
 )
 
 from core.services import MongoConnector
@@ -361,4 +362,21 @@ class ApiAccessEventView(APIView):
         """
         qs = ApiAccessEvent.objects.all()
         serializer = ApiAccessEventSerializer(qs, many=True)
+        return Response(serializer.data)
+
+
+class EventsView(APIView):
+    """
+    Statuses API.
+    """
+    def get(self, request, *args, **kwargs):
+        """
+        Get configured statuses.
+        """
+        events = Event.objects.all()
+        print(events)
+        serializer = EventSerializer(
+            events, context={'request': request}, many=True
+        )
+
         return Response(serializer.data)

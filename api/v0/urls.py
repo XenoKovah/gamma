@@ -11,6 +11,7 @@ from .views import (
     StatusView,
     LoggedEventView,
     ApiAccessEventView,
+    EventsView
 )
 
 
@@ -24,4 +25,5 @@ urlpatterns = [
     path(r'event-points/', EventPointsView.as_view(), name='event-points'),
     path(r'logged-event/', LoggedEventView.as_view(), name='logged-event'),
     path(r'api-access/', ApiAccessEventView.as_view(), name='api-access'),
+    path(r'events/', EventsView.as_view(), name='api-access'),
 ]

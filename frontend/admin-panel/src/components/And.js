@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import Button from '@material-ui/core/Button';
 
 class And extends Component {
     constructor(props) {
@@ -12,9 +13,7 @@ class And extends Component {
 
     render() {
         return (
-            <div className="AndButton AndOrButtonItem">
-                <input type="button" value="and" onClick={this.handleClick}/>
-            </div>
+            <Button onClick={this.handleClick} size="small" fullWidth={true} className="AndOrButtonItem">Add</Button>
         )
     }
 }
