@@ -8,7 +8,8 @@ import pytest
 import docker as libdocker
 
 from core.services import MongoConnector
-from core.models import AppClient, Event
+from core.models import AppClient
+from achievements.models import Event
 
 
 @pytest.fixture(scope='session')

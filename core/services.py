@@ -3,7 +3,7 @@ import logging
 import pymongo
 from django.conf import settings
 
-from .models import Event
+from achievements.models import Event
 
 
 logger = logging.getLogger('events')

@@ -11,7 +11,10 @@ from .views import (
     StatusView,
     LoggedEventView,
     ApiAccessEventView,
-    EventsView
+    UserStatuses,
+    EventsView,
+    FiltersView,
+    BadgeRuleView
 )
 
 
@@ -21,9 +24,12 @@ urlpatterns = [
     path(r'points/', PointsView.as_view(), name='points'),
     path(r'gamma-profile/', GameProfileView.as_view(), name='gamma-profile'),
     path(r'badges/', BadgesView.as_view(), name='badges'),
+    path(r'user-statuses/', UserStatuses.as_view(), name='user-statuses'),
     path(r'statuses/', StatusView.as_view(), name='statuses'),
     path(r'event-points/', EventPointsView.as_view(), name='event-points'),
     path(r'logged-event/', LoggedEventView.as_view(), name='logged-event'),
     path(r'api-access/', ApiAccessEventView.as_view(), name='api-access'),
-    path(r'events/', EventsView.as_view(), name='api-access'),
+    path(r'actions/', EventsView.as_view(), name='actions'),
+    path(r'filters/', FiltersView.as_view(), name='filters'),
+    path(r'badge-rules/', BadgeRuleView.as_view(), name='badge-rules'),
 ]

@@ -192,6 +192,10 @@
     <div id="reward-result"></div>
     </div>
 
+    {% if opts.verbose_name == 'achievement' %}
+        <script>console.log(('This is me'));</script>
+    {% endif %}
+
     <form {% if has_file_field %}enctype="multipart/form-data" {% endif %}action="{{ form_url }}" method="post" id="{{ opts.model_name }}_form">{% csrf_token %}{% block form_top %}{% endblock %}
         <div>
             <!-- Popup Hidden Field -->

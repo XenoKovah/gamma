@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime, timedelta
 
+import pymongo
 from pymongo import MongoClient
 from django.contrib.auth.models import User
 from django.views.generic.edit import FormView
@@ -21,16 +22,19 @@ from ..serializers import (
     BadgesSerializer,
     LoggedEventSerializer,
     ApiAccessEventSerializer,
+    UserStatusSerializer,
     EventSerializer
 )
 
 from core.services import MongoConnector
 from core.authentication import KeySecretAuthentication
-from core.models import GameProfile, Event
+from core.models import GameProfile, AppClient
+from core.mongo import c_badges
+from achievements.services import AchievementRulesMongo
 from pointlog.models import LoggedEvent
 from pointlog.models import ApiAccessEvent
 from pointlog.tasks import check_user_achievements, assign_status
-from achievements.models import UserAchievement, Achievement
+from achievements.models import UserAchievement, Achievement, StatusBadge, Event, UserStatus
 
 
 logger = logging.getLogger('events')
@@ -40,9 +44,9 @@ class GameProfileView(APIView):
     """
     GET or UPDATE user points.
     """
-    authentication_classes = (KeySecretAuthentication,)
 
     conn = MongoConnector()
+
 
     def put(self, request, *args, **kwargs):
         """
@@ -68,7 +72,7 @@ class GameProfileView(APIView):
             user.save()
         game_profile = GameProfile.objects.get(user=user)
         event_type = self.request.data.get('event_type')
-        org = self.request.data.get('org')
+        org = self.request.data.get('org', 'org')
         uniq_id = self.request.data.get('uid')
 
         if not uniq_id:
@@ -84,7 +88,7 @@ class GameProfileView(APIView):
             uniq_id=uniq_id,
             user=user,
             event_type=event_type,
-            client=request.client
+            client=AppClient.objects.get(id=1)
         ).exists():
             event = Event.objects.filter(event_type=event_type).first()
             if event and event.award:
@@ -124,7 +128,7 @@ class GameProfileView(APIView):
                     event_type=event_type,
                     org=org,
                     points=game_profile.points,
-                    client=request.client,
+                    client=AppClient.objects.get(id=1),
                     rewarded_points=event.award
                 )
                 log_event.save()
@@ -134,8 +138,8 @@ class GameProfileView(APIView):
                         uniq_id, event_type, event.award
                     )
                 ))
-                check_user_achievements.delay(user.id, event_type)
-                assign_status.delay(user.id, game_profile.points)
+                check_user_achievements(user.id, log_event)
+                assign_status(user.id, game_profile.points)
                 return Response(serializer.data)
             else:
                 logger.debug('For user {0} msg: {1}: {2}'.format(
@@ -292,19 +296,69 @@ class BadgesView(APIView):
                 {"Error": "User not found"},
                 status=status.HTTP_404_NOT_FOUND
             )
-        badges = (
-            achive.achievement for achive in
-            UserAchievement.objects.filter(user=user)
-        )
-        serializer = BadgesSerializer(
-            badges, context={'request': request}, many=True
-        )
+
+        conn = AchievementRulesMongo()
+        conn.connect()
+        badges = conn.collection.find({"active": True})
+        for badge in badges:
+            c_badges().update(
+                {"user_id": user.id},
+                {
+                    "$set": {
+                        "badges.{}".format(badge.get("slug")): badge.get("users", {}).get(str(user.id), {})
+                    }
+                },
+                upsert=True
+            )
+
+            rule = badge.get("users", {}).get(str(user.id), {})
+            done = all(
+                map(
+                    lambda x: x[0] >= x[1],
+                    (
+                        (rule[i].get('count'), badge.get("rules", {}).get("actions", {}).get(i))
+                        for i in rule if not i == 'done')
+                )
+            ) if rule else False
+
+            c_badges().update(
+                {"user_id": user.id},
+                {
+                    "$set": {
+                        "badges.{}.done".format(badge.get("slug")): done
+                    }
+                },
+            )
 
         log_api_access = ApiAccessEvent(
             user=user,
             api_name='Badges'
         )
         log_api_access.save()
+
+        return Response(c_badges().find_one({"user_id": user.id}, {"_id": 0}).get('badges'))
+
+
+class UserStatuses(APIView):
+    """
+    Return achieved statuses.
+    """
+    def get(self, request, *args, **kwargs):
+        """
+        Get user's statuses.
+        """
+        user = User.objects.filter(
+            username=request.GET.get('username')
+        ).first()
+        if not user:
+            return Response(
+                {"Error": "User not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        user_statuses = UserStatus.objects.filter(user=user)
+        serializer = UserStatusSerializer(
+            [i.status for i in user_statuses], context={'request': request}, many=True
+        )
 
         return Response(serializer.data)
 
@@ -317,9 +371,9 @@ class StatusView(APIView):
         """
         Get configured statuses.
         """
-        badges = Achievement.objects.filter(status_badge=True)
-        serializer = BadgesSerializer(
-            badges, context={'request': request}, many=True
+        statuses = StatusBadge.objects.filter()
+        serializer = UserStatusSerializer(
+            statuses, context={'request': request}, many=True
         )
 
         return Response(serializer.data)
@@ -367,16 +421,44 @@ class ApiAccessEventView(APIView):
 
 class EventsView(APIView):
     """
-    Statuses API.
+    Return all available Events.
     """
     def get(self, request, *args, **kwargs):
         """
-        Get configured statuses.
+        Get all Events.
         """
-        events = Event.objects.all()
-        print(events)
-        serializer = EventSerializer(
-            events, context={'request': request}, many=True
-        )
-
+        qs = Event.objects.all()
+        serializer = EventSerializer(qs, many=True)
         return Response(serializer.data)
+
+
+class FiltersView(APIView):
+    """
+    Return all available Filters.
+    """
+    def get(self, request, *args, **kwargs):
+        """
+        Get all Filters.
+        """
+        return Response([
+            {'org': 'String'},
+            {'interval': {'start': 'Date', 'end': 'Date'}},
+            {'frequency': 'Int32'}])
+
+
+class BadgeRuleView(APIView):
+    """
+    Return Badge rules.
+    """
+    conn = AchievementRulesMongo()
+    conn.connect()
+
+    def get(self, request, *args, **kwargs):
+        """
+        Get rules for badge by a slug.
+        """
+        slug = request.GET.get('slug')
+        if not slug:
+            return Response({})
+        badge = self.conn.collection.find_one({"slug": slug}, {"_id": 0})
+        return Response(badge.get('rules', {}) if badge else {})

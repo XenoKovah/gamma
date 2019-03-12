@@ -168,10 +168,12 @@ MONGO_DB_NAME = "gamma_db"
 MONGO_PROGRESS_COLLECTION = "progress"
 MONGO_CHARTED_PROGRESS = "charted_progress"
 MONGO_RULES_COLLECTION = "rules"
+DB_DATA = 'data'
+MONGO_HOST = "mongo"
+
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
-
 
 # Celery settings
 

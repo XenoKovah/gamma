@@ -1,12 +1,18 @@
 from __future__ import absolute_import
 
+from datetime import timedelta, datetime
+import pytz
+
+utc=pytz.UTC
+
+
 from django.db.models import Avg, Sum
 from django.contrib.auth.models import User
 
 from .models import LoggedEvent
 
 from gamma.celery import app
-from achievements.models import Achievement, UserAchievement
+from achievements.models import Achievement, UserAchievement, StatusBadge, UserStatus
 from achievements.services import AchievementRulesMongo
 
 
@@ -17,7 +23,7 @@ AGGREGATIONS = {
 
 
 @app.task
-def check_user_achievements(user_id, event_type):
+def check_user_achievements(user_id, log_event):
     """
     Check user achievement by event type.
 
@@ -27,51 +33,53 @@ def check_user_achievements(user_id, event_type):
     conn = AchievementRulesMongo()
     conn.connect()
     user = User.objects.get(id=user_id)
-    achievement_slug_set = Achievement.objects.filter(
-        badge_type=event_type
-    ).values_list('slug')
-    rules_set = (
-        (slug[0], conn.get_rule(achievement_slug=slug[0]))
-        for slug in achievement_slug_set
+    rules_set = conn.collection.find(
+        {
+            "rules.actions.{}".format(log_event.event_type): {"$exists": True},
+            "active": True
+        }
     )
 
-    log_model_fields = [field.name for field in LoggedEvent._meta.fields]
     results = []
-    for slug, rules in rules_set:
-        qs = LoggedEvent.objects.filter(user=user, event_type=event_type)
-        count = rules.get('count')
-        if count:
-            del rules['count']
-        else:
-            count = 10
+    for rules in rules_set:
+        if rules.get('users', {}).get(str(user.id), {}).get('done'):
+            continue
 
-        # Agregations is not used now
-        # TODO need to improve aggregation logic
-        aggregators = []
-        for key, value in rules.items():
-            if key in AGGREGATIONS:
-                aggregators.append((key, value))
-                del rules[key]
-            elif key not in log_model_fields:
-                del rules[key]
+        filter_set = [getattr(log_event, key, '') == value for key, value in
+                      rules.get('rules', {}).get('filters', {}).items() if getattr(log_event, key, '')]
 
-        if rules:
-            qs = qs.filter(**rules)
+        frequency = rules.get('rules', {}).get('filters', {}).get('frequency', None)
+        interval = rules.get('rules', {}).get('filters', {}).get('interval', None)
+        if frequency:
+            try:
+                delta = timedelta(frequency)
+                document = conn.collection.find_one({"_id": rules["_id"]})
+                last = document.get('users', {}).get(str(user.id), {}).get(log_event.event_type, {}).get('last')
+                if datetime.now() - last > delta:
+                    continue
+            except Exception:
+                pass
+        if interval:
+            if not (utc.localize(interval.get('start')) <= log_event.date <=  utc.localize(interval.get('end'))):
+                continue
 
-        result = qs.count()
-        if result >= count:
-            achievement = Achievement.objects.get(slug=slug)
-            _, created = UserAchievement.objects.get_or_create(
-               user=user, achievement=achievement
+        if not filter_set or all(filter_set):
+            conn.collection.update(
+                {
+                    "_id": rules["_id"]
+                },
+                {
+                    "$inc": {"users.{}.{}.count".format(user.id, log_event.event_type): 1},
+                    "$set": {
+                        "users.{}.{}.last".format(user.id, log_event.event_type): datetime.now(),
+                        # TODO change the logic when we update goal
+                        "users.{}.{}.goal".format(
+                            user.id, log_event.event_type): rules.get(
+                                'rules', {}).get('actions', {}).get(log_event.event_type)
+                    }
+                },
+                upsert=True
             )
-            msg = (
-                'Assigned for slug: {}'.format(slug) if created else
-                'Already exists for slug: {}'.format(slug)
-            )
-        else:
-            msg = 'Not assigned slug: {}'.format(slug)
-        results.append(msg)
-
     return results
 
 
@@ -81,15 +89,15 @@ def assign_status(user_id, points):
     Check for status updation.
     """
     user = User.objects.get(id=user_id)
-    qs = Achievement.objects.filter(status_badge=True, status_points__lte=points)
+    qs = StatusBadge.objects.filter(status_points__lte=points)
     results = []
-    for achievement in qs:
-        _, created = UserAchievement.objects.get_or_create(
-           user=user, achievement=achievement
+    for status in qs:
+        _, created = UserStatus.objects.get_or_create(
+           user=user, status=status
         )
         msg = (
-            'Assigned badge {}'.format(achievement.title) if created else
-            'Already exists badge {}'.format(achievement.title)
+            'Assigned badge {}'.format(status.title) if created else
+            'Already exists badge {}'.format(status.title)
         )
         results.append(msg)
     return results
