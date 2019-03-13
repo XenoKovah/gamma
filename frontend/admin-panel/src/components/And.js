@@ -13,7 +13,7 @@ class And extends Component {
 
     render() {
         return (
-            <Button onClick={this.handleClick} size="small" fullWidth={true} className="AndOrButtonItem">Add</Button>
+            <Button onClick={this.handleClick} size="small" variant="contained" color="primary">Add</Button>
         )
     }
 }

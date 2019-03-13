@@ -3,7 +3,6 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import Button from '@material-ui/core/Button';
-import FormControl from '@material-ui/core/FormControl';
 
 import logo from './logo.svg';
 import './App.css';
@@ -11,7 +10,7 @@ import './App.css';
 import 'react-dropdown/style.css';
 
 import Actions from './containers/Actions';
-import Filter from './containers/Filter';
+import FilterContainer from './containers/FilterContainer';
 
 function getCookie(name) {
   var cookieValue = null;
@@ -37,7 +36,8 @@ class App extends Component {
     this.handleClose = this.handleClose.bind(this);
     this.onChangeProps = this.onChangeProps.bind(this);
     this.putRules = this.putRules.bind(this);
-    this.onChangeFilter = this.onChangeFilter.bind(this);
+    this.filtersChanged = this.filtersChanged.bind(this);
+    this.getIndex = this.getIndex.bind(this);
 
     let { slug } = this.props.match.params;
     this.slug = slug;
@@ -45,16 +45,19 @@ class App extends Component {
     this.state = {
       open: true,
       actions: [],
-      filters: {
-        org: "",
-        interval: {
-          start: new Date(),
-          end: new Date()
-        },
-        frequency: 0
-      },
+      filters: [],
       eventTypes: []
     }
+  }
+
+  getIndex(conditions, id) {
+    let index;
+    conditions.map((el, ind) => {
+        if (el.id === id) {
+            index = ind;
+        }
+    });
+    return index;
   }
 
   handleClose() {
@@ -69,7 +72,7 @@ class App extends Component {
 
   getRules() {
     fetch(
-      `/api/v0/badge-rules/?slug=${this.slug}`, {credentials: "same-origin"}
+      `http://localhost:9000/api/v0/badge-rules/?slug=${this.slug}`, {credentials: "same-origin"}
       )
     .then(res => res.json())
     .then(result => {
@@ -88,9 +91,13 @@ class App extends Component {
         for (let key in result.event_types) {
             eventTypes.push(result.event_types[key]["event_type"])
         }
+        let filters = result.filters.map((filter, ind) => {
+          filter.id = Math.random();
+          return filter;
+        })
         this.setState({
             actions: actions,
-            filters: result.filters,
+            filters: filters,
             eventTypes: eventTypes
         })
     },
@@ -111,12 +118,18 @@ class App extends Component {
       });
       rules.actions = actions;
       rules.filters = this.state.filters;
-      fetch('/api/v0/badge-rules/', {
+
+      fetch('http://localhost:9000/api/v0/badge-rules/', {
         method: 'PUT',
         headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken')},
         body: JSON.stringify({slug: this.slug, ...rules},
         {credentials: "same-origin"})
-      }).then(response => response.json()).catch(error => console.log(error));
+      }).then(response => {
+        if (response.status == 200) {
+          this.handleClose();
+        }
+        return response.json();
+      }).catch(error => console.log(error));
   } else {
       alert('You havent choosen anything!');
   }
@@ -126,33 +139,24 @@ class App extends Component {
       this.getRules();
   }
 
-  onChangeFilter(key, value) {
-    let filters = this.state.filters;
-    switch(key) {
-      case 'start':
-        filters.interval[key] = value;
-        break;
-      case 'end':
-        filters.interval[key] = value;
-        break;
-      default:
-        filters[key] = value;
-    }
-    this.setState({filters: filters});
-    console.log('onChangeFilter', key, value, filters);
+  filtersChanged(filters) {
+    console.log('filtersChanged', filters);
+    this.setState({filters: filters})
   }
 
   render() {
     return (
-      <Dialog open={this.state.open} >
+      <Dialog open={this.state.open} fullScreen={true} >
         <DialogContent>
-            <Filter {...this.state.filters} onChange={this.onChangeFilter}/>
+          <div className="FilterContainer">
+            <FilterContainer  filters={this.state.filters} filtersChanged={this.filtersChanged} getIndex={this.getIndex}/>
+          </div>
+          <Button size="small" variant="contained" color="primary">Add new filter</Button>
           <hr/>
-          <Actions {...this.state} onChangeProps={this.onChangeProps} putRules={this.putRules} slug={this.slug}/>
+          <Actions {...this.state} getIndex={this.getIndex} onChangeProps={this.onChangeProps} putRules={this.putRules} slug={this.slug}/>
         </DialogContent>
         <DialogActions>
         <Button onClick={this.putRules} size="large" color="primary">Save</Button>
-        <Button size="large" color="primary">Delete</Button>
         <Button onClick={this.handleClose} color="primary">
               Close
             </Button>

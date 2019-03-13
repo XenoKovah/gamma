@@ -50,3 +50,28 @@
     align-items: baseline;
     padding: 10px;
 }
+
+.FilterItem {
+    padding: 5px;
+    margin: 5px;
+    background: #eaeaea;
+    border-radius: 3px;
+}
+
+.FilterContainer {
+    display: flex;
+}
+
+.ActionContainer {
+    width: 30%;
+    margin: 0 auto;
+}
+
+.ActionItem {
+    display: -webkit-flex;
+    display: flex;
+    -webkit-align-items: center;
+    align-items: center;
+    padding: 5px;
+    margin: 5px;
+}

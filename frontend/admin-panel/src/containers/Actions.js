@@ -3,7 +3,7 @@ import Button from '@material-ui/core/Button';
 
 import PropTypes from 'prop-types';
 
-import ActionContainer from '../components/ActionContainer';
+import ActionContainer from '../containers/ActionContainer';
 import AndOrBlock from '../components/AndOrBlock';
 
 import '../styles/custom.css';
@@ -23,19 +23,9 @@ export default class Actions extends React.Component {
         return []
     }
 
-    getIndex(conditions, id) {
-        let index;
-        conditions.map((el, ind) => {
-            if (el.id === id) {
-                index = ind;
-            }
-        });
-        return index;
-    }
-
     containerChanged(id, key, value) {
         let actions = this.props.actions;
-        let actionToChange = this.getIndex(actions, id);
+        let actionToChange = this.props.getIndex(actions, id);
         actions[actionToChange][key] = value;
         this.props.onChangeProps('actions', actions);
     }
@@ -49,13 +39,13 @@ export default class Actions extends React.Component {
 
     deleteBlock(id) {
         const { actions } = this.props;
-        actions.splice(this.getIndex(actions, id), 1);
+        actions.splice(this.props.getIndex(actions, id), 1);
         this.props.onChangeProps('actions', actions);
     }
 
     render() {
         return (
-                <div>
+                <div className="ActionContainer">
                     <h3>Actions</h3>
                     {
                         this.props.actions.map(el => {
@@ -80,7 +70,7 @@ export default class Actions extends React.Component {
 
 Actions.propTypes = {
     actions: PropTypes.array,
-    filters: PropTypes.object,
+    filters: PropTypes.array,
     eventTypes: PropTypes.array,
     onChangeProps: PropTypes.func,
     putRules: PropTypes.func,

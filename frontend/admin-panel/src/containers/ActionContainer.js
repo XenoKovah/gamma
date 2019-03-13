@@ -1,9 +1,8 @@
 import React from 'react';
 import Button from '@material-ui/core/Button';
 
-import EventType from './Select';
-import Count from './Count';
-import ConditionDivider from './ConditionDivider';
+import EventType from '../components/Select';
+import Count from '../components/Count';
 
 
 class ActionContainer extends React.Component {
@@ -47,13 +46,12 @@ class ActionContainer extends React.Component {
 
     render() {
         return (
-            <div className="BlockAction">
-                {/* <ConditionDivider value={this.props.condition}/> */}
+            <div className="ActionItem">
                 <EventType onChanged={this.selectChanged} action={this.props.action} actions={this.props.actions}/>
-                <div className="BlockAction-item">
-                    <Count onChanged={this.countChanged} count={this.props.count}/>
+                <Count onChanged={this.countChanged} count={this.props.count}/>
+                <div>
+                    <Button onClick={this.deleteBlock} variant="contained" color="secondary" size="small">Delete</Button>
                 </div>
-                <Button onClick={this.deleteBlock}>Delete</Button>
             </div>
         )
     }

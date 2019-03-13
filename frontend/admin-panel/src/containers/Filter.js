@@ -29,15 +29,17 @@ export default class Filter extends React.Component {
         this.handleChangeInput = this.handleChangeInput.bind(this);
         this.clearStart = this.clearStart.bind(this);
         this.clearEnd = this.clearEnd.bind(this);
+        this.removeFilter = this.removeFilter.bind(this);
 
-        let start = props.interval && props.interval.start ? props.interval.start.toISOString() : new Date().toISOString();
-        let end = props.interval && props.interval.end ? props.interval.end.toISOString() : new Date().toISOString();
-        this.state = {
-            start: start,
-            end: end,
-            frequency: props.frequency,
-            org: props.org
-        }
+        // let start = props.interval && props.interval.start ? props.interval.start.toISOString() : new Date().toISOString();
+        // let end = props.interval && props.interval.end ? props.interval.end.toISOString() : new Date().toISOString();
+        // this.state = {
+        //     start: start,
+        //     end: end,
+        //     frequency: props.frequency,
+        //     org: props.org
+        // }
+        console.log('Filter', props);
         
     }
 
@@ -45,20 +47,24 @@ export default class Filter extends React.Component {
         this.setState({
             end: null
         }, () => {
-            this.props.onChange("end", null);
+            this.props.onChange(this.props.id, "end", null);
         })
+    }
+
+    removeFilter(event) {
+        this.props.removeFilter(this.props.id);
     }
 
     clearStart(event) {
         this.setState({
             start: null
         }, () => {
-            this.props.onChange("start", null);
+            this.props.onChange(this.props.id, "start", null);
         })
     }
 
     handleChange(key, value) {
-        this.props.onChange(key, value);
+        this.props.onChange(this.props.id, key, value);
     }
 
     handleChangeDateStart(date) {
@@ -66,7 +72,7 @@ export default class Filter extends React.Component {
         this.setState({
             start: formattedDate
         }, () => {
-            this.props.onChange("start", formattedDate);
+            this.props.onChange(this.props.id, "start", formattedDate);
         })
     }
 
@@ -75,7 +81,7 @@ export default class Filter extends React.Component {
         this.setState({
             end: formattedDate
         }, () => {
-            this.props.onChange("end", formattedDate);
+            this.props.onChange(this.props.id, "end", formattedDate);
         })
     }
 
@@ -85,7 +91,7 @@ export default class Filter extends React.Component {
         let value = event.currentTarget.value;
         state[name] = value;
         this.setState(state, () => {
-            this.props.onChange(name, value);
+            this.props.onChange(this.props.id, name, value);
         });
     }
 
@@ -120,7 +126,7 @@ export default class Filter extends React.Component {
                         
                         </Grid>
                     </MuiPickersUtilsProvider>
-                    <Button size="small" mini={true} onClick={this.clearStart}>Clear</Button>
+                    <Button size="small" mini={true} onClick={this.clearStart} variant="contained" color="secondary">Clear</Button>
                 </div>
                 <div className="DatePickerBlock">
 
@@ -134,10 +140,10 @@ export default class Filter extends React.Component {
                         />
                         
                         </Grid>
-                        <Button size="small" mini={true} onClick={this.clearEnd}>Clear</Button>
+                        <Button size="small" mini={true} onClick={this.clearEnd} variant="contained" color="secondary">Clear</Button>
                     </MuiPickersUtilsProvider>
                 </div>
-                
+                <Button size="small" onClick={this.removeFilter} variant="contained" color="secondary">Remove filter</Button>
                 </FormGroup>
 
             </div>

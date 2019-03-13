@@ -462,9 +462,50 @@ class BadgeRuleView(APIView):
         if not slug:
             return Response({})
         badge = self.conn.collection.find_one({"slug": slug}, {"_id": 0})
-        data = {'event_types': EventSerializer(Event.objects.all(), many=True).data}
-        data.update(badge.get('rules', {}))
-        return Response(data if badge else {})
+        # data = {'event_types': EventSerializer(Event.objects.all(), many=True).data}
+        data = {
+            "event_types": [
+                {
+                    "event_type": "problem"
+                },
+                {
+                    "event_type": "video"
+                },
+                {
+                    "event_type": "forum"
+                },
+                {
+                    "event_type": "course"
+                },
+                {
+                    "event_type": "reward"
+                }
+            ],
+            "actions": {
+                "problem": 55,
+                "video": 11
+            },
+            "filters": [
+                {
+                    "org": "Microsoft",
+                    "frequency": 5,
+                    "interval": {
+                        "start": "2019-02-28T22:00:00",
+                        "end": "2019-03-30T22:00:00"
+                    }
+                },
+                {
+                    "org": "ShMicrosoft",
+                    "frequency": 25,
+                    "interval": {
+                        "start": "2019-01-28T22:00:00",
+                        "end": "2019-01-30T22:00:00"
+                    }
+                }
+            ]
+        }
+        # data.update(badge.get('rules', {}))
+        return Response(data)
     
     def put(self, request, *args, **kwargs):
         print(request.data)
