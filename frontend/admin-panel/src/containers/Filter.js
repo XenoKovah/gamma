@@ -103,7 +103,7 @@ export default class Filter extends React.Component {
                         onChange={this.handleChangeInput}
                         />
                 <InputLabel htmlFor="frequency">Frequency</InputLabel>
-                    <Input name="frequency" id="frequency"
+                    <Input name="frequency" id="frequency" type="number"
                         value={this.props.frequency}
                         onChange={this.handleChangeInput}
                         />
