@@ -9,7 +9,7 @@ import './App.css';
 
 import 'react-dropdown/style.css';
 
-import Actions from './containers/Action';
+import Actions from './containers/Actions';
 
 class App extends Component {
 
@@ -18,6 +18,10 @@ class App extends Component {
 
     this.handleClose = this.handleClose.bind(this);
     this.onChangeProps = this.onChangeProps.bind(this);
+    this.putRules = this.putRules.bind(this);
+
+    let { slug } = this.props.match.params;
+    this.slug = slug;
 
     this.state = {
       open: true,
@@ -28,9 +32,7 @@ class App extends Component {
   }
 
   handleClose() {
-    this.setState({
-      open: !this.state.open
-    })
+    this.props.history.goBack();
   }
 
   onChangeProps(propName, propValue) {
@@ -40,7 +42,9 @@ class App extends Component {
   }
 
   getRules() {
-    fetch('http://localhost:9000/api/v0/badge-rules/?slug=performance')
+    fetch(
+      `http://localhost:9000/api/v0/badge-rules/?slug=${this.slug}`
+      )
     .then(res => res.json())
     .then(result => {
         let actions = [];
@@ -69,6 +73,24 @@ class App extends Component {
     })
   }
 
+  putRules() {
+    const rules = {}
+    if (this.state.actions.length) {
+      let validActions = this.state.actions.filter((action, ind) => {
+          return action.count && action.action
+      });
+      const actions = {};
+      validActions.map((el) => {
+          actions[el.action] = +el.count;
+      });
+      rules.actions = actions;
+      rules.filters = this.state.filters;
+      console.log(rules);
+  } else {
+      alert('You havent choosen anything!');
+  }
+  }
+
   componentDidMount() {
       this.getRules();
   }
@@ -77,7 +99,7 @@ class App extends Component {
     return (
       <Dialog open={this.state.open} >
         <DialogContent>
-          <Actions {...this.state} onChangeProps={this.onChangeProps}/>
+          <Actions {...this.state} onChangeProps={this.onChangeProps} putRules={this.putRules} slug={this.slug}/>
         </DialogContent>
         <DialogActions>
         <Button onClick={this.handleClose} color="primary">

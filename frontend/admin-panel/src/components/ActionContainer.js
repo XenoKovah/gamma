@@ -25,7 +25,6 @@ class ActionContainer extends React.Component {
     }
 
     selectChanged(data) {
-        console.log('ActionContainer, selectChanged - ', this.props.id);
         this.setState({
             action: data.action
         }, () => {
@@ -34,7 +33,6 @@ class ActionContainer extends React.Component {
     }
 
     countChanged(data) {
-        console.log('ActionContainer, countChanged - ', this.props.id);
         this.setState({
             count: data.count
         }, () => {
@@ -44,12 +42,10 @@ class ActionContainer extends React.Component {
 
     deleteBlock(event) {
         event.preventDefault();
-        console.log(this.props.id);
         this.props.deleteBlock(this.props.id);
     }
 
     render() {
-        console.log(this.props.actions, this.props.action)
         return (
             <div className="BlockAction">
                 {/* <ConditionDivider value={this.props.condition}/> */}
