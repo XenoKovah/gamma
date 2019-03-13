@@ -469,7 +469,3 @@ class BadgeRuleView(APIView):
     def put(self, request, *args, **kwargs):
         print(request.data)
         return Response({}, status=200)
-    
-    def options(self, request):
-        print(request.data)
-        return Response({}, status=200)
