@@ -465,3 +465,11 @@ class BadgeRuleView(APIView):
         data = {'event_types': EventSerializer(Event.objects.all(), many=True).data}
         data.update(badge.get('rules', {}))
         return Response(data if badge else {})
+    
+    def put(self, request, *args, **kwargs):
+        print(request.data)
+        return Response({}, status=200)
+    
+    def options(self, request):
+        print(request.data)
+        return Response({}, status=200)

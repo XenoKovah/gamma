@@ -44,3 +44,9 @@
 .ConditionDivider {
     margin-right: 20px;
 }
+
+.DatePickerBlock {
+    display: flex;
+    align-items: baseline;
+    padding: 10px;
+}

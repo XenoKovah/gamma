@@ -13,5 +13,5 @@ gamma/media/
 celerybeat-schedule
 coverage.xml
 node_modules/
-bundle.js
 package-lock.json
+dist/

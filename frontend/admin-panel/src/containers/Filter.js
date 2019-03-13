@@ -7,6 +7,7 @@ import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import TextField from '@material-ui/core/TextField';
 import { Divider } from '@material-ui/core';
+import Button from '@material-ui/core/Button';
 
 import FormGroup from '@material-ui/core/FormGroup';
 import InputBase from '@material-ui/core/InputBase';
@@ -26,13 +27,34 @@ export default class Filter extends React.Component {
         this.handleChangeDateStart = this.handleChangeDateStart.bind(this);
         this.handleChangeDateEnd = this.handleChangeDateEnd.bind(this);
         this.handleChangeInput = this.handleChangeInput.bind(this);
+        this.clearStart = this.clearStart.bind(this);
+        this.clearEnd = this.clearEnd.bind(this);
+
+        let start = props.interval && props.interval.start ? props.interval.start.toISOString() : new Date().toISOString();
+        let end = props.interval && props.interval.end ? props.interval.end.toISOString() : new Date().toISOString();
         this.state = {
-            start: props.interval.start.toISOString(),
-            end: props.interval.end.toISOString(),
+            start: start,
+            end: end,
             frequency: props.frequency,
             org: props.org
         }
         
+    }
+
+    clearEnd(event) {
+        this.setState({
+            end: null
+        }, () => {
+            this.props.onChange("end", null);
+        })
+    }
+
+    clearStart(event) {
+        this.setState({
+            start: null
+        }, () => {
+            this.props.onChange("start", null);
+        })
     }
 
     handleChange(key, value) {
@@ -68,7 +90,8 @@ export default class Filter extends React.Component {
     }
 
     render() {
-        console.log('render -', this.state);
+        let start = this.props && this.props.interval && this.props.interval.start ? this.props.interval.start : null;
+        let end = this.props && this.props.interval && this.props.interval.end ? this.props.interval.end : null;
         return (
             <div>
                 <h3>Filters</h3>
@@ -84,28 +107,36 @@ export default class Filter extends React.Component {
                         value={this.props.frequency}
                         onChange={this.handleChangeInput}
                         />
-                <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                    <Grid container justify="space-around">
-                    <DatePicker
-                        margin="normal"
-                        label="Start interval"
-                        value={this.props.interval.start}
-                        onChange={this.handleChangeDateStart}
-                    />
-                    
-                    </Grid>
-                </MuiPickersUtilsProvider>
-                <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                    <Grid container justify="space-around">
-                    <DatePicker
-                        margin="normal"
-                        label="End interval"
-                        value={this.props.interval.end}
-                        onChange={this.handleChangeDateEnd}
-                    />
-                    
-                    </Grid>
-                </MuiPickersUtilsProvider>
+                <div className="DatePickerBlock">
+
+                    <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                        <Grid container justify="space-around">
+                        <DatePicker
+                            margin="normal"
+                            label="Start interval"
+                            value={start}
+                            onChange={this.handleChangeDateStart}
+                        />
+                        
+                        </Grid>
+                    </MuiPickersUtilsProvider>
+                    <Button size="small" mini={true} onClick={this.clearStart}>Clear</Button>
+                </div>
+                <div className="DatePickerBlock">
+
+                    <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                        <Grid container justify="space-around">
+                        <DatePicker
+                            margin="normal"
+                            label="End interval"
+                            value={end}
+                            onChange={this.handleChangeDateEnd}
+                        />
+                        
+                        </Grid>
+                        <Button size="small" mini={true} onClick={this.clearEnd}>Clear</Button>
+                    </MuiPickersUtilsProvider>
+                </div>
                 
                 </FormGroup>
 

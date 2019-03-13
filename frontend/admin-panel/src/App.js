@@ -13,6 +13,22 @@ import 'react-dropdown/style.css';
 import Actions from './containers/Actions';
 import Filter from './containers/Filter';
 
+function getCookie(name) {
+  var cookieValue = null;
+  if (document.cookie && document.cookie != '') {
+      var cookies = document.cookie.split(';');
+      for (var i = 0; i < cookies.length; i++) {
+          var cookie = cookies[i].trim();
+          // Does this cookie string begin with the name we want?
+          if (cookie.substring(0, name.length + 1) == (name + '=')) {
+              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+              break;
+          }
+      }
+  }
+  return cookieValue;
+}
+
 class App extends Component {
 
   constructor(props) {
@@ -42,7 +58,7 @@ class App extends Component {
   }
 
   handleClose() {
-    this.props.history.goBack();
+    this.props.history.push("/");
   }
 
   onChangeProps(propName, propValue) {
@@ -53,7 +69,7 @@ class App extends Component {
 
   getRules() {
     fetch(
-      `http://localhost:9000/api/v0/badge-rules/?slug=${this.slug}`
+      `/api/v0/badge-rules/?slug=${this.slug}`, {credentials: "same-origin"}
       )
     .then(res => res.json())
     .then(result => {
@@ -72,12 +88,11 @@ class App extends Component {
         for (let key in result.event_types) {
             eventTypes.push(result.event_types[key]["event_type"])
         }
-        console.log('API response', result.filters);
         this.setState({
             actions: actions,
             filters: result.filters,
             eventTypes: eventTypes
-        }, () => {console.log('state - ', this.state)})
+        })
     },
     error => {
         console.log(error);
@@ -96,7 +111,12 @@ class App extends Component {
       });
       rules.actions = actions;
       rules.filters = this.state.filters;
-      console.log(rules);
+      fetch('/api/v0/badge-rules/', {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken')},
+        body: JSON.stringify({slug: this.slug, ...rules},
+        {credentials: "same-origin"})
+      }).then(response => response.json()).catch(error => console.log(error));
   } else {
       alert('You havent choosen anything!');
   }
