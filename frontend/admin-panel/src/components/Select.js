@@ -6,7 +6,8 @@ import FormControl from '@material-ui/core/FormControl';
 class EventType extends React.Component {
     constructor(props) {
         super(props);
-        this.items = this.props.actions || [];
+
+        this.items = this.props.actions || ['one', 'two'];
         
         this.handleChange = this.handleChange.bind(this);
     }

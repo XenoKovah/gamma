@@ -24,7 +24,7 @@ class Count extends React.Component {
         return (
             <FormControl>
                 <InputLabel htmlFor="count-input">Count </InputLabel>
-                <Input id="count-input"
+                <Input id="count-input" inputProps={{type: "number"}}
                 defaultValue={this.state.count} 
                 onChange={this.onChange} />
 

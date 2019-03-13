@@ -8,6 +8,7 @@ services:
       - "27017:27017"
     volumes:
       - gamma_mongo:/data/db
+      - .:/app
 
   postgres:
     image: postgres

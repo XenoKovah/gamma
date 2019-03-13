@@ -458,7 +458,10 @@ class BadgeRuleView(APIView):
         Get rules for badge by a slug.
         """
         slug = request.GET.get('slug')
+        
         if not slug:
             return Response({})
         badge = self.conn.collection.find_one({"slug": slug}, {"_id": 0})
-        return Response(badge.get('rules', {}) if badge else {})
+        data = {'event_types': EventSerializer(Event.objects.all(), many=True).data}
+        data.update(badge.get('rules', {}))
+        return Response(data if badge else {})

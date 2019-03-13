@@ -43,7 +43,7 @@ endif
 			python manage.py loaddata dump.json
 
 .mongo_init:
-	docker-compose run app mongorestore --host=mongo dump
+	docker-compose run mongo mongorestore --host=mongo dump
 
 stop:
 	docker-compose  stop

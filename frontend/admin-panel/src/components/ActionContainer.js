@@ -15,12 +15,12 @@ class ActionContainer extends React.Component {
         this.countChanged = this.countChanged.bind(this);
 
 
-        console.log('ActionContainer constructor - props = ', this.props);
+
         this.state = {
             id: this.props.id || Math.random(),
             action: this.props.action || "",
             count: this.props.count || "",
-            condition: this.props.condition || ""
+            actions: this.props.actions || []
         }
     }
 
@@ -49,6 +49,7 @@ class ActionContainer extends React.Component {
     }
 
     render() {
+        console.log(this.props.actions, this.props.action)
         return (
             <div className="BlockAction">
                 {/* <ConditionDivider value={this.props.condition}/> */}

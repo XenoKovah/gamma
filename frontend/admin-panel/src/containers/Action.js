@@ -16,16 +16,17 @@ class Actions extends React.Component {
         this.getConditions = this.getConditions.bind(this);
 
         this.state = {
-            conditions: [{action: "", count: 0, id: Math.random()}]
+            actions: [],
+            filters: [],
+            eventTypes: []
         }
-
     }
 
     getConditions() {
         return []
     }
 
-    getConditionIndex(conditions, id) {
+    getIndex(conditions, id) {
         let index;
         conditions.map((el, ind) => {
             if (el.id === id) {
@@ -36,27 +37,37 @@ class Actions extends React.Component {
     }
 
     containerChanged(id, key, value) {
-        console.log('ID - ', id);
-        let conditions = Object.assign([], this.state.conditions);
-        console.log(conditions[this.getConditionIndex(conditions, id)]);
-        conditions[this.getConditionIndex(conditions, id)][key] = value;
+        let actions = this.state.actions;
+        let actionToChange = this.getIndex(actions, id);
+        actions[actionToChange][key] = value;
         this.setState({
-            conditions: conditions
+            actions: actions
         })
     }
 
-    get() {
-        fetch('http://localhost:9000/api/v0/events/')
+    getRules() {
+        fetch('http://localhost:9000/api/v0/badge-rules/?slug=performance')
         .then(res => res.json())
         .then(result => {
             let actions = [];
-            let data = result.map(el => {
-                actions.push(el.event_type);
-                return {action: el.event_type, count: el.award, id: el.id};
-            });
+            let eventTypes = [];
+
+            for (let key in result.actions) {
+                actions.push(
+                    {
+                        id: Math.random(),
+                        action: key,
+                        count: result.actions[key]
+                    }
+                )
+            }
+            for (let key in result.event_types) {
+                eventTypes.push(result.event_types[key]["event_type"])
+            }
             this.setState({
-                conditions: data,
-                actions: actions
+                actions: actions,
+                filters: result.filters,
+                eventTypes: eventTypes
             })
         },
         error => {
@@ -64,19 +75,19 @@ class Actions extends React.Component {
         })
     }
 
-    componentDidMount() {
-        this.get();
+    componentWillMount() {
+        this.getRules();
     }
 
     handleSubmit(event) {
         event.preventDefault();
-        if (this.state.conditions.length) {
-            let validConditions = this.state.conditions.filter((condition, ind) => {
-                return condition.count && condition.action
+        if (this.state.actions.length) {
+            let validActions = this.state.actions.filter((action, ind) => {
+                return action.count && action.action
             })
-            const data = validConditions.map((el) => {
+            const data = validActions.map((el) => {
                 let item = {};
-                item[el.action] = el.count;
+                item[el.action] = +el.count;
                 return item;
             });
             console.log(data);
@@ -86,42 +97,37 @@ class Actions extends React.Component {
     }
 
     addCondition(event) {
-        const newConditions = Object.assign([], this.state.conditions);
-        newConditions.push({action: "", count: 0, id: Math.random(), condition: "and"});
+        const actions = Object.assign([], this.state.actions);
+        actions.push({action: "", count: 0, id: Math.random()});
         this.setState({
-            conditions: newConditions
+            actions: actions
         });
 
     }
 
     deleteBlock(id) {
-        const { conditions } = this.state;
-        conditions.splice(this.getConditionIndex(conditions, id), 1);
+        const { actions } = this.state;
+        actions.splice(this.getIndex(actions, id), 1);
         this.setState({
-            conditions: conditions
+            actions: actions
         })
     }
 
     render() {
         return (
-
                 <form>
                     <h3>Actions</h3>
                     {
-                        this.state.conditions.map((el, ind) => {
-                            console.log('MAP, el = ', el);
-                            return (
-                                <ActionContainer 
-                                    key={el.id}
-                                    id={el.id} 
-                                    onChange={this.containerChanged} 
-                                    deleteBlock={this.deleteBlock}
-                                    action={el.action}
-                                    count={el.count}  
-                                    actions={this.state.actions}
-                                    condition={el.condition}
-                                />
-                            )
+                        this.state.actions.map(el => {
+                            return <ActionContainer 
+                                key={el.id}
+                                id={el.id} 
+                                onChange={this.containerChanged} 
+                                deleteBlock={this.deleteBlock}
+                                action={el.action}
+                                count={el.count}  
+                                actions={this.state.eventTypes}
+                            />
                         })
                     }
                     <AndOrBlock addCondition={this.addCondition}/>
