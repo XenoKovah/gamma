@@ -1,6 +1,8 @@
 import React from 'react';
 import Button from '@material-ui/core/Button';
 
+import PropTypes from 'prop-types';
+
 import ActionContainer from '../components/ActionContainer';
 import AndOrBlock from '../components/AndOrBlock';
 
@@ -15,11 +17,6 @@ class Actions extends React.Component {
         this.deleteBlock = this.deleteBlock.bind(this);
         this.getConditions = this.getConditions.bind(this);
 
-        this.state = {
-            actions: [],
-            filters: [],
-            eventTypes: []
-        }
     }
 
     getConditions() {
@@ -37,52 +34,16 @@ class Actions extends React.Component {
     }
 
     containerChanged(id, key, value) {
-        let actions = this.state.actions;
+        let actions = this.props.actions;
         let actionToChange = this.getIndex(actions, id);
         actions[actionToChange][key] = value;
-        this.setState({
-            actions: actions
-        })
-    }
-
-    getRules() {
-        fetch('http://localhost:9000/api/v0/badge-rules/?slug=performance')
-        .then(res => res.json())
-        .then(result => {
-            let actions = [];
-            let eventTypes = [];
-
-            for (let key in result.actions) {
-                actions.push(
-                    {
-                        id: Math.random(),
-                        action: key,
-                        count: result.actions[key]
-                    }
-                )
-            }
-            for (let key in result.event_types) {
-                eventTypes.push(result.event_types[key]["event_type"])
-            }
-            this.setState({
-                actions: actions,
-                filters: result.filters,
-                eventTypes: eventTypes
-            })
-        },
-        error => {
-            console.log(error);
-        })
-    }
-
-    componentWillMount() {
-        this.getRules();
+        this.props.onChangeProps('actions', actions);
     }
 
     handleSubmit(event) {
         event.preventDefault();
-        if (this.state.actions.length) {
-            let validActions = this.state.actions.filter((action, ind) => {
+        if (this.props.actions.length) {
+            let validActions = this.props.actions.filter((action, ind) => {
                 return action.count && action.action
             })
             const data = validActions.map((el) => {
@@ -97,20 +58,16 @@ class Actions extends React.Component {
     }
 
     addCondition(event) {
-        const actions = Object.assign([], this.state.actions);
+        const actions = Object.assign([], this.props.actions);
         actions.push({action: "", count: 0, id: Math.random()});
-        this.setState({
-            actions: actions
-        });
+        this.props.onChangeProps('actions', actions);
 
     }
 
     deleteBlock(id) {
-        const { actions } = this.state;
+        const { actions } = this.props;
         actions.splice(this.getIndex(actions, id), 1);
-        this.setState({
-            actions: actions
-        })
+        this.props.onChangeProps('actions', actions);
     }
 
     render() {
@@ -118,7 +75,7 @@ class Actions extends React.Component {
                 <form>
                     <h3>Actions</h3>
                     {
-                        this.state.actions.map(el => {
+                        this.props.actions.map(el => {
                             return <ActionContainer 
                                 key={el.id}
                                 id={el.id} 
@@ -126,7 +83,7 @@ class Actions extends React.Component {
                                 deleteBlock={this.deleteBlock}
                                 action={el.action}
                                 count={el.count}  
-                                actions={this.state.eventTypes}
+                                actions={this.props.eventTypes}
                             />
                         })
                     }
@@ -142,3 +99,10 @@ class Actions extends React.Component {
 }
 
 export default Actions;
+
+Actions.propTypes = {
+    actions: PropTypes.array,
+    filters: PropTypes.object,
+    eventTypes: PropTypes.array,
+    onChangeProps: PropTypes.func
+}
