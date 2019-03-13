@@ -1,7 +1,7 @@
 import React from 'react';
 import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
-import FormControl from '@material-ui/core/FormControl';
+import FormGroup from '@material-ui/core/FormGroup';
 
 class EventType extends React.Component {
     constructor(props) {
@@ -20,7 +20,7 @@ class EventType extends React.Component {
 
     render() {
         return (
-            <FormControl>
+            <FormGroup>
                 <InputLabel htmlFor="problem-select">Event</InputLabel>
                 <Select id="problem-select" native defaultValue={this.props.action} onChange={this.handleChange}>
                     <option key={0} value="-----">-----</option>
@@ -31,7 +31,7 @@ class EventType extends React.Component {
                     }
                 </Select>
 
-            </FormControl>
+            </FormGroup>
         )
     }
 }

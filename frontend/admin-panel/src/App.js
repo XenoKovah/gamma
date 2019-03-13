@@ -3,6 +3,7 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import Button from '@material-ui/core/Button';
+import FormControl from '@material-ui/core/FormControl';
 
 import logo from './logo.svg';
 import './App.css';
@@ -10,6 +11,7 @@ import './App.css';
 import 'react-dropdown/style.css';
 
 import Actions from './containers/Actions';
+import Filter from './containers/Filter';
 
 class App extends Component {
 
@@ -19,6 +21,7 @@ class App extends Component {
     this.handleClose = this.handleClose.bind(this);
     this.onChangeProps = this.onChangeProps.bind(this);
     this.putRules = this.putRules.bind(this);
+    this.onChangeFilter = this.onChangeFilter.bind(this);
 
     let { slug } = this.props.match.params;
     this.slug = slug;
@@ -26,7 +29,14 @@ class App extends Component {
     this.state = {
       open: true,
       actions: [],
-      filters: {},
+      filters: {
+        org: "",
+        interval: {
+          start: new Date(),
+          end: new Date()
+        },
+        frequency: 0
+      },
       eventTypes: []
     }
   }
@@ -62,11 +72,12 @@ class App extends Component {
         for (let key in result.event_types) {
             eventTypes.push(result.event_types[key]["event_type"])
         }
+        console.log('API response', result.filters);
         this.setState({
             actions: actions,
             filters: result.filters,
             eventTypes: eventTypes
-        })
+        }, () => {console.log('state - ', this.state)})
     },
     error => {
         console.log(error);
@@ -95,13 +106,33 @@ class App extends Component {
       this.getRules();
   }
 
+  onChangeFilter(key, value) {
+    let filters = this.state.filters;
+    switch(key) {
+      case 'start':
+        filters.interval[key] = value;
+        break;
+      case 'end':
+        filters.interval[key] = value;
+        break;
+      default:
+        filters[key] = value;
+    }
+    this.setState({filters: filters});
+    console.log('onChangeFilter', key, value, filters);
+  }
+
   render() {
     return (
       <Dialog open={this.state.open} >
         <DialogContent>
+            <Filter {...this.state.filters} onChange={this.onChangeFilter}/>
+          <hr/>
           <Actions {...this.state} onChangeProps={this.onChangeProps} putRules={this.putRules} slug={this.slug}/>
         </DialogContent>
         <DialogActions>
+        <Button onClick={this.putRules} size="large" color="primary">Save</Button>
+        <Button size="large" color="primary">Delete</Button>
         <Button onClick={this.handleClose} color="primary">
               Close
             </Button>

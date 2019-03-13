@@ -1,7 +1,7 @@
 import React from 'react';
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
-import FormControl from '@material-ui/core/FormControl';
+import FormGroup from '@material-ui/core/FormGroup';
 
 class Count extends React.Component {
 
@@ -22,13 +22,13 @@ class Count extends React.Component {
 
     render() {
         return (
-            <FormControl>
+            <FormGroup>
                 <InputLabel htmlFor="count-input">Count </InputLabel>
                 <Input id="count-input" inputProps={{type: "number"}}
                 defaultValue={this.state.count} 
                 onChange={this.onChange} />
 
-            </FormControl>
+            </FormGroup>
             
         )
     }
