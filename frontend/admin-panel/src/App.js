@@ -11,22 +11,9 @@ import 'react-dropdown/style.css';
 
 import Actions from './containers/Actions';
 import FilterContainer from './containers/FilterContainer';
+import { getCookie, isObjectEmpty } from './Utils';
 
-function getCookie(name) {
-  var cookieValue = null;
-  if (document.cookie && document.cookie != '') {
-      var cookies = document.cookie.split(';');
-      for (var i = 0; i < cookies.length; i++) {
-          var cookie = cookies[i].trim();
-          // Does this cookie string begin with the name we want?
-          if (cookie.substring(0, name.length + 1) == (name + '=')) {
-              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-              break;
-          }
-      }
-  }
-  return cookieValue;
-}
+
 
 class App extends Component {
 
@@ -45,8 +32,8 @@ class App extends Component {
     this.state = {
       open: true,
       actions: [],
-      filters: [],
-      eventTypes: []
+      filters: {},
+      emptyFilters: []
     }
   }
 
@@ -77,7 +64,6 @@ class App extends Component {
     .then(res => res.json())
     .then(result => {
         let actions = [];
-        let eventTypes = [];
 
         for (let key in result.actions) {
             actions.push(
@@ -90,8 +76,7 @@ class App extends Component {
         };
         this.setState({
             actions: actions,
-            filters: result.filters,
-            eventTypes: eventTypes
+            filters: result.filters
         })
     },
     error => {
@@ -99,16 +84,9 @@ class App extends Component {
     })
   }
 
-  isObjectEmpty(object) {
-    for (let key in object) {
-      return false;
-    }
-    return true;
-  }
-
   putRules() {
     const rules = {}
-    if (!this.isObjectEmpty(this.state.actions) || !this.isObjectEmpty(this.state.filters)) {
+    if (!isObjectEmpty(this.state.actions) || !isObjectEmpty(this.state.filters)) {
       let validActions = this.state.actions.filter((action, ind) => {
           return action.count && action.action
       });
