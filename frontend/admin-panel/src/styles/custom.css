@@ -58,8 +58,14 @@
     border-radius: 3px;
 }
 
-.FilterContainer {
+.Container {
     display: flex;
+    align-items: baseline;
+    justify-content: center;
+}
+
+.ContainerItem {
+    margin: 0 20px;
 }
 
 .ActionContainer {

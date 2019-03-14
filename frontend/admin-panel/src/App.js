@@ -87,17 +87,10 @@ class App extends Component {
                     count: result.actions[key]
                 }
             )
-        }
-        for (let key in result.event_types) {
-            eventTypes.push(result.event_types[key]["event_type"])
-        }
-        let filters = result.filters.map((filter, ind) => {
-          filter.id = Math.random();
-          return filter;
-        })
+        };
         this.setState({
             actions: actions,
-            filters: filters,
+            filters: result.filters,
             eventTypes: eventTypes
         })
     },
@@ -106,9 +99,16 @@ class App extends Component {
     })
   }
 
+  isObjectEmpty(object) {
+    for (let key in object) {
+      return false;
+    }
+    return true;
+  }
+
   putRules() {
     const rules = {}
-    if (this.state.actions.length) {
+    if (!this.isObjectEmpty(this.state.actions) || !this.isObjectEmpty(this.state.filters)) {
       let validActions = this.state.actions.filter((action, ind) => {
           return action.count && action.action
       });
@@ -140,20 +140,22 @@ class App extends Component {
   }
 
   filtersChanged(filters) {
-    console.log('filtersChanged', filters);
     this.setState({filters: filters})
   }
 
   render() {
     return (
-      <Dialog open={this.state.open} fullScreen={true} >
+      <Dialog open={this.state.open}>
         <DialogContent>
-          <div className="FilterContainer">
-            <FilterContainer  filters={this.state.filters} filtersChanged={this.filtersChanged} getIndex={this.getIndex}/>
+          <div className="Container">
+            <div className="ContainerItem">
+              <Actions {...this.state} getIndex={this.getIndex} onChangeProps={this.onChangeProps} putRules={this.putRules} slug={this.slug}/>
+            </div>
+            <div className="ContainerItem">
+              <FilterContainer  filters={this.state.filters} filtersChanged={this.filtersChanged} getIndex={this.getIndex}/>
+            </div>
           </div>
-          <Button size="small" variant="contained" color="primary">Add new filter</Button>
           <hr/>
-          <Actions {...this.state} getIndex={this.getIndex} onChangeProps={this.onChangeProps} putRules={this.putRules} slug={this.slug}/>
         </DialogContent>
         <DialogActions>
         <Button onClick={this.putRules} size="large" color="primary">Save</Button>

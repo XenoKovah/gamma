@@ -14,50 +14,31 @@ export default class FilterContainer extends React.Component {
         super(props);
 
         this.onChangeFilter = this.onChangeFilter.bind(this);
-        this.removeFilter = this.removeFilter.bind(this);
-
-        // this.state = {
-        //     filters: props.filters
-        // }
 
     }
 
-    onChangeFilter(id, key, value) {
-        let filters = this.props.filters;
-        let filter = filters[this.props.getIndex(filters, id)];
-        console.log('onChangeFilter', id, key, value, filter);
+    onChangeFilter(key, value) {
+        let filters = this.props.filters || {interval: {}};
         switch(key) {
           case 'start':
-            filter.interval[key] = value;
+            filters.interval[key] = value;
             break;
           case 'end':
-            filter.interval[key] = value;
+            filters.interval[key] = value;
             break;
           default:
-            filter[key] = value;
+            filters[key] = value;
         }
-        this.props.filtersChanged(filters)
+        this.props.filtersChanged(filters);
       }
-
-    removeFilter(id) {
-        let filters = this.props.filters;
-        filters.splice(this.props.getIndex(filters, id), 1);
-        this.props.filtersChanged(filters)
-    }
 
     render() {
         return (
-            this.props.filters.map((filter, ind) => {
-                return (
-                    <div className="FilterItem">
-                        <Filter key={filter.id} id={filter.id} {...filter} removeFilter={this.removeFilter} onChange={this.onChangeFilter}/>
-                    </div>
-                )
-            })
+            <Filter {...this.props.filters} onChange={this.onChangeFilter}/>
         )
     }
 };
 
-FilterContainer.propTypes = {
-    filters: PropTypes.array
-}
+// FilterContainer.propTypes = {
+//     filters: PropTypes.array
+// }

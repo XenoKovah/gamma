@@ -1,7 +1,4 @@
 import React from 'react';
-import Button from '@material-ui/core/Button';
-
-import PropTypes from 'prop-types';
 
 import ActionContainer from '../containers/ActionContainer';
 import AndOrBlock from '../components/AndOrBlock';
@@ -11,22 +8,61 @@ import '../styles/custom.css';
 export default class Actions extends React.Component {
     constructor(props) {
         super(props);
-        // this.handleSubmit = this.handleSubmit.bind(this);
         this.addCondition = this.addCondition.bind(this);
         this.containerChanged = this.containerChanged.bind(this);
         this.deleteBlock = this.deleteBlock.bind(this);
-        this.getConditions = this.getConditions.bind(this);
+        this.getActions = this.getActions.bind(this);
+        this.updateAvailableActions = this.updateAvailableActions.bind(this);
+
+        this.state = {
+            allActions: [],
+            availableActions: []
+        }
 
     }
 
-    getConditions() {
-        return []
+    getActions() {
+        fetch('http://localhost:9000/api/v0/actions')
+        .then(resp => resp.json())
+        .then(result => {
+            let actions = result.map((el) => {
+                return el.event_type;
+            })
+            this.updateAvailableActions(actions);
+        })
+    }
+
+    updateAvailableActions(actions) {
+        let actionList = actions || this.state.allActions;
+        let occupiedActions = [];
+        this.props.actions.map((action) => {
+            if (actionList.indexOf(action.action) > -1) {
+                occupiedActions.push(action.action)
+            }
+        });
+        let available = actionList.filter((el) => {
+            return occupiedActions.indexOf(el) === -1;
+        })
+
+        this.setState({
+            allActions: actionList,
+            availableActions: available
+        })
+    }
+
+    componentDidMount() {
+        this.getActions();
     }
 
     containerChanged(id, key, value) {
         let actions = this.props.actions;
         let actionToChange = this.props.getIndex(actions, id);
         actions[actionToChange][key] = value;
+        this.updateAvailableActions();
+        this.setState({
+            actions: actions
+        })
+
         this.props.onChangeProps('actions', actions);
     }
 
@@ -40,12 +76,13 @@ export default class Actions extends React.Component {
     deleteBlock(id) {
         const { actions } = this.props;
         actions.splice(this.props.getIndex(actions, id), 1);
+        this.updateAvailableActions();
         this.props.onChangeProps('actions', actions);
     }
 
     render() {
         return (
-                <div className="ActionContainer">
+                <div>
                     <h3>Actions</h3>
                     {
                         this.props.actions.map(el => {
@@ -55,12 +92,17 @@ export default class Actions extends React.Component {
                                 onChange={this.containerChanged} 
                                 deleteBlock={this.deleteBlock}
                                 action={el.action}
-                                count={el.count}  
-                                actions={this.props.eventTypes}
+                                count={el.count}
+                                actions={this.props.actions}
+                                availableActions={this.state.availableActions}
                             />
                         })
                     }
-                    <AndOrBlock addCondition={this.addCondition}/>
+                    {
+                        this.state.availableActions.length ? (<div>
+                            <AndOrBlock addCondition={this.addCondition}/>
+                        </div>) : false
+                    }
                 </div>
 
         )
@@ -68,10 +110,10 @@ export default class Actions extends React.Component {
 
 }
 
-Actions.propTypes = {
-    actions: PropTypes.array,
-    filters: PropTypes.array,
-    eventTypes: PropTypes.array,
-    onChangeProps: PropTypes.func,
-    putRules: PropTypes.func,
-}
+// Actions.propTypes = {
+//     actions: PropTypes.array,
+//     filters: PropTypes.array,
+//     eventTypes: PropTypes.array,
+//     onChangeProps: PropTypes.func,
+//     putRules: PropTypes.func,
+// }

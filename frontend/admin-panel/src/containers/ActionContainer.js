@@ -19,7 +19,8 @@ class ActionContainer extends React.Component {
             id: this.props.id || Math.random(),
             action: this.props.action || "",
             count: this.props.count || "",
-            actions: this.props.actions || []
+            actions: this.props.actions || [],
+            availableActions: this.props.availableActions || []
         }
     }
 
@@ -47,7 +48,10 @@ class ActionContainer extends React.Component {
     render() {
         return (
             <div className="ActionItem">
-                <EventType onChanged={this.selectChanged} action={this.props.action} actions={this.props.actions}/>
+                <EventType 
+                    onChanged={this.selectChanged} 
+                    action={this.props.action} 
+                    actions={this.props.availableActions}/>
                 <Count onChanged={this.countChanged} count={this.props.count}/>
                 <div>
                     <Button onClick={this.deleteBlock} variant="contained" color="secondary" size="small">Delete</Button>

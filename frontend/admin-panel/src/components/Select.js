@@ -6,10 +6,12 @@ import FormGroup from '@material-ui/core/FormGroup';
 class EventType extends React.Component {
     constructor(props) {
         super(props);
-
-        this.items = this.props.actions || ['one', 'two'];
         
         this.handleChange = this.handleChange.bind(this);
+
+        this.state = {
+            action: this.props.action
+        }
     }
 
     handleChange(event) {
@@ -22,10 +24,10 @@ class EventType extends React.Component {
         return (
             <FormGroup>
                 <InputLabel htmlFor="problem-select">Event</InputLabel>
-                <Select id="problem-select" native defaultValue={this.props.action} onChange={this.handleChange}>
-                    <option key={0} value="-----">-----</option>
+                <Select id="problem-select" native value={this.state.action} onChange={this.handleChange}>
+                    <option key={0} value="">-----</option>
                     {
-                        this.items.map((el, ind) => {
+                        this.props.actions.map((el, ind) => {
                             return <option key={ind+1} value={el}>{el}</option>
                         })
                     }

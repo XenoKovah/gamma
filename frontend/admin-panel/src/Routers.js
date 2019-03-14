@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, Link, HashRouter, BrowserRouter as Router } from 'react-router-dom';
+import { Route, HashRouter } from 'react-router-dom';
 import createBrowserHistory from "history/createBrowserHistory";
 
 import App from './App';
