@@ -145,7 +145,7 @@ class App extends Component {
 
   render() {
     return (
-      <Dialog open={this.state.open}>
+      <Dialog open={this.state.open} maxWidth="md">
         <DialogContent>
           <div className="Container">
             <div className="ContainerItem">
