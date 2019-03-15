@@ -12,7 +12,7 @@ const path = require('path');
 const static = path.resolve(__dirname, '../../core/static/core');
 
 gulp.task('pack-css', function () {
-    return gulp.src(['build/static/css/*.css'])
+    return gulp.src(['build/static/css/*'])
         .pipe(concat('css/stylesheet.css'))
         .pipe(cleanCss())
         .pipe(gulp.dest(static));
