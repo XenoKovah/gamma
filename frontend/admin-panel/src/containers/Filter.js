@@ -1,18 +1,15 @@
 import React from 'react';
 
-import PropTypes from 'prop-types';
 import 'date-fns';
 
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import Select from '@material-ui/core/Select';
-import { Divider } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 
 import FormGroup from '@material-ui/core/FormGroup';
-import InputBase from '@material-ui/core/InputBase';
 
-import { MuiPickersUtilsProvider, TimePicker, DatePicker } from 'material-ui-pickers';
+import { MuiPickersUtilsProvider, DatePicker } from 'material-ui-pickers';
 import Grid from '@material-ui/core/Grid';
 import DateFnsUtils from '@date-io/date-fns';
 
@@ -20,7 +17,6 @@ import {AllowedFilters, isObjectEmpty} from '../Utils';
 
 import "react-datepicker/dist/react-datepicker.css";
 
-var changed = false;
 
 export default class Filter extends React.Component {
     constructor(props) {
@@ -62,14 +58,15 @@ export default class Filter extends React.Component {
         let manuallyAdded = this.state.manuallyAdded;
         manuallyAdded[this.selectedField] = true;
         this.setState({
-            manuallyAdded: manuallyAdded
+            manuallyAdded: manuallyAdded,
+            updateEmptyList: true,
         })
     }
 
     getEmptyFields() {
 
         let emptyFields = AllowedFilters.filter((field) => {
-            return field == 'interval' && isObjectEmpty(this.props[field]) || !this.props[field];
+            return field == 'interval' && isObjectEmpty(this.state[field]) || (!this.state[field] && !this.state.manuallyAdded[field]);
         });
         return emptyFields;
     }
@@ -93,12 +90,13 @@ export default class Filter extends React.Component {
     }
 
     handleChangeDateStart(date) {
+        
         let formattedDate = date.toISOString();
-        this.setState({
-            start: formattedDate
-        }, () => {
-            let state = this.state;
-            if (!state.interval.start && !state.interval.end) {
+        let state = this.state;
+        state.interval.start = formattedDate;
+        state.stateUpdated = false;
+        this.setState(state, () => {
+            if (!formattedDate && !state.interval.end) {
                 state.manuallyAdded.interval = false;
                 delete state['interval'];
                 this.setState(state);
@@ -115,11 +113,11 @@ export default class Filter extends React.Component {
 
     handleChangeDateEnd(date) {
         let formattedDate = date.toISOString();
-        this.setState({
-            end: formattedDate
-        }, () => {
-            let state = this.state;
-            if (!this.state.interval.start && !this.state.interval.end) {
+        let state = this.state;
+        state.interval.end = formattedDate;
+        state.stateUpdated = false;
+        this.setState(state, () => {
+            if (!this.state.interval.start && !formattedDate) {
                 state.manuallyAdded.interval = false;
                 delete state['interval'];
                 this.setState(state);
@@ -131,31 +129,32 @@ export default class Filter extends React.Component {
     }
 
     handleChangeInput (event) {
-        let state = {};
+        let state = this.state;
         let name = event.currentTarget.name;
         let value = event.currentTarget.value;
+
         state[name] = value;
+        state.manuallyAdded[name] = value ? false : true;
+        this.props.onChange(name, value);
         this.setState(state);
     }
 
     handleBlurInput(event) {
-        this.props.onChange(event.target.name, event.target.value);
+        let name = event.target.name;
+        let value = event.target.value;
+        let {manuallyAdded} = this.state;
+        if(!value) {
+            manuallyAdded[name] = false;
+        }
+        this.setState({
+            manuallyAdded: manuallyAdded,
+            name: value,
+            stateUpdated: false
+        }, () => {this.props.onChange(name, value)})
     }
 
-    // static getDerivedStateFromProps(nextProps, prevState) {
-    //     if (!nextProps.org == prevState.org && !changed) {
-    //         changed = true;
-    //         return {
-    //             org: nextProps.org,
-    //             interval: nextProps.interval,
-    //             frequency: nextProps.frequency
-    //         };
-    //     }
-    //     return null;
-    //   }
-
     shouldComponentUpdate(nextProps, nextState) {
-        if (nextProps.org && !nextState.org && !this.state.stateUpdated){
+        if ((nextProps.org && !nextState.org) || (nextProps.interval && !nextState.interval) || (nextProps.frequency && !nextState.frequency) && !this.state.stateUpdated){
             this.setState({
                 stateUpdated: true,
                 ...nextProps
@@ -172,7 +171,7 @@ export default class Filter extends React.Component {
                 <h3>Filters</h3>
                 <FormGroup>
                     {
-                        this.props.org || this.state.manuallyAdded.org ? (
+                        this.state.org || this.state.manuallyAdded.org ? (
                             <div>
                                 <InputLabel htmlFor="org">Org</InputLabel>
                                 <Input name="org" id="org"
@@ -184,20 +183,20 @@ export default class Filter extends React.Component {
                     }
 
                     {
-                        this.props.frequency || this.state.manuallyAdded.frequency ? (
+                        this.state.frequency || this.state.manuallyAdded.frequency ? (
                             <div>
                                 <InputLabel htmlFor="frequency">Frequency</InputLabel>
                                 <Input name="frequency" id="frequency" type="number"
                                     value={this.state.frequency}
                                     onChange={this.handleChangeInput}
                                     onBlur={this.handleBlurInput}
-                                    onFocus={this.handleFocus}
+                                    // onFocus={this.handleFocus}
                                     />
                             </div>
                         ) : false
                     }
                     {
-                        !isObjectEmpty(this.props.interval) || this.state.manuallyAdded.interval ? (
+                        !isObjectEmpty(this.state.interval) || this.state.manuallyAdded.interval ? (
                             <div>
                                 <div className="DatePickerBlock">
 

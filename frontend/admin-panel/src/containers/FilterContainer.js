@@ -15,7 +15,7 @@ export default class FilterContainer extends React.Component {
         let filters = this.props.filters || {interval: {}};
         if (!filters.interval) {
             filters.interval = {};
-        }
+        };
         switch(key) {
           case 'start':
             filters.interval[key] = value;
