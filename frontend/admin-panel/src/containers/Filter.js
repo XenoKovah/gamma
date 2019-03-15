@@ -142,17 +142,27 @@ export default class Filter extends React.Component {
         this.props.onChange(event.target.name, event.target.value);
     }
 
-    static getDerivedStateFromProps(nextProps, prevState) {
-        if (!nextProps.org == prevState.org && !changed) {
-            changed = true;
-            return {
-                org: nextProps.org,
-                interval: nextProps.interval,
-                frequency: nextProps.frequency
-            };
+    // static getDerivedStateFromProps(nextProps, prevState) {
+    //     if (!nextProps.org == prevState.org && !changed) {
+    //         changed = true;
+    //         return {
+    //             org: nextProps.org,
+    //             interval: nextProps.interval,
+    //             frequency: nextProps.frequency
+    //         };
+    //     }
+    //     return null;
+    //   }
+
+    shouldComponentUpdate(nextProps, nextState) {
+        if (nextProps.org && !nextState.org && !this.state.stateUpdated){
+            this.setState({
+                stateUpdated: true,
+                ...nextProps
+            })
         }
-        return null;
-      }
+        return true;
+    }
 
     render() {
         let start = this.state && this.state.interval && this.state.interval.start ? this.state.interval.start : null;
