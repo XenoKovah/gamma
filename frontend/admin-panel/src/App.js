@@ -11,7 +11,7 @@ import 'react-dropdown/style.css';
 
 import Actions from './containers/Actions';
 import FilterContainer from './containers/FilterContainer';
-import { getCookie, isObjectEmpty, validateObjects } from './Utils';
+import { getCookie, isObjectEmpty} from './Utils';
 
 
 
@@ -122,7 +122,7 @@ class App extends Component {
   render() {
     return (
       <Dialog open={this.state.open} maxWidth="xl">
-        <DialogTitle>{this.slug}</DialogTitle>
+        <DialogTitle> Rules for "{this.slug}"</DialogTitle>
         <DialogContent>
           <div className="Container">
             <div className="ContainerItem">
