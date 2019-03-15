@@ -8,6 +8,7 @@ import Select from '@material-ui/core/Select';
 import Button from '@material-ui/core/Button';
 
 import FormGroup from '@material-ui/core/FormGroup';
+import FormControl from '@material-ui/core/FormControl';
 
 import { MuiPickersUtilsProvider, DatePicker } from 'material-ui-pickers';
 import Grid from '@material-ui/core/Grid';
@@ -32,6 +33,7 @@ export default class Filter extends React.Component {
         this.handleBlurInput = this.handleBlurInput.bind(this);
         this.avFieldsChanged = this.avFieldsChanged.bind(this);
         this.handleFocus = this.handleFocus.bind(this);
+        this.getOrganizations = this.getOrganizations.bind(this);
         
     }
 
@@ -111,6 +113,11 @@ export default class Filter extends React.Component {
 
     }
 
+    getOrganizations() {
+        // mock
+        return ['Microsoft', 'FAstLane', 'Skillonomy'];
+    }
+
     handleChangeDateEnd(date) {
         let formattedDate = date.toISOString();
         let state = this.state;
@@ -172,19 +179,26 @@ export default class Filter extends React.Component {
                 <FormGroup>
                     {
                         this.state.org || this.state.manuallyAdded.org ? (
-                            <div>
+                            <FormControl>
                                 <InputLabel htmlFor="org">Org</InputLabel>
-                                <Input name="org" id="org"
+                                <Select native name="org" id="org"
                                     value={this.state.org}
                                     onChange={this.handleChangeInput}
-                                    onBlur={this.handleBlurInput}/>
-                            </div>
+                                    onBlur={this.handleBlurInput}>
+                                    <option key={0} value="">-----</option>
+                                    {
+                                        this.getOrganizations().map((el, ind) => {
+                                            return <option key={ind+1} value={el}>{el}</option>
+                                        })
+                                    }
+                                </Select>
+                            </FormControl>
                         ) : false
                     }
 
                     {
                         this.state.frequency || this.state.manuallyAdded.frequency ? (
-                            <div>
+                            <FormControl>
                                 <InputLabel htmlFor="frequency">Frequency</InputLabel>
                                 <Input name="frequency" id="frequency" type="number"
                                     value={this.state.frequency}
@@ -192,12 +206,12 @@ export default class Filter extends React.Component {
                                     onBlur={this.handleBlurInput}
                                     // onFocus={this.handleFocus}
                                     />
-                            </div>
+                            </FormControl>
                         ) : false
                     }
                     {
                         !isObjectEmpty(this.state.interval) || this.state.manuallyAdded.interval ? (
-                            <div>
+                            <FormControl>
                                 <div className="DatePickerBlock">
 
                                     <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -228,7 +242,7 @@ export default class Filter extends React.Component {
                                         <Button size="small" mini={true} onClick={this.clearEnd} variant="contained" color="secondary">Clear</Button>
                                     </MuiPickersUtilsProvider>
                                 </div>
-                            </div>
+                            </FormControl>
                         ) : false
                     }
                 <div className="Action">

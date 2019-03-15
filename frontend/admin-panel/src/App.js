@@ -11,7 +11,7 @@ import 'react-dropdown/style.css';
 
 import Actions from './containers/Actions';
 import FilterContainer from './containers/FilterContainer';
-import { getCookie, isObjectEmpty } from './Utils';
+import { getCookie, isObjectEmpty, validateObjects } from './Utils';
 
 
 
@@ -85,7 +85,7 @@ class App extends Component {
   }
 
   putRules() {
-    const rules = {}
+    const rules = {};
     if (!isObjectEmpty(this.state.actions) || !isObjectEmpty(this.state.filters)) {
       let validActions = this.state.actions.filter((action, ind) => {
           return action.count && action.action
@@ -100,16 +100,15 @@ class App extends Component {
       fetch('http://localhost:9000/api/v0/badge-rules/', {
         method: 'PUT',
         headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken')},
-        body: JSON.stringify({slug: this.slug, ...rules},
+        body: JSON.stringify({slug: this.slug, ...rules
+      },
         {credentials: "same-origin"})
       }).then(response => {
         if (response.status == 200) {
           this.handleClose();
         }
         return response.json();
-      }).catch(error => console.log(error));
-  } else {
-      alert('You havent choosen anything!');
+      }).catch(error => alert(error));
   }
   }
 
@@ -123,7 +122,7 @@ class App extends Component {
 
   render() {
     return (
-      <Dialog open={this.state.open} maxWidth="md">
+      <Dialog open={this.state.open} maxWidth="xl">
         <DialogContent>
           <div className="Container">
             <div className="ContainerItem">

@@ -53,7 +53,7 @@ class ActionContainer extends React.Component {
                     action={this.props.action} 
                     actions={this.props.availableActions}/>
                 <Count onChanged={this.countChanged} count={this.props.count}/>
-                <div>
+                <div className="ActionItem">
                     <Button onClick={this.deleteBlock} variant="contained" color="secondary" size="small">Delete</Button>
                 </div>
             </div>

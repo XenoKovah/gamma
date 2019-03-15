@@ -24,4 +24,32 @@ function isObjectEmpty(object) {
     return true;
 }
 
-export {AllowedFilters, getCookie, isObjectEmpty};
+// Create new new object and populate it with not empty values
+// Don't worth trying to understand it, it relies only on known data structure
+function validateObjects(object) {
+    let newObject = {};
+    for (let key in object) {
+        if (typeof object[key] === 'object') {
+            for (let _key in object[key]) {
+                if (typeof object[key][_key] === 'object') {
+                    for (let __key in object[key][_key]) {
+                        if (Boolean(object[key][_key][__key])) {
+                            newObject[key][_key] = newObject[key][_key] || {};
+                            newObject[key][_key][__key] = object[key][_key][__key];
+                        }
+                    }
+                } else if (Boolean(object[key][_key])) {
+                    newObject[key] = newObject[key] || {};
+                    newObject[key][_key] = object[key][_key];
+                }
+            }
+        } else {
+            if (Boolean(object[key])) {
+                newObject[key] = object[key];
+            }
+        }
+    }
+    return newObject;
+}
+
+export {AllowedFilters, getCookie, isObjectEmpty, validateObjects};

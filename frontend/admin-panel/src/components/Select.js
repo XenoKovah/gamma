@@ -23,8 +23,8 @@ class EventType extends React.Component {
     render() {
         return (
             <FormControl>
-                <InputLabel htmlFor="problem-select">Event</InputLabel>
-                <Select id="problem-select" native value={this.state.action} onChange={this.handleChange} autoWidth={true} className="Select">
+                <InputLabel >Event</InputLabel>
+                <Select native value={this.state.action} onChange={this.handleChange} autoWidth={true} className="Select">
                     <option key={0} value={this.state.action}>{this.state.action}</option>
                     {
                         this.props.actions.map((el, ind) => {

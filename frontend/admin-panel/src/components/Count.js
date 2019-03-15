@@ -23,10 +23,10 @@ class Count extends React.Component {
     render() {
         return (
             <FormGroup>
-                <InputLabel htmlFor="count-input">Count </InputLabel>
+                <InputLabel htmlFor="count-input">Count</InputLabel>
                 <Input id="count-input" inputProps={{type: "number"}}
-                defaultValue={this.state.count} 
-                onChange={this.onChange} />
+                    defaultValue={this.state.count} 
+                    onChange={this.onChange} />
 
             </FormGroup>
             
