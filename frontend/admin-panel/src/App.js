@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
+import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 
-import logo from './logo.svg';
 import './App.css';
 
 import 'react-dropdown/style.css';
@@ -100,8 +100,7 @@ class App extends Component {
       fetch('http://localhost:9000/api/v0/badge-rules/', {
         method: 'PUT',
         headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken')},
-        body: JSON.stringify({slug: this.slug, ...rules
-      },
+        body: JSON.stringify({slug: this.slug, ...rules},
         {credentials: "same-origin"})
       }).then(response => {
         if (response.status == 200) {
@@ -123,6 +122,7 @@ class App extends Component {
   render() {
     return (
       <Dialog open={this.state.open} maxWidth="xl">
+        <DialogTitle>{this.slug}</DialogTitle>
         <DialogContent>
           <div className="Container">
             <div className="ContainerItem">
