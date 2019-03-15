@@ -1,4 +1,4 @@
-const AllowedFilters = ['org', 'frequency', 'interval'];
+const AllowedFilters = ['org', 'frequency', 'interval', 'course'];
 
 function getCookie(name) {
     var cookieValue = null;

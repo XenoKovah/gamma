@@ -16,7 +16,10 @@ import DateFnsUtils from '@date-io/date-fns';
 
 import {AllowedFilters, isObjectEmpty} from '../Utils';
 
+import { COURSES, ORGANISATIONS } from '../api/Api';
+
 import "react-datepicker/dist/react-datepicker.css";
+import { th } from 'date-fns/esm/locale';
 
 
 export default class Filter extends React.Component {
@@ -33,7 +36,7 @@ export default class Filter extends React.Component {
         this.handleBlurInput = this.handleBlurInput.bind(this);
         this.avFieldsChanged = this.avFieldsChanged.bind(this);
         this.handleFocus = this.handleFocus.bind(this);
-        this.getOrganizations = this.getOrganizations.bind(this);
+        this.getOrganisations = this.getOrganisations.bind(this);
         
     }
 
@@ -41,11 +44,30 @@ export default class Filter extends React.Component {
         org: this.props.org || "",
         interval: this.props.interval || {},
         frequency: this.props.frequency || 0,
+        course: this.props.course || "",
+        courses: [],
+        organisations: [],
         manuallyAdded: {
             org: false,
             interval: false,
-            frequency: false
+            frequency: false,
+            courses: false
         }
+    }
+
+    getCourses() {
+        fetch('http://localhost:9000' + COURSES)
+        .then(resp => resp.json())
+        .then(result => {
+            this.setState({
+                courses: result.courses
+            })
+        })
+    }
+
+    componentDidMount() {
+        this.getCourses();
+        this.getOrganisations();
     }
 
     handleFocus() {
@@ -113,9 +135,14 @@ export default class Filter extends React.Component {
 
     }
 
-    getOrganizations() {
-        // mock
-        return ['Microsoft', 'FAstLane', 'Skillonomy'];
+    getOrganisations() {
+        fetch('http://localhost:9000' + ORGANISATIONS)
+        .then(resp => resp.json())
+        .then(result => {
+            this.setState({
+                organisations: result.organisations
+            })
+        })
     }
 
     handleChangeDateEnd(date) {
@@ -139,7 +166,6 @@ export default class Filter extends React.Component {
         let state = this.state;
         let name = event.currentTarget.name;
         let value = event.currentTarget.value;
-
         state[name] = value;
         state.manuallyAdded[name] = value ? false : true;
         this.props.onChange(name, value);
@@ -161,7 +187,7 @@ export default class Filter extends React.Component {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        if ((nextProps.org && !nextState.org) || (nextProps.interval && !nextState.interval) || (nextProps.frequency && !nextState.frequency) && !this.state.stateUpdated){
+        if ((nextProps.course && !nextState.course) || (nextProps.org && !nextState.org) || (nextProps.interval && !nextState.interval) || (nextProps.frequency && !nextState.frequency) && !this.state.stateUpdated){
             this.setState({
                 stateUpdated: true,
                 ...nextProps
@@ -178,6 +204,24 @@ export default class Filter extends React.Component {
                 <h3>Filters</h3>
                 <FormGroup>
                     {
+                        this.state.course || this.state.manuallyAdded.course ? (
+                            <FormControl>
+                                <InputLabel htmlFor="courses">Courses</InputLabel>
+                                <Select native name="course" id="courses"
+                                    value={this.state.course}
+                                    onChange={this.handleChangeInput}
+                                    onBlur={this.handleBlurInput}>
+                                    <option key={0} value="">-----</option>
+                                    {
+                                        this.state.courses.map((el, ind) => {
+                                            return <option key={ind+1} value={el}>{el}</option>
+                                        })
+                                    }
+                                </Select>
+                            </FormControl>
+                        ) : false
+                    }
+                    {
                         this.state.org || this.state.manuallyAdded.org ? (
                             <FormControl>
                                 <InputLabel htmlFor="org">Org</InputLabel>
@@ -187,7 +231,7 @@ export default class Filter extends React.Component {
                                     onBlur={this.handleBlurInput}>
                                     <option key={0} value="">-----</option>
                                     {
-                                        this.getOrganizations().map((el, ind) => {
+                                        this.state.organisations.map((el, ind) => {
                                             return <option key={ind+1} value={el}>{el}</option>
                                         })
                                     }

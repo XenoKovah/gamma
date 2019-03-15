@@ -472,3 +472,36 @@ class BadgeRuleView(APIView):
             self.conn.collection.update({'slug': slug}, {"$set": {'rules': request.data}}, upsert=True)
             return Response({}, status=200)
         return Response({'message': 'Something went wrong'}, status=400)
+
+
+class CoursesView(APIView):
+    """
+    Courses list from edx-platform
+    Mock so far
+    """
+
+    def get(self, request):
+        courses = [
+            'Course1',
+            'Course2',
+            'Course3',
+            'Course4',
+            'Course5'
+        ]
+        return Response({'courses': courses}, status=200)
+
+
+class OrganizationsView(APIView):
+    """
+    Existing courses from edx-platform
+    """
+
+    def get(self, request):
+        orgs = [
+            'Microsoft',
+            'Flane',
+            'Camara',
+            'Killian',
+            'University',
+        ]
+        return Response({'organisations': orgs}, status=200)

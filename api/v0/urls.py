@@ -14,7 +14,9 @@ from .views import (
     UserStatuses,
     EventsView,
     FiltersView,
-    BadgeRuleView
+    BadgeRuleView,
+    CoursesView,
+    OrganizationsView
 )
 
 
@@ -32,4 +34,6 @@ urlpatterns = [
     path(r'actions/', EventsView.as_view(), name='actions'),
     path(r'filters/', FiltersView.as_view(), name='filters'),
     path(r'badge-rules/', BadgeRuleView.as_view(), name='badge-rules'),
+    path(r'courses/', CoursesView.as_view(), name='courses'),
+    path(r'organizations/', OrganizationsView.as_view(), name='organizations'),
 ]

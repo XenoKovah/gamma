@@ -4,6 +4,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
+import { BADGE_RULES } from './api/Api';
 
 import './App.css';
 
@@ -59,7 +60,9 @@ class App extends Component {
 
   getRules() {
     fetch(
-      `http://localhost:9000/api/v0/badge-rules/?slug=${this.slug}`, {credentials: "same-origin"}
+      'http://localhost:9000' + BADGE_RULES + `?slug=${this.slug}`,{
+        credentials: 'same-origin'
+      }
       )
     .then(res => res.json())
     .then(result => {
@@ -97,7 +100,7 @@ class App extends Component {
       rules.actions = actions;
       rules.filters = this.state.filters;
 
-      fetch('http://localhost:9000/api/v0/badge-rules/', {
+      fetch('http://localhost:9000' + BADGE_RULES, {
         method: 'PUT',
         headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken')},
         body: JSON.stringify({slug: this.slug, ...rules},
