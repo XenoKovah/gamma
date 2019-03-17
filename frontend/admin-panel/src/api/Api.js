@@ -8,4 +8,13 @@ const ORGANISATIONS = '/api/v0/organizations';
 
 const HEADERS = {'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken')};
 
-export {BADGE_RULES, ACTIONS, COURSES, HEADERS, ORGANISATIONS};
+function getRules(slug) {
+    return fetch(
+                'http://localhost:9000' + BADGE_RULES + `?slug=${slug}`,{
+                credentials: 'same-origin'
+                }
+                )
+            .then(res => res.json());
+}
+
+export {BADGE_RULES, ACTIONS, COURSES, HEADERS, ORGANISATIONS, getRules};

@@ -12,7 +12,9 @@ import 'react-dropdown/style.css';
 
 import Actions from './containers/Actions';
 import FilterContainer from './containers/FilterContainer';
+import Rules from './containers/Rules';
 import { getCookie, isObjectEmpty} from './Utils';
+import {getRules} from './api/Api';
 
 
 
@@ -34,7 +36,8 @@ class App extends Component {
       open: true,
       actions: [],
       filters: {},
-      emptyFilters: []
+      emptyFilters: [],
+      rawActions: {}
     }
   }
 
@@ -59,12 +62,7 @@ class App extends Component {
   }
 
   getRules() {
-    fetch(
-      'http://localhost:9000' + BADGE_RULES + `?slug=${this.slug}`,{
-        credentials: 'same-origin'
-      }
-      )
-    .then(res => res.json())
+    getRules(this.slug)
     .then(result => {
         let actions = [];
 
@@ -79,7 +77,8 @@ class App extends Component {
         };
         this.setState({
             actions: actions,
-            filters: result.filters
+            filters: result.filters,
+            rawActions: result.actions
         })
     },
     error => {
@@ -124,26 +123,29 @@ class App extends Component {
 
   render() {
     return (
-      <Dialog open={this.state.open} maxWidth="xl">
-        <DialogTitle> Rules for "{this.slug}"</DialogTitle>
-        <DialogContent>
-          <div className="Container">
-            <div className="ContainerItem">
-              <Actions {...this.state} getIndex={this.getIndex} onChangeProps={this.onChangeProps} putRules={this.putRules} slug={this.slug}/>
+      <div>
+        <Rules doRequest={false} filters={this.state.filters} actions={this.state.rawActions}/>
+        <Dialog open={this.state.open} maxWidth="xl">
+          <DialogTitle> Rules for "{this.slug}"</DialogTitle>
+          <DialogContent>
+            <div className="Container">
+              <div className="ContainerItem">
+                <Actions {...this.state} getIndex={this.getIndex} onChangeProps={this.onChangeProps} putRules={this.putRules} slug={this.slug}/>
+              </div>
+              <div className="ContainerItem">
+                <FilterContainer  filters={this.state.filters} filtersChanged={this.filtersChanged} getIndex={this.getIndex}/>
+              </div>
             </div>
-            <div className="ContainerItem">
-              <FilterContainer  filters={this.state.filters} filtersChanged={this.filtersChanged} getIndex={this.getIndex}/>
-            </div>
-          </div>
-          <hr/>
-        </DialogContent>
-        <DialogActions>
-        <Button onClick={this.putRules} size="large" color="primary">Save</Button>
-        <Button onClick={this.handleClose} color="primary">
-              Close
-            </Button>
-        </DialogActions>
-      </Dialog>
+            <hr/>
+          </DialogContent>
+          <DialogActions>
+          <Button onClick={this.putRules} size="large" color="primary">Save</Button>
+          <Button onClick={this.handleClose} color="primary">
+                Close
+              </Button>
+          </DialogActions>
+        </Dialog>
+      </div>
     );
   }
 }
