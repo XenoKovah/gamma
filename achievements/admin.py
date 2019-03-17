@@ -30,7 +30,7 @@ class AchievementAdmin(admin.ModelAdmin):
         )
     
     def get_badge_edit_url(self, obj):
-        return format_html('<a href="#/{}" class="js-no-click">Click me</a>', obj.slug)
+        return format_html('<a href="#/{}" class="js-no-click">Edit rules</a>', obj.slug)
     
     class Media:
         css = {
