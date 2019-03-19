@@ -19,7 +19,7 @@ export default class Rules extends React.Component {
     }
 
     componentDidMount() {
-        if (window.slug && this.props.doRequest == undefined) {
+        if (window.slug && this.props.doRequest === undefined) {
             getRules(window.slug)
             .then(result => {
                 this.setState({
@@ -37,7 +37,7 @@ export default class Rules extends React.Component {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        if (this.props.doRequest != undefined && this.state.shouldUpdateProps) {
+        if (this.props.doRequest !== undefined && this.state.shouldUpdateProps) {
             this.setState({
                 actions: nextProps.actions,
                 filters: nextProps.filters,

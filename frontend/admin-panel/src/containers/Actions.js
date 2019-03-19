@@ -35,7 +35,7 @@ export default class Actions extends React.Component {
     updateAvailableActions(actions) {
         let actionList = actions || this.state.allActions;
         let occupiedActions = [];
-        this.props.actions.map((action) => {
+        this.props.actions.forEach((action) => {
             if (actionList.indexOf(action.action) > -1) {
                 occupiedActions.push(action.action)
             }

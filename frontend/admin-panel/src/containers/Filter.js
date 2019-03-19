@@ -19,7 +19,6 @@ import {AllowedFilters, isObjectEmpty} from '../Utils';
 import { COURSES, ORGANISATIONS } from '../api/Api';
 
 import "react-datepicker/dist/react-datepicker.css";
-import { th } from 'date-fns/esm/locale';
 
 
 export default class Filter extends React.Component {
@@ -88,9 +87,8 @@ export default class Filter extends React.Component {
     }
 
     getEmptyFields() {
-
         let emptyFields = AllowedFilters.filter((field) => {
-            return field == 'interval' && isObjectEmpty(this.state[field]) || (!this.state[field] && !this.state.manuallyAdded[field]);
+            return (field === 'interval' && isObjectEmpty(this.state[field]) && !this.state.manuallyAdded[field]) || (!this.state[field] && !this.state.manuallyAdded[field]);
         });
         return emptyFields;
     }
@@ -129,10 +127,6 @@ export default class Filter extends React.Component {
                 this.props.onChange("start", formattedDate);
             }
         })
-    }
-
-    checkInterval() {
-
     }
 
     getOrganisations() {
@@ -187,7 +181,7 @@ export default class Filter extends React.Component {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        if ((nextProps.course && !nextState.course) || (nextProps.org && !nextState.org) || (nextProps.interval && !nextState.interval) || (nextProps.frequency && !nextState.frequency) && !this.state.stateUpdated){
+        if (((nextProps.course && !nextState.course) || (nextProps.org && !nextState.org) || (nextProps.interval && !nextState.interval) || (nextProps.frequency && !nextState.frequency)) && !this.state.stateUpdated){
             this.setState({
                 stateUpdated: true,
                 ...nextProps
@@ -296,10 +290,11 @@ export default class Filter extends React.Component {
                             <div>
                                 <FormGroup>
                                     <InputLabel htmlFor="avFields">Add fields</InputLabel>
-                                    <Select id="avFields" native ref={s => {this.selectedField = s && s.props.children[0].props.value}} onChange={this.avFieldsChanged}>
+                                    <Select id="avFields" native onChange={this.avFieldsChanged}>
+                                        <option key={Math.random()}>------</option>
                                         {
                                             this.getEmptyFields().map((el, ind) => {
-                                                return <option key={ind+1} value={el}>{el}</option>
+                                                return <option key={Math.random()} value={el}>{el}</option>
                                             })
                                         }
                                     </Select>

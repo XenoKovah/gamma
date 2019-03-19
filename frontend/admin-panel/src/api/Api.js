@@ -1,4 +1,3 @@
-import React from 'react';
 import {getCookie} from '../Utils';
 
 const BADGE_RULES = '/api/v0/badge-rules/';

@@ -43,7 +43,7 @@ class App extends Component {
 
   getIndex(conditions, id) {
     let index;
-    conditions.map((el, ind) => {
+    conditions.forEach((el, ind) => {
         if (el.id === id) {
             index = ind;
         }
@@ -93,7 +93,7 @@ class App extends Component {
           return action.count && action.action
       });
       const actions = {};
-      validActions.map((el) => {
+      validActions.forEach((el) => {
           actions[el.action] = +el.count;
       });
       rules.actions = actions;
@@ -105,7 +105,7 @@ class App extends Component {
         body: JSON.stringify({slug: this.slug, ...rules},
         {credentials: "same-origin"})
       }).then(response => {
-        if (response.status == 200) {
+        if (response.status === 200) {
           this.handleClose();
         }
         return response.json();
