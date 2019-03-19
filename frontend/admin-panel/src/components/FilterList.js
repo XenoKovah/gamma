@@ -35,8 +35,8 @@ export default class FilterList extends React.Component {
     }
 
     render() {
-        let start = this.props.filters && this.props.filters.interval ? new Date(this.props.filters.interval.start).toDateString() : "";
-        let end = this.props.filters &&  this.props.filters.interval ? new Date(this.props.filters.interval.end).toDateString() : "";
+        let start = this.props.filters && this.props.filters.interval && this.props.filters.interval.start ? new Date(this.props.filters.interval.start).toDateString() : "";
+        let end = this.props.filters &&  this.props.filters.interval && this.props.filters.interval.end ? new Date(this.props.filters.interval.end).toDateString() : "";
         let org = this.props.filters ? this.props.filters.org : "";
         let frequency = this.props.filters ? this.props.filters.frequency : "";
         let course = this.props.filters ? this.props.filters.course : "";
