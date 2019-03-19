@@ -181,7 +181,7 @@ export default class Filter extends React.Component {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        if (((nextProps.course && !nextState.course) || (nextProps.org && !nextState.org) || (nextProps.interval && !nextState.interval) || (nextProps.frequency && !nextState.frequency)) && !this.state.stateUpdated){
+        if (nextProps.shouldFilterUpdate && !this.state.stateUpdated){
             this.setState({
                 stateUpdated: true,
                 ...nextProps

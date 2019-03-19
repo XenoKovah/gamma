@@ -78,7 +78,8 @@ class App extends Component {
         this.setState({
             actions: actions,
             filters: result.filters,
-            rawActions: result.actions
+            rawActions: result.actions,
+            shouldFilterUpdate: true
         })
     },
     error => {
@@ -133,7 +134,7 @@ class App extends Component {
                 <Actions {...this.state} getIndex={this.getIndex} onChangeProps={this.onChangeProps} putRules={this.putRules} slug={this.slug}/>
               </div>
               <div className="ContainerItem">
-                <FilterContainer  filters={this.state.filters} filtersChanged={this.filtersChanged} getIndex={this.getIndex}/>
+                <FilterContainer  filters={this.state.filters} shouldFilterUpdate={this.state.shouldFilterUpdate} filtersChanged={this.filtersChanged} getIndex={this.getIndex}/>
               </div>
             </div>
             <hr/>

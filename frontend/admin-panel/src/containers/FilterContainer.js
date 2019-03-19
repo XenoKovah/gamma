@@ -31,7 +31,7 @@ export default class FilterContainer extends React.Component {
 
     render() {
         return (
-            <Filter {...this.props.filters} onChange={this.onChangeFilter}/>
+            <Filter {...this.props.filters} shouldFilterUpdate={this.props.shouldFilterUpdate} onChange={this.onChangeFilter}/>
         )
     }
 };
