@@ -26,7 +26,7 @@ SECRET_KEY = 'xhs78m@(e)58)&s8)3r(2s+x=jq(p$hdqqnz-ta5)l=#1g*5ju'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['opinio.serveo.net', '*']
 
 
 # Application definition

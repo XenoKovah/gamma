@@ -378,6 +378,9 @@ $(function () {
         
     <div class="container logo-container header-navbar">
     <ul class="menu global-nav pull-right">
+            <li class="last leaf"><a href="/">{% trans "Dashboard" %}</a></li>
+        <li class="last leaf"><a href="/leaderboard/">{% trans "Leaderboard" %}</a></li>
+        <li class="last leaf"><a href="/badges/">{% trans "Badges" %}</a></li>
         {% if not user.is_authenticated %}
         <li class="last leaf"><a href=admin/login>{% trans "Login" %}</a></li>
         {% else %}
@@ -396,7 +399,7 @@ $(function () {
 </section>
 
 <div class="main-container container">
-    <div id="root">HELLO!!!</div>
+    <div id="root"> </div>
     {% block content %}{% endblock %}
 </div>
 <noscript>&lt;style type="text/css" media="all"&gt;img[data-src] { display: none !important; }&lt;/style&gt;</noscript>
