@@ -1,0 +1,14 @@
+<h3>OPAPA!!!!</h3>
+
+{% for achievement in achievements %}
+    <div id="{{ achievement.id }}" 
+        data-title={{achievement.title}} 
+        data-slug="{{ achievement.slug }}" 
+        data-badge-url="{{ achievement.badge_img.url }}"
+        data-description="{{ achievement.description }}">
+        <p>{{achievement.title}}</p>
+        <p>{{ achievement.description }}</p>
+        <img src="{{ achievement.badge_img.url }}" alt="" width="300">
+        <a href="#" data-target-id="{{ achievement.id }}" class="react-click-open">Edit</a>
+    </div>
+{% endfor %}
