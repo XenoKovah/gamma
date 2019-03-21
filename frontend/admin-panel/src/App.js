@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
-import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import Button from '@material-ui/core/Button';
 import { BADGE_RULES } from './api/Api';
 
 import './App.css';
@@ -126,9 +124,9 @@ class App extends Component {
     return (
       <div>
         <Rules doRequest={false} filters={this.state.filters} actions={this.state.rawActions}/>
-        <Dialog open={this.state.open} maxWidth="xl">
-          <DialogTitle> Rules for "{this.slug}"</DialogTitle>
-          <DialogContent>
+        <Dialog open={this.state.open} maxWidth="xl" className="Dialog">
+          <DialogTitle className="DialogTitle"> Rules for "{this.slug}"</DialogTitle>
+          <DialogContent className="DialogContent">
             <div className="Container">
               <div className="ContainerItem">
                 <Actions {...this.state} getIndex={this.getIndex} onChangeProps={this.onChangeProps} putRules={this.putRules} slug={this.slug}/>
@@ -137,14 +135,11 @@ class App extends Component {
                 <FilterContainer  filters={this.state.filters} shouldFilterUpdate={this.state.shouldFilterUpdate} filtersChanged={this.filtersChanged} getIndex={this.getIndex}/>
               </div>
             </div>
-            <hr/>
+            <div className="Action-General">
+              <button onClick={this.putRules} className="Btn Btn-Primary Btn-General">Save</button>
+              <button onClick={this.handleClose} className="Btn Btn-Info Btn-General">Close</button>
+            </div>
           </DialogContent>
-          <DialogActions>
-          <Button onClick={this.putRules} size="large" color="primary">Save</Button>
-          <Button onClick={this.handleClose} color="primary">
-                Close
-              </Button>
-          </DialogActions>
         </Dialog>
       </div>
     );
