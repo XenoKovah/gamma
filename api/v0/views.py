@@ -35,6 +35,7 @@ from pointlog.models import LoggedEvent
 from pointlog.models import ApiAccessEvent
 from pointlog.tasks import check_user_achievements, assign_status
 from achievements.models import UserAchievement, Achievement, StatusBadge, Event, UserStatus
+from achievements.forms import AchievementForm
 
 
 logger = logging.getLogger('events')
@@ -505,3 +506,26 @@ class OrganizationsView(APIView):
             'University',
         ]
         return Response({'organisations': orgs}, status=200)
+
+
+class AchievementsView(APIView):
+
+    def post(self, request):
+        errors = ''
+        slug = request.POST.get('slug')
+        try:
+            achievement = Achievement.objects.get(slug=slug)
+            form = AchievementForm(request.POST, request.FILES, instance=achievement)
+            if form.is_valid():
+                form.save()
+                return Response({}, status=200)
+            else:
+                errors = form.errors
+        except Achievement.DoesNotExist as e:
+            errors = 'Entry with "slug" - {} does not exist'.format()
+        return Response({'errors': errors}, status=400)
+    
+    def delete(self, request):
+        slug = request.data.get('slug')
+        Achievement.objects.get(slug=slug).delete()
+        return Response({}, status=200)

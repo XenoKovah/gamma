@@ -1,14 +1,143 @@
-<h3>OPAPA!!!!</h3>
-
-{% for achievement in achievements %}
-    <div id="{{ achievement.id }}" 
-        data-title={{achievement.title}} 
-        data-slug="{{ achievement.slug }}" 
-        data-badge-url="{{ achievement.badge_img.url }}"
-        data-description="{{ achievement.description }}">
-        <p>{{achievement.title}}</p>
-        <p>{{ achievement.description }}</p>
-        <img src="{{ achievement.badge_img.url }}" alt="" width="300">
-        <a href="#" data-target-id="{{ achievement.id }}" class="react-click-open">Edit</a>
+<section class="Achievement">
+    <script   src="http://code.jquery.com/jquery-3.3.1.min.js"   integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="   crossorigin="anonymous"></script>
+    {% for achievement in achievements %}
+    <div class="AchievementItem">
+        <div class="AchievementInfo">
+            <figure class="AchievementFigure">
+                <img src="{{ achievement.badge_img.url }}" alt="" class="AchievementImg">
+            </figure>
+            <div class="AchievementContent">
+                <div class="AchievementTitle">{{achievement.title}}</div>
+                <div class="AchievementDescription">{{ achievement.description }}</div>
+            </div>
+            <div class="AchievementControls">
+                <a href="#/{{ achievement.slug }}" class="Btn Bth-Danger">Edit rules</a>
+                <div class="AchievementControlsHover">
+                    <!-- <div class="AchievementCheck">
+                        <input type="checkbox" class="AchievementCheckInput">
+                        <span class="AchievementCheckIcon">
+                            <svg></svg>
+                        </span>
+                    </div> -->
+                    <button class="Btn Btn-Primary edit-achievement-click">
+                        <span class="sr">edit</span>
+                        <svg></svg>
+                    </button>
+                    <button class="Btn Btn-Default delete-achievement-click" data-slug="{{ achievement.slug }}">
+                        <span class="sr">remove</span>
+                        <svg></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <form class="AchievementForm" id="form-{{ achievement.id }}" enctype="multipart/form-data">
+            <div class="AchievementFormTitle">Change achievement</div>
+            <div class="AchievementFormBlock">
+                <div class="AchievementFormGroup">
+                    <label for="">Title</label>
+                    <input type="text" name="title" id="title-{{ achievement.id }}" value="{{achievement.title}}">
+                </div>
+                <div class="AchievementFormGroup">
+                    <label for="">Description</label>
+                    <textarea id="" name="description">{{ achievement.description }}</textarea>
+                </div>
+            </div>
+            <div class="AchievementFormBlock">
+                <div class="AchievementFormGroup">
+                    <figure class="AchievementFormFigure">
+                        <img src="" alt="" class="AchievementFormImg">
+                    </figure>
+                    <label for="">Image</label>
+                    <input type="file" id="" name="badge_img" value="{{ achievement.badge_img.file }}">
+                </div>
+                <div class="AchievementFormGroup">
+                    <label for="">Slug</label>
+                    <input type="text" id="slug-{{ achievement.id }}" value="{{ achievement.slug }}" name="slug">
+                </div>
+                <div class="AchievementFormGroup">
+                    <label for="">Badge id</label>
+                    <input type="text" id="" value="{{ achievement.badge_id }}">
+                </div>
+            </div>
+            <script>
+                $("#slug-{{ achievement.id }}").off('change keyup keydown');
+                $("#title-{{ achievement.id }}").on('change keyup keydown', function() {
+                    $("#slug-{{ achievement.id }}").val(
+                        URLify(
+                            $("#title-{{ achievement.id }}").val(), 50
+                        )
+                    );
+                });
+            </script>
+            <button class="save-achievement-click" data-form-id="{{ achievement.id }}">Save</button>
+        </form>
     </div>
-{% endfor %}
+    {% endfor %}
+    {% csrf_token %}
+</section>
+<script type="text/javascript">
+    (function($) {
+        $.fn.serializefiles = function() {
+            var obj = $(this);
+            var formData = new FormData();
+            $.each($(obj).find("input[type='file']"), function(i, tag) {
+                $.each($(tag)[0].files, function(i, file) {
+                    formData.append(tag.name, file);
+                });
+            });
+            var params = $(obj).serializeArray();
+            $.each(params, function (i, val) {
+                formData.append(val.name, val.value);
+            });
+            return formData;
+    };
+    })(jQuery);
+
+    const headers = {
+        'X-CSRFToken': $('input[name=csrfmiddlewaretoken]').val()
+    }
+    const url = "{% url 'api:v0:achievements' %}";
+
+    $(document).ready(() => {
+        // Save changes
+        $('.save-achievement-click').click((event) => {
+            event.preventDefault();
+            let formId = $(event.currentTarget).data('formId');
+            let form = $('#form-'+ formId);
+            $.ajax({
+                url: url,
+                data: form.serializefiles(),
+                method: "POST",
+                processData: false,
+                cache: false,
+                contentType: false,
+                headers: headers,
+                success: (resp, xhr, settings)=>{
+                    if (settings.status === 200) {
+                        window.location.reload();
+                    }
+                }
+            })
+        });
+
+        $('.delete-achievement-click').click((event) => {
+            event.preventDefault();
+            let slug = $(event.currentTarget).data('slug');
+            let confirmed = confirm(`Do you really want to delete achievement with slug "${slug}"`);
+            if (confirmed) {
+                $.ajax({
+                    url: url,
+                    method: 'DELETE',
+                    data: {slug: slug},
+                    headers: headers,
+                    success: (resp, xhr, settings)=>{
+                        if (settings.status === 200) {
+                            window.location.reload();
+                        }
+                    }
+                })
+            }
+        })
+    })
+</script>
+    

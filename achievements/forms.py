@@ -25,7 +25,7 @@ class AchievementForm(forms.ModelForm):
             rules = json.dumps(STORAGE.get_rule(instance.slug))
             self.fields.get('rules').initial = rules
 
-    def save(self, commit, *args, **kwargs):
+    def save(self, commit=True, *args, **kwargs):
         m = super(AchievementForm, self).save(commit=False)
         if self.cleaned_data.get('rules'):
             STORAGE.connect()

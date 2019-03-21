@@ -64,14 +64,7 @@ class StatusBadge(models.Model):
     status_color = models.CharField(
         max_length=16, choices=BADGE_STATUS_COLORS, blank=True
     )
-    badge_img = FileBrowseField(
-        "Image",
-        max_length=200,
-        directory="badges/",
-        extensions=[".png"],
-        blank=True,
-        null=True
-    )
+    badge_img = badge_img = models.ImageField(upload_to="media")
 
     def __str__(self):
         return self.slug
