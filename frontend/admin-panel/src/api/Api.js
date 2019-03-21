@@ -9,7 +9,7 @@ const HEADERS = {'Content-Type': 'application/json', 'X-CSRFToken': getCookie('c
 
 function getRules(slug) {
     return fetch(
-                'http://localhost:9000' + BADGE_RULES + `?slug=${slug}`,{
+                BADGE_RULES + `?slug=${slug}`,{
                 credentials: 'same-origin'
                 }
                 )

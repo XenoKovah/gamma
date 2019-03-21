@@ -23,15 +23,15 @@ class EventType extends React.Component {
     render() {
         return (
             <FormControl>
-                <InputLabel >Event</InputLabel>
-                <Select native value={this.state.action} onChange={this.handleChange} autoWidth={true} className="Select">
+                <label >Event</label>
+                <select value={this.state.action} onChange={this.handleChange} autoWidth={true} className="Select">
                     <option key={0} value={this.state.action}>{this.state.action}</option>
                     {
                         this.props.actions.map((el, ind) => {
                             return <option key={ind+1} value={el}>{el}</option>
                         })
                     }
-                </Select>
+                </select>
 
             </FormControl>
         )

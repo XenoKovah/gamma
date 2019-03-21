@@ -43,14 +43,7 @@ class Achievement(models.Model):
     slug = models.SlugField(max_length=64, unique=True)
     badge_id = models.CharField(max_length=64, blank=True)
     description = models.TextField(blank=True, null=True)
-    badge_img = FileBrowseField(
-        "Image",
-        max_length=200,
-        directory="badges/",
-        extensions=[".png"],
-        blank=True,
-        null=True
-    )
+    badge_img = models.ImageField(upload_to="media")
 
     def __str__(self):
         return self.slug

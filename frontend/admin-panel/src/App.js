@@ -100,7 +100,7 @@ class App extends Component {
       rules.actions = actions;
       rules.filters = this.state.filters;
 
-      fetch('http://localhost:9000' + BADGE_RULES, {
+      fetch(BADGE_RULES, {
         method: 'PUT',
         headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken')},
         body: JSON.stringify({slug: this.slug, ...rules},

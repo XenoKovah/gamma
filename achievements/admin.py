@@ -10,7 +10,6 @@ class AchievementAdmin(admin.ModelAdmin):
     list_display = (
         'title',
         'slug',
-        'show_badge_img',
         'badge_id',
         'get_badge_edit_url'
     )
@@ -22,13 +21,6 @@ class AchievementAdmin(admin.ModelAdmin):
         'description',
     )
     prepopulated_fields = {"slug": ("title",)}
-
-    def show_badge_img(self, obj):
-        return format_html(
-            '<img style="width:100px" src="{}" />',
-            obj.badge_img.version_generate(ADMIN_THUMBNAIL).url if obj.badge_img else None
-        )
-    
     def get_badge_edit_url(self, obj):
         return format_html('<a href="#/{}" class="js-no-click">Edit rules</a>', obj.slug)
     
@@ -42,7 +34,6 @@ class StatusBadgeAdmin(admin.ModelAdmin):
     list_display = (
         'title',
         'slug',
-        'show_badge_img',
         'badge_id',
         'status_points',
         'status_color'
@@ -57,12 +48,6 @@ class StatusBadgeAdmin(admin.ModelAdmin):
         'status_color',
     )
     prepopulated_fields = {"slug": ("title",)}
-
-    def show_badge_img(self, obj):
-        return format_html(
-            '<img style="width:100px" src="{}" />',
-            obj.badge_img.version_generate(ADMIN_THUMBNAIL).url if obj.badge_img else None
-        )
 
 
 class EventAdmin(admin.ModelAdmin):
