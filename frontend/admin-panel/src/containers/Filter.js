@@ -149,10 +149,16 @@ export default class Filter extends React.Component {
         })
     }
 
-    handleChangeInput (event) {
+    handleChangeInput (event, meta) {
         let state = this.state;
-        let name = event.currentTarget.name;
-        let value = event.currentTarget.value;
+        let name, value;
+        if (meta) {
+            name = meta.name;
+            value = event.value
+        } else {
+            name = 'frequency';
+            value = event
+        }
         state[name] = value;
         state.manuallyAdded[name] = value ? false : true;
         this.props.onChange(name, value);
@@ -186,6 +192,14 @@ export default class Filter extends React.Component {
     render() {
         let start = this.state && this.state.interval && this.state.interval.start ? this.state.interval.start : null;
         let end = this.state && this.state.interval && this.state.interval.end ? this.state.interval.end : null;
+        let courses = this.state.courses.map(el => {
+            return {value: el, label: el}
+        })
+        let organisations = this.state.organisations.map(el => {
+            return {value: el, label: el}
+        })
+        let currentCourse = {value: this.state.course, label: this.state.course};
+        let currentOrg = {value: this.state.org, label:this.state.org};
         return (
             <div>
                 <h3>Filters</h3>
@@ -195,18 +209,12 @@ export default class Filter extends React.Component {
                             <div className="FormGroup">
                                 <label htmlFor="courses">Courses</label>
                                 <Select name="course" id="courses"
-                                    value={this.state.course}
+                                    value={currentCourse}
                                     onChange={this.handleChangeInput}
                                     onBlur={this.handleBlurInput}
                                     className="Select"
-                                    placeholder="-----">
-                                    <option key={0} value="">-----</option>
-                                    {
-                                        this.state.courses.map((el, ind) => {
-                                            return <option key={ind+1} value={el}>{el}</option>
-                                        })
-                                    }
-                                </Select>
+                                    options={courses}
+                                    placeholder="-----"/>
                             </div>
                         ) : false
                     }
@@ -215,18 +223,12 @@ export default class Filter extends React.Component {
                             <div className="FormGroup">
                                 <label htmlFor="org">Organisation</label>
                                 <Select name="org" id="org"
-                                    value={this.state.org}
+                                    value={currentOrg}
                                     onChange={this.handleChangeInput}
                                     onBlur={this.handleBlurInput}
                                     className="Select"
-                                    placeholder="-----">
-                                    <option key={0} value="">-----</option>
-                                    {
-                                        this.state.organisations.map((el, ind) => {
-                                            return <option key={ind+1} value={el}>{el}</option>
-                                        })
-                                    }
-                                </Select>
+                                    placeholder="-----"
+                                    options={organisations}/>
                             </div>
                         ) : false
                     }

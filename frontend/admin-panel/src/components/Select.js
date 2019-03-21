@@ -14,20 +14,21 @@ class EventType extends React.Component {
 
     handleChange(event) {
         this.setState({
-            action: event
+            action: event.value
         }, () => {this.props.onChanged(this.state)} )
     }
 
     render() {
-        const options = this.props.actions.map((el, ind) => {
-            return {value:el, label:el}
+        let options = [{value: this.state.action, label: this.state.action}];
+        this.props.actions.forEach((el, ind) => {
+            options.push({value:el, label:el});
         });
-
+        let defaultValue = {value:this.state.action, label:this.state.action};
         return (
             <div className="FormGroup">
                 <label>Event type</label>
-                <Select value={this.state.action} onChange={this.handleChange} className="Select" placeholder="-----"
-                    value={this.state.action}
+                <Select onChange={this.handleChange} className="Select" placeholder="-----"
+                    value={defaultValue}
                     options={options}
                 />
             </div>
