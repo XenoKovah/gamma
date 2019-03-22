@@ -2,16 +2,10 @@ import React from 'react';
 
 import 'date-fns';
 
-import Input from '@material-ui/core/Input';
-import InputLabel from '@material-ui/core/InputLabel';
-import Select from '@material-ui/core/Select';
-import Button from '@material-ui/core/Button';
-
-import FormGroup from '@material-ui/core/FormGroup';
-import FormControl from '@material-ui/core/FormControl';
+import InputNumber from 'rc-input-number';
+import Select from 'react-select';
 
 import { MuiPickersUtilsProvider, DatePicker } from 'material-ui-pickers';
-import Grid from '@material-ui/core/Grid';
 import DateFnsUtils from '@date-io/date-fns';
 
 import {AllowedFilters, isObjectEmpty} from '../Utils';
@@ -36,7 +30,6 @@ export default class Filter extends React.Component {
         this.avFieldsChanged = this.avFieldsChanged.bind(this);
         this.handleFocus = this.handleFocus.bind(this);
         this.getOrganisations = this.getOrganisations.bind(this);
-        
     }
 
     state = {
@@ -73,16 +66,17 @@ export default class Filter extends React.Component {
         this.setState({...this.props})
     }
 
-    avFieldsChanged(event) {
-        this.selectedField = event.target.value;
+    avFieldsChanged(event, meta) {
+        this.selectedField = event.value;
     }
 
     addField() {
         let manuallyAdded = this.state.manuallyAdded;
         manuallyAdded[this.selectedField] = true;
+        let selectElements = document.getElementsByClassName('css-xp4uvy');
+        selectElements[selectElements.length-1].innerHTML = "Select...";  // durty hack for now
         this.setState({
-            manuallyAdded: manuallyAdded,
-            updateEmptyList: true,
+            manuallyAdded: manuallyAdded
         })
     }
 
@@ -112,7 +106,7 @@ export default class Filter extends React.Component {
     }
 
     handleChangeDateStart(date) {
-        
+
         let formattedDate = date.toISOString();
         let state = this.state;
         state.interval.start = formattedDate;
@@ -156,10 +150,16 @@ export default class Filter extends React.Component {
         })
     }
 
-    handleChangeInput (event) {
+    handleChangeInput (event, meta) {
         let state = this.state;
-        let name = event.currentTarget.name;
-        let value = event.currentTarget.value;
+        let name, value;
+        if (meta) {
+            name = meta.name;
+            value = event.value
+        } else {
+            name = 'frequency';
+            value = event
+        }
         state[name] = value;
         state.manuallyAdded[name] = value ? false : true;
         this.props.onChange(name, value);
@@ -169,6 +169,10 @@ export default class Filter extends React.Component {
     handleBlurInput(event) {
         let name = event.target.name;
         let value = event.target.value;
+        if (!name) {
+            name = event.target.id;
+            value = this.state[name];
+        }
         let {manuallyAdded} = this.state;
         if(!value) {
             manuallyAdded[name] = false;
@@ -193,121 +197,120 @@ export default class Filter extends React.Component {
     render() {
         let start = this.state && this.state.interval && this.state.interval.start ? this.state.interval.start : null;
         let end = this.state && this.state.interval && this.state.interval.end ? this.state.interval.end : null;
+        let emptySelectValue = [{value: "", label: "------"}];
+        let courses = emptySelectValue.concat(
+            this.state.courses.map(el => {
+                return {value: el, label: el}
+            })
+        );
+        let organisations = emptySelectValue.concat(
+            this.state.organisations.map(el => {
+                return {value: el, label: el}
+            })
+        );
+        let emptyFields = this.getEmptyFields().map(el => {
+            return {value: el, label: el};
+        });
+        let currentCourse = {value: this.state.course, label: this.state.course};
+        let currentOrg = {value: this.state.org, label:this.state.org};
         return (
             <div>
                 <h3>Filters</h3>
-                <FormGroup>
+                <div className="FilterItem">
                     {
                         this.state.course || this.state.manuallyAdded.course ? (
-                            <FormControl>
-                                <InputLabel htmlFor="courses">Courses</InputLabel>
-                                <Select native name="course" id="courses"
-                                    value={this.state.course}
+                            <div className="FormGroup">
+                                <label htmlFor="courses">Courses</label>
+                                <Select inputId="course" name="course"
+                                    value={currentCourse}
                                     onChange={this.handleChangeInput}
-                                    onBlur={this.handleBlurInput}>
-                                    <option key={0} value="">-----</option>
-                                    {
-                                        this.state.courses.map((el, ind) => {
-                                            return <option key={ind+1} value={el}>{el}</option>
-                                        })
-                                    }
-                                </Select>
-                            </FormControl>
+                                    onBlur={this.handleBlurInput}
+                                    className="Select"
+                                    options={courses}
+                                    placeholder="-----"/>
+                            </div>
                         ) : false
                     }
                     {
                         this.state.org || this.state.manuallyAdded.org ? (
-                            <FormControl>
-                                <InputLabel htmlFor="org">Org</InputLabel>
-                                <Select native name="org" id="org"
-                                    value={this.state.org}
+                            <div className="FormGroup">
+                                <label htmlFor="org">Organisation</label>
+                                <Select inputId="org" name="org"
+                                    value={currentOrg}
                                     onChange={this.handleChangeInput}
-                                    onBlur={this.handleBlurInput}>
-                                    <option key={0} value="">-----</option>
-                                    {
-                                        this.state.organisations.map((el, ind) => {
-                                            return <option key={ind+1} value={el}>{el}</option>
-                                        })
-                                    }
-                                </Select>
-                            </FormControl>
+                                    onBlur={this.handleBlurInput}
+                                    className="Select"
+                                    placeholder="-----"
+                                    options={organisations}/>
+                            </div>
                         ) : false
                     }
 
                     {
                         this.state.frequency || this.state.manuallyAdded.frequency ? (
-                            <FormControl>
-                                <InputLabel htmlFor="frequency">Frequency</InputLabel>
-                                <Input name="frequency" id="frequency" type="number"
+                            <div className="FormGroup">
+                                <label htmlFor="frequency">Frequency</label>
+                                <InputNumber name="frequency" id="frequency" type="number" min={1}
                                     value={this.state.frequency}
                                     onChange={this.handleChangeInput}
                                     onBlur={this.handleBlurInput}
                                     // onFocus={this.handleFocus}
                                     />
-                            </FormControl>
+                            </div>
                         ) : false
                     }
                     {
                         !isObjectEmpty(this.state.interval) || this.state.manuallyAdded.interval ? (
-                            <FormControl>
-                                <div className="DatePickerBlock">
+                            <div>
+                                <div className="FormGroup">
 
                                     <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                                        <Grid container justify="space-around">
                                         <DatePicker
                                             margin="normal"
                                             label="Start interval"
                                             value={start}
                                             onChange={this.handleChangeDateStart}
+                                            className="DatePicker-Group"
                                         />
-                                        
-                                        </Grid>
+
                                     </MuiPickersUtilsProvider>
-                                    <Button size="small" mini={true} onClick={this.clearStart} variant="contained" color="secondary">Clear</Button>
-                                    </div>
-                                    <div className="DatePickerBlock">
+                                    <button className="Btn Btn_danger" onClick={this.clearStart}>Clear</button>
+                                </div>
+                                <div className="FormGroup">
 
                                     <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                                        <Grid container justify="space-around">
                                         <DatePicker
                                             margin="normal"
                                             label="End interval"
                                             value={end}
                                             onChange={this.handleChangeDateEnd}
+                                            className="DatePicker-Group"
                                         />
-                                        
-                                        </Grid>
-                                        <Button size="small" mini={true} onClick={this.clearEnd} variant="contained" color="secondary">Clear</Button>
-                                    </MuiPickersUtilsProvider>
-                                </div>
-                            </FormControl>
-                        ) : false
-                    }
-                <div className="Action">
 
-                    {
-                        this.getEmptyFields().length ? (
-                            <div>
-                                <FormGroup>
-                                    <InputLabel htmlFor="avFields">Add fields</InputLabel>
-                                    <Select id="avFields" native onChange={this.avFieldsChanged}>
-                                        <option key={Math.random()}>------</option>
-                                        {
-                                            this.getEmptyFields().map((el, ind) => {
-                                                return <option key={Math.random()} value={el}>{el}</option>
-                                            })
-                                        }
-                                    </Select>
-                                    <div className="Action">
-                                        <Button size="small" variant="contained" color="primary" onClick={this.addField}>Add field</Button>
-                                    </div>
-                                </FormGroup>
+                                    </MuiPickersUtilsProvider>
+                                    <button className="Btn Btn_danger" onClick={this.clearEnd}>Clear</button>
+                                </div>
                             </div>
                         ) : false
                     }
+                    <div className="Action">
 
+                        {
+                            emptyFields.length ? (
+                                <div className="FormGroup">
+                                    <label htmlFor="avFields">Add fields</label>
+                                    <Select id="avFields"
+                                            onChange={this.avFieldsChanged}
+                                            className="Select"
+                                            defaultInputValue=""
+                                            options={emptyFields}/>
+                                    <button className="Btn Btn_primary Btn_add" onClick={this.addField}>Add</button>
+                                </div>
+                            ) : false
+                        }
+
+                    </div>
                 </div>
-                </FormGroup>
 
             </div>
         )

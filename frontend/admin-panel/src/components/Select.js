@@ -1,7 +1,5 @@
 import React from 'react';
-import Select from '@material-ui/core/Select';
-import InputLabel from '@material-ui/core/InputLabel';
-import FormControl from '@material-ui/core/FormControl';
+import Select from 'react-select';
 
 class EventType extends React.Component {
     constructor(props) {
@@ -16,24 +14,24 @@ class EventType extends React.Component {
 
     handleChange(event) {
         this.setState({
-            action: event.currentTarget.value
+            action: event.value
         }, () => {this.props.onChanged(this.state)} )
     }
 
     render() {
+        let options = [{value: this.state.action, label: this.state.action}];
+        this.props.actions.forEach((el, ind) => {
+            options.push({value:el, label:el});
+        });
+        let defaultValue = {value:this.state.action, label:this.state.action};
         return (
-            <FormControl>
-                <label >Event</label>
-                <select value={this.state.action} onChange={this.handleChange} autoWidth={true} className="Select">
-                    <option key={0} value={this.state.action}>{this.state.action}</option>
-                    {
-                        this.props.actions.map((el, ind) => {
-                            return <option key={ind+1} value={el}>{el}</option>
-                        })
-                    }
-                </select>
-
-            </FormControl>
+            <div className="FormGroup">
+                <label>Event type</label>
+                <Select onChange={this.handleChange} className="Select" placeholder="-----"
+                    value={defaultValue}
+                    options={options}
+                />
+            </div>
         )
     }
 }

@@ -3,7 +3,7 @@ import React from 'react';
 import ActionContainer from '../containers/ActionContainer';
 import AndOrBlock from '../components/AndOrBlock';
 
-import '../styles/custom.css';
+import '../styles/custom.scss';
 
 export default class Actions extends React.Component {
     constructor(props) {
@@ -84,25 +84,27 @@ export default class Actions extends React.Component {
         return (
                 <div>
                     <h3>Actions</h3>
-                    {
-                        this.props.actions.map(el => {
-                            return <ActionContainer 
-                                key={el.id}
-                                id={el.id} 
-                                onChange={this.containerChanged} 
-                                deleteBlock={this.deleteBlock}
-                                action={el.action}
-                                count={el.count}
-                                actions={this.props.actions}
-                                availableActions={this.state.availableActions}
-                            />
-                        })
-                    }
-                    {
-                        this.state.availableActions.length ? (<div>
-                            <AndOrBlock addCondition={this.addCondition}/>
-                        </div>) : false
-                    }
+                    <div>
+                        {
+                            this.props.actions.map(el => {
+                                return <ActionContainer
+                                    key={el.id}
+                                    id={el.id}
+                                    onChange={this.containerChanged}
+                                    deleteBlock={this.deleteBlock}
+                                    action={el.action}
+                                    count={el.count}
+                                    actions={this.props.actions}
+                                    availableActions={this.state.availableActions}
+                                />
+                            })
+                        }
+                        {
+                            this.state.availableActions.length ? (<div>
+                                <AndOrBlock addCondition={this.addCondition}/>
+                            </div>) : false
+                        }
+                    </div>
                 </div>
 
         )

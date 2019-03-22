@@ -1,5 +1,4 @@
 import React from 'react';
-import Button from '@material-ui/core/Button';
 
 import EventType from '../components/Select';
 import Count from '../components/Count';
@@ -53,9 +52,7 @@ class ActionContainer extends React.Component {
                     action={this.props.action} 
                     actions={this.props.availableActions}/>
                 <Count onChanged={this.countChanged} count={this.props.count}/>
-                <div className="ActionItem">
-                    <Button onClick={this.deleteBlock} variant="contained" color="secondary" size="small">Delete</Button>
-                </div>
+                <button onClick={this.deleteBlock} className="Btn Btn_danger">Delete</button>
             </div>
         )
     }

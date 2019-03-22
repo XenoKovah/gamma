@@ -1,7 +1,5 @@
 import React from 'react';
-import Input from '@material-ui/core/Input';
-import InputLabel from '@material-ui/core/InputLabel';
-import FormGroup from '@material-ui/core/FormGroup';
+import InputNumber from 'rc-input-number';
 
 class Count extends React.Component {
 
@@ -15,20 +13,20 @@ class Count extends React.Component {
 
     onChange(event) {
         this.setState({
-            count: event.currentTarget.value
+            count: event
         }, () => {this.props.onChanged(this.state)})
     }
 
 
     render() {
         return (
-            <FormGroup>
-                <InputLabel htmlFor="count-input">Count</InputLabel>
-                <Input id="count-input" inputProps={{type: "number"}}
+            <div className="FormGroup">
+                <label htmlFor="count-input">Count</label>
+                <InputNumber id="count-input" inputProps={{type: "number"}} min={1}
                     defaultValue={this.state.count} 
                     onChange={this.onChange} />
 
-            </FormGroup>
+            </div>
             
         )
     }
