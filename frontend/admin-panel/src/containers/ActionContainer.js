@@ -52,7 +52,7 @@ class ActionContainer extends React.Component {
                     action={this.props.action} 
                     actions={this.props.availableActions}/>
                 <Count onChanged={this.countChanged} count={this.props.count}/>
-                <button onClick={this.deleteBlock} className="Btn Btn-Danger">Delete</button>
+                <button onClick={this.deleteBlock} className="Btn Btn_danger">Delete</button>
             </div>
         )
     }

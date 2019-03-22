@@ -125,19 +125,19 @@ class App extends Component {
       <div>
         <Rules doRequest={false} filters={this.state.filters} actions={this.state.rawActions}/>
         <Dialog open={this.state.open} maxWidth="xl" className="Dialog">
-          <DialogTitle className="DialogTitle"> Rules for "{this.slug}"</DialogTitle>
-          <DialogContent className="DialogContent">
+          <DialogTitle className="Dialog-Title"> Rules for "{this.slug}"</DialogTitle>
+          <DialogContent className="Dialog-Content">
             <div className="Container">
-              <div className="ContainerItem">
+              <div className="Container-Item">
                 <Actions {...this.state} getIndex={this.getIndex} onChangeProps={this.onChangeProps} putRules={this.putRules} slug={this.slug}/>
               </div>
-              <div className="ContainerItem">
+              <div className="Container-Item">
                 <FilterContainer  filters={this.state.filters} shouldFilterUpdate={this.state.shouldFilterUpdate} filtersChanged={this.filtersChanged} getIndex={this.getIndex}/>
               </div>
             </div>
-            <div className="Action-General">
-              <button onClick={this.putRules} className="Btn Btn-Primary Btn-General">Save</button>
-              <button onClick={this.handleClose} className="Btn Btn-Info Btn-General">Close</button>
+            <div className="Action_general">
+              <button onClick={this.putRules} className="Btn Btn_primary Btn_general">Save</button>
+              <button onClick={this.handleClose} className="Btn Btn_info Btn_general">Close</button>
             </div>
           </DialogContent>
         </Dialog>

@@ -66,8 +66,8 @@ export default class Filter extends React.Component {
         this.setState({...this.props})
     }
 
-    avFieldsChanged(event) {
-        this.selectedField = event.target.value;
+    avFieldsChanged(event, meta) {
+        this.selectedField = event.value;
     }
 
     addField() {
@@ -194,10 +194,13 @@ export default class Filter extends React.Component {
         let end = this.state && this.state.interval && this.state.interval.end ? this.state.interval.end : null;
         let courses = this.state.courses.map(el => {
             return {value: el, label: el}
-        })
+        });
         let organisations = this.state.organisations.map(el => {
             return {value: el, label: el}
-        })
+        });
+        let emptyFields = this.getEmptyFields().map(el => {
+            return {value: el, label: el};
+        });
         let currentCourse = {value: this.state.course, label: this.state.course};
         let currentOrg = {value: this.state.org, label:this.state.org};
         return (
@@ -257,11 +260,11 @@ export default class Filter extends React.Component {
                                             label="Start interval"
                                             value={start}
                                             onChange={this.handleChangeDateStart}
-                                            className="DatePickerGroup"
+                                            className="DatePicker-Group"
                                         />
 
                                     </MuiPickersUtilsProvider>
-                                    <button className="Btn Btn-Danger" onClick={this.clearStart}>Clear</button>
+                                    <button className="Btn Btn_danger" onClick={this.clearStart}>Clear</button>
                                 </div>
                                 <div className="FormGroup">
 
@@ -271,11 +274,11 @@ export default class Filter extends React.Component {
                                             label="End interval"
                                             value={end}
                                             onChange={this.handleChangeDateEnd}
-                                            className="DatePickerGroup"
+                                            className="DatePicker-Group"
                                         />
 
                                     </MuiPickersUtilsProvider>
-                                    <button className="Btn Btn-Danger" onClick={this.clearEnd}>Clear</button>
+                                    <button className="Btn Btn_danger" onClick={this.clearEnd}>Clear</button>
                                 </div>
                             </div>
                         ) : false
@@ -283,21 +286,15 @@ export default class Filter extends React.Component {
                     <div className="Action">
 
                         {
-                            this.getEmptyFields().length ? (
+                            emptyFields.length ? (
                                 <div className="FormGroup">
                                     <label htmlFor="avFields">Add fields</label>
                                     <Select id="avFields"
                                             onChange={this.avFieldsChanged}
                                             className="Select"
-                                            placeholder="-----">
-                                        <option key={Math.random()}>-----</option>
-                                        {
-                                            this.getEmptyFields().map((el, ind) => {
-                                                return <option key={Math.random()} value={el}>{el}</option>
-                                            })
-                                        }
-                                    </Select>
-                                    <button className="Btn Btn-Primary Btn-Add" onClick={this.addField}>Add</button>
+                                            placeholder="-----"
+                                            options={emptyFields}/>
+                                    <button className="Btn Btn_primary Btn_add" onClick={this.addField}>Add</button>
                                 </div>
                             ) : false
                         }

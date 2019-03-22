@@ -23,63 +23,59 @@
     &:focus {
         @include custom-outline;
     }
+}
 
-    &.Btn-Primary {
-        background: $primary-btn-background;
-        border: 2px solid $primary-btn-background;
-        color: $primary-btn-color;
+.Btn_primary {
+    background: $primary-btn-background;
+    border: 2px solid $primary-btn-background;
+    color: $primary-btn-color;
 
-        &:hover {
-            background: $primary-btn-background-hover;
-            color: $primary-btn-background;
-        }
-    }
-
-    &.Btn-Danger {
-        background: $danger-btn-background;
-        border: 2px solid $danger-btn-background;
-        color: $danger-btn-color;
-
-        &:hover {
-            background: $danger-btn-background-hover;
-            color: $danger-btn-background;
-        }
-    }
-
-    &.Btn-Info {
+    &:hover {
         background: $primary-btn-background-hover;
-        border: 2px solid $primary-btn-background;
         color: $primary-btn-background;
-
-        &:hover {
-            background: $primary-btn-background;
-            color: $primary-btn-color;
-        }
     }
+}
 
-    &.Btn-Add {
-        margin-top: 20px;
-    }
+.Btn_danger {
+    background: $danger-btn-background;
+    border: 2px solid $danger-btn-background;
+    color: $danger-btn-color;
 
-    &.Btn-General {
-        margin: 0 3px;
+    &:hover {
+        background: $danger-btn-background-hover;
+        color: $danger-btn-background;
     }
+}
+
+.Btn_info {
+    background: $primary-btn-background-hover;
+    border: 2px solid $primary-btn-background;
+    color: $primary-btn-background;
+
+    &:hover {
+        background: $primary-btn-background;
+        color: $primary-btn-color;
+    }
+}
+
+.Btn_add {
+    margin-top: 20px;
+}
+
+.Btn_general {
+    margin: 0 3px;
 }
 
 // custom select
 .Select {
     width: 130px;
 
-    .selectInput {
-        background: red !important;
-    }
-
     > div:first-of-type {
         border: 2px solid $base-color !important;
         border-right: 20px;
         font-size: 12px;
         line-height: normal;
-        color: #3e3e3e;
+        color: $input-color;
         font-weight: 400;
         border-radius: 20px;
         background: transparent;
@@ -124,13 +120,14 @@
     }
 
     .css-15k3avv {
-        background: #cdcecd;
+        background: $selecd-list-background;
         box-sizing: border-box;
         box-shadow: none;
         border-radius: 10px;
         font-size: 12px;
         font-weight: 400;
         overflow: hidden;
+        z-index: 11;
 
         &:before {
             content: '';
@@ -139,7 +136,7 @@
             top: -12px;
             left: 10%;
             border: 6px solid transparent;
-            border-bottom: 6px solid #cdcecd;
+            border-bottom: 6px solid $selecd-list-background;
         }
 
         .css-1gl4k7y {
@@ -148,7 +145,7 @@
 
         .css-11unzgr {
             div {
-                color: #3e3e3e;
+                color: $input-color;
                 font-size: 12px;
                 text-transform: uppercase;
                 padding: 5px 20px;
@@ -157,7 +154,7 @@
 
                 &:hover {
                     background-color: #45a2d6;
-                    color: #fafafa;
+                    color: $base-white-color;
                     cursor: pointer;
                 }
             }
@@ -178,10 +175,16 @@
         background: transparent;
         height: 30px;
         font-size: 12px;
-        color: #3e3e3e;
+        color: $input-color;
         font-weight: 400;
         border-radius: 20px;
         border: 2px solid $base-color;
+        -moz-appearance:textfield;
+
+        &::-webkit-outer-spin-button,
+        &::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+        }
 
         &:focus {
             @include custom-outline;
@@ -201,9 +204,11 @@
         background: transparent;
         margin: 0;
         z-index: 10;
+        transition: opacity .15s linear;
         
         &:hover {
             cursor: pointer;
+            opacity: .8;
         }
     }
 
@@ -218,14 +223,14 @@
 }
 
 // data picker group
-.DatePickerGroup {
+.DatePicker-Group {
     margin: 0 !important;
     align-items: flex-end;
     vertical-align: bottom !important;
 
     label {
         font-size: 12px !important;
-        color: #777 !important;
+        color: $label-color !important;
         transform: translate(0, 1.5px);
     }
 
@@ -237,7 +242,7 @@
         background: transparent;
         height: 30px;
         font-size: 12px;
-        color: #3e3e3e;
+        color: $input-color;
         font-weight: 400;
         border-radius: 20px;
         border: 2px solid #45a2d6;
@@ -270,12 +275,12 @@ div[class*="MuiDialog-paper"] {
     border-color: #fff;
     border-style: solid;
     border-radius: 10px;
-    background-color: #fafafa;
+    background-color: $base-white-color;
     box-shadow: 0 6px 88px 0 rgba(0, 0, 0, 0.35);
 }
 
 // popup title
-.DialogTitle {
+.Dialog-Title {
     padding: 30px 55px 15px !important;
 
     h2 {
@@ -285,7 +290,7 @@ div[class*="MuiDialog-paper"] {
 }
 
 // popup content
-.DialogContent {
+.Dialog-Content {
     padding: 0 55px 20px !important;
 
     .Container {
@@ -294,7 +299,7 @@ div[class*="MuiDialog-paper"] {
 }
 
 // popup container item
-.ContainerItem {
+.Container-Item {
     &:first-of-type {
         margin-right: 55px;
     }
@@ -346,7 +351,7 @@ div[class*="MuiDialog-paper"] {
 }
 
 // general actions wrapper
-.Action-General {
+.Action_general {
     display: flex;
     align-items: center;
     justify-content: center;
