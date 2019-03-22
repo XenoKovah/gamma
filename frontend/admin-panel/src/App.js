@@ -131,8 +131,8 @@ class App extends Component {
               <div className="Container-Item">
                 <Actions {...this.state} getIndex={this.getIndex} onChangeProps={this.onChangeProps} putRules={this.putRules} slug={this.slug}/>
               </div>
-              <div className="Container-Item">
-                <FilterContainer  filters={this.state.filters} shouldFilterUpdate={this.state.shouldFilterUpdate} filtersChanged={this.filtersChanged} getIndex={this.getIndex}/>
+              <div className="ContainerItem">
+                <FilterContainer filters={this.state.filters} shouldFilterUpdate={this.state.shouldFilterUpdate} filtersChanged={this.filtersChanged} getIndex={this.getIndex}/>
               </div>
             </div>
             <div className="Action_general">

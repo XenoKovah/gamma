@@ -73,9 +73,10 @@ export default class Filter extends React.Component {
     addField() {
         let manuallyAdded = this.state.manuallyAdded;
         manuallyAdded[this.selectedField] = true;
+        let selectElements = document.getElementsByClassName('css-xp4uvy');
+        selectElements[selectElements.length-1].innerHTML = "Select...";  // durty hack for now
         this.setState({
-            manuallyAdded: manuallyAdded,
-            updateEmptyList: true,
+            manuallyAdded: manuallyAdded
         })
     }
 
@@ -168,6 +169,10 @@ export default class Filter extends React.Component {
     handleBlurInput(event) {
         let name = event.target.name;
         let value = event.target.value;
+        if (!name) {
+            name = event.target.id;
+            value = this.state[name];
+        }
         let {manuallyAdded} = this.state;
         if(!value) {
             manuallyAdded[name] = false;
@@ -192,12 +197,17 @@ export default class Filter extends React.Component {
     render() {
         let start = this.state && this.state.interval && this.state.interval.start ? this.state.interval.start : null;
         let end = this.state && this.state.interval && this.state.interval.end ? this.state.interval.end : null;
-        let courses = this.state.courses.map(el => {
-            return {value: el, label: el}
-        });
-        let organisations = this.state.organisations.map(el => {
-            return {value: el, label: el}
-        });
+        let emptySelectValue = [{value: "", label: "------"}];
+        let courses = emptySelectValue.concat(
+            this.state.courses.map(el => {
+                return {value: el, label: el}
+            })
+        );
+        let organisations = emptySelectValue.concat(
+            this.state.organisations.map(el => {
+                return {value: el, label: el}
+            })
+        );
         let emptyFields = this.getEmptyFields().map(el => {
             return {value: el, label: el};
         });
@@ -211,7 +221,7 @@ export default class Filter extends React.Component {
                         this.state.course || this.state.manuallyAdded.course ? (
                             <div className="FormGroup">
                                 <label htmlFor="courses">Courses</label>
-                                <Select name="course" id="courses"
+                                <Select inputId="course" name="course"
                                     value={currentCourse}
                                     onChange={this.handleChangeInput}
                                     onBlur={this.handleBlurInput}
@@ -225,7 +235,7 @@ export default class Filter extends React.Component {
                         this.state.org || this.state.manuallyAdded.org ? (
                             <div className="FormGroup">
                                 <label htmlFor="org">Organisation</label>
-                                <Select name="org" id="org"
+                                <Select inputId="org" name="org"
                                     value={currentOrg}
                                     onChange={this.handleChangeInput}
                                     onBlur={this.handleBlurInput}
@@ -292,7 +302,7 @@ export default class Filter extends React.Component {
                                     <Select id="avFields"
                                             onChange={this.avFieldsChanged}
                                             className="Select"
-                                            placeholder="-----"
+                                            defaultInputValue=""
                                             options={emptyFields}/>
                                     <button className="Btn Btn_primary Btn_add" onClick={this.addField}>Add</button>
                                 </div>
