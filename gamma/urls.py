@@ -17,11 +17,12 @@ Including another URLconf
 from django.conf import settings
 from django.urls import include, path
 from django.conf.urls.static import static
+from django.views.generic.base import TemplateView
 from django.contrib import admin
 from django.contrib.auth import logout
 from filebrowser.sites import site
 
-from core.views import DashboardView, AdminPanelView
+from core.views import DashboardView, AdminPanelView, LeaderBoardView
 
 
 urlpatterns = [
@@ -44,4 +45,7 @@ urlpatterns = [
 
     # API
     path('api/', include(('api.urls', 'api'), namespace='api')),
+
+    path('leaderboard/', LeaderBoardView.as_view()),
+    path('badges/', TemplateView.as_view(template_name='badges.html'))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
