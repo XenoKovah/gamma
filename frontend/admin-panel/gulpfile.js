@@ -25,32 +25,17 @@ gulp.task('pack-js', function () {
       .pipe(gulp.dest(static));
 });
 
-gulp.task('scss', function () {
+gulp.task('pack-scss', function () {
     return gulp.src(['assets/scss/**/*.scss'])
       .pipe(sass().on('error', sass.logError))
       .pipe(autoprefixer())
-      .pipe(gulp.dest('assets/css/'));
-});
-
-gulp.task('pack-scss', function () {
-    return gulp.src(['assets/css/*'])
       .pipe(concat('css/admin-stylesheet.css'))
       .pipe(cleanCss())
       .pipe(gulp.dest(static));
 });
 
 gulp.task('sass:watch', function () {
-    return gulp.watch('assets/scss/**/*.scss', gulp.series('scss', 'pack-scss'));
-});
-
-gulp.task('pack-img', function () {
-    return gulp.src(['assets/image/*'])
-      .pipe(gulp.dest(static+'/images'));
-});
-
-gulp.task('pack-font', function () {
-    return gulp.src(['assets/font/**'])
-      .pipe(gulp.dest(static+'/font'));
+    return gulp.watch('assets/scss/**/*.scss', gulp.series('pack-scss'));
 });
 
 gulp.task('build', () => {
@@ -59,4 +44,4 @@ gulp.task('build', () => {
     .pipe(console.log('FINISH'))
 });
 
-gulp.task('default', gulp.series('pack-css', 'pack-js'));
+gulp.task('default', gulp.series('pack-scss','pack-css', 'pack-js'));
