@@ -47,6 +47,11 @@ class Achievement(models.Model):
 
     def __str__(self):
         return self.slug
+    
+    @property
+    def badge_img_name(self):
+        if self.badge_img:
+            return self.badge_img.name.split('/')[-1]
 
 
 class StatusBadge(models.Model):

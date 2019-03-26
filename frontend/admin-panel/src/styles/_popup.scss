@@ -252,7 +252,7 @@
         background-size: 16px;
     }
 
-    div[class*="MuiInputBase"] {
+    label + div {
         margin-right: 10px;
 
         &:after,
