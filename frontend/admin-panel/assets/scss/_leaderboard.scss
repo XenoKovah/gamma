@@ -96,7 +96,6 @@
 .LeaderboardPersonFigure {
     width: 55px;
     height: 100%;
-    background-color: silver; /* ToDo: test styles */
     margin: 0 15px 0 0;
     background-repeat: no-repeat;
     background-size: cover;
@@ -128,42 +127,12 @@
     height: 8px;
     border-radius: 5px;
     background: #f65454;
-}
 
-.LeaderboardProgress-Status_20 {
-    background: #ff795a;
-}
-
-.LeaderboardProgress-Status_30 {
-    background: #fe8e4b;
-}
-
-.LeaderboardProgress-Status_40 {
-    background: #fe9b4b;
-}
-
-.LeaderboardProgress-Status_50 {
-    background: #ffc741;
-}
-
-.LeaderboardProgress-Status_60 {
-    background: #c8e057;
-}
-
-.LeaderboardProgress-Status_70 {
-    background: #4bcf7a;
-}
-
-.LeaderboardProgress-Status_80 {
-    background: #4bc4cf;
-}
-
-.LeaderboardProgress-Status_90 {
-    background: #9e98e7;
-}
-
-.LeaderboardProgress-Status_100 {
-    background: #b27bed;
+    @each $status, $color in $status-colors {
+        &_#{$status} {
+            background: $color;
+        }
+    }
 }
 
 .LeaderboardBadges {

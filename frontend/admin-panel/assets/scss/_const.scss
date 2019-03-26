@@ -17,3 +17,16 @@ $danger-btn-background-hover: transparent;
 // form elements
 $input-color: #3e3e3e;
 $label-color: #777;
+
+// progress value and color
+$status-colors: (
+    20: #ff795a,
+    30:#fe8e4b,
+    40:#fe9b4b,
+    50:#ffc741,
+    60:#c8e057,
+    70:#4bcf7a,
+    80:#4bc4cf,
+    90:#9e98e7,
+    100:#b27bed
+);
