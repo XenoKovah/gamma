@@ -26,7 +26,7 @@ class AchievementAdmin(admin.ModelAdmin):
     
     class Media:
         css = {
-            'all': ('core/css/stylesheet.css',)
+            'all': ('core/css/admin-stylesheet.css','core/css/stylesheet.css')
         }
 
 

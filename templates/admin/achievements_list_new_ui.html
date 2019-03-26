@@ -1,65 +1,79 @@
 <section class="Achievement">
     <script   src="http://code.jquery.com/jquery-3.3.1.min.js"   integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="   crossorigin="anonymous"></script>
     {% for achievement in achievements %}
-    <div class="AchievementItem">
-        <div class="AchievementInfo">
-            <figure class="AchievementFigure">
-                <img src="{{ achievement.badge_img.url }}" alt="" class="AchievementImg">
+    <div class="Achievement-Item">
+        <div class="Achievement-Info">
+            <figure class="Achievement-Figure" style="background-image: url({{ achievement.badge_img.url }})">
+                <img src="{{ achievement.badge_img.url }}" alt="" class="Achievement-Img">
             </figure>
-            <div class="AchievementContent">
-                <div class="AchievementTitle">{{achievement.title}}</div>
-                <div class="AchievementDescription">{{ achievement.description }}</div>
+            <div class="Achievement-Content">
+                <div class="Achievement-Title">{{achievement.title}}</div>
+                <div class="Achievement-Description">
+                    {{ achievement.description }}
+                </div>
             </div>
-            <div class="AchievementControls">
-                <a href="#/{{ achievement.slug }}" class="Btn Bth-Danger">Edit rules</a>
-                <div class="AchievementControlsHover">
-                    <!-- <div class="AchievementCheck">
-                        <input type="checkbox" class="AchievementCheckInput">
-                        <span class="AchievementCheckIcon">
-                            <svg></svg>
-                        </span>
-                    </div> -->
-                    <button class="Btn Btn-Primary edit-achievement-click">
+            <div class="Achievement-Controls">
+                <a href="#/{{ achievement.slug }}" class="Btn Btn_danger">Edit rules</a>
+                <div class="Achievement-ControlsHover">
+                    <!-- <label class="AchievementForm-CheckBlock">
+                        <input type="checkbox" class="AchievementForm-CheckInput">
+                        <span class="AchievementForm-CheckIcon"></span>
+                    </label> -->
+                    <button class="Btn Btn-Primary Btn_control Btn_edit edit-achievement-click">
                         <span class="sr">edit</span>
-                        <svg></svg>
                     </button>
-                    <button class="Btn Btn-Default delete-achievement-click" data-slug="{{ achievement.slug }}">
+                    <button class="Btn Btn-Default Btn_control Btn_remove delete-achievement-click" data-slug="{{ achievement.slug }}">
                         <span class="sr">remove</span>
-                        <svg></svg>
                     </button>
                 </div>
             </div>
         </div>
         <form class="AchievementForm" id="form-{{ achievement.id }}" enctype="multipart/form-data">
-            <div class="AchievementFormTitle">Change achievement</div>
-            <div class="AchievementFormBlock">
-                <div class="AchievementFormGroup">
-                    <label for="">Title</label>
-                    <input type="text" name="title" id="title-{{ achievement.id }}" value="{{achievement.title}}">
+            <div class="AchievementForm-Wrapper">
+                <div class="AchievementForm-Title">Change achievement</div>
+                <div class="AchievementForm-Block">
+                    <div class="AchievementFormGroup">
+                        <label for="">Title</label>
+                        <input type="text" name="title" id="title-{{ achievement.id }}" value="{{achievement.title}}">
+                    </div>
+                    <div class="AchievementFormGroup">
+                        <label for="">Description</label>
+                        <textarea id="" name="description">{{ achievement.description }}</textarea>
+                    </div>
                 </div>
-                <div class="AchievementFormGroup">
-                    <label for="">Description</label>
-                    <textarea id="" name="description">{{ achievement.description }}</textarea>
+                <div class="AchievementForm-Block">
+                    <div class="AchievementFormGroup AchievementForm-Group_combined">
+                        <figure class="AchievementForm-Figure" style="background-image: url({{ achievement.badge_img.url }})">
+                            <img src="{{ achievement.badge_img.url }}" alt="" class="AchievementForm-Img">
+                        </figure>
+                        <div class="AchievementForm-GroupWrapper">
+                            <label for="">Image</label>
+                            <!--<input type="file" id="" name="badge_img" value="{{ achievement.badge_img.file }}">-->
+
+
+                            <div class="FileInput">
+                                <input type="file" class="image-upload" name="badge_img">
+                                <span class="FileInput-Label" data-js-label>{{ achievement.badge_img_name }}</span>
+                                <span class="FileInput-Btn">Choose</span>
+                            </div>
+
+
+                        </div>
+                    </div>
+                    <div class="AchievementFormGroup">
+                        <label for="">Slug</label>
+                        <input type="text" id="slug-{{ achievement.id }}" value="{{ achievement.slug }}" name="slug">
+                    </div>
+                    <div class="AchievementFormGroup">
+                        <label for="">Badge id</label>
+                        <input type="text" id="" value="{{ achievement.badge_id }}">
+                    </div>
                 </div>
-            </div>
-            <div class="AchievementFormBlock">
-                <div class="AchievementFormGroup">
-                    <figure class="AchievementFormFigure">
-                        <img src="" alt="" class="AchievementFormImg">
-                    </figure>
-                    <label for="">Image</label>
-                    <input type="file" id="" name="badge_img" value="{{ achievement.badge_img.file }}">
+                <div class="AchievementForm-Controls">
+                    <button class="Btn Btn_primary save-achievement-click" data-form-id="{{ achievement.id }}">Save</button>
+                    <button class="Btn Btn_info cancel-achievement-click">Cancel</button>
                 </div>
-                <div class="AchievementFormGroup">
-                    <label for="">Slug</label>
-                    <input type="text" id="slug-{{ achievement.id }}" value="{{ achievement.slug }}" name="slug">
-                </div>
-                <div class="AchievementFormGroup">
-                    <label for="">Badge id</label>
-                    <input type="text" id="" value="{{ achievement.badge_id }}">
-                </div>
-            </div>
-            <script>
+                <script>
                 $("#slug-{{ achievement.id }}").off('change keyup keydown');
                 $("#title-{{ achievement.id }}").on('change keyup keydown', function() {
                     $("#slug-{{ achievement.id }}").val(
@@ -69,7 +83,7 @@
                     );
                 });
             </script>
-            <button class="save-achievement-click" data-form-id="{{ achievement.id }}">Save</button>
+            </div>
         </form>
     </div>
     {% endfor %}
@@ -138,6 +152,53 @@
                 })
             }
         })
-    })
+    });
+
+    $('.cancel-achievement-click').on('click', function(event) {
+      event.preventDefault();
+      const item = $(this).parents('.AchievementForm');
+      item.slideUp();
+    });
+
+    $('.edit-achievement-click').on('click', function(event) {
+      event.preventDefault();
+      const item = $(this).parents('.Achievement-Info').next('.AchievementForm');
+      const itemOther = $('.edit-achievement-click').not($(this)).parents('.Achievement-Info').next('.AchievementForm');
+      itemOther.slideUp();
+      item.slideToggle();
+    });
+
+    const inputs = document.querySelectorAll('.FileInput');
+    for (let i = 0, len = inputs.length; i < len; i++) {
+      customInput(inputs[i])
+    }
+
+    function customInput (el) {
+      const fileInput = el.querySelector('[type="file"]');
+      const label = el.querySelector('[data-js-label]');
+
+      fileInput.onchange = fileInput.onmouseout = function () {
+        if (!fileInput.value) return;
+
+        const value = fileInput.value.replace(/^.*[\\\/]/, '');
+        label.innerText = value;
+      }
+    }
+
+    $('.image-upload').change((e) => {
+        let reader = new FileReader();
+        let img;
+        let input = $(e.target).get(0);
+        if (input.files.length) {
+            img = input.files[0];
+        }
+        reader.onload = function (event) {
+            $(e.target).parent().parent().parent().find('figure').css('background-image', "url(" + event.target.result + ")");
+        }
+        if (img) {
+            reader.readAsDataURL(img);
+        };
+
+    });
+
 </script>
-    
