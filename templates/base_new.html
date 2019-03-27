@@ -78,10 +78,7 @@ var chartTitleStyles = {
     fontSize: '18px',
     textTransform: 'uppercase',
     fontFamily: 'Exo2',
-    width: '100%',
-    borderBottom: '2px solid rgba(#3caada, .3)',
-    display: 'block',
-    fontWeight: 'bold',
+    fontWeight: 600,
 };
 
 var chartSubtitleStyles = {
@@ -89,7 +86,7 @@ var chartSubtitleStyles = {
   fontSize: '16px',
   lineHeight: '20px',
   fontFamily: 'Exo2',
-  fontWeight: 'bold',
+  fontWeight: 300,
 };
 
 var chartTitleOptions = {
@@ -109,7 +106,14 @@ var chartTitleOptions = {
             }
         }
     }
-}
+};
+
+var yAxisOptions = {
+  gridLineColor: '#6c6d6e',
+  gridLineDashStyle: 'dash',
+  lineColor: '#aaa',
+  lineWidth: 1,
+};
 
 $(function() {
     $.get(
@@ -270,27 +274,30 @@ $(function() {
                             align: 'left',
                             widthAdjust: 0,
                             x: -5,
+                            y: 47,
                             style: chartSubtitleStyles,
                         },
                         navigation: chartTitleOptions,
                         xAxis: {
-                        categories: [''],
+                            categories: [''],
                             title: {
                                 text: null
-                            }
+                            },
+                            tickWidth: 0,
+                            lineColor: '#aaa',
                         },
                         yAxis: {
                             min: min_value,
                             max: max_value,
                             title: {
-                                text: 'Points',
-                                align: 'high'
+                              enabled: null,
                             },
                             labels: {
                                 overflow: 'justify'
                             },
                             plotLines: status_lines,
                         },
+                        yAxis: yAxisOptions,
                         tooltip: {
                             shared: true,
                             useHTML: true,
@@ -310,12 +317,39 @@ $(function() {
                         plotOptions: {
                             bar: {
                                 dataLabels: {
-                                    enabled: true
+                                    enabled: true,
+                                    style: {
+                                        fill: 'transparent'
+                                    }
                                 }
+                            },
+                          series: {
+                            borderColor: '#aaa',
+                            borderRadius: 3,
+                            dataLabels: {
+                              enabled: true,
+                              color: '#fafafa',
+                              style: {
+                                fontWeight: 'bold',
+                                textOutline: 'none',
+                                fontFamily: 'Exo2',
+                              }
                             }
+                          }
                         },
                         credits: {
                             enabled: false
+                        },
+                        legend: {
+                          itemStyle: {
+                            color: '#bcbcbc',
+                            fontWeight: 'bold',
+                            fontSize: '12px',
+                            textTransform: 'uppercase'
+                          },
+                          itemHoverStyle: {
+                            color: '#aaa'
+                          }
                         },
                         series: [{
                             name: 'Progress',
