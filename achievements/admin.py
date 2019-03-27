@@ -57,5 +57,5 @@ class EventAdmin(admin.ModelAdmin):
 admin.site.register(Achievement, AchievementAdmin)
 admin.site.register(StatusBadge, StatusBadgeAdmin)
 # admin.site.register(UserAchievement, admin.ModelAdmin)
-# admin.site.register(UserStatus, admin.ModelAdmin)
+admin.site.register(UserStatus, admin.ModelAdmin)
 admin.site.register(Event, EventAdmin)

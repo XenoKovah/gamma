@@ -324,11 +324,14 @@ class BadgesView(APIView):
                 )
             ) if rule else False
 
+            sql_achievement = Achievement.objects.filter(slug=badge.get("slug")).first()
+            achievement_url = sql_achievement.badge_img.url if sql_achievement else ''
             c_badges().update(
                 {"user_id": user.id},
                 {
                     "$set": {
-                        "badges.{}.done".format(badge.get("slug")): done
+                        "badges.{}.done".format(badge.get("slug")): done,
+                        "badges.{}.url".format(badge.get("slug")): achievement_url
                     }
                 },
             )
