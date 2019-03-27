@@ -1,0 +1,169 @@
+.LeaderboardModal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(#000, .9);
+    z-index: 100;
+}
+
+.LeaderboardModalWrapper {
+    max-width: 945px;
+    position: absolute;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    color: #bcbcbc;
+}
+
+.LeaderboardModal-Close {
+    display: inline-block;
+    border: none;
+    background: url(../images/close.svg) no-repeat center center;
+    width: 18px;
+    height: 18px;
+    position: absolute;
+    right: -25px;
+    top: -10px;
+    transition: opacity .15s linear;
+    
+    &:hover {
+        cursor: pointer;
+        opacity: .8;
+    }
+}
+
+.LeaderboardTableHead {
+    background: #495860;
+    padding: 10px;
+    border-radius: 20px 20px 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1px;
+}
+
+.LeaderboardTableHead-Item {
+    width: calc((100% - 185px) / 2);
+    text-align: center;
+    color: #3caada;
+    font-weight: 600;
+    text-transform: uppercase;
+    padding: 10px 0;
+
+    &:nth-child(2) {
+        border-left: 2px solid #6d89a3;
+        border-right: 2px solid #6d89a3;
+        width: 185px;
+    }
+}
+
+.LeaderboardTableRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.LeaderboardTableWrapper {
+    background: #383838;
+    margin: 1px;
+    width: calc((100% - 185px) / 2);
+    box-sizing: border-box;
+    height: 55px;
+    display: flex;
+    align-items: center;
+    color: #bcbcbc;
+
+    &:first-child {
+        margin-left: 0;
+    }
+
+    &:nth-child(2) {
+        width: 185px;
+    }
+
+    &:last-child {
+        margin-right: 0;
+    }
+}
+
+.LeaderboardTableWrapper_center {
+    justify-content: center;
+}
+
+.LeaderboardPersonFigure {
+    width: 55px;
+    height: 100%;
+    margin: 0 15px 0 0;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+}
+
+.LeaderboardPerson-Name {
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.LeaderboardPerson-Profession {
+    font-weight: 300;
+    font-size: 13px;
+}
+
+.LeaderboardProgressWrapper {
+    display: block;
+    width: 134px;
+    height: 8px;
+    background: #737373;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.LeaderboardProgress-Status {
+    display: inline-block;
+    vertical-align: top;
+    height: 8px;
+    border-radius: 5px;
+    background: #f65454;
+
+    @each $status, $color in $status-colors {
+        &_#{$status} {
+            background: $color;
+        }
+    }
+}
+
+.LeaderboardBadges {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.LeaderboardBadges-Item {
+    display: block;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    box-sizing: border-box;
+    margin: 0 2px;
+}
+
+.LeaderboardBadges-Icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    box-sizing: border-box;
+    margin: 0 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #439c4d;
+    padding: 4px;
+    background: #383838;
+
+    svg {
+        fill: #439c4d;
+    }
+}

@@ -28,6 +28,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en">
 <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 <link rel="stylesheet" href='{% static "core/css/styles.css" %}'>
+<link rel="stylesheet" href='{% static "core/css/admin-stylesheet.css" %}'>
 <script src='{% static "core/js/js__dWB41HViTcqoYHrbrlBHs8x9iwtFdMHpl7ME-vPjr-A__NWoPag4uXKyT6_Yl3mBIlBu2NM9SS7TGFi_DDxnFOu0__H2javRi7GByYgyBbWuhhlF2IboDJydSu2R7988DMr9o.js.download" %}'></script>
 <script src='{% static "core/js/js__TDgxF1cLtlEgJnxGz_Vfa0z9L6pO8BVaFRTBRMo4B9o__3x9wAG-AKurEnteWUei7ny_M447SMDrRLnOvUNZJyGU__H2javRi7GByYgyBbWuhhlF2IboDJydSu2R7988DMr9o.js.download" %}'></script>
 <script src='{% static "core/js/js__BHZM8xdf9Btwi-s2HhpgWwqZ7rGPCxydbTlaYzsd1uk__STpm-ylzSJ4m_imM65CnK6dyekUV2LPygsApFdNAjAE__H2javRi7GByYgyBbWuhhlF2IboDJydSu2R7988DMr9o.js.download" %}'></script>
@@ -379,7 +380,7 @@ $(function () {
     <div class="container logo-container header-navbar">
     <ul class="menu global-nav pull-right">
             <li class="last leaf"><a href="/">{% trans "Dashboard" %}</a></li>
-        <li class="last leaf"><a href="/leaderboard/">{% trans "Leaderboard" %}</a></li>
+        <li class="last leaf"><a href="#leaderboard">{% trans "Leaderboard" %}</a></li>
         <li class="last leaf"><a href="/badges/">{% trans "Badges" %}</a></li>
         {% if not user.is_authenticated %}
         <li class="last leaf"><a href=admin/login>{% trans "Login" %}</a></li>
@@ -402,5 +403,6 @@ $(function () {
     <div id="root"> </div>
     {% block content %}{% endblock %}
 </div>
+<script src="{% static 'core/js/bundle.js' %}"></script>
 <noscript>&lt;style type="text/css" media="all"&gt;img[data-src] { display: none !important; }&lt;/style&gt;</noscript>
 </body></html>

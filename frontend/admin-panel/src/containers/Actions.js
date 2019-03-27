@@ -22,7 +22,7 @@ export default class Actions extends React.Component {
     }
 
     getActions() {
-        fetch('http://localhost:9000/api/v0/actions/')
+        fetch('/api/v0/actions/')
         .then(resp => resp.json())
         .then(result => {
             let actions = result.map((el) => {

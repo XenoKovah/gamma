@@ -35,7 +35,7 @@ def check_user_achievements(user_id, log_event):
     user = User.objects.get(id=user_id)
     rules_set = conn.collection.find(
         {
-            "rules.actions.{}".format(log_event.event_type): {"$exists": True},
+            "rules.actions.{}".format(log_event): {"$exists": True},
             "active": True
         }
     )
@@ -54,7 +54,7 @@ def check_user_achievements(user_id, log_event):
             try:
                 delta = timedelta(frequency)
                 document = conn.collection.find_one({"_id": rules["_id"]})
-                last = document.get('users', {}).get(str(user.id), {}).get(log_event.event_type, {}).get('last')
+                last = document.get('users', {}).get(str(user.id), {}).get(log_event, {}).get('last')
                 if datetime.now() - last > delta:
                     continue
             except Exception:
@@ -69,13 +69,13 @@ def check_user_achievements(user_id, log_event):
                     "_id": rules["_id"]
                 },
                 {
-                    "$inc": {"users.{}.{}.count".format(user.id, log_event.event_type): 1},
+                    "$inc": {"users.{}.{}.count".format(user.id, log_event): 1},
                     "$set": {
-                        "users.{}.{}.last".format(user.id, log_event.event_type): datetime.now(),
+                        "users.{}.{}.last".format(user.id, log_event): datetime.now(),
                         # TODO change the logic when we update goal
                         "users.{}.{}.goal".format(
-                            user.id, log_event.event_type): rules.get(
-                                'rules', {}).get('actions', {}).get(log_event.event_type)
+                            user.id, log_event): rules.get(
+                                'rules', {}).get('actions', {}).get(log_event)
                     }
                 },
                 upsert=True

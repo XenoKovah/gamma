@@ -48,7 +48,7 @@ export default class Filter extends React.Component {
     }
 
     getCourses() {
-        fetch('http://localhost:9000' + COURSES)
+        fetch(COURSES)
         .then(resp => resp.json())
         .then(result => {
             this.setState({
@@ -124,7 +124,7 @@ export default class Filter extends React.Component {
     }
 
     getOrganisations() {
-        fetch('http://localhost:9000' + ORGANISATIONS)
+        fetch(ORGANISATIONS)
         .then(resp => resp.json())
         .then(result => {
             this.setState({

@@ -1,6 +1,8 @@
 import logging
 from datetime import datetime, timedelta
 
+import os
+
 import pymongo
 from pymongo import MongoClient
 from django.contrib.auth.models import User
@@ -167,7 +169,7 @@ class GameProfileView(APIView):
         """
         Simply retrieve user GameProfile data.
         """
-        user = User.objects.filter(username=request.data.get('username')).first()
+        user = User.objects.filter(username=request.GET.get('username')).first()
         if not user:
             return Response(
                 {"Error": "User not found"},
@@ -336,8 +338,8 @@ class BadgesView(APIView):
             api_name='Badges'
         )
         log_api_access.save()
-
-        return Response(c_badges().find_one({"user_id": user.id}, {"_id": 0}).get('badges'))
+        res = c_badges().find_one({"user_id": user.id}, {"_id": 0})
+        return Response(res.get('badges') if res else {})
 
 
 class UserStatuses(APIView):
@@ -468,7 +470,6 @@ class BadgeRuleView(APIView):
     
     def put(self, request, *args, **kwargs):
         slug = request.data.pop('slug')
-        print(request.data)
         if slug:
             self.conn.collection.update({'slug': slug}, {"$set": {'rules': request.data}}, upsert=True)
             return Response({}, status=200)
@@ -529,3 +530,29 @@ class AchievementsView(APIView):
         slug = request.data.get('slug')
         Achievement.objects.get(slug=slug).delete()
         return Response({}, status=200)
+
+
+class LeaderBoardView(APIView):
+
+    def get(self, request):
+        top = [
+            _id
+            for i in GameProfile.objects.order_by('-points')[:100].values_list('id')
+            for _id in i
+        ]
+        try:
+            rank = top.index(request.user.gameprofile.id) + 1
+        except (ValueError, AttributeError):
+            rank = None
+        # For now just find all images from the /media/media/ folder and return them
+        badge_list = []
+        for _ in os.walk(os.path.join(settings.MEDIA_ROOT, 'media')):
+            if _[-1]:
+                for img in _[-1]:
+                    badge_list.append(os.path.join('/', 'media', 'media', img))
+        gameprofiles = GameProfile.objects.order_by('-points')
+        return Response({
+            'gameprofiles': GameProfileSerializer(gameprofiles, many=True).data,
+            'rank': rank,
+            'badges': badge_list[:10]
+        }, status=200, content_type='application/json')
