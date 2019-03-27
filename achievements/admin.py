@@ -22,7 +22,7 @@ class AchievementAdmin(admin.ModelAdmin):
     )
     prepopulated_fields = {"slug": ("title",)}
     def get_badge_edit_url(self, obj):
-        return format_html('<a href="#/{}" class="js-no-click">Edit rules</a>', obj.slug)
+        return format_html('<a href="#/edit-rules/{}" class="js-no-click">Edit rules</a>', obj.slug)
     
     class Media:
         css = {

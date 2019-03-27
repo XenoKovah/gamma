@@ -17,7 +17,8 @@ from .views import (
     BadgeRuleView,
     CoursesView,
     OrganizationsView,
-    AchievementsView
+    AchievementsView,
+    LeaderBoardView
 )
 
 
@@ -38,4 +39,5 @@ urlpatterns = [
     path(r'courses/', CoursesView.as_view(), name='courses'),
     path(r'organizations/', OrganizationsView.as_view(), name='organizations'),
     path(r'achievements/', AchievementsView.as_view(), name='achievements'),
+    path(r'leaderboard/', LeaderBoardView.as_view(), name='leaderboard'),
 ]

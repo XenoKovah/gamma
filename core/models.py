@@ -13,8 +13,10 @@ class GameProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     open_badges_id = models.CharField(max_length=128, blank=True)
     points = models.IntegerField(default=0)
+    avatar = models.ImageField(upload_to="avatar", null=True, blank=True)
+    position = models.CharField(max_length=255, blank=True)
 
-
+ 
 class AppClient(models.Model):
     """
     Client application models to hold KEY and SECRET.

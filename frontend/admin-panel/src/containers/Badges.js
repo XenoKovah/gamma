@@ -14,7 +14,7 @@ export default class Badges extends React.Component {
     }
 
     getBadges() {
-        fetch('http://localhost:9000/api/v0/statuses')
+        fetch('/api/v0/statuses/')
         .then(result => result.json())
         .then((result)=>{
             console.log(result);

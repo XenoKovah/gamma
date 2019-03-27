@@ -1,8 +1,17 @@
+import random
 from rest_framework import serializers
 
 from core.models import GameProfile
 from achievements.models import Achievement, Event, StatusBadge
 from pointlog.models import LoggedEvent, ApiAccessEvent
+from django.contrib.auth.models import User
+
+
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ('username', 'email')
 
 
 class EventSerializer(serializers.ModelSerializer):
@@ -14,9 +23,22 @@ class GameProfileSerializer(serializers.ModelSerializer):
     """
     GameProfile Model Serializer.
     """
+    user = serializers.SerializerMethodField()
+    progress = serializers.SerializerMethodField()
+    goal = serializers.SerializerMethodField()
+
     class Meta:
         model = GameProfile
-        fields = ('points',)
+        fields = ('points', 'user', 'progress', 'goal', 'avatar', 'position')
+    
+    def get_user(self, obj):
+        return UserSerializer(obj.user).data
+    
+    def get_progress(self, obj):
+        return random.randint(0,50)
+    
+    def get_goal(self, obj):
+        return 100
 
 
 class ProgressSerializer(serializers.Serializer):
