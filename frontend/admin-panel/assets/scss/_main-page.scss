@@ -1,0 +1,168 @@
+.main-page {
+    background: transparent url(../images/main-background.jpg) no-repeat center top;
+    background-size: cover;
+
+    .header-nav-wrap {
+        background: #232323;
+        padding: 20px;
+    }
+
+    .global-nav {
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+}
+
+.main-footer {
+    height: 200px;
+    background: $base-color;
+    margin-top: 50px;
+}
+
+.highcharts-background {
+    fill: transparent;
+}
+
+.highcharts-contextbutton:hover {
+    cursor: pointer;
+    opacity: .8;
+}
+
+.highcharts-credits {
+    display: none !important;
+}
+
+.ChartHolder {
+    max-width:1165px;
+    margin:70px auto 0;
+    padding: 0 15px;
+    color: #bcbcbc;
+}
+
+.ChartHolderRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+
+.ChartBlock {
+    width: calc(50% - 1px);
+    min-height: 400px;
+    margin-bottom: 2px;
+    background: rgba(#fff, .1);
+    padding: 15px;
+    box-sizing: border-box;
+    position: relative;
+
+    &:before {
+        content: '';
+        display: block;
+        width: calc(100% - 40px);
+        height: 2px;
+        background: rgba($base-color, .3);
+        position: absolute;
+        left: 20px;
+        top: 45px;
+    }
+
+    .ChartBlock + & {
+        margin-left: 2px;
+    }
+}
+
+.ChartBlock_first {
+    border-radius: 20px 0 0 0;
+}
+
+.ChartBlock_second {
+    border-radius: 0 20px 0 0;
+}
+
+.ChartBlock_last {
+    border-radius: 0 0 20px 20px;
+}
+
+.ChartBlock_full {
+    width: 100%;
+    margin-left: 0;
+}
+
+.ChartBlockHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+
+.ChartBlockHeader {
+    margin: 5px;
+}
+
+.ChartBlock-Title,
+.ChartBlock-Status {
+    color: $base-color-light;
+    font-size: 18px;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 6px;
+    line-height: normal;
+}
+
+.ChartBlock-Status {
+    font-size: 16px;
+    text-transform: none;
+}
+
+.ChartBlock-Description {
+    color: #bcbcbc;
+    font-size: 16px;
+    font-weight: 300;
+    margin-top: 20px;
+}
+
+.BadgesList {
+    display: flex;
+    justify-content: space-around;
+    flex: 0 0 115px;
+    margin-top: 40px;
+}
+
+.BadgeItem {
+    text-align: center;
+}
+
+.BadgeItem-Name {
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    color: #bcbcbc;
+}
+
+.BadgeItemFigure {
+    width: 112px;
+    height: 112px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5%;
+    border: 3px solid #439c4d;
+    margin: 0 0 10px;
+}
+
+.BadgeItemFigure_disable {
+    -webkit-filter: grayscale(1);
+    filter: grayscale(1);
+}
+
+.BadgeItemFigure-Image {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.ChartControls {
+    text-align: center;
+    margin-top: 30px;
+}

@@ -22,7 +22,7 @@ html, body {
     margin: 0 auto;
 
     > h1 {
-        color: #3caada;
+        color: $base-color-light;
         font-size: 20px;
         line-height: normal;
         font-weight: 600;
@@ -32,7 +32,7 @@ html, body {
 
     .object-tools a.addlink {
         font-size: 16px;
-        color: #3caada;
+        color: $base-color-light;
         background-color: transparent;
         padding: 0 0 0 18px;
         background-position: 0 center;
@@ -60,6 +60,7 @@ html, body {
 }
 
 .Btn {
+    display: inline-block;
     min-width: 84px;
     font-size: 12px;
     text-transform: uppercase;
@@ -168,6 +169,11 @@ html, body {
     &:hover {
         opacity: .8;
     }
+}
+
+.Btn_medium {
+    padding-left: 20px;
+    padding-right: 20px;
 }
 
 .module {

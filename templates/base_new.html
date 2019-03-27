@@ -39,12 +39,6 @@
 <script src="https://code.highcharts.com/modules/exporting.js"></script>
 <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
 
-<style>
-#container-chart .highcharts-subtitle {
-    font-size: 3em;
-}
-</style>
-
 <script type="text/javascript">
   $(function() {
     function inIframe() {
@@ -63,8 +57,8 @@
 <script>
 Highcharts.setOptions({
      colors: [
+         '#419e4d',
          '#4599C3',
-         '#84BD00',
          '#FFCD00',
          '#E87722',
          '#00B5E2',
@@ -78,6 +72,45 @@ Highcharts.setOptions({
         }
     }
 });
+
+var chartTitleStyles = {
+    color: '#3caada',
+    fontSize: '18px',
+    textTransform: 'uppercase',
+    fontFamily: 'Exo2',
+    width: '100%',
+    borderBottom: '2px solid rgba(#3caada, .3)',
+    display: 'block',
+    fontWeight: 'bold',
+};
+
+var chartSubtitleStyles = {
+  color: '#bcbcbc',
+  fontSize: '16px',
+  lineHeight: '20px',
+  fontFamily: 'Exo2',
+  fontWeight: 'bold',
+};
+
+var chartTitleOptions = {
+    buttonOptions: {
+        x: 5,
+        y: -5,
+        symbolStroke: '#00abd9',
+        theme: {
+            fill: 'transparent',
+            states: {
+                hover: {
+                    fill: 'transparent',
+                },
+                select: {
+                    fill: 'transparent',
+                }
+            }
+        }
+    }
+}
+
 $(function() {
     $.get(
         "/api/v0/points/",
@@ -98,15 +131,20 @@ $(function() {
                             plotShadow: false
                         },
                         title: {
-                            text: '<h1>Your Enlightenment Points</h1>',
-                            align: 'center'
+                            text: 'Achievement',
+                            align: 'left',
+                            widthAdjust: 0,
+                            x: -5,
+                            style: chartTitleStyles,
                         },
                         subtitle: {
-                            text: '<h1><b>'+points.points+'</b></h1>',
-                            verticalAlign: 'middle',
-                            align: 'center',
-                            y: 50
+                            text: 'Web accessibility testing is a subset of usability testing where the users under consideration have disabilities',
+                            align: 'left',
+                            widthAdjust: 0,
+                            x: -5,
+                            style: chartSubtitleStyles,
                         },
+                        navigation: chartTitleOptions,
                         tooltip: {
                             pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
                         },
@@ -221,11 +259,20 @@ $(function() {
                             type: 'bar'
                         },
                         title: {
-                            text: 'Points to the Next Level'
+                          text: 'Points to the next level',
+                          align: 'left',
+                          widthAdjust: 0,
+                          x: -5,
+                          style: chartTitleStyles,
                         },
                         subtitle: {
-                            text: ''
+                            text: 'Web accessibility testing is a subset of usability testing where the users under consideration have disabilities',
+                            align: 'left',
+                            widthAdjust: 0,
+                            x: -5,
+                            style: chartSubtitleStyles,
                         },
+                        navigation: chartTitleOptions,
                         xAxis: {
                         categories: [''],
                             title: {
@@ -306,8 +353,20 @@ $(function () {
                     type: 'spline'
                 },
                 title: {
-                    text: 'Your progress'
+                    text: 'Your progress',
+                    align: 'left',
+                    widthAdjust: 0,
+                    x: -5,
+                    style: chartTitleStyles,
                 },
+                subtitle: {
+                    text: 'Web accessibility testing is a subset of usability testing where the users under consideration have disabilities that affect how they use the web. The end goal, in both usability and accessibility, is to discover how easily people can use ',
+                    align: 'left',
+                    widthAdjust: 0,
+                    x: -5,
+                    style: chartSubtitleStyles,
+                },
+                navigation: chartTitleOptions,
                 xAxis: {
                     type: 'datetime',
                     dateTimeLabelFormats: {
@@ -374,7 +433,7 @@ $(function () {
 </script>
 
 </head>
-<body class="html front not-logged-in no-sidebars page-node page-node- page-node-3332104 node-type-page-landing-with-hero i18n-en   lang-en">
+<body class="html front not-logged-in no-sidebars page-node page-node- page-node-3332104 node-type-page-landing-with-hero i18n-en lang-en main-page">
     <div class="header-nav-wrap">
         
     <div class="container logo-container header-navbar">
@@ -403,6 +462,10 @@ $(function () {
     <div id="root"> </div>
     {% block content %}{% endblock %}
 </div>
+
+<footer class="main-footer">
+    <div class="container"></div>
+</footer>
 <script src="{% static 'core/js/bundle.js' %}"></script>
 <noscript>&lt;style type="text/css" media="all"&gt;img[data-src] { display: none !important; }&lt;/style&gt;</noscript>
 </body></html>
