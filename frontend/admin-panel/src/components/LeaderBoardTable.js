@@ -20,7 +20,7 @@ export default class LeaderBoardTable extends React.Component {
                                 <div className="LeaderboardTableRow" key={ind}>
                                     <div className="LeaderboardTableWrapper LeaderboardPerson">
                                         <figure className="LeaderboardPersonFigure" style={{'backgroundImage': avatarUrl}}>
-                                            <img src={profile.avatar} alt="avatar image" className="LeaderboardPerson-Photo"/>
+                                            <img src={process.env.REACT_APP_LOCALHOST + profile.avatar} alt="avatar image" className="LeaderboardPerson-Photo"/>
                                         </figure>
                                         <div className="LeaderboardInfo">
                                             <div className="LeaderboardPerson-Name">{profile.user.username}</div>
@@ -38,7 +38,7 @@ export default class LeaderBoardTable extends React.Component {
                                                 profile.badges.map((badge, ind) => {
                                                     return (
                                                         <span className="LeaderboardBadges-Icon" key={ind}>
-                                                            <img src={badge} alt="badge image" className="LeaderboardBadges-Icon"/>
+                                                            <img src={process.env.REACT_APP_LOCALHOST + badge} alt="badge image" className="LeaderboardBadges-Icon"/>
                                                         </span>
                                                     )
                                                 })

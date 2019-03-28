@@ -97,7 +97,7 @@ class App extends Component {
       rules.actions = actions;
       rules.filters = this.state.filters;
 
-      fetch(BADGE_RULES, {
+      fetch(process.env.REACT_APP_LOCALHOST + BADGE_RULES, {
         method: 'PUT',
         headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken')},
         body: JSON.stringify({slug: this.slug, ...rules},

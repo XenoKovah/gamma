@@ -179,7 +179,7 @@ $(function() {
                     $('#badge-count').text(Object.keys(data).length);
                     for (let i=0; i<3;i++) {
                         let key = Object.keys(data)[i];
-                        if (data[key].done == true) {
+                        if (data[key].done) {
                             $('#container-badges').append(
                                 `<div class="BadgeItem">
                                     <div class="BadgeItemFigure">

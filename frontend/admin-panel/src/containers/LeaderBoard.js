@@ -12,8 +12,6 @@ export default class LeaderBoard extends React.Component {
     constructor(props) {
         super(props);
 
-        this.handleClose = this.handleClose.bind(this);
-
         this.state = {
             open: true,
             gameProfiles: [],
@@ -21,12 +19,8 @@ export default class LeaderBoard extends React.Component {
         }
     }
 
-    handleClose() {
-        this.props.history.push("/");
-    }
-
     componentDidMount() {
-        fetch(LEADERBOARD)
+        fetch(process.env.REACT_APP_LOCALHOST + LEADERBOARD)
         .then(response => {
             return response.json()
         })
@@ -41,7 +35,7 @@ export default class LeaderBoard extends React.Component {
 
     render() {
         return (
-            <LeaderboardModal handleClose={this.handleClose}>
+            <LeaderboardModal history={this.props.history}>
                 <LeaderboardTable gameProfiles={this.state.gameProfiles}/>
             </LeaderboardModal>
         )
