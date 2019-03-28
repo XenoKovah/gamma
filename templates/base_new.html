@@ -108,6 +108,18 @@ var chartTitleOptions = {
     }
 };
 
+var legendOptions = {
+  itemStyle: {
+    color: '#bcbcbc',
+      fontWeight: 'bold',
+      fontSize: '12px',
+      textTransform: 'uppercase'
+  },
+  itemHoverStyle: {
+    color: '#aaa'
+  }
+};
+
 
 $(function() {
     $.get(
@@ -133,13 +145,15 @@ $(function() {
                             align: 'left',
                             widthAdjust: 0,
                             x: -5,
+                            margin: 50,
                             style: chartTitleStyles,
                         },
                         subtitle: {
                             text: 'Here you can see what actions caused your current points portfolio',
                             align: 'left',
-                            widthAdjust: 0,
+                            widthAdjust: -5,
                             x: -5,
+                            y: 55,
                             style: chartSubtitleStyles,
                         },
                         navigation: chartTitleOptions,
@@ -161,8 +175,9 @@ $(function() {
                                 endAngle: 90,
                                 center: ['50%', '75%'],
                                 showInLegend: true
-                            }
+                            },
                         },
+                        legend: legendOptions,
                         series: [{
                             type: 'pie',
                             name: 'Points share',
@@ -237,7 +252,7 @@ $(function() {
                           dashStyle: 'longdashdot',
                           value: data[i].status_points,
                           width: 1,
-                          label: {text: data[i].title, rotation: 0}
+                          label: {text: data[i].title, rotation: 0, x: -15, y: -10, style: {color: '#bcbcbc',fontFamily: 'Exo2'}}
                         });
                     }
                     if (left.length == 0) {
@@ -265,14 +280,15 @@ $(function() {
                           align: 'left',
                           widthAdjust: 0,
                           x: -5,
+                          margin: 50,
                           style: chartTitleStyles,
                         },
                         subtitle: {
                             text: 'Here you can track your status progress: see how many points you have so far and how much is left for each status',
                             align: 'left',
-                            widthAdjust: 0,
+                            widthAdjust: -6,
                             x: -5,
-                            y: 47,
+                            y: 55,
                             style: chartSubtitleStyles,
                         },
                         navigation: chartTitleOptions,
@@ -288,7 +304,7 @@ $(function() {
                             min: min_value,
                             max: max_value,
                             title: {
-                              enabled: null,
+                              text: null,
                             },
                             labels: {
                                 overflow: 'justify'
@@ -341,20 +357,21 @@ $(function() {
                         credits: {
                             enabled: false
                         },
-                        legend: {
-                          itemStyle: {
-                            color: '#bcbcbc',
-                            fontWeight: 'bold',
-                            fontSize: '12px',
-                            textTransform: 'uppercase'
-                          },
-                          itemHoverStyle: {
-                            color: '#aaa'
-                          }
-                        },
+                        legend: legendOptions,
                         series: [{
                             name: 'Progress',
-                            data: [points.points]
+                            data: [points.points],
+                            borderColor: '#aaa',
+                            borderRadius: 3,
+                            dataLabels: {
+                                enabled: true,
+                                color: '#fafafa',
+                                style: {
+                                    fontWeight: 'bold',
+                                    textOutline: 'none',
+                                    fontFamily: 'Exo2',
+                                }
+                            }
                         }]
                     });
                 }
@@ -392,13 +409,15 @@ $(function () {
                     align: 'left',
                     widthAdjust: 0,
                     x: -5,
+                    margin: 50,
                     style: chartTitleStyles,
                 },
                 subtitle: {
                     text: 'See the dynamics of your activities and points acquisition through time  ',
                     align: 'left',
-                    widthAdjust: 0,
+                    widthAdjust: -5,
                     x: -5,
+                    y: 55,
                     style: chartSubtitleStyles,
                 },
                 navigation: chartTitleOptions,
@@ -409,7 +428,15 @@ $(function () {
                         year: '%b'
                     },
                     title: {
-                        text: 'Date'
+                        text: null
+                    },
+                    tickWidth: 0,
+                    lineColor: '#aaa',
+                    labels: {
+                        style: {
+                            color: '#bcbcbc',
+                            textTransform: 'uppercase'
+                        }
                     }
                 },
                 yAxis: [{
@@ -422,7 +449,11 @@ $(function () {
                         y: 16,
                         format: '{value:.,0f}'
                     },
-                    showFirstLabel: false
+                    showFirstLabel: false,
+                    gridLineColor: '#6c6d6e',
+                    gridLineDashStyle: 'dash',
+                    lineColor: '#aaa',
+                    lineWidth: 1,
                 }, {
                     gridLineWidth: 0,
                     opposite: true,
@@ -449,17 +480,39 @@ $(function () {
                          }
                      }
                 },
-
+                legend: legendOptions,
                 series: [{
                     name: 'Points',
                     type: 'column',
-                    data: points_by_day
+                    data: points_by_day,
+                    borderColor: '#aaa',
+                    borderRadius: 3,
+                    dataLabels: {
+                        enabled: true,
+                        color: '#fafafa',
+                        style: {
+                            fontWeight: 'bold',
+                            textOutline: 'none',
+                            fontFamily: 'Exo2',
+                        }
+                    }
                 },
                 {
                     name: 'Progress',
                     type: 'area',
                     yAxis: 1,
-                    data: accumulative_data
+                    data: accumulative_data,
+                    borderColor: '#aaa',
+                    borderRadius: 3,
+                    dataLabels: {
+                        enabled: true,
+                        color: '#fafafa',
+                        style: {
+                            fontWeight: 'bold',
+                            textOutline: 'none',
+                            fontFamily: 'Exo2',
+                        }
+                    }
                 }]
             });
         }

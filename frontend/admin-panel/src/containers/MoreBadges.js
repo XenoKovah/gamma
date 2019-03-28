@@ -28,13 +28,13 @@ export default class MoreBadges extends React.Component {
 
     render() {
         return this.state.badges ? (
-            <LeaderBoardModal history={this.props.history}>
+            <LeaderBoardModal history={this.props.history} assistentClass={true} >
                 {
                     Object.keys(this.state.badges).map((badge, ind) => {
                         let badgeItemClass = !this.state.badges[badge].done ? 
                             'BadgeItemFigure BadgeItemFigure_disable' : 'BadgeItemFigure';
                         return (
-                            <div className="BadgeItem" key={ind}>
+                            <div className="BadgeItem BadgeItem_center" key={ind}>
                                 <div className={badgeItemClass}>
                                     <img src={process.env.REACT_APP_LOCALHOST + this.state.badges[badge].url} alt="" className="BadgeItemFigure-Image" />
                                 </div>

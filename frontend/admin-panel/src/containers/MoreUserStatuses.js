@@ -28,12 +28,12 @@ export default class MoreBadges extends React.Component {
 
     render() {
         return this.state.userStatuses ? (
-            <LeaderBoardModal history={this.props.history}>
+            <LeaderBoardModal history={this.props.history} assistentClass={true}>
                 {
                     this.state.userStatuses.map((status, ind) => {
                         let imageSrc = status.url.startsWith('http') ? status.url : process.env.REACT_APP_LOCALHOST + status.url;
                         return (
-                            <div className="BadgeItem" key={ind}>
+                            <div className="BadgeItem BadgeItem_center" key={ind}>
                                 <div className="BadgeItemFigure">
                                     <img src={imageSrc} alt="" className="BadgeItemFigure-Image" />
                                 </div>
