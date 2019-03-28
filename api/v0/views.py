@@ -547,15 +547,8 @@ class LeaderBoardView(APIView):
             rank = top.index(request.user.gameprofile.id) + 1
         except (ValueError, AttributeError):
             rank = None
-        # For now just find all images from the /media/media/ folder and return them
-        badge_list = []
-        for _ in os.walk(os.path.join(settings.MEDIA_ROOT, 'media')):
-            if _[-1]:
-                for img in _[-1]:
-                    badge_list.append(os.path.join('/', 'media', 'media', img))
         gameprofiles = GameProfile.objects.order_by('-points')
         return Response({
             'gameprofiles': GameProfileSerializer(gameprofiles, many=True).data,
-            'rank': rank,
-            'badges': badge_list[:10]
+            'rank': rank
         }, status=200, content_type='application/json')

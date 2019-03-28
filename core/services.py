@@ -89,7 +89,7 @@ class MongoConnector(Singleton):
         try:
             progress_data = collection.find(
                 {"username": user.username}, {"date": 1, "points": 1, "_id": 0}
-            ).sort("date", pymongo.DESCENDING).limit(7)
+            ).sort("date", pymongo.DESCENDING).limit(250)
             return progress_data
         except Exception as e:
             logger.debug('MongoDB Exception: {0}::user=>{1}'.format(

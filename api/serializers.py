@@ -5,6 +5,7 @@ from core.models import GameProfile
 from achievements.models import Achievement, Event, StatusBadge
 from pointlog.models import LoggedEvent, ApiAccessEvent
 from django.contrib.auth.models import User
+from core.mongo import c_badges
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -26,10 +27,11 @@ class GameProfileSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
     progress = serializers.SerializerMethodField()
     goal = serializers.SerializerMethodField()
+    badges = serializers.SerializerMethodField()
 
     class Meta:
         model = GameProfile
-        fields = ('points', 'user', 'progress', 'goal', 'avatar', 'position')
+        fields = ('points', 'user', 'progress', 'goal', 'avatar', 'position', 'badges')
     
     def get_user(self, obj):
         return UserSerializer(obj.user).data
@@ -39,6 +41,11 @@ class GameProfileSerializer(serializers.ModelSerializer):
     
     def get_goal(self, obj):
         return 100
+    
+    def get_badges(self, obj):
+        user_badges = c_badges().find_one({"user_id": obj.user.id})
+        return [user_badges.get('badges')[badge].get('url') for
+            badge in user_badges.get('badges') if user_badges.get('badges')[badge].get('done')]
 
 
 class ProgressSerializer(serializers.Serializer):
