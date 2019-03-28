@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import { BADGE_RULES } from './api/Api';
+import { BADGE_RULES, getRules } from './api/Api';
 
 import './App.css';
 
@@ -12,7 +12,6 @@ import Actions from './containers/Actions';
 import FilterContainer from './containers/FilterContainer';
 import Rules from './containers/Rules';
 import { getCookie, isObjectEmpty} from './Utils';
-import {getRules} from './api/Api';
 
 
 
