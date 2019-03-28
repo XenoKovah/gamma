@@ -18,6 +18,16 @@
     color: #bcbcbc;
 }
 
+.LeaderboardModalWrapper_collection {
+    border: 2px solid #383838;
+    padding: 10px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
 .LeaderboardModal-Close {
     display: inline-block;
     border: none;
@@ -159,8 +169,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 2px solid #439c4d;
-    padding: 4px;
     background: #383838;
 
     svg {

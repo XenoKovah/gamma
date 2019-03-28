@@ -132,6 +132,14 @@
     text-align: center;
 }
 
+.BadgeItem_center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    margin: 0 20px 15px;
+}
+
 .BadgeItem-Name {
     font-weight: 700;
     font-size: 12px;
@@ -146,8 +154,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 5%;
-    border: 3px solid #439c4d;
     margin: 0 0 10px;
 }
 
@@ -158,8 +164,8 @@
 
 .BadgeItemFigure-Image {
     display: block;
-    max-width: 85%;
-    max-height: 85%;
+    max-width: 100%;
+    max-height: 100%;
 }
 
 .ChartControls {
