@@ -15,7 +15,6 @@ export default class LeaderBoard extends React.Component {
             open: true,
             gameProfiles: [],
             rank: 0,
-            badges: []
         }
     }
 
@@ -72,7 +71,7 @@ export default class LeaderBoard extends React.Component {
                                                 <div className="LeaderboardTableWrapper LeaderboardTableWrapper_center">
                                                     <div className="LeaderboardBadges">
                                                         {
-                                                            this.state.badges.map((badge, ind) => {
+                                                            profile.badges.map((badge, ind) => {
                                                                 return (
                                                                     <span className="LeaderboardBadges-Icon" key={ind}>
                                                                         <img src={badge} alt="badge image" className="LeaderboardBadges-Icon"/>

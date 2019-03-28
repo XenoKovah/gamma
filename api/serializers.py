@@ -43,9 +43,9 @@ class GameProfileSerializer(serializers.ModelSerializer):
         return 100
     
     def get_badges(self, obj):
-        user_badges = c_badges().find_one({"user_id": obj.user.id})
-        return [user_badges.get('badges')[badge].get('url') for
-            badge in user_badges.get('badges') if user_badges.get('badges')[badge].get('done')]
+        user_badges = c_badges().find_one({"user_id": obj.user.id}) or {}
+        return [user_badges.get('badges', {}).get(badge, {}).get('url') for
+            badge in user_badges.get('badges', {}) if user_badges.get('badges', {}).get(badge, {}).get('done')]
 
 
 class ProgressSerializer(serializers.Serializer):

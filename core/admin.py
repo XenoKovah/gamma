@@ -9,6 +9,7 @@ class GameProfileInline(admin.StackedInline):
     model = GameProfile
     can_delete = False
     verbose_name_plural = 'GameProfile'
+    fields = ['open_badges_id', 'points', 'avatar', 'position', 'id']
 
 
 class UserAdmin(BaseUserAdmin):
@@ -22,3 +23,4 @@ class AppClientAdmin(admin.ModelAdmin):
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
 admin.site.register(AppClient, AppClientAdmin)
+admin.site.register(GameProfile)
