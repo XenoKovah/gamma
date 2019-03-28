@@ -474,7 +474,7 @@ class BadgeRuleView(APIView):
     def put(self, request, *args, **kwargs):
         slug = request.data.pop('slug')
         if slug:
-            self.conn.collection.update({'slug': slug}, {"$set": {'rules': request.data}}, upsert=True)
+            self.conn.collection.update({'slug': slug}, {"$set": {'rules': request.data, 'active': True}}, upsert=True)
             return Response({}, status=200)
         return Response({'message': 'Something went wrong'}, status=400)
 
