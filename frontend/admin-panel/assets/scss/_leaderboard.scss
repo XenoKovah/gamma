@@ -122,27 +122,11 @@
     font-size: 13px;
 }
 
-.LeaderboardProgressWrapper {
+.LeaderboardProgress-Count {
     display: block;
-    width: 134px;
-    height: 8px;
-    background: #737373;
-    border-radius: 5px;
-    overflow: hidden;
-}
-
-.LeaderboardProgress-Status {
-    display: inline-block;
-    vertical-align: top;
-    height: 8px;
-    border-radius: 5px;
-    background: #f65454;
-
-    @each $status, $color in $status-colors {
-        &_#{$status} {
-            background: $color;
-        }
-    }
+    color: #3caada;
+    font-size: 16px;
+    font-weight: 700;
 }
 
 .LeaderboardBadges {

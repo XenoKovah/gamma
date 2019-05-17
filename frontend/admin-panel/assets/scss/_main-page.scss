@@ -45,7 +45,6 @@
     align-items: flex-start;
 }
 
-
 .ChartBlock {
     width: calc(50% - 1px);
     min-height: 400px;
@@ -130,6 +129,11 @@
 
 .BadgeItem {
     text-align: center;
+    position: relative;
+
+    &:hover {
+        cursor: pointer;
+    }
 }
 
 .BadgeItem_center {
@@ -166,6 +170,81 @@
     display: block;
     max-width: 100%;
     max-height: 100%;
+}
+
+.BadgeItemPopup {
+    opacity: 0;
+    visibility: hidden;
+    transition: all .2s linear;
+    position: absolute;
+    top: 100%;
+    min-width: 275px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding-top: 16px;
+    z-index: 10;
+
+    &:before {
+        content: '';
+        width: 14px;
+        height: 14px;
+        background: #495860;
+        position: absolute;
+        top: 18px;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(45deg);
+    }
+
+    .BadgeItem:hover & {
+        visibility: visible;
+        opacity: 1;
+    }
+}
+
+.BadgeItemPopup-Head {
+    font-size: 12px;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: #3caada;
+    background: #495860;
+    padding: 20px;
+    border-radius: 20px 20px 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    line-height: 15px;
+}
+
+.BadgeItemPopup-Body {
+    border: 2px solid #495860;
+    border-top: none;
+    padding: 16px 17px;
+    background: #383838;
+}
+
+.BadgeItemPopupList {
+    list-style: none;
+    margin: 0;
+}
+
+.BadgeItemPopupList-Item {
+    text-align: left;
+    font-size: 16px;
+    font-weight: 300;
+    color: #bcbcbc;
+    margin-bottom: 6px;
+    line-height: normal;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
+
+.BadgeItemPopupList-Counter {
+    font-weight: 700;
+    color: #3caada;
+    font-size: inherit;
+    margin-right: 10px;
 }
 
 .ChartControls {

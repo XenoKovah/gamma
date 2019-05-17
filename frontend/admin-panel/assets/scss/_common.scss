@@ -13,8 +13,11 @@ html, body {
     background: $body-background;
 }
 
-#content {
+* {
     font-family: "Exo2", "Roboto", "Helvetica", "Arial", sans-serif !important;
+}
+
+#content {
     color: $color-text-dark;
     font-weight: 400;
     font-size: 12px;
