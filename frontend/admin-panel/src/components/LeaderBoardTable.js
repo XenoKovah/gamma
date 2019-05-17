@@ -28,8 +28,8 @@ export default class LeaderBoardTable extends React.Component {
                                         </div>
                                     </div>
                                     <div className="LeaderboardTableWrapper LeaderboardTableWrapper_center">
-                                        <div className="LeaderboardProgressWrapper">
-                                            <span className={progressClassName} style={{width: profile.points + '%'}}></span>
+                                        <div className="LeaderboardProgress-Count">
+                                          {profile.points}
                                         </div>
                                     </div>
                                     <div className="LeaderboardTableWrapper LeaderboardTableWrapper_center">
