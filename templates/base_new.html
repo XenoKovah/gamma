@@ -191,8 +191,15 @@ $(function() {
                 "/api/v0/badges/",
                 data={"username": "{{ request.user.username }}"},
                 function( data ) {
-                    $('#badge-count').text(Object.keys(data).length);
-                    for (let i=0; i<3;i++) {
+                    var badge_count = Object.keys(data).length
+                    if (badge_count < 3) {
+                        $('#badge-count').text(badge_count + ' of ' + badge_count);
+                    } 
+                    else {
+                        $('#badge-count').text("3 of " + badge_count);
+                    }
+                    for (let i=0; i<3; i++) {
+
                         let key = Object.keys(data)[i];
                         if (data[key].done) {
                             $('#container-badges').append(
@@ -205,9 +212,10 @@ $(function() {
                             );
                         }
                         else {
+                            let dumped = JSON.stringify(data[key].progress);
                             $('#container-badges').append(
                                 `<div class="BadgeItem">
-                                    <div class="BadgeItemFigure BadgeItemFigure_disable">
+                                    <div class="BadgeItemFigure BadgeItemFigure_disable" data-progress=`+ dumped +`>
                                         <img src="${data[key].url}" alt="" class="BadgeItemFigure-Image">
                                     </div>
                                     <div class="BadgeItem-Name">${key}</div>
@@ -221,7 +229,13 @@ $(function() {
                 "/api/v0/user-statuses/",
                 data={"username": "{{ request.user.username }}"},
                 function( data ) {
-                    $('#user-statuses-count').text(data.length);
+                    var user_badge_count = data.length;
+                    if (user_badge_count < 3) {
+                        $('#user-statuses-count').text(user_badge_count + ' of ' + user_badge_count);
+                    }
+                    else {
+                        $('#user-statuses-count').text("3 of " + user_badge_count)
+                    }
                     for (var i=0; i < 3; i++) {
                         $('#container-statuses').append(
                             `<div class="BadgeItem">

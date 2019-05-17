@@ -308,7 +308,7 @@ class BadgesView(APIView):
                 {"user_id": user.id},
                 {
                     "$set": {
-                        "badges.{}".format(badge.get("slug")): badge.get("users", {}).get(str(user.id), {})
+                        "badges.{}.progress".format(badge.get("slug")): badge.get("users", {}).get(str(user.id), {})
                     }
                 },
                 upsert=True
