@@ -91,7 +91,7 @@ var chartSubtitleStyles = {
 
 var chartTitleOptions = {
     buttonOptions: {
-        x: 5,
+        x: -2,
         y: -5,
         symbolStroke: '#00abd9',
         theme: {
@@ -144,15 +144,15 @@ $(function() {
                             text: 'Achievement',
                             align: 'left',
                             widthAdjust: 0,
-                            x: -5,
+                            x: 7,
                             margin: 50,
                             style: chartTitleStyles,
                         },
                         subtitle: {
                             text: 'Here you can see what actions caused your current points portfolio',
                             align: 'left',
-                            widthAdjust: -5,
-                            x: -5,
+                            widthAdjust: 7,
+                            x: 7,
                             y: 55,
                             style: chartSubtitleStyles,
                         },
@@ -164,18 +164,34 @@ $(function() {
                             pie: {
                                 dataLabels: {
                                     enabled: true,
-                                    distance: -50,
+                                    distance: 30,
                                     style: {
                                         fontWeight: 'bold',
                                         color: 'white',
                                         textShadow: 'unset'
                                     }
                                 },
-                                startAngle: -90,
-                                endAngle: 90,
-                                center: ['50%', '75%'],
-                                showInLegend: true
+                                center: ['50%', '50%'],
+                                showInLegend: true,
                             },
+                            series: {
+                                dataLabels: {
+                                    enabled: true,
+                                    color: '#bcbcbc',
+                                    borderWidth: 0,
+                                    shadow: false,
+                                    style: {
+                                      fontWeight: '700',
+                                      fontSize: '12px',
+                                      textShadow: false,
+                                      textOutline: 0
+                                    },
+                                  formatter: function(){
+                                    var pcnt = (this.y / this.series.data.map(p => p.y).reduce((a, b) => a + b, 0)) * 100;
+                                    return Highcharts.numberFormat(pcnt, 0) + '%';
+                                  }
+                                }
+                            }
                         },
                         legend: legendOptions,
                         series: [{
@@ -304,15 +320,15 @@ $(function() {
                           text: 'Your status tracker',
                           align: 'left',
                           widthAdjust: 0,
-                          x: -5,
+                          x: 7,
                           margin: 50,
                           style: chartTitleStyles,
                         },
                         subtitle: {
                             text: 'Here you can track your status progress: see how many points you have so far and how much is left for each status',
                             align: 'left',
-                            widthAdjust: -6,
-                            x: -5,
+                            widthAdjust: -7,
+                            x: 7,
                             y: 55,
                             style: chartSubtitleStyles,
                         },
@@ -332,7 +348,10 @@ $(function() {
                               text: null,
                             },
                             labels: {
-                                overflow: 'justify'
+                                overflow: 'justify',
+                                style: {
+                                  color: '#bcbcbc'
+                                }
                             },
                             plotLines: status_lines,
                             gridLineColor: '#6c6d6e',
@@ -395,6 +414,7 @@ $(function() {
                                     fontWeight: 'bold',
                                     textOutline: 'none',
                                     fontFamily: 'Exo2',
+                                    textShadow: '-1px 0px 2.75px rgba(0, 0, 0, 0.6)',
                                 }
                             }
                         }]
@@ -424,24 +444,26 @@ $(function () {
                 }
                 accumulative_data.push([Date.parse(data[i].date), accum]);
             }
-
+            chartTitleOptions.buttonOptions.x = 86;
             $('#container-progress-accumulated').highcharts({
                 chart: {
-                    type: 'spline'
+                    type: 'spline',
+                    spacingLeft: 100,
+                    spacingRight: 100
                 },
                 title: {
                     text: 'Your Progress',
                     align: 'left',
                     widthAdjust: 0,
-                    x: -5,
+                    x: -86,
                     margin: 50,
                     style: chartTitleStyles,
                 },
                 subtitle: {
                     text: 'See the dynamics of your activities and points acquisition through time  ',
                     align: 'left',
-                    widthAdjust: -5,
-                    x: -5,
+                    widthAdjust: -7,
+                    x: -86,
                     y: 55,
                     style: chartSubtitleStyles,
                 },
@@ -470,9 +492,12 @@ $(function () {
                     },
                     labels: {
                         align: 'left',
-                        x: 3,
-                        y: 16,
-                        format: '{value:.,0f}'
+                        x: -40,
+                        y: 5,
+                        format: '{value:.,0f}',
+                        style: {
+                            color: '#bcbcbc'
+                        }
                     },
                     showFirstLabel: false,
                     gridLineColor: '#6c6d6e',
@@ -487,9 +512,12 @@ $(function () {
                     },
                     labels: {
                         align: 'right',
-                        x: -3,
-                        y: 16,
-                        format: '{value:.,0f}'
+                        x: 40,
+                        y: 5,
+                        format: '{value:.,0f}',
+                        style: {
+                            color: '#bcbcbc'
+                        }
                     },
                     showFirstLabel: false
                 }],
