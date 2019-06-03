@@ -14,7 +14,6 @@
     align-items: flex-start;
     background: $base-white-color;
     height: 102px;
-    border: 1px solid #fff;
     box-shadow: 0 5px 8px 0 rgba(83, 97, 107, 0.14);
 
     &:hover {
@@ -30,8 +29,9 @@
     height: 100%;
     margin: 0;
     border-radius: 5px 0 0 5px;
+    background-color: #333;
     background-repeat: no-repeat;
-    background-size: contain;
+    background-size: auto calc(100% - 30px);
     background-position: center center;
     min-width: 160px;
 }
@@ -45,7 +45,7 @@
 }
 
 .Achievement-Content {
-    padding: 15px 10px 20px;
+    padding: 15px 20px 20px;
     width: 100%;
 }
 
@@ -57,9 +57,25 @@
 
 .Achievement-Description {
     font-size: 12px;
+    line-height: 16px;
     font-style: italic;
     font-weight: 300;
     color: #3f3f3f;
+    max-height: 50px;
+    overflow: hidden;
+    position: relative;
+
+    &:before {
+        background: linear-gradient(to right, rgba(#fafafa, 0) 0%, #fafafa 50%);
+        content: '\200C';
+        display: block;
+        position: absolute;
+        right: 0;
+        top: calc(100% - 15px);
+        width: 15%;
+        text-align: center;
+    }
+
 }
 
 .Achievement-Controls {
@@ -74,7 +90,7 @@
 
 .Achievement-ControlsHover {
     position: absolute;
-    right: -150px;
+    right: -105px;
     display: flex;
     align-items: center;
     justify-content: flex-start;
@@ -110,7 +126,7 @@
     input,
     textarea {
         border: 2px solid $base-color;
-        border-radius: 20px;
+        border-radius: 15px;
         width: 100%;
         box-sizing: border-box;
         resize: none;
@@ -161,6 +177,13 @@
     opacity: 0;
     z-index: 10;
     cursor: pointer;
+}
+
+.FileInput-Label {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    max-width: 280px;
 }
 
 .FileInput > .FileInput-Btn {
