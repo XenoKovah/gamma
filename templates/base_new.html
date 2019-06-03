@@ -188,7 +188,7 @@ $(function() {
                                     },
                                   formatter: function(){
                                     var pcnt = (this.y / this.series.data.map(p => p.y).reduce((a, b) => a + b, 0)) * 100;
-                                    return Highcharts.numberFormat(pcnt, 0) + '%';
+                                    return Highcharts.numberFormat(pcnt, 1) + '%';
                                   }
                                 }
                             }
