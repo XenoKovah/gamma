@@ -1,9 +1,15 @@
 from django.shortcuts import render
 from django.views.generic import View
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth import logout
+from django.http import HttpResponseRedirect
 
 from .services import MongoConnector
 from .models import GameProfile
+
+
+def logout_view(request):
+    logout(request)
+    return HttpResponseRedirect('/')
 
 
 class DashboardView(View):

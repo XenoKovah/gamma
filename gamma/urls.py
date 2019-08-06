@@ -19,10 +19,9 @@ from django.urls import include, path
 from django.conf.urls.static import static
 from django.views.generic.base import TemplateView
 from django.contrib import admin
-from django.contrib.auth import logout
 from filebrowser.sites import site
 
-from core.views import DashboardView, AdminPanelView, LeaderBoardView
+from core.views import DashboardView, AdminPanelView, LeaderBoardView, logout_view
 
 
 urlpatterns = [
@@ -41,7 +40,7 @@ urlpatterns = [
     # Django Rest Framework
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
-    path('logout/', logout, kwargs={'next_page': '/'}, name='logout'),
+    path('logout/', logout_view, name='logout'),
 
     # API
     path('api/', include(('api.urls', 'api'), namespace='api')),
