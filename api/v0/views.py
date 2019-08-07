@@ -1,4 +1,5 @@
 import logging
+from collections import OrderedDict
 from datetime import datetime, timedelta
 
 import os
@@ -342,7 +343,10 @@ class BadgesView(APIView):
         )
         log_api_access.save()
         res = c_badges().find_one({"user_id": user.id}, {"_id": 0})
-        return Response(res.get('badges') if res else {})
+
+        res_budges = OrderedDict(sorted(res.get('badges').items(), key=lambda x: x[1]['done'], reverse=True))
+
+        return Response(res_budges if res else {})
 
 
 class UserStatuses(APIView):
@@ -470,7 +474,7 @@ class BadgeRuleView(APIView):
         print(badge)
         return Response(badge.get('rules', {}) if badge else {})
 
-    
+
     def put(self, request, *args, **kwargs):
         slug = request.data.pop('slug')
         if slug:
@@ -528,7 +532,7 @@ class AchievementsView(APIView):
         except Achievement.DoesNotExist as e:
             errors = 'Entry with "slug" - {} does not exist'.format()
         return Response({'errors': errors}, status=400)
-    
+
     def delete(self, request):
         slug = request.data.get('slug')
         Achievement.objects.get(slug=slug).delete()
