@@ -304,12 +304,16 @@ class BadgesView(APIView):
         conn = AchievementRulesMongo()
         conn.connect()
         badges = conn.collection.find({"active": True})
+
         for badge in badges:
+            default_progress = {k: {'count': 0, 'goal': v} for k, v in badge.get("rules", {}).get("actions", {}).items()}
+            default_progress.update(badge.get("users", {}).get(str(user.id), {}))
+
             c_badges().update(
                 {"user_id": user.id},
                 {
                     "$set": {
-                        "badges.{}.progress".format(badge.get("slug")): badge.get("users", {}).get(str(user.id), {})
+                        "badges.{}.progress".format(badge.get("slug")): default_progress
                     }
                 },
                 upsert=True
