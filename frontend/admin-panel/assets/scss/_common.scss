@@ -10,7 +10,7 @@
 html, body {
     -webkit-font-smoothing: auto !important;
     -moz-osx-font-smoothing: auto !important;
-    background: $body-background;
+    background: $body-background !important;
 }
 
 * {
