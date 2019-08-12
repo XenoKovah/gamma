@@ -11,6 +11,7 @@ html, body {
     -webkit-font-smoothing: auto !important;
     -moz-osx-font-smoothing: auto !important;
     background: $body-background !important;
+    height: 100%;
 }
 
 * {
@@ -41,7 +42,7 @@ html, body {
         background-position: 0 center;
         font-weight: 600;
         background-image: url(../images/tooltag-add.svg);
-        background-size: 16px;
+        background-size: 16px 16px;
     }
 
     .Btn {

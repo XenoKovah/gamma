@@ -3,6 +3,17 @@ body.login {
         padding: 1em 0 0;
         text-align: right;
     }
+
+    #content {
+        box-sizing: border-box;
+    }
+}
+
+body:not(.login) #container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
 }
 
 #header {
@@ -12,6 +23,7 @@ body.login {
     padding: 15px 40px;
     box-sizing: border-box;
     height: auto;
+    min-height: 70px;
 
     .wrapper {
         display: flex;
@@ -75,13 +87,22 @@ body.login {
 
 #content {
     padding: 40px;
+    flex: 1 1 auto;
+    width: 100%;
 
     .dashboard & {
         width: 100%;
         max-width: 945px;
 
-        #content-main {
+        #content-related ~ #content-main {
             width: calc(100% - 40px - 275px);
+        }
+
+        #content-main {
+            .module {
+                border-radius: 10px;
+                overflow: hidden;
+            }
         }
     }
 
@@ -90,11 +111,19 @@ body.login {
     }
 }
 
+#changelist-form {
+    border-radius: 10px;
+    overflow: hidden;
+
+    table {
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+    }
+}
+
 .module {
     table {
-        border-radius: 10px;
-        overflow: hidden;
-
         tr {
             background: #fff;
         }
@@ -104,10 +133,22 @@ body.login {
             padding: 9px 8px;
         }
     }
+}
 
-    caption {
+.module h2,
+.module caption,
+.inline-group h2 {
+    background: #42abd8;
+    font-weight: 600;
+}
+
+.selector {
+    .selector-available h2 {
+        background: #f8f8f8;
+    }
+
+    .selector-chosen h2 {
         background: #42abd8;
-        font-weight: 600;
     }
 }
 
@@ -126,6 +167,27 @@ body.login {
     min-height: 50px;
     background: $base-color;
     margin-top: 20px;
+    flex-shrink: 0;
+}
+
+#toolbar {
+    border-radius: 10px;
+}
+
+#changelist-filter {
+    border-radius: 10px;
+    overflow: hidden;
+
+    h2 {
+        background: #42abd8;
+        font-weight: 600;
+    }
+
+    li {
+        &.selected {
+            border-left-color: #42abd8 !important;
+        }
+    }
 }
 
 .breadcrumbs-wrapper {
