@@ -19,7 +19,7 @@
 
 <!--[if lt IE 9]>
 <link type="text/css" rel="stylesheet" href="//www.appliedmaterials.com/sites/all/themes/appliedmaterials_clean/css/ie8.css?odxqy1" media="all" />
-<![endif]-->    
+<![endif]-->
 
 <!--[if lt IE 9]>
 <link type="text/css" rel="stylesheet" href="//www.appliedmaterials.com/files/less/N_0Kx1bwZJhsqDTj3bfmqgf5-aP9WB9xN0Wh_zTn_OE/sites/all/themes/appliedmaterials_clean/css/video-js.XcVzbo5GbrB4v7QVES377fts6uudS0o0YbaMpBamvPg.css?odxqy1" media="all" />
@@ -210,7 +210,7 @@ $(function() {
                     var badge_count = Object.keys(data).length
                     if (badge_count < 3) {
                         $('#badge-count').text(badge_count + ' of ' + badge_count);
-                    } 
+                    }
                     else {
                         $('#badge-count').text("3 of " + badge_count);
                     }
@@ -230,7 +230,7 @@ $(function() {
                             }
                             else {
                                 if (Object.keys(data[key].progress).length > 0) {
-                                    progressItems += '<div class="BadgeItemPopup"><div class="BadgeItemPopup-Head">Badge Name</div><div class="BadgeItemPopup-Body"><ul class="BadgeItemPopupList">';
+                                    progressItems += '<div class="BadgeItemPopup"><div class="BadgeItemPopup-Head">'+key+'</div><div class="BadgeItemPopup-Body"><ul class="BadgeItemPopupList">';
                                     for (let i = 0, itemLen = Object.keys(data[key].progress).length; i < itemLen; ++i) {
                                         progressItems += '<li class="BadgeItemPopupList-Item"><span class="BadgeItemPopupList-Counter">'+data[key].progress[Object.keys(data[key].progress)[i]].count+'/'+data[key].progress[Object.keys(data[key].progress)[i]].goal+'</span>  '+Object.keys(data[key].progress)[i].substr(0, 1).toUpperCase()+Object.keys(data[key].progress)[i].substr(1)+'</li>'
                                     }
@@ -576,7 +576,7 @@ $(function () {
 </head>
 <body class="html front not-logged-in no-sidebars page-node page-node- page-node-3332104 node-type-page-landing-with-hero i18n-en lang-en main-page">
     <div class="header-nav-wrap">
-        
+
     <div class="container logo-container header-navbar">
     <ul class="menu global-nav pull-right">
         <li class="last leaf"><a href="/">{% trans "Dashboard" %}</a></li>
