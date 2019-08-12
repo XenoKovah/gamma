@@ -8,8 +8,8 @@
 @include font-face("Exo2", "../font/Exo-Black", 800, normal);
 
 html, body {
-    -webkit-font-smoothing: auto;
-    -moz-osx-font-smoothing: auto;
+    -webkit-font-smoothing: auto !important;
+    -moz-osx-font-smoothing: auto !important;
     background: $body-background;
 }
 
