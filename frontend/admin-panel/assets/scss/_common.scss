@@ -8,13 +8,24 @@
 @include font-face("Exo2", "../font/Exo-Black", 800, normal);
 
 html, body {
-    -webkit-font-smoothing: auto;
-    -moz-osx-font-smoothing: auto;
-    background: $body-background;
+    -webkit-font-smoothing: auto !important;
+    -moz-osx-font-smoothing: auto !important;
+    background: $body-background !important;
+
+    &:not(.front) {
+        height: 100%;
+    }
 }
 
 * {
     font-family: "Exo2", "Roboto", "Helvetica", "Arial", sans-serif !important;
+}
+
+.container,
+.navbar-static-top .container,
+.navbar-fixed-top .container,
+.navbar-fixed-bottom .container {
+    width: 945px;
 }
 
 #content {
@@ -41,7 +52,7 @@ html, body {
         background-position: 0 center;
         font-weight: 600;
         background-image: url(../images/tooltag-add.svg);
-        background-size: 16px;
+        background-size: 16px 16px;
     }
 
     .Btn {
@@ -181,4 +192,27 @@ html, body {
 
 .module {
     background: $body-background;
+}
+
+.demo-content {
+    color: #fff;
+    margin: 20px 0;
+
+    .login-button-container {
+        margin-top: 10px;
+    }
+
+    .mdl-button {
+        display: inline-block;
+        border-radius: 5px;
+        background: $base-color-light;
+        color: #fff;
+        border: none;
+        padding: 3px 25px;
+
+        &:hover,
+        &:focus {
+            background: lighten($base-color-light, 10%);
+        }
+    }
 }

@@ -5,7 +5,7 @@ const minify       = require('gulp-minify');
 const cleanCss     = require('gulp-clean-css');
 const clean        = require('gulp-clean');
 const copy         = require('gulp-copy');
-const run = require('gulp-run');
+const run = require('gulp-run-command').default;
 const autoprefixer    = require('gulp-autoprefixer');
 
 const path = require('path');
@@ -38,10 +38,6 @@ gulp.task('sass:watch', function () {
     return gulp.watch('assets/scss/**/*.scss', gulp.series('pack-scss'));
 });
 
-gulp.task('build', () => {
-    run('npm run build').exec()
-    .pipe(gulp.dest('build'))
-    .pipe(console.log('FINISH'))
-});
+gulp.task('build', run('npm run build'));
 
 gulp.task('default', gulp.series('pack-scss','pack-css', 'pack-js'));

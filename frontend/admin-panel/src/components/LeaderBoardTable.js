@@ -29,7 +29,7 @@ export default class LeaderBoardTable extends React.Component {
                                     </div>
                                     <div className="LeaderboardTableWrapper LeaderboardTableWrapper_center">
                                         <div className="LeaderboardProgress-Count">
-                                          {profile.points}
+                                          {profile.points}/{profile.goal}
                                         </div>
                                     </div>
                                     <div className="LeaderboardTableWrapper LeaderboardTableWrapper_center">

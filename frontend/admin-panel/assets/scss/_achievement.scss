@@ -66,7 +66,7 @@
     position: relative;
 
     &:before {
-        background: linear-gradient(to right, rgba(#fafafa, 0) 0%, #fafafa 50%);
+        background: linear-gradient(to right, rgba($base-white-color, 0) 0%, $base-white-color 50%);
         content: '\200C';
         display: block;
         position: absolute;
@@ -155,7 +155,7 @@
     justify-content: space-between;
     align-items: center;
     position: relative;
-    border: 2px solid #45a2d6;
+    border: 2px solid $base-color;
     border-radius: 20px;
     width: 100%;
     box-sizing: border-box;
@@ -163,7 +163,7 @@
     background: #fff;
     margin-bottom: 25px;
     font-size: 12px;
-    color: #3e3e3e;
+    color: $base-gray-color;
     padding-left: 12px;
     height: 30px;
 }
