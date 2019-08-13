@@ -115,6 +115,10 @@ body:not(.login) #container {
     border-radius: 10px;
     overflow: hidden;
 
+    .model-achievement & {
+        overflow: visible;
+    }
+
     table {
         tr:nth-child(even) {
             background: #f9f9f9;

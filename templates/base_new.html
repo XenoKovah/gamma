@@ -584,7 +584,7 @@ $(function () {
         {% if not user.is_authenticated %}
         <li class="last leaf"><a href=admin/login>{% trans "Login" %}</a></li>
         {% else %}
-        <li class="last leaf"><a href="{% url 'logout' %}">{% trans "Logout" %}</a></li>
+        <li class="last leaf"><a href="{% url 'logout' %}">{% trans "Log out" %}</a></li>
         {% endif %}
     </ul>
     <section id="navbar" class="main-navigation navbar navbar-static-top visible-desktop clearfix">
