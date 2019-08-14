@@ -33,6 +33,7 @@ export default class MoreBadges extends React.Component {
                     Object.keys(this.state.badges).map((badge, ind) => {
                         let badgeItemClass = !this.state.badges[badge].done ?
                             'BadgeItemFigure BadgeItemFigure_disable' : 'BadgeItemFigure';
+                        if(!this.state.badges[badge].done){
                         return (
                             <div className="BadgeItem BadgeItem_center" key={ind}>
                                 <div className={badgeItemClass}>
@@ -59,6 +60,17 @@ export default class MoreBadges extends React.Component {
                                 </div>
                             </div>
                         )
+                        } else {
+                            return (
+                                <div className="BadgeItem BadgeItem_center" key={ind}>
+                                    <div className={badgeItemClass}>
+                                        <img src={process.env.REACT_APP_LOCALHOST + this.state.badges[badge].url} alt="" className="BadgeItemFigure-Image" />
+                                    </div>
+                                    <div className="BadgeItem-Name">{badge}</div>
+
+                                </div>
+                            )
+                        }
                     })
                 }
             </LeaderBoardModal>
