@@ -95,6 +95,7 @@ class GameProfileView(APIView):
             client=AppClient.objects.get(id=1)
         ).exists():
             event = Event.objects.filter(event_type=event_type).first()
+            print(event_type)
             if event and event.award:
                 game_profile.points = F('points') + event.award
                 # TODO try to avoid duplicate saving in Serializer

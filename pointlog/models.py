@@ -12,7 +12,7 @@ class LoggedEvent(models.Model):
     """
     uniq_id = models.CharField(max_length=255)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    event_type = models.CharField(max_length=16)
+    event_type = models.CharField(max_length=64)
     org = models.CharField(max_length=128, blank=True)
     points = models.IntegerField()
     date = models.DateTimeField(auto_now_add=True)

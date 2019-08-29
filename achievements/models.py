@@ -105,7 +105,7 @@ class Event(models.Model):
 
     Such as points to give for particular event.
     """
-    event_type = models.CharField(max_length=16, unique=True)
+    event_type = models.CharField(max_length=64, unique=True)
     title = models.CharField(max_length=16, blank=True)
     award = models.PositiveSmallIntegerField(verbose_name='Points to award')
     color = models.PositiveSmallIntegerField(choices=COLOR_CHOOCES, default=1)
