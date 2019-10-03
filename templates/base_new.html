@@ -141,7 +141,7 @@ $(function() {
                             plotShadow: false
                         },
                         title: {
-                            text: 'Achievement',
+                            text: 'Points Distribution',
                             align: 'left',
                             widthAdjust: 0,
                             x: 7,
@@ -254,7 +254,8 @@ $(function() {
                 "/api/v0/user-statuses/",
                 data={"username": "{{ request.user.username }}"},
                 function( data ) {
-                    var user_badge_count = data.length;
+                    var status_count = Object.keys(data).length;
+                    var user_badge_count = status_count;
                     if (user_badge_count < 3) {
                         $('#user-statuses-count').text(user_badge_count + ' of ' + user_badge_count);
                     }
@@ -262,15 +263,43 @@ $(function() {
                         $('#user-statuses-count').text("3 of " + user_badge_count)
                     }
                     for (var i=0; i < 3; i++) {
-                        if (data[i] !== undefined) {
-                            $('#container-statuses').append(
+                        var progressItems = '';
+                        let key = Object.keys(data)[i];
+                        if (data[key] !== undefined) {
+                            if (data[key].progress / data[key].status_points >= 1){
+                                $('#container-statuses').append(
+                                    `<div class="BadgeItem">
+                                        <div class="BadgeItemFigure">
+                                            <img src="${data[key].url}" alt="" class="BadgeItemFigure-Image">
+                                        </div>
+                                        <div class="BadgeItem-Name">${data[key].slug}</div>
+                                    </div>`
+                                )
+                            }
+                            else {
+                                $('#container-statuses').append(
                                 `<div class="BadgeItem">
-                                    <div class="BadgeItemFigure">
-                                        <img src="${data[i].url}" alt="" class="BadgeItemFigure-Image">
+                                    <div class="BadgeItemFigure BadgeItemFigure_disable">
+                                        <img src="${data[key].url}" alt="" class="BadgeItemFigure-Image">
                                     </div>
-                                    <div class="BadgeItem-Name">${data[i].slug}</div>
+                                    <div class="BadgeItem-Name">${data[key].slug}</div>
+
+                                        <div class="BadgeItemPopup">
+                                            <div class="BadgeItemPopup-Head">${data[key].slug}
+                                        </div>
+                                            <div class="BadgeItemPopup-Body">
+                                            <ul class="BadgeItemPopupList">
+                                                <li class="BadgeItemPopupList-Item">
+                                                    <span class="BadgeItemPopupList-Counter">
+
+                                                        ${data[key].progress}/${data[key].status_points}
+                                                    </span>
+                                                </li>
+                                            </ul>
+                                        </div>'
                                 </div>`
-                            );
+                                );
+                                }
                         }
                     }
                 }
@@ -317,7 +346,7 @@ $(function() {
                             type: 'bar'
                         },
                         title: {
-                          text: 'Your status tracker',
+                          text: 'Status Roadmap',
                           align: 'left',
                           widthAdjust: 0,
                           x: 7,
@@ -452,7 +481,7 @@ $(function () {
                     spacingRight: 100
                 },
                 title: {
-                    text: 'Your Progress',
+                    text: 'Progress Tracker',
                     align: 'left',
                     widthAdjust: 0,
                     x: -86,
@@ -584,7 +613,7 @@ $(function () {
         {% if not user.is_authenticated %}
         <li class="last leaf"><a href=admin/login>{% trans "Login" %}</a></li>
         {% else %}
-        <li class="last leaf"><a href="{% url 'logout' %}">{% trans "Log out" %}</a></li>
+        <li class="last leaf"><a href="{% url 'logout' %}">{% trans "Logout" %}</a></li>
         {% endif %}
     </ul>
     <section id="navbar" class="main-navigation navbar navbar-static-top visible-desktop clearfix">

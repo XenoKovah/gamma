@@ -4,7 +4,7 @@ import Select from 'react-select';
 class EventType extends React.Component {
     constructor(props) {
         super(props);
-        
+
         this.handleChange = this.handleChange.bind(this);
 
         this.state = {
@@ -20,6 +20,12 @@ class EventType extends React.Component {
 
     render() {
         let options = [{value: this.state.action, label: this.state.action}];
+
+        const customStyles = {
+            menu: (provided, state) => ({
+                ...provided,
+                width: 400,
+            }),}
         this.props.actions.forEach((el, ind) => {
             options.push({value:el, label:el});
         });
@@ -27,9 +33,10 @@ class EventType extends React.Component {
         return (
             <div className="FormGroup">
                 <label>Event type</label>
-                <Select onChange={this.handleChange} className="Select" placeholder="-----"
+                <Select onChange={this.handleChange} className="Select event-type-select" placeholder="-----"
                     value={defaultValue}
                     options={options}
+                    styles={customStyles}
                 />
             </div>
         )

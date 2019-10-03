@@ -32,16 +32,16 @@ class GameProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = GameProfile
         fields = ('points', 'user', 'progress', 'goal', 'avatar', 'position', 'badges')
-    
+
     def get_user(self, obj):
         return UserSerializer(obj.user).data
-    
+
     def get_progress(self, obj):
         return random.randint(0,50)
-    
+
     def get_goal(self, obj):
         return 100
-    
+
     def get_badges(self, obj):
         user_badges = c_badges().find_one({"user_id": obj.user.id}) or {}
         return [user_badges.get('badges', {}).get(badge, {}).get('url') for
@@ -109,6 +109,48 @@ class UserStatusSerializer(serializers.ModelSerializer):
         if obj.badge_img:
             return self.context['request'].build_absolute_uri(obj.badge_img.url)
 
+class StatusSerializer(serializers.ModelSerializer):
+    """
+    Achievement serializer.
+
+    Returns:
+      - url: absolute URL for Badge Image
+      - title: Badge title
+      - slug: Badge slug (unique across DB)
+      - description: Badge description
+      - done: ir finish status True else False
+      - progress: student status progress
+
+    """
+    url = serializers.SerializerMethodField()
+    progress = serializers.SerializerMethodField()
+    done = serializers.SerializerMethodField()
+
+    class Meta:
+        model = StatusBadge
+        fields = (
+            'url',
+            'title',
+            'slug',
+            'description',
+            'status_points',
+            'status_color',
+            'progress',
+            'done'
+        )
+
+    def get_url(self, obj):
+        if obj.badge_img:
+            return self.context['request'].build_absolute_uri(obj.badge_img.url)
+
+    def get_progress(self, obj):
+        return self.context['progress']
+
+    def get_done(self, obj):
+        if obj.status_points / self.context['progress'] <= 1:
+            return True
+        else :
+            return False
 
 class LoggedEventSerializer(serializers.ModelSerializer):
     """

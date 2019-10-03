@@ -26,6 +26,7 @@ from ..serializers import (
     LoggedEventSerializer,
     ApiAccessEventSerializer,
     UserStatusSerializer,
+    StatusSerializer,
     EventSerializer
 )
 
@@ -92,10 +93,9 @@ class GameProfileView(APIView):
             uniq_id=uniq_id,
             user=user,
             event_type=event_type,
-            client=AppClient.objects.get(id=1)
+            client=AppClient.objects.first()
         ).exists():
             event = Event.objects.filter(event_type=event_type).first()
-            print(event_type)
             if event and event.award:
                 game_profile.points = F('points') + event.award
                 # TODO try to avoid duplicate saving in Serializer
@@ -133,7 +133,7 @@ class GameProfileView(APIView):
                     event_type=event_type,
                     org=org,
                     points=game_profile.points,
-                    client=AppClient.objects.get(id=1),
+                    client=AppClient.objects.first(),
                     rewarded_points=event.award
                 )
                 log_event.save()
@@ -291,7 +291,7 @@ class BadgesView(APIView):
         """
         Get badges for particular User.
 
-        If UserNotFount - return status 404 w/ msg User not found.
+        If UserNotFound - return status 404 w/ msg User not found.
         """
         user = User.objects.filter(
             username=request.GET.get('username')
@@ -323,9 +323,9 @@ class BadgesView(APIView):
             rule = badge.get("users", {}).get(str(user.id), {})
             done = all(
                 map(
-                    lambda x: x[0] >= x[1],
+                    lambda x: x[0] >= x[1] if x[1] else False,
                     (
-                        (rule[i].get('count'), badge.get("rules", {}).get("actions", {}).get(i))
+                        (rule[i].get('count', 0), badge.get("rules", {}).get("actions", {}).get(i))
                         for i in rule if not i == 'done')
                 )
             ) if rule else False
@@ -349,9 +349,11 @@ class BadgesView(APIView):
         log_api_access.save()
         res = c_badges().find_one({"user_id": user.id}, {"_id": 0})
 
-        res_budges = OrderedDict(sorted(res.get('badges').items(), key=lambda x: x[1]['done'], reverse=True))
+        if res:
+            res_budges = OrderedDict(sorted(res.get('badges').items(), key=lambda x: x[1]['done'], reverse=True))
+            return Response(res_budges if res else {})
 
-        return Response(res_budges if res else {})
+        return Response({}, status=status.HTTP_404_NOT_FOUND)
 
 
 class UserStatuses(APIView):
@@ -370,12 +372,15 @@ class UserStatuses(APIView):
                 {"Error": "User not found"},
                 status=status.HTTP_404_NOT_FOUND
             )
-        user_statuses = UserStatus.objects.filter(user=user)
-        serializer = UserStatusSerializer(
-            [i.status for i in user_statuses], context={'request': request}, many=True
+        user_statuses = StatusBadge.objects.all()
+        game_profile = GameProfile.objects.get(user=user)
+
+        serializer = StatusSerializer(
+            user_statuses, context={'request': request, 'progress': game_profile.points}, many=True
         )
 
-        return Response(serializer.data)
+        serializer_data = sorted(serializer.data, key=lambda i: i['done'])
+        return Response(serializer_data)
 
 
 class StatusView(APIView):
@@ -476,7 +481,6 @@ class BadgeRuleView(APIView):
         if not slug:
             return Response({})
         badge = self.conn.collection.find_one({"slug": slug}, {"_id": 0})
-        print(badge)
         return Response(badge.get('rules', {}) if badge else {})
 
 

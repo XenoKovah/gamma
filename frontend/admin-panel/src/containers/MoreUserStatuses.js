@@ -32,14 +32,38 @@ export default class MoreBadges extends React.Component {
                 {
                     this.state.userStatuses.map((status, ind) => {
                         let imageSrc = status.url.startsWith('http') ? status.url : process.env.REACT_APP_LOCALHOST + status.url;
-                        return (
-                            <div className="BadgeItem BadgeItem_center" key={ind}>
-                                <div className="BadgeItemFigure">
-                                    <img src={imageSrc} alt="" className="BadgeItemFigure-Image" />
+
+                        if(status.status_points / status.progress <= 1){
+                            return (
+                                <div className="BadgeItem BadgeItem_center" key={ind}>
+                                    <div className="BadgeItemFigure">
+                                        <img src={imageSrc} alt="" className="BadgeItemFigure-Image" />
+                                    </div>
+                                    <div className="BadgeItem-Name">{status.title}</div>
                                 </div>
-                                <div className="BadgeItem-Name">{status.title}</div>
-                            </div>
-                        )
+                            )
+                        } else {
+                            return (
+                                <div className="BadgeItem BadgeItem_center" key={ind}>
+                                    <div className="BadgeItemFigure BadgeItemFigure_disable">
+                                        <img src={imageSrc} alt="" className="BadgeItemFigure-Image" />
+                                    </div>
+                                    <div className="BadgeItem-Name">{status.title}</div>
+                                    <div className="BadgeItemPopup">
+                                        <div className="BadgeItemPopup-Head"></div>
+                                        <div className="BadgeItemPopup-Body">
+                                            <ul className="BadgeItemPopupList">
+                                                <li className="BadgeItemPopupList-Item">
+                                                    <span className="BadgeItemPopupList-Counter">
+                                                    {status.progress}/{status.status_points}
+                                                    </span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            )
+                        }
                     })
                 }
             </LeaderBoardModal>

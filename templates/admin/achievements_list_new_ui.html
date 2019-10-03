@@ -49,15 +49,15 @@
                             <div class="AchievementForm-GroupWrapper">
                                 <label for="">Image</label>
                                 <!--<input type="file" id="" name="badge_img" value="{{ achievement.badge_img.file }}">-->
-    
-    
+
+
                                 <div class="FileInput">
                                     <input type="file" class="image-upload" name="badge_img">
                                     <span class="FileInput-Label" data-js-label>{{ achievement.badge_img_name }}</span>
                                     <span class="FileInput-Btn">Choose</span>
                                 </div>
-    
-    
+
+
                             </div>
                         </div>
                         <div class="AchievementFormGroup">
@@ -106,12 +106,12 @@
                 return formData;
         };
         })(jQuery);
-    
+
         const headers = {
             'X-CSRFToken': $('input[name=csrfmiddlewaretoken]').val()
         }
         const url = "{% url 'api:v0:achievements' %}";
-    
+
         $(document).ready(() => {
             // Save changes
             $('.save-achievement-click').click((event) => {
@@ -133,7 +133,7 @@
                     }
                 })
             });
-    
+
             $('.delete-achievement-click').click((event) => {
                 event.preventDefault();
                 let slug = $(event.currentTarget).data('slug');
@@ -153,13 +153,13 @@
                 }
             })
 
-    
+
             $('.cancel-achievement-click').on('click', function(event) {
                 event.preventDefault();
                 const item = $(this).parents('.AchievementForm');
                 item.slideUp();
             });
-            
+
                 $('.edit-achievement-click').on('click', function(event) {
                 event.preventDefault();
                 const item = $(this).parents('.Achievement-Info').next('.AchievementForm');
@@ -167,19 +167,19 @@
                 itemOther.slideUp();
                 item.slideToggle();
             });
-        
+
             const inputs = document.querySelectorAll('.FileInput');
             for (let i = 0, len = inputs.length; i < len; i++) {
             customInput(inputs[i])
             }
-        
+
         function customInput (el) {
             const fileInput = el.querySelector('[type="file"]');
             const label = el.querySelector('[data-js-label]');
-        
+
             fileInput.onchange = fileInput.onmouseout = function () {
                 if (!fileInput.value) return;
-        
+
                 const value = fileInput.value.replace(/^.*[\\\/]/, '');
                 label.innerText = value;
             }
@@ -198,7 +198,7 @@
             if (img) {
                 reader.readAsDataURL(img);
             };
-    
+
         });
     });
 
