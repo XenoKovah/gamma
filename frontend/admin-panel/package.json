@@ -43,6 +43,6 @@
     "not op_mini all"
   ],
   "devDependencies": {
-    "babel-loader": "^8.0.5"
+    "babel-loader": "^8.0.6"
   }
 }

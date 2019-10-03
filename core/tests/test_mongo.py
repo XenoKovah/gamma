@@ -38,18 +38,20 @@ def test_charted(settings, mongo_conn, admin_user, award, rand_str):
     Test setting/getting charted progress documents.
     """
     settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
+    charted_bf = mongo_conn.get_charted_progress(admin_user)
     mongo_conn.find_one_and_update(
         filter_dict={
             'username': admin_user.username
-        },
-        key='video',
-        value=award,
-        event_type='chart'
-    )
+            },
+            key='video',
+            value=award,
+            event_type='chart'
+            )
+
     charted = mongo_conn.get_charted_progress(admin_user)
     assert isinstance(charted, dict)
     assert admin_user.username not in charted
-    assert charted['video'] == award
+    assert charted['video'] == charted_bf['video'] + award
 
 
 def test_key_gen():
@@ -79,7 +81,7 @@ def test_rules(settings, rand_str, award):
     assert rules['count'] == award
 
 
-def test_rules(settings, rand_str, award):
+def test_rules_none(settings, rand_str, award):
     """
     Get non existent achievement slug.
     """
