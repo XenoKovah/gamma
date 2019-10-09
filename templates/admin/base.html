@@ -67,7 +67,7 @@
         <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
         {% if title %} &rsaquo; {{ title }}{% endif %}
         </div>
-        {% endblock %}
+        {% endblock breadcrumbs%}
     </div>
     {% endif %}
 
@@ -82,7 +82,7 @@
     <!-- Content -->
     <div id="content" class="{% block coltype %}colM{% endblock %}">
         {% block pretitle %}{% endblock %}
-        {% block content_title %}{% if title %}<h1>{{ title }}</h1>{% endif %}{% endblock %}
+        {% block content_title %}{% if title == 'Gamification Administration administration'%} <h1>ACHIEVEMENTS ADMINISTRATION</h1> {% else%}   <h1>{{ title }}</h1> {% endif %}{% endblock %}
         {% block sidebar %}{% endblock %}
         {% block content %}
         {% block object-tools %}{% endblock %}
