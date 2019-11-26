@@ -11,7 +11,7 @@ services:
       - .:/app
 
   postgres:
-    image: postgres
+    image: postgres:11
     env_file: ./envs/local.env
     volumes:
         - gamma_db:/var/lib/postgresql/data/

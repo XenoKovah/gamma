@@ -73,7 +73,7 @@ export default class Filter extends React.Component {
     addField() {
         let manuallyAdded = this.state.manuallyAdded;
         manuallyAdded[this.selectedField] = true;
-        let selectElements = document.getElementsByClassName('css-xp4uvy');
+        let selectElements = document.getElementsByClassName('css-1hwfws3');  // css-xp4uvy
         selectElements[selectElements.length-1].innerHTML = "Select...";  // durty hack for now
         this.setState({
             manuallyAdded: manuallyAdded

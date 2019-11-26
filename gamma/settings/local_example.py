@@ -4,7 +4,7 @@ from .base import *
 
 # MongoDB configuration
 MONGODB_CONF = {
-    'HOST': 'localhost',
+    'HOST': 'mongo',
     'PORT': 27017,
     'USERNAME': None,
     'PASSWORD': None
