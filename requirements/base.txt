@@ -18,3 +18,7 @@ django-filebrowser==3.11.1
 python-dateutil==2.5.3
 
 gunicorn==19.9.0
+
+requests==2.22.0
+
+django-redis==4.10.0

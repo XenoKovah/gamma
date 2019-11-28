@@ -222,6 +222,18 @@ LOGGING = {
     },
 }
 
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://redis:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient"
+        },
+        "KEY_PREFIX": "gamma"
+    }
+}
+# Cache time to live is 2 hours.
+CACHE_TTL = 60 * 60 * 2
 
 try:
     from .local import *
@@ -231,3 +243,9 @@ except ImportError:
         e.g. by copying the provided local_example.py"""
     )
     raise
+
+
+try:
+    from .edx_platform import *
+except ImportError:
+    pass

@@ -2,6 +2,7 @@ import logging
 from collections import OrderedDict
 from datetime import datetime, timedelta
 
+import http.client
 import os
 
 import pymongo
@@ -11,12 +12,24 @@ from django.views.generic.edit import FormView
 from django.db.models import F
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
-
 from django.conf import settings
+from django.core.cache.backends.base import DEFAULT_TIMEOUT
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
+
 from rest_framework import viewsets, generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
+
+from edx_integration.api.v2.client import EdxApiV2Client
+from edx_integration.api.v2.exceptions import (
+    EdxApiNotFoundException,
+    EdxApiResponseParsingException,
+    EdxApiServerErrorException,
+    EdxApiUnauthorizedException,
+    OtherEdxApiException,
+)
 
 from ..forms import EventPointsForm
 from ..serializers import (
@@ -42,6 +55,7 @@ from achievements.models import UserAchievement, Achievement, StatusBadge, Event
 from achievements.forms import AchievementForm
 
 
+CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
 logger = logging.getLogger('events')
 
 
@@ -494,35 +508,54 @@ class BadgeRuleView(APIView):
 
 class CoursesView(APIView):
     """
-    Courses list from edx-platform
-    Mock so far
+    Courses list from edx-platform.
     """
 
+    @method_decorator(cache_page(CACHE_TTL))
     def get(self, request):
-        courses = [
-            'Course1',
-            'Course2',
-            'Course3',
-            'Course4',
-            'Course5'
-        ]
-        return Response({'courses': courses}, status=200)
+        client = EdxApiV2Client()
+        try:
+            return Response(
+                {'courses': client.get_courses()},
+                status=http.client.OK
+            )
+        except (
+            EdxApiNotFoundException,
+            EdxApiResponseParsingException,
+            EdxApiServerErrorException,
+            EdxApiUnauthorizedException,
+            OtherEdxApiException,
+        ) as e:
+            return Response(
+                {'courses': []},
+                status=e.status_code
+            )
 
 
 class OrganizationsView(APIView):
     """
-    Existing courses from edx-platform
+    Existing organisations from edx-platform.
     """
 
+    @method_decorator(cache_page(CACHE_TTL))
     def get(self, request):
-        orgs = [
-            'Microsoft',
-            'Flane',
-            'Camara',
-            'Killian',
-            'University',
-        ]
-        return Response({'organisations': orgs}, status=200)
+        client = EdxApiV2Client()
+        try:
+            return Response(
+                {'organisations': client.get_organizations()},
+                status=http.client.OK
+            )
+        except (
+            EdxApiNotFoundException,
+            EdxApiResponseParsingException,
+            EdxApiServerErrorException,
+            EdxApiUnauthorizedException,
+            OtherEdxApiException,
+        ) as e:
+            return Response(
+                {'organisations': []},
+                status=e.status_code
+            )
 
 
 class AchievementsView(APIView):
