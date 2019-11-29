@@ -65,7 +65,7 @@ class GameProfileView(APIView):
     """
 
     conn = MongoConnector()
-
+    authentication_classes = (KeySecretAuthentication,)
 
     def put(self, request, *args, **kwargs):
         """
