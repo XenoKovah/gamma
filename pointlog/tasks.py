@@ -30,6 +30,7 @@ def check_user_achievements(user_id, log_event):
     Task should be delayed for 30 seconds.
     Called on incoming request for particular event type.
     """
+
     conn = AchievementRulesMongo()
     conn.connect()
     user = User.objects.get(id=user_id)

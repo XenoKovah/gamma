@@ -69,7 +69,7 @@ class StatusBadge(models.Model):
     status_color = models.CharField(
         max_length=16, choices=BADGE_STATUS_COLORS, blank=True
     )
-    badge_img = badge_img = models.ImageField(upload_to="media")
+    badge_img = models.ImageField(upload_to="media")
 
     def __str__(self):
         return self.slug
@@ -77,7 +77,7 @@ class StatusBadge(models.Model):
 
 class UserAchievement(models.Model):
     """
-    Custom ManyToMany model for User<=>Achievements relation.
+    Custom ManyToMany model for User<=>Achievement relation.
     """
     date = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -89,7 +89,7 @@ class UserAchievement(models.Model):
 
 class UserStatus(models.Model):
     """
-    Custom ManyToMany model for User<=>Achievements relation.
+    Custom ManyToMany model for User<=>Status relation.
     """
     date = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)

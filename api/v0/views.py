@@ -321,9 +321,15 @@ class BadgesView(APIView):
         badges = conn.collection.find({"active": True})
 
         for badge in badges:
-            default_progress = {k: {'count': 0, 'goal': v} for k, v in badge.get("rules", {}).get("actions", {}).items()}
-            default_progress.update(badge.get("users", {}).get(str(user.id), {}))
+            rules = badge.get("rules", {}).get("actions", {})
+            default_progress = {k: {'count': 0, 'goal': v} for k, v in rules.items()}
+            user_stats = badge.get("users", {}).get(str(user.id), {})
 
+            # Exclude inactive rules (actions rules might have changed)
+            for a in set(user_stats.keys()).difference(set(rules.keys())).intersection(set(user_stats)):
+                del user_stats[a]
+
+            default_progress.update(user_stats)
             c_badges().update(
                 {"user_id": user.id},
                 {
@@ -334,27 +340,37 @@ class BadgesView(APIView):
                 upsert=True
             )
 
-            rule = badge.get("users", {}).get(str(user.id), {})
-            done = all(
-                map(
-                    lambda x: x[0] >= x[1] if x[1] else False,
-                    (
-                        (rule[i].get('count', 0), badge.get("rules", {}).get("actions", {}).get(i))
-                        for i in rule if not i == 'done')
+            # Check if a badge is already granted
+            # NOTE: consider adding 'done_date` (we'll be able to define if rules were
+            # changed after a badge was granted)
+            if not c_badges().find_one(
+                {"user_id": user.id}
+            ).get(
+                "badges", {}
+            ).get(
+                badge.get("slug"), {}
+            ).get(
+                "done"
+            ):
+                done = all(
+                    map(
+                        lambda x: x[0] >= x[1] if x[1] else False,
+                        (
+                            (user_stats[i].get('count', 0), rules.get(i))
+                            for i in user_stats if not i == 'done')
+                    )
+                ) if user_stats else False
+                sql_achievement = Achievement.objects.filter(slug=badge.get("slug")).first()
+                achievement_url = sql_achievement.badge_img.url if sql_achievement else ''
+                c_badges().update(
+                    {"user_id": user.id},
+                    {
+                        "$set": {
+                            "badges.{}.done".format(badge.get("slug")): done,
+                            "badges.{}.url".format(badge.get("slug")): achievement_url
+                        }
+                    },
                 )
-            ) if rule else False
-
-            sql_achievement = Achievement.objects.filter(slug=badge.get("slug")).first()
-            achievement_url = sql_achievement.badge_img.url if sql_achievement else ''
-            c_badges().update(
-                {"user_id": user.id},
-                {
-                    "$set": {
-                        "badges.{}.done".format(badge.get("slug")): done,
-                        "badges.{}.url".format(badge.get("slug")): achievement_url
-                    }
-                },
-            )
 
         log_api_access = ApiAccessEvent(
             user=user,
@@ -496,7 +512,6 @@ class BadgeRuleView(APIView):
             return Response({})
         badge = self.conn.collection.find_one({"slug": slug}, {"_id": 0})
         return Response(badge.get('rules', {}) if badge else {})
-
 
     def put(self, request, *args, **kwargs):
         slug = request.data.pop('slug')

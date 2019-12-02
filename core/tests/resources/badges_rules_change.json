@@ -1,0 +1,991 @@
+[
+  {
+    "description": "1. Goal is decreased (a badge wasn't granted before rules changed).",
+    "input": {
+      "initial_rules":  [
+        {
+          "actions": {
+            "event_type_1": 3
+          },
+          "filters": {
+            "interval": {}
+          },
+          "slug": "slug_1",
+          "badge_image": "badge_image_1"
+        }
+      ],
+      "changed_rules":  [
+        {
+          "actions": {
+            "event_type_1": 2
+          },
+          "filters": {
+            "interval": {}
+          },
+          "slug": "slug_1",
+          "badge_image": "badge_image_1"
+        }
+      ],
+      "pre_change_events": [
+        {
+          "event_type": "event_type_1"
+        }
+      ],
+      "post_change_events": [
+        {
+          "event_type": "event_type_1"
+        }
+      ]
+    },
+    "output":  {
+      "pre_change_c_badges": [
+        {
+          "slug_1": {
+            "event_type_1": {
+              "count": 1,
+              "goal": 3
+            },
+            "done": false
+          }
+        }
+      ],
+      "post_change_pre_hit_c_badges": [
+        {
+          "slug_1": {
+            "event_type_1": {
+              "count": 1,
+              "goal": 3
+            },
+            "done": false
+          }
+        }
+      ],
+      "post_change_post_hit_c_badges": [
+        {
+          "slug_1": {
+            "event_type_1": {
+              "count": 2,
+              "goal": 2
+            },
+            "done": true
+          }
+        }
+      ]
+    }
+  },
+
+  {
+    "description": "2. Goal is decreased (a badge WAS granted before rules changed).",
+    "input": {
+      "initial_rules":  [
+        {
+          "actions": {
+            "event_type_1": 2
+          },
+          "filters": {
+            "interval": {}
+          },
+          "slug": "slug_1",
+          "badge_image": "badge_image_1"
+        }
+      ],
+      "changed_rules":  [
+        {
+          "actions": {
+            "event_type_1": 1
+          },
+          "filters": {
+            "interval": {}
+          },
+          "slug": "slug_1",
+          "badge_image": "badge_image_1"
+        }
+      ],
+      "pre_change_events": [
+        {
+          "event_type": "event_type_1"
+        },
+        {
+          "event_type": "event_type_1"
+        }
+      ],
+      "post_change_events": [
+        {
+          "event_type": "event_type_1"
+        }
+      ]
+    },
+    "output":  {
+      "pre_change_c_badges": [
+        {
+          "slug_1": {
+            "event_type_1": {
+              "count": 2,
+              "goal": 2
+            },
+            "done": true
+          }
+        }
+      ],
+      "post_change_pre_hit_c_badges": [
+        {
+          "slug_1": {
+            "event_type_1": {
+              "count": 2,
+              "goal": 2
+            },
+            "done": true
+          }
+        }
+      ],
+      "post_change_post_hit_c_badges": [
+        {
+          "slug_1": {
+            "event_type_1": {
+              "count": 3,
+              "goal": 1
+            },
+            "done": true
+          }
+        }
+      ]
+    }
+  },
+
+  {
+    "description": "3. Goal is increased (a badge wasn't granted before rules changed).",
+    "input": {
+      "initial_rules":  [
+        {
+          "actions": {
+            "event_type_1": 3
+          },
+          "filters": {
+            "interval": {}
+          },
+          "slug": "slug_1",
+          "badge_image": "badge_image_1"
+        }
+      ],
+      "changed_rules":  [
+        {
+          "actions": {
+            "event_type_1": 4
+          },
+          "filters": {
+            "interval": {}
+          },
+          "slug": "slug_1",
+          "badge_image": "badge_image_1"
+        }
+      ],
+      "pre_change_events": [
+        {
+          "event_type": "event_type_1"
+        },
+        {
+          "event_type": "event_type_1"
+        }
+      ],
+      "post_change_events": [
+        {
+          "event_type": "event_type_1"
+        },
+        {
+          "event_type": "event_type_1"
+        }
+      ]
+    },
+    "output":  {
+      "pre_change_c_badges": [
+        {
+          "slug_1": {
+            "event_type_1": {
+              "count": 2,
+              "goal": 3
+            },
+            "done": false
+          }
+        }
+      ],
+      "post_change_pre_hit_c_badges": [
+        {
+          "slug_1": {
+            "event_type_1": {
+              "count": 2,
+              "goal": 3
+            },
+            "done": false
+          }
+        }
+      ],
+      "post_change_post_hit_c_badges": [
+        {
+          "slug_1": {
+            "event_type_1": {
+              "count": 4,
+              "goal": 4
+            },
+            "done": true
+          }
+        }
+      ]
+    }
+  },
+
+  {
+    "description": "4. Goal is increased (a badge WAS granted before rules changed).",
+    "input": {
+      "initial_rules":  [
+        {
+          "actions": {
+            "event_type_1": 2
+          },
+          "filters": {
+            "interval": {}
+          },
+          "slug": "slug_1",
+          "badge_image": "badge_image_1"
+        }
+      ],
+      "changed_rules":  [
+        {
+          "actions": {
+            "event_type_1": 4
+          },
+          "filters": {
+            "interval": {}
+          },
+          "slug": "slug_1",
+          "badge_image": "badge_image_1"
+        }
+      ],
+      "pre_change_events": [
+        {
+          "event_type": "event_type_1"
+        },
+        {
+          "event_type": "event_type_1"
+        }
+      ],
+      "post_change_events": [
+        {
+          "event_type": "event_type_1"
+        }
+      ]
+    },
+    "output":  {
+      "pre_change_c_badges": [
+        {
+          "slug_1": {
+            "event_type_1": {
+              "count": 2,
+              "goal": 2
+            },
+            "done": true
+          }
+        }
+      ],
+      "post_change_pre_hit_c_badges": [
+        {
+          "slug_1": {
+            "event_type_1": {
+              "count": 2,
+              "goal": 2
+            },
+            "done": true
+          }
+        }
+      ],
+      "post_change_post_hit_c_badges": [
+        {
+          "slug_1": {
+            "event_type_1": {
+              "count": 3,
+              "goal": 4
+            },
+            "done": true
+          }
+        }
+      ]
+    }
+  },
+
+  {
+    "description": "5. Action’s event type is removed (a badge wasn't granted before rules changed).",
+    "input": {
+      "initial_rules":  [
+        {
+          "actions": {
+            "event_type_1": 2,
+            "event_type_2": 2
+
+          },
+          "filters": {
+            "interval": {}
+          },
+          "slug": "slug_1",
+          "badge_image": "badge_image_1"
+        }
+      ],
+      "changed_rules":  [
+        {
+          "actions": {
+            "event_type_1": 2
+          },
+          "filters": {
+            "interval": {}
+          },
+          "slug": "slug_1",
+          "badge_image": "badge_image_1"
+        }
+      ],
+      "pre_change_events": [
+        {
+          "event_type": "event_type_1"
+        },
+        {
+          "event_type": "event_type_2"
+        }
+      ],
+      "post_change_events": [
+        {
+          "event_type": "event_type_1"
+        },
+        {
+          "event_type": "event_type_2"
+        }
+      ]
+    },
+    "output":  {
+      "pre_change_c_badges": [
+        {
+          "slug_1": {
+            "event_type_1": {
+              "count": 1,
+              "goal": 2
+            },
+            "event_type_2": {
+              "count": 1,
+              "goal": 2
+            },
+            "done": false
+          }
+        }
+      ],
+      "post_change_pre_hit_c_badges": [
+        {
+          "slug_1": {
+            "event_type_1": {
+              "count": 1,
+              "goal": 2
+            },
+            "done": false
+          }
+        }
+      ],
+      "post_change_post_hit_c_badges": [
+        {
+          "slug_1": {
+            "event_type_1": {
+              "count": 2,
+              "goal": 2
+            },
+            "done": true
+          }
+        }
+      ]
+    }
+  },
+
+  {
+    "description": "6. Action’s event type is removed (a badge WAS granted before rules changed).",
+    "input": {
+      "initial_rules":  [
+        {
+          "actions": {
+            "event_type_1": 2,
+            "event_type_2": 2
+
+          },
+          "filters": {
+            "interval": {}
+          },
+          "slug": "slug_1",
+          "badge_image": "badge_image_1"
+        }
+      ],
+      "changed_rules":  [
+        {
+          "actions": {
+            "event_type_1": 2
+          },
+          "filters": {
+            "interval": {}
+          },
+          "slug": "slug_1",
+          "badge_image": "badge_image_1"
+        }
+      ],
+      "pre_change_events": [
+        {
+          "event_type": "event_type_1"
+        },
+        {
+          "event_type": "event_type_1"
+        },
+        {
+          "event_type": "event_type_2"
+        },
+        {
+          "event_type": "event_type_2"
+        }
+      ],
+      "post_change_events": [
+        {
+          "event_type": "event_type_1"
+        },
+        {
+          "event_type": "event_type_2"
+        }
+      ]
+    },
+    "output":  {
+      "pre_change_c_badges": [
+        {
+          "slug_1": {
+            "event_type_1": {
+              "count": 2,
+              "goal": 2
+            },
+            "event_type_2": {
+              "count": 2,
+              "goal": 2
+            },
+            "done": true
+          }
+        }
+      ],
+      "post_change_pre_hit_c_badges": [
+        {
+          "slug_1": {
+            "event_type_1": {
+              "count": 2,
+              "goal": 2
+            },
+            "done": true
+          }
+        }
+      ],
+      "post_change_post_hit_c_badges": [
+        {
+          "slug_1": {
+            "event_type_1": {
+              "count": 3,
+              "goal": 2
+            },
+            "done": true
+          }
+        }
+      ]
+    }
+  },
+
+  {
+    "description": "7. Action’s event type is added (a badge wasn't granted before rules changed).",
+    "input": {
+      "initial_rules":  [
+        {
+          "actions": {
+            "event_type_1": 2
+          },
+          "filters": {
+            "interval": {}
+          },
+          "slug": "slug_1",
+          "badge_image": "badge_image_1"
+        }
+      ],
+      "changed_rules":  [
+        {
+          "actions": {
+            "event_type_1": 2,
+            "event_type_2": 2
+          },
+          "filters": {
+            "interval": {}
+          },
+          "slug": "slug_1",
+          "badge_image": "badge_image_1"
+        }
+      ],
+      "pre_change_events": [
+        {
+          "event_type": "event_type_1"
+        }
+      ],
+      "post_change_events": [
+        {
+          "event_type": "event_type_1"
+        },
+        {
+          "event_type": "event_type_2"
+        },
+        {
+          "event_type": "event_type_2"
+        }
+      ]
+    },
+    "output":  {
+      "pre_change_c_badges": [
+        {
+          "slug_1": {
+            "event_type_1": {
+              "count": 1,
+              "goal": 2
+            },
+            "done": false
+          }
+        }
+      ],
+      "post_change_pre_hit_c_badges": [
+        {
+          "slug_1": {
+            "event_type_1": {
+              "count": 1,
+              "goal": 2
+            },
+            "done": false
+          }
+        }
+      ],
+      "post_change_post_hit_c_badges": [
+        {
+          "slug_1": {
+            "event_type_1": {
+              "count": 2,
+              "goal": 2
+            },
+            "event_type_2": {
+              "count": 2,
+              "goal": 2
+            },
+            "done": true
+          }
+        }
+      ]
+    }
+  },
+
+  {
+    "description": "8. Action’s event type is added (a badge WAS granted before rules changed).",
+    "input": {
+      "initial_rules":  [
+        {
+          "actions": {
+            "event_type_1": 2
+          },
+          "filters": {
+            "interval": {}
+          },
+          "slug": "slug_1",
+          "badge_image": "badge_image_1"
+        }
+      ],
+      "changed_rules":  [
+        {
+          "actions": {
+            "event_type_1": 2,
+            "event_type_2": 2
+          },
+          "filters": {
+            "interval": {}
+          },
+          "slug": "slug_1",
+          "badge_image": "badge_image_1"
+        }
+      ],
+      "pre_change_events": [
+        {
+          "event_type": "event_type_1"
+        },
+        {
+          "event_type": "event_type_1"
+        }
+      ],
+      "post_change_events": [
+        {
+          "event_type": "event_type_1"
+        },
+        {
+          "event_type": "event_type_2"
+        },
+        {
+          "event_type": "event_type_2"
+        }
+      ]
+    },
+    "output":  {
+      "pre_change_c_badges": [
+        {
+          "slug_1": {
+            "event_type_1": {
+              "count": 2,
+              "goal": 2
+            },
+            "done": true
+          }
+        }
+      ],
+      "post_change_pre_hit_c_badges": [
+        {
+          "slug_1": {
+            "event_type_1": {
+              "count": 2,
+              "goal": 2
+            },
+            "done": true
+          }
+        }
+      ],
+      "post_change_post_hit_c_badges": [
+        {
+          "slug_1": {
+            "event_type_1": {
+              "count": 3,
+              "goal": 2
+            },
+            "event_type_2": {
+              "count": 2,
+              "goal": 2
+            },
+            "done": true
+          }
+        }
+      ]
+    }
+  },
+
+  {
+    "description": "9. Filter is removed (a badge wasn't granted before rules changed).",
+    "input": {
+      "initial_rules":  [
+        {
+          "actions": {
+            "event_type_1": 2
+          },
+          "filters": {
+            "interval": {},
+            "org": "org_1"
+          },
+          "slug": "slug_1",
+          "badge_image": "badge_image_1"
+        }
+      ],
+      "changed_rules":  [
+        {
+          "actions": {
+            "event_type_1": 2
+          },
+          "filters": {
+            "interval": {}
+          },
+          "slug": "slug_1",
+          "badge_image": "badge_image_1"
+        }
+      ],
+      "pre_change_events": [
+        {
+          "event_type": "event_type_1",
+          "org": "org_1"
+        }
+      ],
+      "post_change_events": [
+        {
+          "event_type": "event_type_1",
+          "org": "org_1"
+        }
+      ]
+    },
+    "output":  {
+      "pre_change_c_badges": [
+        {
+          "slug_1": {
+            "event_type_1": {
+              "count": 1,
+              "goal": 2
+            },
+            "done": false
+          }
+        }
+      ],
+      "post_change_pre_hit_c_badges": [
+        {
+          "slug_1": {
+            "event_type_1": {
+              "count": 1,
+              "goal": 2
+            },
+            "done": false
+          }
+        }
+      ],
+      "post_change_post_hit_c_badges": [
+        {
+          "slug_1": {
+            "event_type_1": {
+              "count": 2,
+              "goal": 2
+            },
+            "done": true
+          }
+        }
+      ]
+    }
+  },
+
+  {
+    "description": "10. Filter is removed (a badge WAS granted before rules changed).",
+    "input": {
+      "initial_rules":  [
+        {
+          "actions": {
+            "event_type_1": 2
+          },
+          "filters": {
+            "interval": {},
+            "org": "org_1"
+          },
+          "slug": "slug_1",
+          "badge_image": "badge_image_1"
+        }
+      ],
+      "changed_rules":  [
+        {
+          "actions": {
+            "event_type_1": 2
+          },
+          "filters": {
+            "interval": {}
+          },
+          "slug": "slug_1",
+          "badge_image": "badge_image_1"
+        }
+      ],
+      "pre_change_events": [
+        {
+          "event_type": "event_type_1",
+          "org": "org_1"
+        },
+        {
+          "event_type": "event_type_1",
+          "org": "org_1"
+        }
+      ],
+      "post_change_events": [
+        {
+          "event_type": "event_type_1",
+          "org": "org_1"
+        }
+      ]
+    },
+    "output":  {
+      "pre_change_c_badges": [
+        {
+          "slug_1": {
+            "event_type_1": {
+              "count": 2,
+              "goal": 2
+            },
+            "done": true
+          }
+        }
+      ],
+      "post_change_pre_hit_c_badges": [
+        {
+          "slug_1": {
+            "event_type_1": {
+              "count": 2,
+              "goal": 2
+            },
+            "done": true
+          }
+        }
+      ],
+      "post_change_post_hit_c_badges": [
+        {
+          "slug_1": {
+            "event_type_1": {
+              "count":3,
+              "goal": 2
+            },
+            "done": true
+          }
+        }
+      ]
+    }
+  },
+
+  {
+    "description": "11. Filter is added (a badge wasn't granted before rules changed).",
+    "input": {
+      "initial_rules":  [
+        {
+          "actions": {
+            "event_type_1": 2
+          },
+          "filters": {
+            "interval": {}
+          },
+          "slug": "slug_1",
+          "badge_image": "badge_image_1"
+        }
+      ],
+      "changed_rules":  [
+        {
+          "actions": {
+            "event_type_1": 2,
+            "org": "org_1"
+          },
+          "filters": {
+            "interval": {}
+          },
+          "slug": "slug_1",
+          "badge_image": "badge_image_1"
+        }
+      ],
+      "pre_change_events": [
+        {
+          "event_type": "event_type_1"
+        }
+      ],
+      "post_change_events": [
+        {
+          "event_type": "event_type_1",
+          "org": "org_1"
+        },
+        {
+          "event_type": "event_type_1",
+          "org": "org_1"
+        }
+      ]
+    },
+    "output":  {
+      "pre_change_c_badges": [
+        {
+          "slug_1": {
+            "event_type_1": {
+              "count": 1,
+              "goal": 2
+            },
+            "done": false
+          }
+        }
+      ],
+      "post_change_pre_hit_c_badges": [
+        {
+          "slug_1": {
+            "event_type_1": {
+              "count": 1,
+              "goal": 2
+            },
+            "done": false
+          }
+        }
+      ],
+      "post_change_post_hit_c_badges": [
+        {
+          "slug_1": {
+            "event_type_1": {
+              "count": 3,
+              "goal": 2
+            },
+            "done": true
+          }
+        }
+      ]
+    }
+  },
+
+  {
+    "description": "12. Filter is added (a badge WAS granted before rules changed).",
+    "input": {
+      "initial_rules":  [
+        {
+          "actions": {
+            "event_type_1": 2
+          },
+          "filters": {
+            "interval": {}
+          },
+          "slug": "slug_1",
+          "badge_image": "badge_image_1"
+        }
+      ],
+      "changed_rules":  [
+        {
+          "actions": {
+            "event_type_1": 2,
+            "org": "org_1"
+          },
+          "filters": {
+            "interval": {}
+          },
+          "slug": "slug_1",
+          "badge_image": "badge_image_1"
+        }
+      ],
+      "pre_change_events": [
+        {
+          "event_type": "event_type_1",
+          "org": "org_1"
+        },
+        {
+          "event_type": "event_type_1",
+          "org": "org_1"
+        }
+      ],
+      "post_change_events": [
+        {
+          "event_type": "event_type_1",
+          "org": "org_1"
+        }
+      ]
+    },
+    "output":  {
+      "pre_change_c_badges": [
+        {
+          "slug_1": {
+            "event_type_1": {
+              "count": 2,
+              "goal": 2
+            },
+            "done": true
+          }
+        }
+      ],
+      "post_change_pre_hit_c_badges": [
+        {
+          "slug_1": {
+            "event_type_1": {
+              "count": 2,
+              "goal": 2
+            },
+            "done": true
+          }
+        }
+      ],
+      "post_change_post_hit_c_badges": [
+        {
+          "slug_1": {
+            "event_type_1": {
+              "count": 3,
+              "goal": 2
+            },
+            "done": true
+          }
+        }
+      ]
+    }
+  }
+]

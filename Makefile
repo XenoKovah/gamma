@@ -56,7 +56,7 @@ test:
 			bash -c \
 			" \
 			find . | grep -E \"(__pycache__|\.pyc|\.pyo$\)\" | xargs rm -rf && \
-			pytest && \
+			pytest -s && \
 			coverage xml && \
 			diff-cover coverage.xml --fail-under=60 \
 			"

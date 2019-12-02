@@ -9,6 +9,9 @@ MONGODB_CONF = {
     'USERNAME': None,
     'PASSWORD': None
 }
+MONGO_DB_NAME = "test-db"
+
+CELERY_TASK_ALWAYS_EAGER = True
 
 DB_DATA = 'test-data'
 ENABLE_CORS_HEADERS = True
