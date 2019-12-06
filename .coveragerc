@@ -5,3 +5,8 @@ omit =
     */test/*
     */tests/*
     */*tests*.py
+    gamma/settings/base.py
+    gamma/wsgi.py
+    manage.py
+    *settings*
+    conftest.py

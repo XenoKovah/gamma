@@ -1,24 +1,21 @@
+from os import environ
+
 from .base import *
 
 
-
-# MongoDB configuration
-MONGODB_CONF = {
-    'HOST': 'mongo',
-    'PORT': 27017,
-    'USERNAME': None,
-    'PASSWORD': None
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'test.db',
+    }
 }
-MONGO_DB_NAME = "test-db"
 
 CELERY_TASK_ALWAYS_EAGER = True
 
+MONGO_DB_NAME = "test-db"
 DB_DATA = 'test-data'
+
 ENABLE_CORS_HEADERS = True
 CORS_ORIGIN_ALLOW_ALL = True
-CORS_ORIGIN_WHITELIST = (
-    'google.com',
-    'hostname.example.com',
-    'localhost:8000',
-    '127.0.0.1:9000'
-)
+
+CELERY_TASK_ALWAYS_EAGER = True

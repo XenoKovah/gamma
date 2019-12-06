@@ -1,6 +1,6 @@
-import requests
 from datetime import datetime, timedelta
 
+import requests
 import pytest
 from django.contrib.auth.models import User
 import pymongo
@@ -11,15 +11,7 @@ from achievements.services import AchievementRulesMongo, base64_to_file
 
 
 @pytest.mark.parametrize("need_old_user", [True, False])
-def test_api(
-    settings,
-    live_server,
-    rand_str,
-    mongo_conn,
-    need_old_user,
-    app_client,
-    event
-):
+def test_api(settings, live_server, rand_str, mongo_conn, need_old_user, app_client, event):
     """
     Test setting/getting progress documents.
     """
@@ -105,13 +97,7 @@ def test_event_not_created(settings, live_server, rand_str, app_client):
     assert data['Error'] == 'Event type is not recognizable'
 
 
-def test_event_repeated(
-    settings,
-    live_server,
-    rand_str,
-    app_client,
-    event
-):
+def test_event_repeated(settings, live_server, rand_str, app_client, event):
     """
     Repeated events is not acceptable.
     """

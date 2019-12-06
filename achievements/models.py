@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import User
-from filebrowser.fields import FileBrowseField
 
 
 COLOR_CHOOCES = (

@@ -2,19 +2,33 @@ version: '3'
 
 services:
 
-  dashboard:
-    container_name: gamma_dashboard
+  dashboard-asgi:
+    container_name: gamma_dashboard_asgi
     build: .
     env_file: ./envs/local.env
-    command: python manage.py runserver 0.0.0.0:9000
+    command: python manage.py runserver 0.0.0.0:9100
     volumes:
       - .:/app
     ports:
-      - "9000:9000"
+      - "9100:9100"
     links:
       - mongo
       - postgres
       - celery
+      - api-asgi
+  
+  api-asgi:
+    container_name: gamma_api_asgi
+    build: .
+    env_file: ./envs/local.env
+    command: uvicorn gamma.asgi:application --host 0.0.0.0 --port 9191
+    volumes:
+      - .:/app
+    ports:
+      - "9191:9191"
+    links:
+      - mongo
+      - postgres
 
   celery:
     container_name: gamma_celery

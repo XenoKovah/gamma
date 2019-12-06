@@ -1,24 +1,25 @@
-Django==2.1.7
+Django==3.0
 
-djangorestframework==3.9.1
+djangorestframework==3.10.3
+django-cors-headers==3.2.0
 
-pymongo==3.7.2
-psycopg2-binary==2.7.7
+pymongo==3.9.0
+psycopg2-binary==2.8.4
 
-Pillow==3.3.1
+Pillow==6.2.1
 
-celery[redis]==4.2.1
+celery[redis]==4.3.0
 
 django-google-charts==0.1.1
 django-qsstats-magic==1.0.0
-python-dateutil==2.5.3
-django-cors-headers==2.4.1
-django-filebrowser==3.11.1
 
-python-dateutil==2.5.3
 
-gunicorn==19.9.0
+python-dateutil==2.8.1
+
+gunicorn==20.0.4
+uvicorn==0.10.8
 
 requests==2.22.0
 
-django-redis==4.10.0
+django-redis-cache==2.1.0
+mongo-tools==0.0.2

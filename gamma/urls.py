@@ -19,7 +19,6 @@ from django.urls import include, path
 from django.conf.urls.static import static
 from django.views.generic.base import TemplateView
 from django.contrib import admin
-from filebrowser.sites import site
 
 from core.views import DashboardView, AdminPanelView, LeaderBoardView, logout_view
 
@@ -30,9 +29,6 @@ urlpatterns = [
 
     # Admin panel
     path('admin_panel/', AdminPanelView.as_view()),
-
-    path('admin/filebrowser/', site.urls),
-    path('grappelli/', include('grappelli.urls')),
 
     # Native admin page
     path('admin/', admin.site.urls),

@@ -11,16 +11,16 @@ GIT_TAG := $(shell git describe --abbrev=0)
 VERSION :=
 
 sh:
-	docker-compose run app bash
+	docker-compose run --rm dashboard bash
 
-run:
+dev.up:
 	docker-compose up
 
 start:
 	docker-compose start
 
 debug:
-	docker-compose run --service-ports app
+	docker-compose run --rm --service-ports dashboard
 
 build: .build .migrate
 ifneq ($(filter $(env),$(STAGE_ENV) $(PROD_ENV)),)
@@ -31,28 +31,28 @@ endif
 	docker-compose build
 
 .migrate:
-	docker-compose run app \
+	docker-compose run --rm dashboard \
 			python manage.py migrate
 
 .mongo_populate:
-	docker-compose run app \
+	docker-compose run --rm dashboard \
 			python manage.py mongo_setup
 
 .sql_init:
-	docker-compose run app \
+	docker-compose run --rm dashboard \
 			python manage.py loaddata dump.json
 
 .mongo_init:
-	docker-compose run mongo mongorestore --host=mongo dump
+	docker-compose run --rm mongo mongorestore --host=mongo dump
 
 stop:
-	docker-compose  stop
+	docker-compose stop
 
 rm:
-	docker-compose  rm
+	docker-compose rm
 
 test:
-	docker-compose  run  app \
+	docker-compose run --rm dashboard \
 			bash -c \
 			" \
 			find . | grep -E \"(__pycache__|\.pyc|\.pyo$\)\" | xargs rm -rf && \
