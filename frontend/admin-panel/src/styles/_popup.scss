@@ -91,7 +91,8 @@
         margin: 0 2px;
     }
 
-    .css-d8oujb {
+    .css-d8oujb,
+    .css-16pqwjk-indicatorContainer {
         position: absolute;
         top: 50%;
         left: 50%;
@@ -104,25 +105,33 @@
         border-top: 8px solid $base-color;
         background: transparent;
         margin: 0;
+        padding: 0;
 
         & + div {
             display: none !important;
         }
     }
 
+    .css-16pqwjk-indicatorContainer {
+        display: none !important;
+    }
+
     .css-1hwfws3 {
         font-weight: 400;
-        padding: 2px 8px;
+        padding: 2px 5px 2px 13px;
+        min-height: 26px;
     }
 
     .css-1492t68 {
         color: hsl(0,0%,24%);
     }
 
-    .css-15k3avv {
+    .css-15k3avv,
+    .css-1upx155 {
         background: $selecd-list-background;
         box-sizing: border-box;
         box-shadow: none;
+        width: 100%;
         border-radius: 10px;
         font-size: 12px;
         font-weight: 400;
@@ -153,7 +162,7 @@
                 background: transparent;
 
                 &:hover {
-                    background-color: #45a2d6;
+                    background-color: $base-color;
                     color: $base-white-color;
                     cursor: pointer;
                 }
@@ -189,6 +198,7 @@
 
         &:focus {
             @include custom-outline;
+            border-color: $base-color;
         }
     }
 
@@ -240,17 +250,19 @@
         display: block;
         padding: 0 15px;
         width: 130px;
-        background: transparent;
+        background: transparent url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4NCjxzdmcgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgNTEyIDUxMiIgdmVyc2lvbj0iMS4xIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4NCgkJPHBhdGggZD0ibTQ1MiA0MGgtMjR2LTQwaC00MHY0MGgtMjY0di00MGgtNDB2NDBoLTI0Yy0zMy4wODQgMC02MCAyNi45MTYtNjAgNjB2MzUyYzAgMzMuMDg0IDI2LjkxNiA2MCA2MCA2MGgzOTJjMzMuMDg0IDAgNjAtMjYuOTE2IDYwLTYwdi0zNTJjMC0zMy4wODQtMjYuOTE2LTYwLTYwLTYwem0yMCA0MTJjMCAxMS4wMjgtOC45NzIgMjAtMjAgMjBoLTM5MmMtMTEuMDI4IDAtMjAtOC45NzItMjAtMjB2LTI2NGg0MzJ2MjY0em0wLTMwNGgtNDMydi00OGMwLTExLjAyOCA4Ljk3Mi0yMCAyMC0yMGgyNHY0MGg0MHYtNDBoMjY0djQwaDQwdi00MGgyNGMxMS4wMjggMCAyMCA4Ljk3MiAyMCAyMHY0OHoiIGZpbGw9IiMzZmI5ZTMiLz4NCgkJPHJlY3QgeD0iNzYiIHk9IjIzMCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjM2ZiOWUzIi8+DQoJCTxyZWN0IHg9IjE1NiIgeT0iMjMwIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIGZpbGw9IiMzZmI5ZTMiLz4NCgkJPHJlY3QgeD0iMjM2IiB5PSIyMzAiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgZmlsbD0iIzNmYjllMyIvPg0KCQk8cmVjdCB4PSIzMTYiIHk9IjIzMCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjM2ZiOWUzIi8+DQoJCTxyZWN0IHg9IjM5NiIgeT0iMjMwIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIGZpbGw9IiMzZmI5ZTMiLz4NCgkJPHJlY3QgeD0iNzYiIHk9IjMxMCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjM2ZiOWUzIi8+DQoJCTxyZWN0IHg9IjE1NiIgeT0iMzEwIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIGZpbGw9IiMzZmI5ZTMiLz4NCgkJPHJlY3QgeD0iMjM2IiB5PSIzMTAiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgZmlsbD0iIzNmYjllMyIvPg0KCQk8cmVjdCB4PSIzMTYiIHk9IjMxMCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjM2ZiOWUzIi8+DQoJCTxyZWN0IHg9Ijc2IiB5PSIzOTAiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgZmlsbD0iIzNmYjllMyIvPg0KCQk8cmVjdCB4PSIxNTYiIHk9IjM5MCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjM2ZiOWUzIi8+DQoJCTxyZWN0IHg9IjIzNiIgeT0iMzkwIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIGZpbGw9IiMzZmI5ZTMiLz4NCgkJPHJlY3QgeD0iMzE2IiB5PSIzOTAiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgZmlsbD0iIzNmYjllMyIvPg0KCQk8cmVjdCB4PSIzOTYiIHk9IjMxMCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjM2ZiOWUzIi8+DQo8L3N2Zz4=') no-repeat 94% center;
+        background-size: 16px;
         height: 30px;
         font-size: 12px;
         color: $input-color;
         font-weight: 400;
         border-radius: 20px;
-        border: 2px solid #45a2d6;
-        background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4NCjxzdmcgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgNTEyIDUxMiIgdmVyc2lvbj0iMS4xIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4NCgkJPHBhdGggZD0ibTQ1MiA0MGgtMjR2LTQwaC00MHY0MGgtMjY0di00MGgtNDB2NDBoLTI0Yy0zMy4wODQgMC02MCAyNi45MTYtNjAgNjB2MzUyYzAgMzMuMDg0IDI2LjkxNiA2MCA2MCA2MGgzOTJjMzMuMDg0IDAgNjAtMjYuOTE2IDYwLTYwdi0zNTJjMC0zMy4wODQtMjYuOTE2LTYwLTYwLTYwem0yMCA0MTJjMCAxMS4wMjgtOC45NzIgMjAtMjAgMjBoLTM5MmMtMTEuMDI4IDAtMjAtOC45NzItMjAtMjB2LTI2NGg0MzJ2MjY0em0wLTMwNGgtNDMydi00OGMwLTExLjAyOCA4Ljk3Mi0yMCAyMC0yMGgyNHY0MGg0MHYtNDBoMjY0djQwaDQwdi00MGgyNGMxMS4wMjggMCAyMCA4Ljk3MiAyMCAyMHY0OHoiIGZpbGw9IiMzZmI5ZTMiLz4NCgkJPHJlY3QgeD0iNzYiIHk9IjIzMCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjM2ZiOWUzIi8+DQoJCTxyZWN0IHg9IjE1NiIgeT0iMjMwIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIGZpbGw9IiMzZmI5ZTMiLz4NCgkJPHJlY3QgeD0iMjM2IiB5PSIyMzAiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgZmlsbD0iIzNmYjllMyIvPg0KCQk8cmVjdCB4PSIzMTYiIHk9IjIzMCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjM2ZiOWUzIi8+DQoJCTxyZWN0IHg9IjM5NiIgeT0iMjMwIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIGZpbGw9IiMzZmI5ZTMiLz4NCgkJPHJlY3QgeD0iNzYiIHk9IjMxMCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjM2ZiOWUzIi8+DQoJCTxyZWN0IHg9IjE1NiIgeT0iMzEwIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIGZpbGw9IiMzZmI5ZTMiLz4NCgkJPHJlY3QgeD0iMjM2IiB5PSIzMTAiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgZmlsbD0iIzNmYjllMyIvPg0KCQk8cmVjdCB4PSIzMTYiIHk9IjMxMCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjM2ZiOWUzIi8+DQoJCTxyZWN0IHg9Ijc2IiB5PSIzOTAiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgZmlsbD0iIzNmYjllMyIvPg0KCQk8cmVjdCB4PSIxNTYiIHk9IjM5MCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjM2ZiOWUzIi8+DQoJCTxyZWN0IHg9IjIzNiIgeT0iMzkwIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIGZpbGw9IiMzZmI5ZTMiLz4NCgkJPHJlY3QgeD0iMzE2IiB5PSIzOTAiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgZmlsbD0iIzNmYjllMyIvPg0KCQk8cmVjdCB4PSIzOTYiIHk9IjMxMCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjM2ZiOWUzIi8+DQo8L3N2Zz4=');
-        background-position: 90% center;
-        background-repeat: no-repeat;
-        background-size: 16px;
+        border: 2px solid $base-color;
+
+        &:focus {
+            @include custom-outline;
+            border-color: $base-color;
+        }
     }
 
     label + div {
@@ -271,13 +283,12 @@ label {
 }
 
 // popup wrapper
-div[class*="MuiDialog-paper"] {
-    border-width: 2px;
-    border-color: #fff;
-    border-style: solid;
-    border-radius: 10px;
+div[class*="MuiDialog-paper"],
+.jss5.jss20 {
+    border: 2px solid #fff;
     background-color: $base-white-color;
     box-shadow: 0 6px 88px 0 rgba(0, 0, 0, 0.35);
+    max-height: calc(100% - 20px);
 }
 
 // popup title
