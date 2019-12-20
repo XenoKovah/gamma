@@ -1,10 +1,17 @@
-{% load i18n static %}<!DOCTYPE html>
+{% load i18n static %}
+{% load render_bundle from webpack_loader %}
+
+<!DOCTYPE html>
 {% get_current_language as LANGUAGE_CODE %}{% get_current_language_bidi as LANGUAGE_BIDI %}
 <html lang="{{ LANGUAGE_CODE|default:"en-us" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 <head>
 <title>{{ title }} | RG Gamification</title>
 <link rel="stylesheet" type="text/css" href="{% block stylesheet %}{% static "admin/css/base.css" %}{% endblock %}">
-<link rel="stylesheet" href="{% static 'core/css/admin-stylesheet.css' %}">
+
+<!-- NOTE: [test] styling e.g. http://0.0.0.0:9000/admin/achievements/#/ -->
+{% render_bundle 'admin_panel' 'css' %}
+<!--<link rel="stylesheet" href="{% static 'core/css/admin-stylesheet.css' %}">-->
+
 {% block extrastyle %}{% endblock %}
 {% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}{% static "admin/css/rtl.css" %}{% endblock %}">{% endif %}
 {% block extrahead %}{% endblock %}
@@ -91,7 +98,12 @@
         <br class="clear">
     </div>
     <div id="root"></div>
-    <script src="{% static 'core/js/bundle.js' %}"></script>
+
+    <!-- NOTE: [test] "Edit Rules" modal pops up, rules are saved: http://0.0.0.0:9000/admin/achievements/achievement/ -->
+    {% render_bundle 'runtime' 'js' %}
+    {% render_bundle 'vendors' 'js' %}
+    {% render_bundle 'admin_panel' 'js' %}
+<!--     <script src="{% static 'core/js/bundle.js' %}"></script>-->
     <!-- END Content -->
 
     {% block footer %}<div id="footer"></div>{% endblock %}

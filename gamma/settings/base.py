@@ -5,6 +5,7 @@ from .logging import LOGGING
 
 
 BASE_DIR = path.dirname(path.dirname(path.abspath(__file__)))
+ROOT_DIR = path.dirname(BASE_DIR)
 
 SECRET_KEY = environ.get('SECRET_KEY', 'xhs78m@(e)58)&s8)3r(2s+x=jq(p$hdqqnz-ta5)l=#1g*5ju')
 
@@ -32,6 +33,8 @@ INSTALLED_APPS = [
     'googlecharts',
 
     'corsheaders',
+
+    'webpack_loader',
 ]
 
 MIDDLEWARE = [
@@ -105,6 +108,14 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR + "/static/"
 
+STATICFILES_DIRS = (
+    path.join(ROOT_DIR, 'frontend'),
+)
+
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+)
 
 # IFrame setting for loading main dashboard in IFrame
 X_FRAME_OPTIONS = "SAMEORIGIN"
@@ -199,3 +210,15 @@ CACHES = {
 }
 # Cache time to live is 2 hours.
 CACHE_TTL = environ.get('CACHE_TTL', 60 * 60 * 2)
+
+# Ref.: https://github.com/owais/django-webpack-loader#default-configuration
+# Define 'STATS_FILE' for each environment in its settings file.
+WEBPACK_LOADER = {
+    'DEFAULT': {
+        'BUNDLE_DIR_NAME': 'webpack_bundles/',  # Use a relative path; must end with slash
+        # NOTE: Stats file is not polled when in production (DEBUG=False).
+        'POLL_INTERVAL': 0.1,
+        'TIMEOUT': None,
+        'IGNORE': [r'.+\.hot-update.js', r'.+\.map']
+    }
+}

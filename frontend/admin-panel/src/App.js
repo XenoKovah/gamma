@@ -13,8 +13,6 @@ import FilterContainer from './containers/FilterContainer';
 import Rules from './containers/Rules';
 import { getCookie, isObjectEmpty} from './Utils';
 
-
-
 class App extends Component {
 
   constructor(props) {

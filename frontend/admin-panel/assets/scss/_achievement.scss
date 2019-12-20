@@ -194,7 +194,7 @@
     border-radius: 50%;
     margin-right: 2px;
     font-size: 0;
-    background: #82c5ea url(../images/search.svg) no-repeat center center;
+    background: #82c5ea url(../../src/images/search.svg) no-repeat center center;
     background-size: 12px;
     transition: opacity .15s linear;
     box-sizing: border-box;
@@ -275,9 +275,9 @@
     display: inline-block;
     width: 24px;
     height: 20px;
-    background: url(../images/check_box.svg) no-repeat left center;
+    background: url(../../src/images/check_box.svg) no-repeat left center;
 }
 
 .AchievementForm-CheckInput:checked + .AchievementForm-CheckIcon {
-    background-image: url(../images/check_box_full.svg);
+    background-image: url(../../src/images/check_box_full.svg);
 }

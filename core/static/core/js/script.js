@@ -89,9 +89,9 @@ function removeStyles (el, properties) {
 
 //animates selection to hovered state (used for "out of range" cells)
 function animateToHovered(selection){
-    
+
     if(selection.empty()) return;
-    
+
     var _height = selection.style('height');
 
     selection.style('height', '0px');
@@ -112,9 +112,9 @@ function animateToHovered(selection){
 
 //animates selection to selected state (used for "out of range" cells)
 function animateToSelected(selection){
-    
+
     if(selection.empty()) return;
-    
+
     var _bgcolor = selection.style('background-color');
     var _color = selection.style('color');
 
@@ -207,7 +207,7 @@ function initLeaderboard(){
         //animate color for those out of range
         columns.selectAll('.leaderboard-cell.cell-out-of-range.selected').call(animateToSelected);
     });
-    
+
     //cell mouse over
     cells.on("mouseover", function(d, i){
              var hovered = cells.filter(function(cellData){ return d === cellData;})
@@ -217,14 +217,14 @@ function initLeaderboard(){
                 //fade in those out of range
                 columns.selectAll('.leaderboard-cell.cell-out-of-range.hovered').call(animateToHovered);
     });
-    
+
     //cell mouse out
     cells.on("mouseout", function(d, i){
             var hovered = cells.filter(function(cellData){ return d === cellData;})
                 .classed('hovered', false)
                 ;
         });
-        
+
 }
 
 function reloadCells(){
@@ -244,7 +244,7 @@ function reloadCells(){
                 return i >= DISPLAYED_ROWS;
             })
             ;
-            
+
     cells.order();
 }
 

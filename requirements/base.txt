@@ -23,3 +23,7 @@ requests==2.22.0
 
 django-redis-cache==2.1.0
 mongo-tools==0.0.2
+
+# Assets
+# TODO build pypi package
+git+https://github.com/alihazemfarouk/django-webpack-loader.git@master#egg=django-webpack-loader

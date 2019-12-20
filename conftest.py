@@ -6,6 +6,7 @@ from datetime import datetime
 
 import pytest
 import docker as libdocker
+from webpack_loader.loader import WebpackLoader
 
 from core.services import MongoConnector
 from core.models import AppClient
@@ -85,3 +86,10 @@ def current_date():
     return datetime.strptime(
         str(datetime.now().date()), '%Y-%m-%d'
     )
+
+
+@pytest.fixture(autouse=True)
+def no_webpack_loaded(monkeypatch):
+    def mockreturn(loader, bundle_name):
+        return []
+    monkeypatch.setattr(WebpackLoader, "get_bundle", mockreturn)
