@@ -1,6 +1,3 @@
-variables:
-  REGISTRY: registry-gitlab.raccoongang.com/cmltawt0/gamma
-
 before_script:
   - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
 
@@ -19,7 +16,7 @@ Build:
     - master
     - merge_requests
   script:
-    - docker build -t $REGISTRY/app:$CI_COMMIT_SHORT_SHA .
+    - docker build -t $CI_REGISTRY_IMAGE/app:$CI_COMMIT_SHORT_SHA .
 
 Tests:
   variables:
@@ -35,7 +32,7 @@ Tests:
     - docker run
       --rm
       --link mongo_$CI_COMMIT_SHORT_SHA:mongo
-      $REGISTRY/app:$CI_COMMIT_SHORT_SHA
+      $CI_REGISTRY_IMAGE/app:$CI_COMMIT_SHORT_SHA
       bash -c "pytest && coverage xml && diff-cover coverage.xml --fail-under=60"
   after_script:
     - docker rm -f mongo_$CI_COMMIT_SHORT_SHA || true
@@ -47,10 +44,10 @@ Tag:
   only:
     - master
   script:
-    - docker tag $REGISTRY/app:$CI_COMMIT_SHORT_SHA $REGISTRY/app
-    - docker push $REGISTRY/app
+    - docker tag $CI_REGISTRY_IMAGE/app:$CI_COMMIT_SHORT_SHA $CI_REGISTRY_IMAGE/app
+    - docker push $CI_REGISTRY_IMAGE/app
   after_script:
-    - docker rmi -f $REGISTRY/app:$CI_COMMIT_SHORT_SHA || true
+    - docker rmi -f $CI_REGISTRY_IMAGE/app:$CI_COMMIT_SHORT_SHA || true
 
 Cleanup:
   stage: cleanup
@@ -61,4 +58,4 @@ Cleanup:
     - merge_requests
   when: always
   script:
-    - docker rmi -f $REGISTRY/app:$CI_COMMIT_SHORT_SHA || true
+    - docker rmi -f $CI_REGISTRY_IMAGE/app:$CI_COMMIT_SHORT_SHA || true
