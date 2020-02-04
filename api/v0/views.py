@@ -367,7 +367,7 @@ class BadgesView(APIView):
                     {
                         "$set": {
                             "badges.{}.done".format(badge.get("slug")): done,
-                            "badges.{}.url".format(badge.get("slug")): achievement_url
+                            "badges.{}.url".format(badge.get("slug")): request.build_absolute_uri(achievement_url)
                         }
                     },
                 )
