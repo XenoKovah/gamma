@@ -8,9 +8,7 @@
 <title>{{ title }} | RG Gamification</title>
 <link rel="stylesheet" type="text/css" href="{% block stylesheet %}{% static "admin/css/base.css" %}{% endblock %}">
 
-<!-- NOTE: [test] styling e.g. http://0.0.0.0:9000/admin/achievements/#/ -->
 {% render_bundle 'admin_panel' 'css' %}
-<!--<link rel="stylesheet" href="{% static 'core/css/admin-stylesheet.css' %}">-->
 
 {% block extrastyle %}{% endblock %}
 {% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}{% static "admin/css/rtl.css" %}{% endblock %}">{% endif %}
@@ -99,11 +97,9 @@
     </div>
     <div id="root"></div>
 
-    <!-- NOTE: [test] "Edit Rules" modal pops up, rules are saved: http://0.0.0.0:9000/admin/achievements/achievement/ -->
     {% render_bundle 'runtime' 'js' %}
     {% render_bundle 'vendors' 'js' %}
     {% render_bundle 'admin_panel' 'js' %}
-<!--     <script src="{% static 'core/js/bundle.js' %}"></script>-->
     <!-- END Content -->
 
     {% block footer %}<div id="footer"></div>{% endblock %}

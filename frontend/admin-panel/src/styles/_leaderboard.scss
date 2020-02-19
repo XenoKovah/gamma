@@ -15,7 +15,7 @@
     left: 50%;
     transform: translateX(-50%);
     width: 100%;
-        color: #bcbcbc;
+    color: #bcbcbc;
 }
 
 .LeaderboardModal-Close {
@@ -28,7 +28,6 @@
     right: -25px;
     top: -10px;
     transition: opacity .15s linear;
-    
     &:hover {
         cursor: pointer;
         opacity: .8;

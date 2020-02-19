@@ -10,11 +10,6 @@
 
 <title>Gamma</title>
 
-<!--<link type="text/css" rel="stylesheet" href='{% static "core/css/css__9cWqptSUNYq5YedfIwh33VxtugFVWjDdEsblT8GhLKI__quUjyhSfbEukHj8a0hYvzm9VTmPALmSZvA0xfM_Oxzo__H2javRi7GByYgyBbWuhhlF2IboDJydSu2R7988DMr9o.css" %}' media="all">-->
-<!--<link type="text/css" rel="stylesheet" href='{% static "core/css/css__NLY9Tj4u0ZIgF0QGnXSuBTPoQDyCceQhJPCVk794X20__eRQkL05tEqKj3QX8VWWRqAtsAzgLan_2YDxtUQ8YRL8__H2javRi7GByYgyBbWuhhlF2IboDJydSu2R7988DMr9o.css" %}' media="all">-->
-<!--<link type="text/css" rel="stylesheet" href='{% static "core/css/css__1tJ8hBiP39tRN9JPZMuiJtVm4vcLFTNiFGSlCY_sz8g__pYAErHGivF-CMFwb0POnQUXVJeT0A5kNSz6AcrUaeX8__H2javRi7GByYgyBbWuhhlF2IboDJydSu2R7988DMr9o.css" %}' media="all">-->
-<!--<link type="text/css" rel="stylesheet" href='{% static "core/css/css__l4bPER5kJikIg-vVyUw6FN8Rvm_e5SKEaGRHoJI7wYc__Bij226NA36s3oD7Qmt5wPdF5oBGcxkK_VMVRgmeDMXo__H2javRi7GByYgyBbWuhhlF2IboDJydSu2R7988DMr9o.css" %}' media="all">-->
-
 <!--[if IE 9]>
 <link type="text/css" rel="stylesheet" href="//www.appliedmaterials.com/sites/all/themes/appliedmaterials_clean/css/ie9.css?odxqy1" media="all" />
 <![endif]-->
@@ -30,23 +25,8 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en">
 <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
-<!-- NOTE: [test] footer style (no blank field) on http://0.0.0.0:9000/ -->
 {% render_bundle 'core' 'css' attrs='media="all"' %}
-<!--
-<link rel="stylesheet" href='{% static "core/css/styles.css" %}'>
--->
-
-<!-- NOTE: [test] styling on http://0.0.0.0:9000/ -->
 {% render_bundle 'admin_panel' 'css' %}
-<!--
-<link rel="stylesheet" href='{% static "core/css/admin-stylesheet.css" %}'>
--->
-
-<!--<script src='{% static "core/js/js__dWB41HViTcqoYHrbrlBHs8x9iwtFdMHpl7ME-vPjr-A__NWoPag4uXKyT6_Yl3mBIlBu2NM9SS7TGFi_DDxnFOu0__H2javRi7GByYgyBbWuhhlF2IboDJydSu2R7988DMr9o.js.download" %}'></script>-->
-<!--<script src='{% static "core/js/js__TDgxF1cLtlEgJnxGz_Vfa0z9L6pO8BVaFRTBRMo4B9o__3x9wAG-AKurEnteWUei7ny_M447SMDrRLnOvUNZJyGU__H2javRi7GByYgyBbWuhhlF2IboDJydSu2R7988DMr9o.js.download" %}'></script>-->
-<!--<script src='{% static "core/js/js__BHZM8xdf9Btwi-s2HhpgWwqZ7rGPCxydbTlaYzsd1uk__STpm-ylzSJ4m_imM65CnK6dyekUV2LPygsApFdNAjAE__H2javRi7GByYgyBbWuhhlF2IboDJydSu2R7988DMr9o.js.download" %}'></script>-->
-<!--<script src='{% static "core/js/js__wRfwyruw_cjIYelPiwJqY_fjYEsS9cYI5YzX_bPAAMo__Ym3mzyuOIp_ITF6XrpD7D1P4XbGZUxwxrMpOmd2p2-4__H2javRi7GByYgyBbWuhhlF2IboDJydSu2R7988DMr9o.js.download" %}'></script>-->
-<!--<script src='{% static "core/js/js__2AdERwI284m4prMh2ZnQnsOu1g1PxSXJ4UMjuUyG14k__WYQweH5O-apOIcH3VDZuhCJTlldVbSvlDHGbhW5k5eY__H2javRi7GByYgyBbWuhhlF2IboDJydSu2R7988DMr9o.js.download" %}'></script>-->
 
 <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
 <script src="https://code.highcharts.com/highcharts.js"></script>
@@ -646,12 +626,9 @@ $(function () {
     {% block content %}{% endblock %}
 </div>
 
-<!-- NOTE: [test] on http://0.0.0.0:9000/, modal shows up upon click on "MORE BADGES", "MORE STATUSES"; badges images are loaded  -->
 {% render_bundle 'runtime' 'js' %}
 {% render_bundle 'vendors' 'js' %}
 {% render_bundle 'admin_panel' 'js'  %}
-<!--{% render_bundle 'core' 'css' %}-->
-<!--<script src="{% static 'core/js/bundle.js' %}"></script>-->
 
 <noscript>&lt;style type="text/css" media="all"&gt;img[data-src] { display: none !important; }&lt;/style&gt;</noscript>
 </body></html>
