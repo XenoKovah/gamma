@@ -26,18 +26,11 @@ class DashboardView(View):
             if data:
                 charted_progress = [[_type, points] for _type, points in data.items()]
             user_achievements = request.user.userachievement_set.select_related('achievement').all()
-        return render(request, 'dashboard_new.html', {
+        return render(request, 'dashboard.html', {
             'progress_data': progress_data,
             'charted_progress': charted_progress,
             'user_achievements': user_achievements
         })
-
-
-class AdminPanelView(View):
-
-    def get(self, request):
-        if request.user.is_authenticated and request.user.is_superuser:
-            return render(request, 'admin_panel.html', {})
 
 
 class LeaderBoardView(View):

@@ -1,222 +1,623 @@
 {% load static i18n %}
 {% load render_bundle from webpack_loader %}
 
-<!doctype html>
-<!--
-  Material Design Lite
-  Copyright 2015 Google Inc. All rights reserved.
+<!DOCTYPE html>
+<html lang="en" class="js video">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+  <!--[if IE]><![endif]-->
 
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
+<title>Gamma</title>
 
-      https://www.apache.org/licenses/LICENSE-2.0
 
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License
--->
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="description" content="A front-end template that helps you build fast, modern mobile web apps.">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
-    <title>Material Design Lite</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en">
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
-    <!-- Add to homescreen for Chrome on Android -->
-    <meta name="mobile-web-app-capable" content="yes">
-    <link rel="icon" sizes="192x192" href='{% static "core/images/android-desktop.png" %}'>
+{% render_bundle 'core' 'css' attrs='media="all"' %}
+{% render_bundle 'admin_panel' 'css' %}
 
-    <!-- Add to homescreen for Safari on iOS -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="apple-mobile-web-app-title" content="Material Design Lite">
-    <link rel="apple-touch-icon-precomposed" href="images/ios-desktop.png">
+<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
 
-    <!-- Tile icon for Win8 (144x144 + tile color) -->
-    <meta name="msapplication-TileImage" content='{% static "core/images/touch/ms-touch-icon-144x144-precomposed.png" %}'>
-    <meta name="msapplication-TileColor" content="#3372DF">
-
-    <link rel="shortcut icon" href='{% static "core/images/favicon.png" %}'>
-
-    <!-- SEO: If your mobile URL is different from the desktop URL, add a canonical link to the desktop page https://developers.google.com/webmasters/smartphone-sites/feature-phones -->
-    <!--
-    <link rel="canonical" href="http://www.example.com/">
-    -->
-
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="https://code.getmdl.io/1.2.0/material.cyan-light_blue.min.css">
-
-    {% render_bundle 'core' 'css' %}
-
-    <style>
-    #view-source {
-      position: fixed;
-      display: block;
-      right: 0;
-      bottom: 0;
-      margin-right: 40px;
-      margin-bottom: 40px
-      z-index: 900;
+<script type="text/javascript">
+  $(function() {
+    function inIframe() {
+        try {
+            return window.self !== window.top;
+        } catch (e) {
+            return true;
+        }
     }
-    </style>
-    <script
-      src="https://code.jquery.com/jquery-3.1.0.min.js"
-      integrity="sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s="
-      crossorigin="anonymous">
-    </script>
-    <script type="text/javascript">
-      $(function() {
-        function inIframe() {
-            try {
-                return window.self !== window.top;
-            } catch (e) {
-                return true;
+    if(inIframe()) {
+        $('.header-nav-wrap').css('display', 'none');
+        $('.footer').css('display', 'none');
+    }
+  });
+</script>
+<script>
+Highcharts.setOptions({
+     colors: [
+         '#419e4d',
+         '#4599C3',
+         '#FFCD00',
+         '#E87722',
+         '#00B5E2',
+         '#6244BB',
+         '#888B8D',
+         '#FF0000',
+     ],
+     chart: {
+        style: {
+            fontFamily: "'Open Sans', sans-serif"
+        }
+    }
+});
+
+var chartTitleStyles = {
+    color: '#3caada',
+    fontSize: '18px',
+    textTransform: 'uppercase',
+    fontFamily: 'Exo2',
+    fontWeight: 600,
+};
+
+var chartSubtitleStyles = {
+  color: '#bcbcbc',
+  fontSize: '16px',
+  lineHeight: '20px',
+  fontFamily: 'Exo2',
+  fontWeight: 300,
+};
+
+var chartTitleOptions = {
+    buttonOptions: {
+        x: -2,
+        y: -5,
+        symbolStroke: '#00abd9',
+        theme: {
+            fill: 'transparent',
+            states: {
+                hover: {
+                    fill: 'transparent',
+                },
+                select: {
+                    fill: 'transparent',
+                }
             }
         }
-        if(inIframe()) {
-            $('.header').css('display', 'none');
-        }
-      });
-    </script>
-    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-    <script>
-    google.charts.load('current', {'packages':['corechart']});
-google.charts.setOnLoadCallback(drawChart);
-
-function drawChart() {
-
-  var data = new google.visualization.DataTable();
-  data.addColumn('date', 'Day');
-  data.addColumn('number', 'Points');
-
-  var new_data = [];
-  {% for data in progress_data %}
-  new_data.push([new Date('{{ data.date.isoformat }}'), {{ data.points }}]);
-  {% endfor %}
-
-  data.addRows(new_data);
-
-
-  var options = {
-    title: 'User progress',
-    width: 900,
-    height: 500,
-    hAxis: {
-      format: 'M/d/yy',
-      gridlines: {count: 15}
-    },
-    vAxis: {
-      gridlines: {color: 'none'},
-      minValue: 0
     }
-  };
+};
 
-  var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
-
-  chart.draw(data, options);
-
-  var button = document.getElementById('change');
-
-  button.onclick = function () {
-
-    // If the format option matches, change it to the new option,
-    // if not, reset it to the original format.
-    options.hAxis.format === 'M/d/yy' ?
-    options.hAxis.format = 'MMM dd, yyyy' :
-    options.hAxis.format = 'M/d/yy';
-
-    chart.draw(data, options);
-  };
-}
+var legendOptions = {
+  itemStyle: {
+    color: '#bcbcbc',
+      fontWeight: 'bold',
+      fontSize: '12px',
+      textTransform: 'uppercase'
+  },
+  itemHoverStyle: {
+    color: '#aaa'
+  }
+};
 
 
-    </script>
-  </head>
-  <body>
-    <div class="demo-layout mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
-      <header class="header demo-header mdl-layout__header mdl-color--grey-100 mdl-color-text--grey-600">
-        <div class="mdl-layout__header-row">
-          <span class="mdl-layout-title">{% if user.is_authenticated %}{{ user.username }}{% else %}Home{% endif %}</span>
-          <div class="mdl-layout-spacer"></div>
-          <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable">
-            <label class="mdl-button mdl-js-button mdl-button--icon" for="search">
-              <i class="material-icons">search</i>
-            </label>
-            <div class="mdl-textfield__expandable-holder">
-              <input class="mdl-textfield__input" type="text" id="search">
-              <label class="mdl-textfield__label" for="search">Enter your query...</label>
-            </div>
-          </div>
-          <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" id="hdrbtn">
-            <i class="material-icons">more_vert</i>
-          </button>
-          <ul class="mdl-menu mdl-js-menu mdl-js-ripple-effect mdl-menu--bottom-right" for="hdrbtn">
-            <li class="mdl-menu__item">About</li>
-            <li class="mdl-menu__item">Contact</li>
-            <li class="mdl-menu__item">Legal information</li>
-          </ul>
-        </div>
-      </header>
-      <div class="header demo-drawer mdl-layout__drawer mdl-color--blue-grey-900 mdl-color-text--blue-grey-50">
-        <header class="demo-drawer-header">
+$(function() {
+    $.get(
+        "/api/v0/points/",
+        data={"username": "{{ request.user.username }}"},
+        function( points ) {
+            $.get(
+                "/api/v0/chart/",
+                data={"username": "{{ request.user.username }}"},
+                function( data ) {
+                    var events = [];
+                    for (var key in data) {
+                        events.splice(data[key][0], 0, {name: key, y : data[key][1]});
+                    }
+                    $('#container-chart').highcharts({
+                        chart: {
+                            plotBackgroundColor: null,
+                            plotBorderWidth: 0,
+                            plotShadow: false
+                        },
+                        title: {
+                            text: 'Points Distribution',
+                            align: 'left',
+                            widthAdjust: 0,
+                            x: 7,
+                            margin: 50,
+                            style: chartTitleStyles,
+                        },
+                        subtitle: {
+                            text: 'Here you can see what actions caused your current points portfolio',
+                            align: 'left',
+                            widthAdjust: 7,
+                            x: 7,
+                            y: 55,
+                            style: chartSubtitleStyles,
+                        },
+                        navigation: chartTitleOptions,
+                        tooltip: {
+                            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                        },
+                        plotOptions: {
+                            pie: {
+                                dataLabels: {
+                                    enabled: true,
+                                    distance: 30,
+                                    style: {
+                                        fontWeight: 'bold',
+                                        color: 'white',
+                                        textShadow: 'unset'
+                                    }
+                                },
+                                center: ['50%', '50%'],
+                                showInLegend: true,
+                            },
+                            series: {
+                                dataLabels: {
+                                    enabled: true,
+                                    color: '#bcbcbc',
+                                    borderWidth: 0,
+                                    shadow: false,
+                                    style: {
+                                      fontWeight: '700',
+                                      fontSize: '12px',
+                                      textShadow: false,
+                                      textOutline: 0
+                                    },
+                                  formatter: function(){
+                                    var pcnt = (this.y / this.series.data.map(p => p.y).reduce((a, b) => a + b, 0)) * 100;
+                                    return Highcharts.numberFormat(pcnt, 1) + '%';
+                                  }
+                                }
+                            }
+                        },
+                        legend: legendOptions,
+                        series: [{
+                            type: 'pie',
+                            name: 'Points share',
+                            innerSize: '50%',
+                            data: events
+                        }]
+                    });
+                }
+            );
+            $.get(
+                "/api/v0/badges/",
+                data={"username": "{{ request.user.username }}"},
+                function( data ) {
+                    var badge_count = Object.keys(data).length
+                    if (badge_count < 3) {
+                        $('#badge-count').text(badge_count + ' of ' + badge_count);
+                    }
+                    else {
+                        $('#badge-count').text("3 of " + badge_count);
+                    }
+                    for (let i=0; i<3; i++) {
+                        var progressItems = '';
+                        let key = Object.keys(data)[i];
+                        if (data[key] !== undefined) {
+                            if (data[key].done) {
+                                $('#container-badges').append(
+                                    `<div class="BadgeItem">
+                                        <div class="BadgeItemFigure">
+                                            <img src="${data[key].url}" alt="" class="BadgeItemFigure-Image">
+                                        </div>
+                                        <div class="BadgeItem-Name">${key}</div>
+                                    </div>`
+                                );
+                            }
+                            else {
+                                if (Object.keys(data[key].progress).length > 0) {
+                                    progressItems += '<div class="BadgeItemPopup"><div class="BadgeItemPopup-Head">'+key+'</div><div class="BadgeItemPopup-Body"><ul class="BadgeItemPopupList">';
+                                    for (let i = 0, itemLen = Object.keys(data[key].progress).length; i < itemLen; ++i) {
+                                        progressItems += '<li class="BadgeItemPopupList-Item"><span class="BadgeItemPopupList-Counter">'+data[key].progress[Object.keys(data[key].progress)[i]].count+'/'+data[key].progress[Object.keys(data[key].progress)[i]].goal+'</span>  '+Object.keys(data[key].progress)[i].substr(0, 1).toUpperCase()+Object.keys(data[key].progress)[i].substr(1)+'</li>'
+                                    }
+                                    progressItems += '</ul></div></div> '
+                                }
+                                $('#container-badges').append(
+                                    `<div class="BadgeItem">
+                                        <div class="BadgeItemFigure BadgeItemFigure_disable">
+                                            <img src="${data[key].url}" alt="" class="BadgeItemFigure-Image">
+                                        </div>
+                                        <div class="BadgeItem-Name">${key}</div>
+                                            ${progressItems}
+                                    </div>`
+                                );
+                            }
+                        }
+                    }
+                }
+            );
+            $.get(
+                "/api/v0/user-statuses/",
+                data={"username": "{{ request.user.username }}"},
+                function( data ) {
+                    var status_count = Object.keys(data).length;
+                    var user_badge_count = status_count;
+                    if (user_badge_count < 3) {
+                        $('#user-statuses-count').text(user_badge_count + ' of ' + user_badge_count);
+                    }
+                    else {
+                        $('#user-statuses-count').text("3 of " + user_badge_count)
+                    }
+                    for (var i=0; i < 3; i++) {
+                        var progressItems = '';
+                        let key = Object.keys(data)[i];
+                        if (data[key] !== undefined) {
+                            if (data[key].progress / data[key].status_points >= 1){
+                                $('#container-statuses').append(
+                                    `<div class="BadgeItem">
+                                        <div class="BadgeItemFigure">
+                                            <img src="${data[key].url}" alt="" class="BadgeItemFigure-Image">
+                                        </div>
+                                        <div class="BadgeItem-Name">${data[key].slug}</div>
+                                    </div>`
+                                )
+                            }
+                            else {
+                                $('#container-statuses').append(
+                                `<div class="BadgeItem">
+                                    <div class="BadgeItemFigure BadgeItemFigure_disable">
+                                        <img src="${data[key].url}" alt="" class="BadgeItemFigure-Image">
+                                    </div>
+                                    <div class="BadgeItem-Name">${data[key].slug}</div>
+
+                                        <div class="BadgeItemPopup">
+                                            <div class="BadgeItemPopup-Head">${data[key].slug}
+                                        </div>
+                                            <div class="BadgeItemPopup-Body">
+                                            <ul class="BadgeItemPopupList">
+                                                <li class="BadgeItemPopupList-Item">
+                                                    <span class="BadgeItemPopupList-Counter">
+
+                                                        ${data[key].progress}/${data[key].status_points}
+                                                    </span>
+                                                </li>
+                                            </ul>
+                                        </div>'
+                                </div>`
+                                );
+                                }
+                        }
+                    }
+                }
+            );
+            $.get(
+                "/api/v0/statuses/",
+                function( data ) {
+                    var status_lines = [];
+                    var left = [];
+                    var right = [];
+                    for (i in data) {
+                        if (data[i].status_points <= points.points) {
+                            left.push(data[i].status_points);
+                        }
+                        else if (data[i].status_points > points.points) {
+                            right.push(data[i].status_points);
+                        }
+                        status_lines.push({
+                          color: data[i].status_color,
+                          dashStyle: 'longdashdot',
+                          value: data[i].status_points,
+                          width: 1,
+                          label: {text: data[i].title, rotation: 0, x: -15, y: -10, style: {color: '#bcbcbc',fontFamily: 'Exo2'}}
+                        });
+                    }
+                    if (left.length == 0) {
+                        var min_value = points.points - 40;
+                    }
+                    else {
+                        var min_value = Math.max(...left) - 40;
+                    }
+                    if (right.length == 0) {
+                        var max_value = points.points + 20;
+                    }
+                    else {
+                        var max_value = Math.min(...right) + 20;
+                        var points_to_status = max_value - points.points - 20;
+                    }
+                    if (min_value < 0) {
+                        min_value = 0;
+                    }
+                    $('#container-progress').highcharts({
+                        chart: {
+                            type: 'bar'
+                        },
+                        title: {
+                          text: 'Status Roadmap',
+                          align: 'left',
+                          widthAdjust: 0,
+                          x: 7,
+                          margin: 50,
+                          style: chartTitleStyles,
+                        },
+                        subtitle: {
+                            text: 'Here you can track your status progress: see how many points you have so far and how much is left for each status',
+                            align: 'left',
+                            widthAdjust: -7,
+                            x: 7,
+                            y: 55,
+                            style: chartSubtitleStyles,
+                        },
+                        navigation: chartTitleOptions,
+                        xAxis: {
+                            categories: [''],
+                            title: {
+                                text: null
+                            },
+                            tickWidth: 0,
+                            lineColor: '#aaa',
+                        },
+                        yAxis: {
+                            min: min_value,
+                            max: max_value,
+                            title: {
+                              text: null,
+                            },
+                            labels: {
+                                overflow: 'justify',
+                                style: {
+                                  color: '#bcbcbc'
+                                }
+                            },
+                            plotLines: status_lines,
+                            gridLineColor: '#6c6d6e',
+                            gridLineDashStyle: 'dash',
+                            lineColor: '#aaa',
+                            lineWidth: 1,
+                        },
+                        tooltip: {
+                            shared: true,
+                            useHTML: true,
+                            formatter: function() {
+                                tooltip_html = 'Points to next status: '+'<b>'+points_to_status+'</b>';
+                                tooltip_html += "<table>";
+
+                                this.points.forEach(function(entry) {
+                                    tooltip_html += '<tr><td style="font-weight:bold; color:'+ entry.series.color +'">'+ entry.series.name +':</td><td style="text-align: right"> '+entry.y+'</td></tr>';
+                                });
+
+                                tooltip_html += "</table>";
+
+                                return tooltip_html;
+                            },
+                        },
+                        plotOptions: {
+                            bar: {
+                                dataLabels: {
+                                    enabled: true,
+                                    style: {
+                                        fill: 'transparent'
+                                    }
+                                }
+                            },
+                          series: {
+                            borderColor: '#aaa',
+                            borderRadius: 3,
+                            dataLabels: {
+                              enabled: true,
+                              color: '#fafafa',
+                              style: {
+                                fontWeight: 'bold',
+                                textOutline: 'none',
+                                fontFamily: 'Exo2',
+                              }
+                            }
+                          }
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        legend: legendOptions,
+                        series: [{
+                            name: 'Progress',
+                            data: [points.points],
+                            borderColor: '#aaa',
+                            borderRadius: 3,
+                            dataLabels: {
+                                enabled: true,
+                                color: '#fafafa',
+                                style: {
+                                    fontWeight: 'bold',
+                                    textOutline: 'none',
+                                    fontFamily: 'Exo2',
+                                    textShadow: '-1px 0px 2.75px rgba(0, 0, 0, 0.6)',
+                                }
+                            }
+                        }]
+                    });
+                }
+            );
+        }
+    );
+});
+</script>
+<script>
+$(function () {
+    $.get(
+        "/api/v0/progress/",
+        data={"username": "{{ request.user.username }}"},
+        function( data ) {
+            var points_by_day = [];
+            var accumulative_data = [];
+            for (var i in data) {
+                points_by_day.push([Date.parse(data[i].date), data[i].points]);
+                var accum = 0;
+                if (accumulative_data.length != 0) {
+                    accum = accumulative_data[accumulative_data.length-1][1] + data[i].points;
+                }
+                else {
+                    accum = data[i].points;
+                }
+                accumulative_data.push([Date.parse(data[i].date), accum]);
+            }
+            chartTitleOptions.buttonOptions.x = 86;
+            $('#container-progress-accumulated').highcharts({
+                chart: {
+                    type: 'spline',
+                    spacingLeft: 100,
+                    spacingRight: 100
+                },
+                title: {
+                    text: 'Progress Tracker',
+                    align: 'left',
+                    widthAdjust: 0,
+                    x: -86,
+                    margin: 50,
+                    style: chartTitleStyles,
+                },
+                subtitle: {
+                    text: 'See the dynamics of your activities and points acquisition through time  ',
+                    align: 'left',
+                    widthAdjust: -7,
+                    x: -86,
+                    y: 55,
+                    style: chartSubtitleStyles,
+                },
+                navigation: chartTitleOptions,
+                xAxis: {
+                    type: 'datetime',
+                    dateTimeLabelFormats: {
+                        month: '%e. %b',
+                        year: '%b'
+                    },
+                    title: {
+                        text: null
+                    },
+                    tickWidth: 0,
+                    lineColor: '#aaa',
+                    labels: {
+                        style: {
+                            color: '#bcbcbc',
+                            textTransform: 'uppercase'
+                        }
+                    }
+                },
+                yAxis: [{
+                    title: {
+                        text: null
+                    },
+                    labels: {
+                        align: 'left',
+                        x: -40,
+                        y: 5,
+                        format: '{value:.,0f}',
+                        style: {
+                            color: '#bcbcbc'
+                        }
+                    },
+                    showFirstLabel: false,
+                    gridLineColor: '#6c6d6e',
+                    gridLineDashStyle: 'dash',
+                    lineColor: '#aaa',
+                    lineWidth: 1,
+                }, {
+                    gridLineWidth: 0,
+                    opposite: true,
+                    title: {
+                        text: null
+                    },
+                    labels: {
+                        align: 'right',
+                        x: 40,
+                        y: 5,
+                        format: '{value:.,0f}',
+                        style: {
+                            color: '#bcbcbc'
+                        }
+                    },
+                    showFirstLabel: false
+                }],
+                tooltip: {
+                    headerFormat: '<b>{series.name}</b><br>',
+                    pointFormat: '{point.x:%e. %b}: {point.y:.2f}'
+                },
+
+                plotOptions: {
+                    spline: {
+                        marker: {
+                            enabled: true
+                         }
+                     }
+                },
+                legend: legendOptions,
+                series: [{
+                    name: 'Points',
+                    type: 'column',
+                    data: points_by_day,
+                    borderColor: '#aaa',
+                    borderRadius: 3,
+                    dataLabels: {
+                        enabled: false,
+                        color: '#fafafa',
+                        style: {
+                            fontWeight: 'bold',
+                            textOutline: 'none',
+                            fontFamily: 'Exo2',
+                        }
+                    }
+                },
+                {
+                    name: 'Progress',
+                    type: 'area',
+                    yAxis: 1,
+                    data: accumulative_data,
+                    borderColor: '#aaa',
+                    borderRadius: 3,
+                    dataLabels: {
+                        enabled: false,
+                        color: '#fafafa',
+                        style: {
+                            fontWeight: 'bold',
+                            textOutline: 'none',
+                            fontFamily: 'Exo2',
+                        }
+                    }
+                }]
+            });
+        }
+    );
+});
+</script>
+
+</head>
+<body class="html front not-logged-in no-sidebars page-node page-node- page-node-3332104 node-type-page-landing-with-hero i18n-en lang-en main-page">
+    <div class="header-nav-wrap">
+
+    <div class="container logo-container header-navbar">
+    <ul class="menu global-nav pull-right">
+        <li class="last leaf"><a href="/">{% trans "Dashboard" %}</a></li>
+        <li class="last leaf"><a href="#leaderboard">{% trans "Leaderboard" %}</a></li>
         {% if not user.is_authenticated %}
-        <div class="login-button-container">
-            <a href=admin/login><button type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">{% trans "Login" %}</button></a>
-        </div>
+        <li class="last leaf"><a href=admin/login>{% trans "Login" %}</a></li>
         {% else %}
-          <img src='{% static "core/images/user.jpg" %}' class="demo-avatar">
-          <div class="demo-avatar-dropdown">
-            <span>hello@example.com</span>
-            <div class="mdl-layout-spacer"></div>
-            <button id="accbtn" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
-              <i class="material-icons" role="presentation">arrow_drop_down</i>
-              <span class="visuallyhidden">Accounts</span>
-            </button>
-            <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="accbtn">
-              <li class="mdl-menu__item">hello@example.com</li>
-              <li class="mdl-menu__item">info@example.com</li>
-              <li class="mdl-menu__item"><i class="material-icons">add</i>Add another account...</li>
-              <div class="logout-button-container">
-                  <a href="{% url 'logout' %}"><button type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">{% trans "Logout" %}</button></a>
-              </div>
-            </ul>
-          </div>
+        <li class="last leaf"><a href="{% url 'logout' %}">{% trans "Logout" %}</a></li>
         {% endif %}
-        </header>
-        <nav class="demo-navigation mdl-navigation mdl-color--blue-grey-800">
-          <a class="mdl-navigation__link" href=""><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">home</i>Home</a>
-          <a class="mdl-navigation__link" href=""><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">inbox</i>Inbox</a>
-          <a class="mdl-navigation__link" href=""><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">delete</i>Trash</a>
-          <a class="mdl-navigation__link" href=""><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">report</i>Spam</a>
-          <a class="mdl-navigation__link" href=""><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">forum</i>Forums</a>
-          <a class="mdl-navigation__link" href=""><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">flag</i>Updates</a>
-          <a class="mdl-navigation__link" href=""><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">local_offer</i>Promos</a>
-          <a class="mdl-navigation__link" href=""><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">shopping_cart</i>Purchases</a>
-          <a class="mdl-navigation__link" href=""><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">people</i>Social</a>
-          <div class="mdl-layout-spacer"></div>
-          <a class="mdl-navigation__link" href=""><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">help_outline</i><span class="visuallyhidden">Help</span></a>
-        </nav>
-      </div>
+    </ul>
+    <section id="navbar" class="main-navigation navbar navbar-static-top visible-desktop clearfix">
+    </div>
+</section>
+</div>
+</div>
+<div class="page-title">
+    <h1 class="hidden"></h1>
+</div>
+
+</section>
+
+<div class="main-container container">
+    <div id="root"> </div>
     {% block content %}{% endblock %}
 </div>
 
-  <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" style="position: fixed; left: -1000px; height: -1000px;">
-    <defs>
-      <mask id="piemask" maskContentUnits="objectBoundingBox">
-        <circle cx=0.5 cy=0.5 r=0.49 fill="white" />
-        <circle cx=0.5 cy=0.5 r=0.40 fill="black" />
-      </mask>
-      <g id="piechart">
-        <circle cx=0.5 cy=0.5 r=0.5 />
-        <path d="M 0.5 0.5 0.5 0 A 0.5 0.5 0 0 1 0.95 0.28 z" stroke="none" fill="rgba(255, 255, 255, 0.75)" />
-      </g>
-    </defs>
-  </svg>
-    <script src="https://code.getmdl.io/1.2.0/material.min.js"></script>
-  </body>
-</html>
+{% render_bundle 'runtime' 'js' %}
+{% render_bundle 'vendors' 'js' %}
+{% render_bundle 'admin_panel' 'js'  %}
+
+<noscript>&lt;style type="text/css" media="all"&gt;img[data-src] { display: none !important; }&lt;/style&gt;</noscript>
+</body></html>

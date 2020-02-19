@@ -1,8 +1,9 @@
 {% extends "base.html" %}
-{% load i18n fb_versions googlecharts %}
+{% load i18n googlecharts %}
 {% block content %}
 
 {% if not user.is_authenticated %}
+
 
 <main class="mdl-layout__content mdl-color--grey-100">
   <div class="mdl-grid demo-content">
@@ -14,64 +15,41 @@
 </main>
 
 {% else %}
-{% if charted_progress %}
-{% googlecharts %}
-{% data charted_progress "out_data" %}
-    {% col "string" "Name" %}"{{ val }}"{% endcol %}
-    {% col "number" "Value" %}{{ val }}{% endcol %}
-{% enddata %}
-{% options "out_options" %}
-    kind: "PieChart",
-    options: {
-        width: 600,
-        height: 480
-    }
-{% endoptions %}
-{% graph "out" "out_data" "out_options" %}
-{% endgooglecharts %}
-{% endif %}
 
-<main class="mdl-layout__content mdl-color--grey-100">
-  <div class="mdl-grid demo-content">
-    <div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
-      <svg fill="currentColor" width="200px" height="200px" viewBox="0 0 1 1" class="demo-chart mdl-cell mdl-cell--4-col mdl-cell--3-col-desktop">
-        <use xlink:href="#piechart" mask="url(#piemask)" />
-        <text x="0.5" y="0.5" font-family="Roboto" font-size="0.3" fill="#888" text-anchor="middle" dy="0.1">{% if user.gameprofile %}{{ user.gameprofile.points }}{% endif %}<tspan font-size="0.2" dy="-0.07"></tspan></text>
-      </svg>
+
+<div class="ChartHolder">
+    <div class="ChartHolderRow">
+      <div id="container-chart" class="ChartBlock ChartBlock_first"></div>
+      <div id="container-progress" class="ChartBlock ChartBlock_second"></div>
     </div>
-      <div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
-      {% if user_achievements|length %}
-      <div class="mdl-card__supporting-text mdl-color-text--grey-600">
-        {% trans "Your Achievements"%}
-      </div>
-      <div class="user-achivement-list"></div>
-          {% for achievement in user_achievements %}
-          <div class="user-achivement">
-              <img src="{% version achievement.achievement.badge_img 'small' %}"
-                   title="{{ achievement.achievement.description }}"
-              />
-              <p>{{ achievement.achievement.name }}</p>
-          </div>
-          {% endfor %}
-      </div>
-      {% endif %}
-      <div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
-      {% if rank %}
-      <div class="mdl-card__supporting-text mdl-color-text--grey-600">
-      {% trans "Congrants, you are in top 100! You rank is "%}{{ rank }}
-      {% else %}
-      {% trans "Sorry you rank is out of top 100. You need to learn more!"%}
-      {% endif %}
-      </div>
-      </div>
-      <div class="mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
-        <button id="change">Click to change the format</button>
-        <div id="chart_div"></div>
-      </div>
-      <div class="mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
-          <div id="out"></div>
-      </div>
-</main>
+    <div class="ChartHolderRow">
+        <div class="ChartBlock">
+            <div class="ChartBlockHeader">
+                <div class="ChartBlock-Title">Your badges</div>
+                <div class="ChartBlock-Status"><span id="badge-count"></span></div>
+                <div class="ChartBlock-Description"></div>
+            </div>
+            <div class="BadgesList" id="container-badges">
+            </div>
+            <div class="ChartControls">
+                <a href="#more/badges/{{request.user.username}}" class="Btn Btn_info Btn_medium">More badges</a>
+            </div>
+        </div>
+        <div class="ChartBlock">
+            <div class="ChartBlockHeader">
+                <div class="ChartBlock-Title">Your statuses</div>
+                <div class="ChartBlock-Status"><span id="user-statuses-count"></span></div>
+                <div class="ChartBlock-Description"></div>
+            </div>
+            <div class="BadgesList" id="container-statuses">
+            </div>
+            <div class="ChartControls">
+                <a href="#more/user-statuses/{{request.user.username}}" class="Btn Btn_info Btn_medium">More statuses</a>
+            </div>
+        </div>
+    </div>
+    <div id="container-progress-accumulated" class="ChartBlock ChartBlock_full ChartBlock_last"></div>
+</div>
 
 {% endif %}
 {% endblock %}

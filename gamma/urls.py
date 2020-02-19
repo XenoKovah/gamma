@@ -20,15 +20,12 @@ from django.conf.urls.static import static
 from django.views.generic.base import TemplateView
 from django.contrib import admin
 
-from core.views import DashboardView, AdminPanelView, LeaderBoardView, logout_view
+from core.views import DashboardView, LeaderBoardView, logout_view
 
 
 urlpatterns = [
     # Dashboard page
     path('', DashboardView.as_view()),
-
-    # Admin panel
-    path('admin_panel/', AdminPanelView.as_view()),
 
     # Native admin page
     path('admin/', admin.site.urls),

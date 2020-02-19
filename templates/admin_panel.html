@@ -1,8 +1,0 @@
-{% extends "base_new.html" %}
-{% load static %}
-{% load render_bundle from webpack_loader %}
-{% block content %}
-    {% render_bundle 'runtime' 'js' %}
-    {% render_bundle 'vendors' 'js' %}
-    {% render_bundle 'core' 'js' %}
-{% endblock %}
