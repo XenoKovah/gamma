@@ -1,23 +1,15 @@
-const config = require('./webpack.dev.config.js');
-
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const common = require('./webpack.common.config.js');
 const BundleTracker = require('webpack-bundle-tracker');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const Dotenv = require('dotenv-webpack');
+const merge = require('webpack-merge');
 
-config.mode = 'production';
-config.devtool = 'source-map';
-
-config.plugins = [
-    new CleanWebpackPlugin(),
+module.exports = merge(common, {
+  mode: 'production',
+  devtool: 'source-map',
+  plugins: [
     new BundleTracker({filename: './webpack-stats-prod.json'}),
-    new MiniCssExtractPlugin({
-        filename: '[name].[hash].css',
-        chunkFilename: '[id].[hash].css',
-    }),
     new Dotenv({
         path: './envs/prod.env',
     }),
-];
-
-module.exports = config;
+  ],
+});
