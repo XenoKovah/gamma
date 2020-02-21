@@ -115,3 +115,26 @@ class EdxApiV2Client(EdxApiBaseClient):
         """
         url = self.base_url + "organizations/"
         return self.get(url)
+
+    def get_events(self):
+        """
+        Get edX event list that could be sent to gamma.
+
+        Returns:
+            events (list): list of events.
+                Example:
+                ```
+                [
+                    {
+                        "verbose_name": "Get Certificate for Course",
+                        "event_type": "edx_certificate_created"
+                    },
+                    {
+                        "verbose_name": "Show Video Transcript",
+                        "event_type": "edx_video_transcript_shown"
+                    }
+                ]
+                ```
+        """
+        url = self.base_url + "tracking-events-list/"
+        return self.get(url)

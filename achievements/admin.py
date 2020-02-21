@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
+from .forms import EventForm
 from .models import Achievement, UserAchievement, StatusBadge, UserStatus, Event
 
 
@@ -47,6 +48,15 @@ class StatusBadgeAdmin(admin.ModelAdmin):
 
 class EventAdmin(admin.ModelAdmin):
     list_display = ('event_type', 'award', 'title', 'color', 'notification_message')
+    form = EventForm
+
+    class Media:
+        js = ("achievements/js/event.js",)
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj:  # disable editing event_type
+            return self.readonly_fields + ('event_type', )
+        return self.readonly_fields
 
 
 admin.site.register(Achievement, AchievementAdmin)
