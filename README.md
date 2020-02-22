@@ -6,13 +6,30 @@ We provide REST API to work with users coins,
 manage Badges or Achievements.
 
 
-
-Run
+Usage
 ===
+For local development
+---
 ```
-make build
+✗ npm install
+✗ npm run build:dev
+✗ make build
+✗ make debug
+```
+Optionally we can use
+```
+✗ make dev.up env=dev
 ```
 
+
+For staging/production usage
+---
 ```
-make debug
+✗ make build
+✗ make dev.up env=prod
 ```
+
+
+Configuration
+===
+For docker-compose deployment `env/private.env` file can changed to pass sensitive data into container.

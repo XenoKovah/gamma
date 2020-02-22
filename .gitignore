@@ -18,3 +18,4 @@ dist/
 webpack-stats-dev.json
 webpack-stats-prod.json
 webpack_bundles/
+private.env
