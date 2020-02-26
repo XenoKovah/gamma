@@ -6,7 +6,7 @@ services:
     container_name: gamma_dashboard
     build: .
     env_file:
-      - ./envs/local.env
+      - ./envs/base.env
       - ./envs/private.env
     command: python manage.py runserver 0.0.0.0:9000
     volumes:
@@ -25,7 +25,7 @@ services:
       dockerfile: Dockerfile-celery
     command: celery worker -A gamma --loglevel=INFO -B
     env_file:
-      - ./envs/local.env
+      - ./envs/base.env
       - ./envs/private.env
     volumes:
       - .:/app
@@ -45,7 +45,7 @@ services:
     container_name: gamma_postgres
     image: postgres:12.1
     env_file:
-      - ./envs/local.env
+      - ./envs/base.env
       - ./envs/private.env
     volumes:
         - pg_db:/var/lib/postgresql/data/

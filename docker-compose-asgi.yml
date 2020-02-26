@@ -6,7 +6,7 @@ services:
     container_name: gamma_dashboard_asgi
     build: .
     env_file:
-      - ./envs/local.env
+      - ./envs/base.env
       - ./envs/private.env
     command: python manage.py runserver 0.0.0.0:9100
     volumes:
@@ -23,7 +23,7 @@ services:
     container_name: gamma_api_asgi
     build: .
     env_file:
-      - ./envs/local.env
+      - ./envs/base.env
       - ./envs/private.env
     command: uvicorn gamma.asgi:application --host 0.0.0.0 --port 9191
     volumes:
@@ -41,7 +41,7 @@ services:
       dockerfile: Dockerfile-celery
     command: celery worker -A gamma --loglevel=INFO -B
     env_file:
-      - ./envs/local.env
+      - ./envs/base.env
       - ./envs/private.env
     volumes:
       - .:/app
@@ -61,7 +61,7 @@ services:
     container_name: gamma_postgres
     image: postgres:12.1
     env_file:
-      - ./envs/local.env
+      - ./envs/base.env
       - ./envs/private.env
     volumes:
         - pg_db:/var/lib/postgresql/data/
