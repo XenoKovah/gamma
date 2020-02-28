@@ -29,13 +29,16 @@ Tests:
     - merge_requests
   script:
     - docker run -d --name mongo_$CI_COMMIT_SHORT_SHA mongo:4.2
+    - docker run -d --name redis_$CI_COMMIT_SHORT_SHA redis:latest
     - docker run
       --rm
       --link mongo_$CI_COMMIT_SHORT_SHA:mongo
+      --link redis_$CI_COMMIT_SHORT_SHA:redis
       $CI_REGISTRY_IMAGE/app:$CI_COMMIT_SHORT_SHA
       bash -c "pytest && coverage xml && diff-cover coverage.xml --fail-under=60"
   after_script:
     - docker rm -f mongo_$CI_COMMIT_SHORT_SHA || true
+    - docker rm -f redis_$CI_COMMIT_SHORT_SHA || true
 
 Tag:
   stage: tag

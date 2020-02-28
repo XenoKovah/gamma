@@ -65,6 +65,14 @@ class EdxApiServerErrorException(EdxApiException):
     status_code = http.client.INTERNAL_SERVER_ERROR
 
 
+class EdxApiResponseTimeoutException(EdxApiException):
+    """
+    Custom exception occurring when edX API request is Timed Out.
+    """
+    default_msg = "Timeout for edX API request."
+    status_code = http.client.REQUEST_TIMEOUT
+
+
 class OtherEdxApiException(EdxApiException):
     """
     Unclassified edX API exception.

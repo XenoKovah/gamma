@@ -11,6 +11,7 @@ import requests
 from .exceptions import (
     EdxApiNotFoundException,
     EdxApiResponseParsingException,
+    EdxApiResponseTimeoutException,
     EdxApiServerErrorException,
     EdxApiUnauthorizedException,
     OtherEdxApiException,
@@ -31,13 +32,14 @@ class EdxApiBaseClient(object):
         """
         self.api_key = api_key or settings.EDX_API_KEY
 
-    def get(self, url, headers=None):
+    def get(self, url, headers=None, timeout=None):
         """
         Issue REST GET request to a given URL.
 
         Arguments:
             url (str): API url to fetch a resource from.
             headers (dict): Headers necessary as per API.
+            timeout (int): Set request timeout in seconds if not None.
         Returns:
             endpoint response with custom data (dict).
         """
@@ -48,7 +50,8 @@ class EdxApiBaseClient(object):
         if headers is not None:
             headers_.update(headers)
         try:
-            resp = requests.get(url, headers=headers_)
+            resp = requests.get(url, headers=headers_, timeout=timeout)
+            print(resp, resp.status_code)
             if resp.status_code == http.client.OK:
                 return resp.json()
             elif resp.status_code == http.client.UNAUTHORIZED:
@@ -59,6 +62,8 @@ class EdxApiBaseClient(object):
                 raise EdxApiNotFoundException
             else:
                 raise OtherEdxApiException
+        except requests.exceptions.ReadTimeout:
+            raise EdxApiResponseTimeoutException
         except ValueError:
             raise EdxApiResponseParsingException
 
@@ -116,7 +121,7 @@ class EdxApiV2Client(EdxApiBaseClient):
         url = self.base_url + "organizations/"
         return self.get(url)
 
-    def get_events(self):
+    def get_events(self, timeout=None):
         """
         Get edX event list that could be sent to gamma.
 
@@ -137,4 +142,4 @@ class EdxApiV2Client(EdxApiBaseClient):
                 ```
         """
         url = self.base_url + "tracking-events-list/"
-        return self.get(url)
+        return self.get(url, timeout=timeout)

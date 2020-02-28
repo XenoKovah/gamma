@@ -6,7 +6,6 @@ from edx_integration.api.v2.utils import get_gamma_events_list
 from .models import Achievement, Event
 from .services import AchievementRulesMongo
 
-
 STORAGE = AchievementRulesMongo()
 
 
