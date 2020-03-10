@@ -4,16 +4,13 @@ __pycache__
 local.py
 gamma/static/
 gamma/media/
-.idea
 .DS_Store
 .coverage
 *cache*
 *.log
-.vscode/
 celerybeat-schedule
 coverage.xml
 node_modules/
-package-lock.json
 dist/
 webpack-stats-dev.json
 webpack-stats-prod.json

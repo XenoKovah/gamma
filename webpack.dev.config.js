@@ -9,7 +9,7 @@ module.exports = merge(common, {
   plugins: [
     new BundleTracker({filename: './webpack-stats-dev.json'}),
     new Dotenv({
-        path: './envs/local.env',
+        path: './envs/webpack-dev.env',
     }),
   ],
 });

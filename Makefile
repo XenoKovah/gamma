@@ -10,9 +10,17 @@ NGINX_PORT = 8080
 GIT_TAG := $(shell git describe --abbrev=0)
 VERSION :=
 
-ENV_DIR = ./envs/
-LOCAL_ENV = local.env
-PRIVATE_ENV = private.env
+PRIVATE_ENV = ./envs/private.env
+
+ifeq ($(env),$(PROD_ENV))
+	DOCKERCOMPOSE_PATH := prod.yml
+else ifeq ($(env),$(STAGE_ENV))
+	DOCKERCOMPOSE_PATH := prod.yml
+else ifeq ($(env),$(DEV_ENV))
+	DOCKERCOMPOSE_PATH := dev.yml
+else
+	DOCKERCOMPOSE_PATH := docker-compose.yml
+endif
 
 
 .PHONY: sh dev.up start debug build .build .migrate \
@@ -20,20 +28,16 @@ PRIVATE_ENV = private.env
 
 
 sh: ${PRIVATE_ENV}
-	docker-compose run --rm dashboard bash
+	docker-compose -f $(DOCKERCOMPOSE_PATH) run --rm dashboard bash
 
 dev.up: ${PRIVATE_ENV}
-ifneq ($(filter $(env),$(STAGE_ENV) $(PROD_ENV)),)
-	docker-compose -f prod.yml up
-else ifneq ($(filter $(env),$(DEV_ENV)),)
-	docker-compose up
-endif
+	docker-compose -f $(DOCKERCOMPOSE_PATH) up -d
 
 start: ${PRIVATE_ENV}
-	docker-compose start
+	docker-compose -f $(DOCKERCOMPOSE_PATH) start
 
 debug: ${PRIVATE_ENV}
-	docker-compose run --rm --service-ports dashboard
+	docker-compose -f $(DOCKERCOMPOSE_PATH) run --rm --service-ports dashboard
 
 build: .build .migrate ${PRIVATE_ENV}
 ifneq ($(filter $(env),$(STAGE_ENV) $(PROD_ENV)),)
@@ -41,35 +45,35 @@ ifneq ($(filter $(env),$(STAGE_ENV) $(PROD_ENV)),)
 endif
 
 .build:
-	docker-compose build
+	docker-compose -f $(DOCKERCOMPOSE_PATH) build
 
 .migrate:
-	docker-compose run --rm dashboard \
+	docker-compose -f $(DOCKERCOMPOSE_PATH) run --rm dashboard \
 			python manage.py migrate
 
 .mongo_populate:
-	docker-compose run --rm dashboard \
+	docker-compose -f $(DOCKERCOMPOSE_PATH) run --rm dashboard \
 			python manage.py mongo_setup
 
 .sql_init:
-	docker-compose run --rm dashboard \
+	docker-compose -f $(DOCKERCOMPOSE_PATH) run --rm dashboard \
 			python manage.py loaddata dump.json
 
 .static:
-	docker-compose run --rm dashboard \
+	docker-compose -f $(DOCKERCOMPOSE_PATH) run --rm dashboard \
 			python manage.py collectstatic --noinput
 
 .mongo_init:
-	docker-compose run --rm mongo mongorestore --host=mongo dump
+	docker-compose -f $(DOCKERCOMPOSE_PATH) run --rm mongo mongorestore --host=mongo dump
 
 stop:
-	docker-compose stop
+	docker-compose -f $(DOCKERCOMPOSE_PATH) stop
 
 rm:
-	docker-compose rm
+	docker-compose -f $(DOCKERCOMPOSE_PATH) rm
 
 test:
-	docker-compose run --rm dashboard \
+	docker-compose -f $(DOCKERCOMPOSE_PATH) run --rm dashboard \
 			bash -c \
 			" \
 			find . | grep -E \"(__pycache__|\.pyc|\.pyo$\)\" | xargs rm -rf && \
@@ -84,4 +88,4 @@ version:
 	git tag -s -F Changelog-$(VERSION).txt $(VERSION)
 
 ${PRIVATE_ENV}:
-	touch ${ENV_DIR}$@
+	touch $@

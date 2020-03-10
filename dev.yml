@@ -7,7 +7,7 @@ services:
     build:
       context: .
       args:
-        - node_env=prod
+        - node_env=dev
     env_file:
       - ./envs/base.env
       - ./envs/private.env

@@ -4,7 +4,10 @@ services:
 
   dashboard:
     container_name: gamma_dashboard
-    build: .
+    build:
+      context: .
+      args:
+        - node_env=dev
     env_file:
       - ./envs/base.env
       - ./envs/private.env
@@ -53,7 +56,7 @@ services:
   rabbit:
     container_name: gamma_rabbit
     image: rabbitmq:latest
-  
+
   redis:
     container_name: gamma_redis
     image: redis:latest

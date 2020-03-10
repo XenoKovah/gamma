@@ -1,22 +1,20 @@
 
 FROM node:13 as static
+LABEL maintainer="cmltaWt0@gmail.com"
 
 ARG node_env=prod
-ENV NODE_ENV=$node_env
 
-COPY . /tmp
+RUN mkdir /app
+COPY . /app
+WORKDIR /app
 
-WORKDIR /tmp
-
-RUN npm install
+RUN npm ci
 RUN npm run build:$node_env
 
 
 FROM python:3.8-slim
-LABEL maintainer="cmltaWt0@gmail.com"
 
 ARG node_env=prod
-ENV NODE_ENV=$node_env
 
 RUN apt-get -y update && \
     apt-get install -y \
@@ -38,5 +36,5 @@ ADD . /app
 
 WORKDIR /app
 
-COPY --from=static /tmp/frontend/webpack_bundles frontend/webpack_bundles
-COPY --from=static /tmp/webpack-stats-$node_env.json webpack-stats-$node_env.json
+COPY --from=static /app/frontend/webpack_bundles frontend/webpack_bundles
+COPY --from=static /app/webpack-stats-$node_env.json webpack-stats-$node_env.json
