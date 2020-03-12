@@ -3,6 +3,7 @@ version: '3'
 services:
 
   dashboard:
+    restart: unless-stopped
     container_name: gamma_dashboard
     build:
       context: .
@@ -22,6 +23,7 @@ services:
       - celery
 
   celery:
+    restart: unless-stopped
     container_name: gamma_celery
     build:
       context: .
@@ -35,12 +37,14 @@ services:
       - redis
 
   mongo:
+    restart: unless-stopped
     container_name: gamma_mongo
     image: mongo:4.2
     volumes:
       - mongo_db:/data/db
 
   postgres:
+    restart: unless-stopped
     container_name: gamma_postgres
     image: postgres:12.1
     env_file:
@@ -50,10 +54,12 @@ services:
         - pg_db:/var/lib/postgresql/data/
 
   rabbit:
+    restart: unless-stopped
     container_name: gamma_rabbit
     image: rabbitmq:latest
 
   redis:
+    restart: unless-stopped
     container_name: gamma_redis
     image: redis:latest
 
