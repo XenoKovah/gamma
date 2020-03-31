@@ -8,12 +8,9 @@ import pytest
 import docker as libdocker
 from webpack_loader.loader import WebpackLoader
 
-from django.core.cache import cache
-
 from core.services import MongoConnector
 from core.models import AppClient
 from achievements.models import Event
-from edx_integration.api.v2.utils import EVENTS_CACHE_KEY
 
 
 @pytest.fixture(scope='session')
@@ -96,8 +93,3 @@ def no_webpack_loaded(monkeypatch):
     def mockreturn(loader, bundle_name):
         return []
     monkeypatch.setattr(WebpackLoader, "get_bundle", mockreturn)
-
-
-@pytest.fixture(scope='function')
-def clear_events_cache():
-    cache.delete(EVENTS_CACHE_KEY)

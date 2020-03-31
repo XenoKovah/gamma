@@ -1,9 +1,11 @@
 import json
 
+from django.core.cache import cache
 from django.forms import modelform_factory
 
 from achievements.forms import EventForm as BaseEventForm
 from achievements.models import Event
+from edx_integration.api.v2.utils import EVENTS_CACHE_KEY
 
 import requests
 
@@ -20,7 +22,16 @@ class MockResponse:
         self.status_code = status_code
 
 
-def test_event_form_events_get_success(monkeypatch, db, clear_events_cache):
+def _clear_events_cache():
+    cache.delete(EVENTS_CACHE_KEY)
+
+
+def teardown_module(module):
+    _clear_events_cache()  # fix local deployment cache substituted by test values
+
+
+def test_event_form_events_get_success(monkeypatch, db):
+    _clear_events_cache()
     mock_data_dict = [
         {
             "verbose_name": "Test Event 1",
@@ -53,7 +64,9 @@ def test_event_form_events_get_success(monkeypatch, db, clear_events_cache):
     assert form['event_type'].field.widget.choices == expected_choices
 
 
-def test_event_form_events_get_error(monkeypatch, db, clear_events_cache):
+def test_event_form_events_get_error(monkeypatch, db):
+    _clear_events_cache()
+
     def mock_get(*args, **kwargs):
         return MockResponse(status_code=403)
 
@@ -67,7 +80,8 @@ def test_event_form_events_get_error(monkeypatch, db, clear_events_cache):
     assert not hasattr(form['event_type'].field.widget, 'choices')
 
 
-def test_event_form_events_existed(monkeypatch, db, clear_events_cache):
+def test_event_form_events_existed(monkeypatch, db):
+    _clear_events_cache()
     Event.objects.create(event_type="test1event", award=1)
     Event.objects.create(event_type="test2event", award=2)
     mock_data_dict = [
@@ -104,3 +118,24 @@ def test_event_form_events_existed(monkeypatch, db, clear_events_cache):
     assert form['event_type'].field.widget.attrs['data-event-names'] == json.dumps(expected_data)
     expected_choices = [('test3event', 'test3event'), ]
     assert form['event_type'].field.widget.choices == expected_choices
+
+
+def test_event_form_edit(db):
+    test_event = Event.objects.create(
+        event_type="test1event", award=1, title='Test Event'
+    )
+    edit_data = {
+        'event_type': 'test1event',
+        'title': 'Test Event [Edited]',
+        'award': 3, 'color': 1, 'notification_message': 'You have got {} point.',
+    }
+    edit_form = EventForm(edit_data, instance=test_event)
+
+    assert edit_form['event_type'].field.widget.attrs.get('readonly') is True
+    assert edit_form.is_valid() is True
+    edit_form.save()
+
+    after_editing_event = Event.objects.get(event_type='test1event')
+
+    assert after_editing_event.title == edit_data['title']
+    assert after_editing_event.award == edit_data['award']

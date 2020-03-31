@@ -53,11 +53,6 @@ class EventAdmin(admin.ModelAdmin):
     class Media:
         js = ("achievements/js/event.js",)
 
-    def get_readonly_fields(self, request, obj=None):
-        if obj:  # disable editing event_type
-            return self.readonly_fields + ('event_type',)
-        return self.readonly_fields
-
 
 admin.site.register(Achievement, AchievementAdmin)
 admin.site.register(StatusBadge, StatusBadgeAdmin)

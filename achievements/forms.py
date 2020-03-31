@@ -60,15 +60,26 @@ class EventForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(EventForm, self).__init__(*args, **kwargs)
-        events_list = get_gamma_events_list()
-        if events_list:
-            events_specified = Event.objects.all().values_list('event_type', flat=True)
-            events_choices = (
-                (e['event_type'], e['event_type']) for e in events_list if e['event_type'] not in events_specified
-            )
-            self.fields['event_type'] = forms.ChoiceField(choices=events_choices)
-            self.fields['event_type'].widget.attrs.update({
-                'data-event-names': json.dumps({
-                    e['event_type']: e['verbose_name'] for e in events_list if e['event_type'] not in events_specified
+        instance = getattr(self, 'instance', None)
+        if instance and instance.pk:
+            self.fields['event_type'].widget.attrs['readonly'] = True
+        else:
+            events_list = get_gamma_events_list()
+            if events_list:
+                events_specified = Event.objects.all().values_list('event_type', flat=True)
+                events_choices = (
+                    (e['event_type'], e['event_type']) for e in events_list if e['event_type'] not in events_specified
+                )
+                self.fields['event_type'] = forms.ChoiceField(choices=events_choices)
+                self.fields['event_type'].widget.attrs.update({
+                    'data-event-names': json.dumps({
+                        e['event_type']: e['verbose_name']
+                        for e in events_list if e['event_type'] not in events_specified
+                    })
                 })
-            })
+
+    def clean_event_type(self):
+        if self.instance:
+            return self.instance.event_type
+        else:
+            return self.fields['event_type']

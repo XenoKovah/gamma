@@ -77,6 +77,7 @@ test:
 			bash -c \
 			" \
 			find . | grep -E \"(__pycache__|\.pyc|\.pyo$\)\" | xargs rm -rf && \
+			export DJANGO_SETTINGS_MODULE=gamma.settings.test && \
 			pytest -s && \
 			coverage xml && \
 			diff-cover coverage.xml --fail-under=60 \
