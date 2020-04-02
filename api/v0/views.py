@@ -138,7 +138,7 @@ class GameProfileView(APIView):
                 )
 
                 game_profile = GameProfile.objects.get(user=user)
-                serializer = GameProfileSerializer(game_profile)
+                serializer = GameProfileSerializer(game_profile, context={'request': request})
 
                 # Logging this event to prevent repeating
                 log_event = LoggedEvent(
@@ -192,7 +192,7 @@ class GameProfileView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
         game_profile = GameProfile.objects.get(user=user)
-        serializer = GameProfileSerializer(game_profile)
+        serializer = GameProfileSerializer(game_profile, context={'request': request})
 
         return Response(serializer.data)
 
@@ -292,7 +292,7 @@ class PointsView(APIView):
                 {"username": request.GET.get('username'), "points": 0}
             )
         game_profile = GameProfile.objects.get(user=user)
-        serializer = GameProfileSerializer(game_profile)
+        serializer = GameProfileSerializer(game_profile, context={'request': request})
 
         return Response(serializer.data)
 
@@ -610,6 +610,6 @@ class LeaderBoardView(APIView):
             rank = None
         gameprofiles = GameProfile.objects.order_by('-points')
         return Response({
-            'gameprofiles': GameProfileSerializer(gameprofiles, many=True).data,
+            'gameprofiles': GameProfileSerializer(gameprofiles, context={'request': request}, many=True).data,
             'rank': rank
         }, status=200, content_type='application/json')

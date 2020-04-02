@@ -4,8 +4,6 @@ from django.contrib.auth.models import User
 from django.db.models import F
 from django import forms
 
-from .serializers import GameProfileSerializer
-
 from core.models import GameProfile, AppClient
 from core.services import MongoConnector
 from core.utils import key_secret_generator
@@ -50,7 +48,6 @@ class EventPointsForm(forms.Form):
         )
 
         game_profile = GameProfile.objects.get(user=user)
-        serializer = GameProfileSerializer(game_profile)
         client, _ = AppClient.objects.get_or_create(name='reward')
         log_event = LoggedEvent(
             uniq_id=key_secret_generator(),
