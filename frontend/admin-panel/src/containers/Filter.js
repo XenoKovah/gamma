@@ -44,6 +44,9 @@ export default class Filter extends React.Component {
             interval: false,
             frequency: false,
             courses: false
+        },
+        filter: {
+            selectedItem: null
         }
     }
 
@@ -66,18 +69,28 @@ export default class Filter extends React.Component {
         this.setState({...this.props})
     }
 
-    avFieldsChanged(event, meta) {
-        this.selectedField = event.value;
+    avFieldsChanged(item, meta) {
+        this.setState({
+            filter: {
+                selectedItem: item
+            }
+        });
     }
 
     addField() {
-        let manuallyAdded = this.state.manuallyAdded;
-        manuallyAdded[this.selectedField] = true;
-        let selectElements = document.getElementsByClassName('css-1hwfws3');  // css-xp4uvy
-        selectElements[selectElements.length-1].innerHTML = "Select...";  // durty hack for now
+        const {
+            filter: { selectedItem },
+            manuallyAdded
+        } = this.state;
+
+        manuallyAdded[selectedItem.value] = true;
+
         this.setState({
-            manuallyAdded: manuallyAdded
-        })
+            manuallyAdded: manuallyAdded,
+            filter: {
+                selectedItem: null
+            }
+        });
     }
 
     getEmptyFields() {
@@ -195,6 +208,8 @@ export default class Filter extends React.Component {
     }
 
     render() {
+        const { filter: { selectedItem: filterSelectedItem } } = this.state;
+
         let start = this.state && this.state.interval && this.state.interval.start ? this.state.interval.start : null;
         let end = this.state && this.state.interval && this.state.interval.end ? this.state.interval.end : null;
         let emptySelectValue = [{value: "", label: "------"}];
@@ -303,6 +318,7 @@ export default class Filter extends React.Component {
                                             onChange={this.avFieldsChanged}
                                             className="Select"
                                             defaultInputValue=""
+                                            value={filterSelectedItem}
                                             options={emptyFields}/>
                                     <button className="Btn Btn_primary Btn_add" onClick={this.addField}>Add</button>
                                 </div>
