@@ -139,3 +139,15 @@ def test_event_form_edit(db):
 
     assert after_editing_event.title == edit_data['title']
     assert after_editing_event.award == edit_data['award']
+
+
+def test_event_form_validation_on_create(db):
+    form_data = {
+        'event_type': 'test1event',
+        'title': 'Test Event',
+        'award': 3, 'color': 1, 'notification_message': 'You have got {} point.',
+    }
+    edit_form = EventForm(form_data)
+
+    assert not edit_form['event_type'].field.widget.attrs.get('readonly')
+    assert edit_form.is_valid() is True

@@ -79,7 +79,8 @@ class EventForm(forms.ModelForm):
                 })
 
     def clean_event_type(self):
-        if self.instance:
-            return self.instance.event_type
+        instance = getattr(self, 'instance', None)
+        if instance and instance.pk:
+            return instance.event_type
         else:
-            return self.fields['event_type']
+            return self.cleaned_data['event_type']
