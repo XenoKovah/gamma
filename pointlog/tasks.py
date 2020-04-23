@@ -49,8 +49,11 @@ def check_user_achievements(user_id, log_event):
         filter_set = [getattr(log_event.event_type, key, '') == value for key, value in
                       rules.get('rules', {}).get('filters', {}).items() if getattr(log_event.event_type, key, '')]
 
-        frequency = rules.get('rules', {}).get('filters', {}).get('frequency', None)
-        interval = rules.get('rules', {}).get('filters', {}).get('interval', None)
+        filters = rules.get('rules', {}).get('filters', {})
+        frequency = filters.get('frequency', None)
+        interval = filters.get('interval', None)
+        organization =  filters.get('org', None)
+
         if frequency:
             try:
                 delta = timedelta(frequency)
@@ -62,6 +65,9 @@ def check_user_achievements(user_id, log_event):
                 pass
         if interval:
             if not (utc.localize(interval.get('start')) <= log_event.date <= utc.localize(interval.get('end'))):
+                continue
+        if organization:
+            if log_event.org != organization:
                 continue
 
         if not filter_set or all(filter_set):

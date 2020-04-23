@@ -19,6 +19,13 @@ export default class Filter extends React.Component {
     constructor(props) {
         super(props);
 
+        this.customFilterStyles = {
+            option: (provided, state) => ({
+                ...provided,
+                textTransform: 'none !important'
+            })
+        };
+
         this.handleChangeDateStart = this.handleChangeDateStart.bind(this);
         this.handleChangeDateEnd = this.handleChangeDateEnd.bind(this);
         this.handleChangeInput = this.handleChangeInput.bind(this);
@@ -237,6 +244,7 @@ export default class Filter extends React.Component {
                             <div className="FormGroup">
                                 <label htmlFor="courses">Courses</label>
                                 <Select inputId="course" name="course"
+                                    styles={this.customFilterStyles}
                                     value={currentCourse}
                                     onChange={this.handleChangeInput}
                                     onBlur={this.handleBlurInput}
@@ -251,6 +259,7 @@ export default class Filter extends React.Component {
                             <div className="FormGroup">
                                 <label htmlFor="org">Organisation</label>
                                 <Select inputId="org" name="org"
+                                    styles={this.customFilterStyles}
                                     value={currentOrg}
                                     onChange={this.handleChangeInput}
                                     onBlur={this.handleBlurInput}
