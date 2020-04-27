@@ -3,11 +3,11 @@ from datetime import datetime, timedelta
 import requests
 import pytest
 from django.contrib.auth.models import User
-import pymongo
 
 from pointlog.models import LoggedEvent
-from achievements.models import UserAchievement, Achievement, StatusBadge
-from achievements.services import AchievementRulesMongo, base64_to_file
+from achievements.models import StatusBadge
+from achievements.services import AchievementRulesMongo
+from core.mongo import c_badges
 
 
 @pytest.mark.parametrize("need_old_user", [True, False])
@@ -389,44 +389,75 @@ def test_eventpointsview(settings, live_server, rand_str, award, admin_user):
     assert data['msg'] == "Requested reward is not valid."
 
 
-def test_badgesview(live_server, rand_str, event, admin_user, settings):
+def test_badgesview(live_server, rand_str, event, admin_user, make_test_file):
     """
     Get Badges for User.
     """
-    badge_img = base64_to_file('data:image/gif;base64,{}'.format('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'))
-
-    # settings.DB_DATA = "test-data-{}".format(rand_str)
-    # settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
-    achievement = Achievement(
-        title=rand_str,
-        slug=rand_str,
-        badge_id=event.event_type,
-        badge_img=badge_img
-    )
-    achievement.save()
-
-    user_achiev = UserAchievement(achievement=achievement, user=admin_user)
-    user_achiev.save()
-
     conn = AchievementRulesMongo()
     conn.connect()
-    conn.collection.update({'slug': rand_str}, {"$set": {'rules': {}, 'active': True}}, upsert=True)
+    conn.collection.drop()  # cleaning badges rules
+    conn.collection.insert_many([
+        {
+            "slug": "slug_1", 'active': True, 'url': 'sometesturl1',
+            'rules': {'actions': {'event_type_1': 2, 'event_type_2': 2}}
+        },
+        {
+            'slug': 'slug_2', 'active': True, 'url': 'sometesturl2',
+            'rules': {'actions': {'event_type_1': 1}},
+        },
+    ])
+
+    c_badges().drop()  # cleaning users badges data
+    badges_data = {
+        "slug_1": {
+            "progress": {
+                "event_type_1": {"count": 2}, "event_type_2": {"count": 1}
+            },
+            "done": False,
+        },
+        "slug_2": {
+            "progress": {
+                "event_type_2": {"count": 1, "goal": 1}
+            },
+            "done": True,
+        },
+    }
+
+    c_badges().replace_one(
+        {
+            "user_id": admin_user.id
+        },
+        {
+            "user_id": admin_user.id,
+            "badges": badges_data
+
+        },
+        upsert=True
+    )
 
     res = requests.get(
         live_server+'/api/v0/badges/',
         params={'username': admin_user.username}
     )
+
     assert res.status_code == 200
     data = res.json()
-    # assert len(data) == 1  # db isn't cleaning
-    assert bool(data[rand_str]["progress"]) is False
-    assert data[rand_str]["done"] is False
+
+    expected_data = badges_data.copy()
+    expected_data['slug_1']['url'] = 'sometesturl1'
+    expected_data['slug_2']['url'] = 'sometesturl2'
+    expected_data['slug_1']['progress']['event_type_1']['goal'] = 2
+    expected_data['slug_1']['progress']['event_type_2']['goal'] = 2
+
+    assert data == expected_data
 
     res = requests.get(
         live_server+'/api/v0/badges/'
     )
-    assert res.status_code == 404
-    assert res.json()['Error'] == 'User not found'
+
+    # TODO test deletion, non existing user
+    #assert res.status_code == 404
+    #assert res.json()['Error'] == 'User not found'
 
 
 def test_statusview(live_server, rand_str, award, settings):

@@ -1,0 +1,202 @@
+[
+  {
+    "description": "1 Action event removed",
+    "old_rules": {
+      "actions": {"event1": 1, "event2": 1}
+    },
+    "new_rules": {
+      "actions": {"event2": 1}
+    },
+    "rules_simplified": true
+  },
+  {
+    "description": "2 Action event added",
+    "old_rules": {
+      "actions": {"event1": 1}
+    },
+    "new_rules": {
+      "actions": {"event2": 1,  "event1": 1}
+    },
+    "rules_simplified": false
+  },
+  {
+    "description": "3 Action event count decreased",
+    "old_rules": {
+      "actions": {"event1": 2, "event2": 1}
+    },
+    "new_rules": {
+      "actions": {"event1": 1, "event2": 1}
+    },
+    "rules_simplified": true
+  },
+  {
+    "description": "4 Action event count increased",
+    "old_rules": {
+      "actions": {"event1": 1, "event2": 1}
+    },
+    "new_rules": {
+      "actions": {"event1": 2, "event2": 1}
+    },
+    "rules_simplified": false
+  },
+  {
+    "description": "5 Action event one added one removed",
+    "old_rules": {
+      "actions": {"event1": 1, "event2": 1}
+    },
+    "new_rules": {
+      "actions": {"event1": 2, "event3": 1}
+    },
+    "rules_simplified": false
+  },
+  {
+    "description": "6 Action event one increased one decreased",
+    "old_rules": {
+      "actions": {"event1": 2, "event2": 2}
+    },
+    "new_rules": {
+      "actions": {"event1": 1, "event3": 3}
+    },
+    "rules_simplified": false
+  },
+  {
+    "description": "7 Status badge removed",
+    "old_rules": {
+      "actions": {"event1": 1},
+      "status_badge": "status1"
+    },
+    "new_rules": {
+      "actions": {"event1": 1}
+    },
+    "rules_simplified": true
+  },
+  {
+    "description": "8 Status badge added",
+    "old_rules": {
+      "actions": {"event1": 1}
+    },
+    "new_rules": {
+      "actions": {"event1": 1},
+      "status_badge": "status1"
+    },
+    "rules_simplified": false
+  },
+  {
+    "description": "9 Status badge decreased",
+    "status_badges": {"status1":  10, "status2":  20},
+    "old_rules": {
+      "status_badge": "status2"
+    },
+    "new_rules": {
+      "status_badge": "status1"
+    },
+    "rules_simplified": true
+  },
+  {
+    "description": "10 Status badge increased",
+    "status_badges": {"status1":  10, "status2":  20},
+    "old_rules": {
+      "status_badge": "status1"
+    },
+    "new_rules": {
+      "status_badge": "status2"
+    },
+    "rules_simplified": false
+  },
+  {
+    "description": "11 Badge added",
+    "old_rules": {
+      "actions": {"event1": 1}
+    },
+    "new_rules": {
+      "actions": {"event1": 1},
+      "badges": ["badge1"]
+    },
+    "rules_simplified": false
+  },
+  {
+    "description": "12 Badge removed",
+    "old_rules": {
+      "actions": {"event1": 1},
+      "badges": ["badge1", "badge2"]
+    },
+    "new_rules": {
+      "actions": {"event1": 1},
+      "badges": ["badge2"]
+    },
+    "rules_simplified": true
+  },
+  {
+    "description": "13 All badges removed",
+    "old_rules": {
+      "actions": {"event1": 1},
+      "badges": ["badge1", "badge2"]
+    },
+    "new_rules": {
+      "actions": {"event1": 1}
+    },
+    "rules_simplified": true
+  },
+  {
+    "description": "14 Badges and status badges simplified, but new events added to actions",
+    "status_badges": {"status1":  10},
+    "old_rules": {
+      "actions": {"event1": 1},
+      "badges": ["badge1", "badge2"],
+      "status_badge": "status1"
+    },
+    "new_rules": {
+      "actions": {"event1": 1, "event2": 2}
+    },
+    "rules_simplified": false
+  },
+  {
+    "description": "15 Badges and status badges simplified, but event count increased",
+    "status_badges": {"status1":  10},
+    "old_rules": {
+      "actions": {"event1": 1},
+      "badges": ["badge1", "badge2"],
+      "status_badge": "status1"
+    },
+    "new_rules": {
+      "actions": {"event1": 2}
+    },
+    "rules_simplified": false
+  },
+  {
+    "description": "16 Actions simplified but new badges added",
+    "status_badges": {"status1":  10},
+    "old_rules": {
+      "actions": {"event1": 2},
+      "badges": ["badge1"]
+    },
+    "new_rules": {
+      "actions": {"event1": 1},
+      "badges": ["badge1", "badge2"]
+    },
+    "rules_simplified": true
+  },
+  {
+    "description": "17 Actions simplified but status badge added",
+    "status_badges": {"status1":  10},
+    "old_rules": {
+      "actions": {"event1": 1, "event2": 1}
+    },
+    "new_rules": {
+      "actions": {"event1": 1},
+      "status_badge": "status1"
+    },
+    "rules_simplified": true
+  },
+  {
+    "description": "18 One event increased, other event removed",
+    "status_badges": {"status1":  10},
+    "old_rules": {
+      "actions": {"event1": 1, "event2": 1}
+    },
+    "new_rules": {
+      "actions": {"event1": 2}
+    },
+    "rules_simplified": false
+  }
+]

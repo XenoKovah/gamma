@@ -11,8 +11,8 @@ import pytest
 import requests
 from rest_framework import status
 
-from achievements.models import Achievement, Event
-from achievements.services import AchievementRulesMongo, base64_to_file
+from achievements.models import Achievement, Event, StatusBadge
+from achievements.services import AchievementRulesMongo
 from core.mongo import c_badges
 
 
@@ -54,9 +54,57 @@ def load_params_from_json(json_path):
 
 @pytest.mark.parametrize(
     "entry",
+    load_params_from_json('core/tests/resources/badges_granting_rules.json'),
+)
+def test_badges_granting_rules(entry, live_server, admin_user, app_client, make_test_file):
+    """
+    Integration tests for Badges Granting due to Achievements Rules.
+
+    For EACH item in json:
+      1. INPUT Set up a rule: call '/api/v0/badge-rules/' with "rules"
+      2. INPUT Hit a rule: call '/api/v0/gamma-profile/' with "events"
+      3. OUTPUT Check a badge: call '/api/v0/badges/' with "badges_result"
+    """
+    # `c_badges` and `rules` cleanup is absolutely necessary here
+    # NOTE: consider cleaning up in all pytest's
+    _cleanup_badges()
+
+    for event, points in entry.get("actions_points", {}).items():
+        Event.objects.update_or_create(
+            event_type=event,
+            defaults={'award': points}
+        )
+
+    for slug, points in entry.get("status_badges", {}).items():
+        StatusBadge.objects.update_or_create(
+            slug=slug,
+            defaults={
+                'title': slug, 'status_points': points,
+                'badge_img': make_test_file()
+            }
+        )
+
+    for achievement in entry["rules"]:
+        Achievement.objects.get_or_create(
+            slug=achievement["slug"],
+            badge_img=make_test_file()
+        )
+
+    # 1. INPUT Set up a rule: call '/api/v0/badge-rules/' with "rules"
+    _update_rules(live_server, entry["rules"])
+
+    # 2. INPUT Hit a rule: call '/api/v0/gamma-profile/' with "events"
+    _send_events(live_server, admin_user, app_client, entry["events"])
+
+    # 3. OUTPUT Check a badge: call '/api/v0/badges/' with "badges_result"
+    _check_badges(live_server, admin_user, entry["badges_result"])
+
+
+@pytest.mark.parametrize(
+    "entry",
     load_params_from_json('core/tests/resources/badges_rules_change.json'),
 )
-def test_badgesview_rules_change(entry, live_server, admin_user, app_client):
+def test_badgesview_rules_change(entry, live_server, admin_user, app_client, make_test_file):
     """
     Integration tests for Achievements Rules Changes and consequences.
 
@@ -87,23 +135,12 @@ def test_badgesview_rules_change(entry, live_server, admin_user, app_client):
     post_change_post_hit_c_badges = entry["output"]["post_change_post_hit_c_badges"]
 
     # Setup
-    # NOTE: consider making it dynamic (setup for all slugs/events mentioned in json)
-    Achievement.objects.get_or_create(
-        title="slug_1",
-        slug="slug_1",
-        # badge_id=event.event_type,
-        badge_img=base64_to_file(
-            'data:image/gif;base64,{}'.format('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7')
-        )
-    )
-    Event.objects.get_or_create(
-        event_type="event_type_1",
-        award=10,
-    )
-    Event.objects.get_or_create(
-        event_type="event_type_2",
-        award=10,
-    )
+    achievements_slug = set([rule['slug'] for rule in initial_rules + changed_rules])
+    events = set([event["event_type"] for event in pre_change_events + post_change_events])
+    for slug in achievements_slug:
+        Achievement.objects.get_or_create(title=slug, slug=slug, badge_img=make_test_file())
+    for event in events:
+        Event.objects.get_or_create(event_type=event, award=10)
 
     # 1. INPUT Set up a rule: call '/api/v0/badge-rules/' with "initial_rules"
     _update_rules(live_server, initial_rules)
@@ -185,23 +222,27 @@ def _update_rules(live_server, rules):
         assert response.status_code == status.HTTP_200_OK
 
 
-def _check_badges(live_server, admin_user, badges_entry):
+def _check_badges(live_server, admin_user, expected_badges):
     """
     Badges integration test logic.
 
     With badges being checked and granted upon badges GET call.
     """
-
     res = requests.get(
         live_server+'/api/v0/badges/',
         params={'username': admin_user.username}
     )
     assert res.status_code == status.HTTP_200_OK
     data = res.json()
-    # NOTE: consider making it dynamic (provided entries from json file)
-    assert data["slug_1"]["progress"]["event_type_1"]["count"] == badges_entry[0]["slug_1"]["event_type_1"]["count"]
-    assert data["slug_1"]["progress"]["event_type_1"]["goal"] == badges_entry[0]["slug_1"]["event_type_1"]["goal"]
-    if badges_entry[0]["slug_1"].get("event_type_2"):
-        assert data["slug_1"]["progress"]["event_type_2"]["count"] == badges_entry[0]["slug_1"]["event_type_2"]["count"]
-        assert data["slug_1"]["progress"]["event_type_2"]["goal"] == badges_entry[0]["slug_1"]["event_type_2"]["goal"]
-    assert data["slug_1"]["done"] == badges_entry[0]["slug_1"]["done"]
+
+    data_to_check = {}
+
+    for badge_slug in data:
+        data_to_check[badge_slug] = {}
+        data_to_check[badge_slug]['done'] = data[badge_slug]['done']
+        progress = data[badge_slug].get('progress', {})
+        for event in progress:
+            data_to_check[badge_slug][event] = {'count': progress[event]['count'], 'goal': progress[event]['goal']}
+            # TODO checking urls?
+
+    assert data_to_check == expected_badges

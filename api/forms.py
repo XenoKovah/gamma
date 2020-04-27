@@ -8,7 +8,6 @@ from core.models import GameProfile, AppClient
 from core.services import MongoConnector
 from core.utils import key_secret_generator
 from pointlog.models import LoggedEvent
-from pointlog.tasks import check_user_achievements
 
 
 class EventPointsForm(forms.Form):
@@ -58,6 +57,3 @@ class EventPointsForm(forms.Form):
             rewarded_points=award
         )
         log_event.save()
-
-        if event_type == 'reward':
-            check_user_achievements(user.id, event_type)

@@ -30,6 +30,7 @@ class App extends Component {
     this.state = {
       open: true,
       actions: [],
+      badges: [],
       filters: {},
       emptyFilters: [],
       rawActions: {}
@@ -53,23 +54,42 @@ class App extends Component {
   onChangeProps(propName, propValue) {
     let state = {};
     state[propName] = propValue;
-    this.setState(state)
+    this.setState(state);
   }
 
   getRules() {
     getRules(this.slug)
     .then(result => {
         let actions = [];
-
         for (let key in result.actions) {
             actions.push(
                 {
                     id: Math.random(),
                     action: key,
-                    count: result.actions[key]
+                    value: result.actions[key]
                 }
             )
         };
+        if (result.status_badge) {
+            actions.push(
+                {
+                    id: Math.random(),
+                    action: 'status_badge',
+                    value: result.status_badge
+                }
+            )
+        }
+        if(result.badges){
+            for (let badge of result.badges) {
+                actions.push(
+                    {
+                        id: Math.random(),
+                        action: 'badge',
+                        value: badge
+                    }
+                )
+            }
+        }
         this.setState({
             actions: actions,
             filters: result.filters,
@@ -86,13 +106,28 @@ class App extends Component {
     const rules = {};
     if (!isObjectEmpty(this.state.actions) || !isObjectEmpty(this.state.filters)) {
       let validActions = this.state.actions.filter((action, ind) => {
-          return action.count && action.action
+          return action.value && action.action
       });
       const actions = {};
-      validActions.forEach((el) => {
-          actions[el.action] = +el.count;
-      });
+      const badges = [];
+      const status_badge = null;
+
+      for (let el of validActions){
+        if(el.action === 'badge'){
+            badges.push(el.value);
+        }
+        else if(el.action === 'status_badge'){
+            rules.status_badge = el.value;
+        }
+        else{
+            actions[el.action] = el.value;
+        }
+      }
+
       rules.actions = actions;
+      if(badges.length > 0){
+        rules.badges = badges;
+      }
       rules.filters = this.state.filters;
 
       fetch(process.env.REACT_APP_LOCALHOST + BADGE_RULES, {

@@ -1,3 +1,5 @@
+import base64
+import os
 import uuid
 import socket
 import random
@@ -7,6 +9,9 @@ from datetime import datetime
 import pytest
 import docker as libdocker
 from webpack_loader.loader import WebpackLoader
+
+from django.conf import settings
+from django.core.files.base import ContentFile
 
 from core.services import MongoConnector
 from core.models import AppClient
@@ -93,3 +98,16 @@ def no_webpack_loaded(monkeypatch):
     def mockreturn(loader, bundle_name):
         return []
     monkeypatch.setattr(WebpackLoader, "get_bundle", mockreturn)
+
+
+@pytest.fixture
+def make_test_file():
+    def _make_test_file(name='image.gif',
+                        image_string='R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'):
+        """
+        convert base64 attachment string to django File
+        :return: django ContentFile
+        """
+        return ContentFile(base64.b64decode(image_string), name=name)
+
+    return _make_test_file

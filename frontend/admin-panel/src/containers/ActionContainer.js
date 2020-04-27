@@ -1,6 +1,6 @@
 import React from 'react';
 
-import EventType from '../components/Select';
+import { EventType, BadgeSelector, StatusBadgeSelector } from '../components/Select';
 import Count from '../components/Count';
 
 
@@ -8,35 +8,44 @@ class ActionContainer extends React.Component {
 
     constructor(props) {
         super(props);
-        this.selectChanged = this.selectChanged.bind(this);
+        this.actionChanged = this.actionChanged.bind(this);
+        this.badgeChanged = this.badgeChanged.bind(this);
         this.deleteBlock = this.deleteBlock.bind(this);
         this.countChanged = this.countChanged.bind(this);
-
-
+        this.badgeChanged = this.badgeChanged.bind(this);
 
         this.state = {
             id: this.props.id || Math.random(),
             action: this.props.action || "",
-            count: this.props.count || "",
+            value: this.props.value || "",
             actions: this.props.actions || [],
-            availableActions: this.props.availableActions || []
+            availableActions: this.props.availableActions || [],
+            availableBadges: this.props.availableBadges || [],
         }
     }
 
-    selectChanged(data) {
+    actionChanged(selectEvent) {
         this.setState({
-            action: data.action
+            action: selectEvent.value
         }, () => {
-            this.props.onChange(this.props.id, "action", data.action);
-        }) 
+            this.props.onChange(this.props.id, "action", selectEvent.value);
+        });
+    }
+
+    badgeChanged(selectEvent) {
+        this.setState({
+            value: selectEvent.value
+        }, () => {
+            this.props.onChange(this.props.id, "value", selectEvent.value);
+        });
     }
 
     countChanged(data) {
         this.setState({
-            count: data.count
+            value: data.count
         }, () => {
-            this.props.onChange(this.props.id, "count", data.count);
-        })
+            this.props.onChange(this.props.id, "value", data.count);
+        });
     }
 
     deleteBlock(event) {
@@ -45,13 +54,32 @@ class ActionContainer extends React.Component {
     }
 
     render() {
+        let valueComponent = null;
+
+        switch(this.state.action){
+            case 'badge':
+                valueComponent = <BadgeSelector
+                                 onChanged={this.badgeChanged}
+                                 badge={this.props.value}
+                                 badges={this.props.availableBadges}/>;
+                break;
+            case 'status_badge':
+                valueComponent = <StatusBadgeSelector
+                                 onChanged={this.badgeChanged}
+                                 badge={this.props.value}
+                                 badges={this.props.statusBadges}/>;
+                break;
+            default: // for various events and empty item
+                valueComponent = <Count onChanged={this.countChanged} count={this.props.value}/>;
+        }
+
         return (
             <div className="ActionItem">
                 <EventType 
-                    onChanged={this.selectChanged} 
-                    action={this.props.action} 
+                    onChanged={this.actionChanged}
+                    action={this.props.action}
                     actions={this.props.availableActions}/>
-                <Count onChanged={this.countChanged} count={this.props.count}/>
+                {valueComponent}
                 <button onClick={this.deleteBlock} className="Btn Btn_danger">Delete</button>
             </div>
         )

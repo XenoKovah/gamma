@@ -15,11 +15,6 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('username', 'email')
 
 
-class EventSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Event
-        fields = '__all__'
-
 class GameProfileSerializer(serializers.ModelSerializer):
     """
     GameProfile Model Serializer.
@@ -112,6 +107,7 @@ class UserStatusSerializer(serializers.ModelSerializer):
         if obj.badge_img:
             return self.context['request'].build_absolute_uri(obj.badge_img.url)
 
+
 class StatusSerializer(serializers.ModelSerializer):
     """
     Achievement serializer.
@@ -155,6 +151,7 @@ class StatusSerializer(serializers.ModelSerializer):
         else :
             return False
 
+
 class LoggedEventSerializer(serializers.ModelSerializer):
     """
     EventLogged model serializer.
@@ -195,3 +192,18 @@ class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
         fields = ('event_type',)
+
+
+class StatusBadgeSlugSerializer(serializers.ModelSerializer):
+    """
+    StatusBadge serializer.
+
+    Returns:
+      - slug: StatusBadge slug (unique across DB)
+    """
+
+    class Meta:
+        model = StatusBadge
+        fields = (
+            'slug',
+        )

@@ -38,8 +38,7 @@
       ]
     },
     "output":  {
-      "pre_change_c_badges": [
-        {
+      "pre_change_c_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 1,
@@ -47,21 +46,17 @@
             },
             "done": false
           }
-        }
-      ],
-      "post_change_pre_hit_c_badges": [
-        {
+      },
+      "post_change_pre_hit_c_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 1,
-              "goal": 3
+              "goal": 2
             },
             "done": false
           }
-        }
-      ],
-      "post_change_post_hit_c_badges": [
-        {
+      },
+      "post_change_post_hit_c_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 2,
@@ -69,8 +64,7 @@
             },
             "done": true
           }
-        }
-      ]
+      }
     }
   },
 
@@ -116,8 +110,7 @@
       ]
     },
     "output":  {
-      "pre_change_c_badges": [
-        {
+      "pre_change_c_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 2,
@@ -125,10 +118,8 @@
             },
             "done": true
           }
-        }
-      ],
-      "post_change_pre_hit_c_badges": [
-        {
+      },
+      "post_change_pre_hit_c_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 2,
@@ -136,19 +127,16 @@
             },
             "done": true
           }
-        }
-      ],
-      "post_change_post_hit_c_badges": [
-        {
+      },
+      "post_change_post_hit_c_badges": {
           "slug_1": {
             "event_type_1": {
-              "count": 3,
-              "goal": 1
+              "count": 2,
+              "goal": 2
             },
             "done": true
           }
-        }
-      ]
+      }
     }
   },
 
@@ -197,8 +185,7 @@
       ]
     },
     "output":  {
-      "pre_change_c_badges": [
-        {
+      "pre_change_c_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 2,
@@ -206,21 +193,17 @@
             },
             "done": false
           }
-        }
-      ],
-      "post_change_pre_hit_c_badges": [
-        {
+      },
+      "post_change_pre_hit_c_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 2,
-              "goal": 3
+              "goal": 4
             },
             "done": false
           }
-        }
-      ],
-      "post_change_post_hit_c_badges": [
-        {
+      },
+      "post_change_post_hit_c_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 4,
@@ -228,8 +211,7 @@
             },
             "done": true
           }
-        }
-      ]
+      }
     }
   },
 
@@ -275,8 +257,7 @@
       ]
     },
     "output":  {
-      "pre_change_c_badges": [
-        {
+      "pre_change_c_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 2,
@@ -284,10 +265,8 @@
             },
             "done": true
           }
-        }
-      ],
-      "post_change_pre_hit_c_badges": [
-        {
+      },
+      "post_change_pre_hit_c_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 2,
@@ -295,19 +274,16 @@
             },
             "done": true
           }
-        }
-      ],
-      "post_change_post_hit_c_badges": [
-        {
+      },
+      "post_change_post_hit_c_badges": {
           "slug_1": {
             "event_type_1": {
-              "count": 3,
-              "goal": 4
+              "count": 2,
+              "goal": 2
             },
             "done": true
           }
-        }
-      ]
+      }
     }
   },
 
@@ -358,8 +334,7 @@
       ]
     },
     "output":  {
-      "pre_change_c_badges": [
-        {
+      "pre_change_c_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 1,
@@ -371,10 +346,8 @@
             },
             "done": false
           }
-        }
-      ],
-      "post_change_pre_hit_c_badges": [
-        {
+      },
+      "post_change_pre_hit_c_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 1,
@@ -382,10 +355,8 @@
             },
             "done": false
           }
-        }
-      ],
-      "post_change_post_hit_c_badges": [
-        {
+      },
+      "post_change_post_hit_c_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 2,
@@ -393,8 +364,7 @@
             },
             "done": true
           }
-        }
-      ]
+      }
     }
   },
 
@@ -451,8 +421,7 @@
       ]
     },
     "output":  {
-      "pre_change_c_badges": [
-        {
+      "pre_change_c_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 2,
@@ -464,30 +433,33 @@
             },
             "done": true
           }
-        }
-      ],
-      "post_change_pre_hit_c_badges": [
-        {
+      },
+      "post_change_pre_hit_c_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 2,
               "goal": 2
             },
-            "done": true
-          }
-        }
-      ],
-      "post_change_post_hit_c_badges": [
-        {
-          "slug_1": {
-            "event_type_1": {
-              "count": 3,
+            "event_type_2": {
+              "count": 2,
               "goal": 2
             },
             "done": true
           }
-        }
-      ]
+      },
+      "post_change_post_hit_c_badges": {
+          "slug_1": {
+            "event_type_1": {
+              "count": 2,
+              "goal": 2
+            },
+            "event_type_2": {
+              "count": 2,
+              "goal": 2
+            },
+            "done": true
+          }
+      }
     }
   },
 
@@ -537,8 +509,7 @@
       ]
     },
     "output":  {
-      "pre_change_c_badges": [
-        {
+      "pre_change_c_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 1,
@@ -546,21 +517,21 @@
             },
             "done": false
           }
-        }
-      ],
-      "post_change_pre_hit_c_badges": [
-        {
+      },
+      "post_change_pre_hit_c_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 1,
               "goal": 2
             },
+            "event_type_2": {
+              "count": 0,
+              "goal": 2
+            },
             "done": false
           }
-        }
-      ],
-      "post_change_post_hit_c_badges": [
-        {
+      },
+      "post_change_post_hit_c_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 2,
@@ -572,13 +543,13 @@
             },
             "done": true
           }
-        }
-      ]
+      }
     }
   },
 
   {
     "description": "8. Action’s event type is added (a badge WAS granted before rules changed).",
+    "comment": "Event progress requirements are not changed because badge is already got",
     "input": {
       "initial_rules":  [
         {
@@ -626,8 +597,7 @@
       ]
     },
     "output":  {
-      "pre_change_c_badges": [
-        {
+      "pre_change_c_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 2,
@@ -635,10 +605,8 @@
             },
             "done": true
           }
-        }
-      ],
-      "post_change_pre_hit_c_badges": [
-        {
+      },
+      "post_change_pre_hit_c_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 2,
@@ -646,23 +614,16 @@
             },
             "done": true
           }
-        }
-      ],
-      "post_change_post_hit_c_badges": [
-        {
+      },
+      "post_change_post_hit_c_badges": {
           "slug_1": {
             "event_type_1": {
-              "count": 3,
-              "goal": 2
-            },
-            "event_type_2": {
               "count": 2,
               "goal": 2
             },
             "done": true
           }
-        }
-      ]
+      }
     }
   },
 
@@ -708,8 +669,7 @@
       ]
     },
     "output":  {
-      "pre_change_c_badges": [
-        {
+      "pre_change_c_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 1,
@@ -717,10 +677,8 @@
             },
             "done": false
           }
-        }
-      ],
-      "post_change_pre_hit_c_badges": [
-        {
+      },
+      "post_change_pre_hit_c_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 1,
@@ -728,10 +686,8 @@
             },
             "done": false
           }
-        }
-      ],
-      "post_change_post_hit_c_badges": [
-        {
+      },
+      "post_change_post_hit_c_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 2,
@@ -739,8 +695,7 @@
             },
             "done": true
           }
-        }
-      ]
+      }
     }
   },
 
@@ -790,8 +745,7 @@
       ]
     },
     "output":  {
-      "pre_change_c_badges": [
-        {
+      "pre_change_c_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 2,
@@ -799,10 +753,8 @@
             },
             "done": true
           }
-        }
-      ],
-      "post_change_pre_hit_c_badges": [
-        {
+      },
+      "post_change_pre_hit_c_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 2,
@@ -810,19 +762,16 @@
             },
             "done": true
           }
-        }
-      ],
-      "post_change_post_hit_c_badges": [
-        {
+      },
+      "post_change_post_hit_c_badges": {
           "slug_1": {
             "event_type_1": {
-              "count":3,
+              "count":2,
               "goal": 2
             },
             "done": true
           }
-        }
-      ]
+      }
     }
   },
 
@@ -844,11 +793,11 @@
       "changed_rules":  [
         {
           "actions": {
-            "event_type_1": 2,
-            "org": "org_1"
+            "event_type_1": 2
           },
           "filters": {
-            "interval": {}
+            "interval": {},
+            "org": "org_1"
           },
           "slug": "slug_1",
           "badge_image": "badge_image_1"
@@ -871,8 +820,7 @@
       ]
     },
     "output":  {
-      "pre_change_c_badges": [
-        {
+      "pre_change_c_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 1,
@@ -880,10 +828,8 @@
             },
             "done": false
           }
-        }
-      ],
-      "post_change_pre_hit_c_badges": [
-        {
+      },
+      "post_change_pre_hit_c_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 1,
@@ -891,19 +837,16 @@
             },
             "done": false
           }
-        }
-      ],
-      "post_change_post_hit_c_badges": [
-        {
+      },
+      "post_change_post_hit_c_badges": {
           "slug_1": {
             "event_type_1": {
-              "count": 3,
+              "count": 2,
               "goal": 2
             },
             "done": true
           }
-        }
-      ]
+      }
     }
   },
 
@@ -925,11 +868,11 @@
       "changed_rules":  [
         {
           "actions": {
-            "event_type_1": 2,
-            "org": "org_1"
+            "event_type_1": 2
           },
           "filters": {
-            "interval": {}
+            "interval": {},
+            "org": "org_1"
           },
           "slug": "slug_1",
           "badge_image": "badge_image_1"
@@ -953,8 +896,7 @@
       ]
     },
     "output":  {
-      "pre_change_c_badges": [
-        {
+      "pre_change_c_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 2,
@@ -962,10 +904,8 @@
             },
             "done": true
           }
-        }
-      ],
-      "post_change_pre_hit_c_badges": [
-        {
+      },
+      "post_change_pre_hit_c_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 2,
@@ -973,19 +913,122 @@
             },
             "done": true
           }
-        }
-      ],
-      "post_change_post_hit_c_badges": [
-        {
+      },
+      "post_change_post_hit_c_badges": {
           "slug_1": {
             "event_type_1": {
-              "count": 3,
+              "count": 2,
               "goal": 2
             },
             "done": true
           }
+      }
+    }
+  },
+  {
+    "description": "13. Badge become achieved after rules are changed",
+    "input": {
+      "initial_rules":  [
+        {
+          "actions": {"event_type_1": 2, "event_type_2": 1},
+          "slug": "slug_1"
         }
+      ],
+      "changed_rules":  [
+        {
+          "actions": {"event_type_1": 1, "event_type_2": 1},
+          "slug": "slug_1"
+        }
+      ],
+      "pre_change_events": [
+        {"event_type": "event_type_1"},
+        {"event_type": "event_type_2"}
+      ],
+      "post_change_events": [
+        {"event_type": "event_type_1"}
       ]
+    },
+    "output":  {
+      "pre_change_c_badges": {
+        "slug_1": {
+          "event_type_1": {"count": 1, "goal": 2},
+          "event_type_2": {"count": 1, "goal": 1},
+          "done": false
+        }
+      },
+      "post_change_pre_hit_c_badges": {
+        "slug_1": {
+          "event_type_1": {"count": 1, "goal": 1},
+          "event_type_2": {"count": 1, "goal": 1},
+          "done": true
+        }
+      },
+      "post_change_post_hit_c_badges": {
+        "slug_1": {
+          "event_type_1": {"count": 1, "goal": 1},
+          "event_type_2": {"count": 1, "goal": 1},
+          "done": true
+        }
+      }
+    }
+  },
+  {
+    "description": "14. Badge become achieved after rules are changed and trigger getting badge by badge",
+    "input": {
+      "initial_rules":  [
+        {
+          "actions": {"event_type_1": 2, "event_type_2": 1},
+          "slug": "slug_1"
+        },
+        {
+		  "badges": ["slug_1"], "actions": {},
+          "slug": "slug_2"
+        },
+        {
+          "badges": ["slug_2"], "actions": {},
+          "slug": "slug_3"
+        }
+      ],
+      "changed_rules":  [
+        {
+          "actions": {"event_type_1": 1, "event_type_2": 1},
+          "slug": "slug_1"
+        }
+      ],
+      "pre_change_events": [
+        {"event_type": "event_type_1"},
+        {"event_type": "event_type_2"}
+      ],
+      "post_change_events": []
+    },
+    "output":  {
+      "pre_change_c_badges": {
+        "slug_1": {
+          "event_type_1": {"count": 1, "goal": 2},
+          "event_type_2": {"count": 1, "goal": 1},
+          "done": false
+        },
+		"slug_2": {"done": false},
+        "slug_3": {"done": false}
+      },
+      "post_change_pre_hit_c_badges": {
+        "slug_1": {
+          "event_type_1": {"count": 1, "goal": 1},
+          "event_type_2": {"count": 1, "goal": 1},
+          "done": true
+        },
+		"slug_2": {"done": true},
+        "slug_3": {"done": true}
+      },
+      "post_change_post_hit_c_badges": {
+        "slug_1": {
+          "event_type_1": {"count": 1, "goal": 1},
+          "event_type_2": {"count": 1, "goal": 1},
+          "done": true
+        },
+		"slug_2": {"done": true},
+        "slug_3": {"done": true}
+      }
     }
   }
 ]

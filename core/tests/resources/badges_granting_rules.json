@@ -1,0 +1,314 @@
+[
+  {
+    "description": "1. Badge is not granted before other badge it depends on.",
+    "actions_points": {"event_type_1": 1, "event_type_2": 1},
+    "rules": [
+      {
+        "actions": {"event_type_1": 2},
+        "slug": "slug_1",
+        "badge_image": "badge_image_1.gif"
+      },
+      {
+        "actions": {"event_type_2": 1},
+        "badges": ["slug_1"],
+        "slug": "slug_2",
+        "badge_image": "badge_image_2.gif"
+      }
+    ],
+    "events": [
+        {"event_type": "event_type_2"},
+        {"event_type": "event_type_1"}
+    ],
+    "badges_result": {
+      "slug_1": {
+        "event_type_1": {"count": 1, "goal": 2},
+        "done": false
+      },
+      "slug_2": {
+        "event_type_2": {"count": 1, "goal": 1},
+        "done": false
+      }
+    }
+  },
+  {
+    "description": "2. Badge is not granted before status badge it depends on.",
+    "actions_points": {"event_type_1": 1, "event_type_2": 1},
+    "status_badges": {"status_1":  10},
+    "rules": [
+      {
+        "actions": {"event_type_1": 2},
+        "status_badge": "status_1",
+        "slug": "slug_1",
+        "badge_image": "badge_image_1.gif"
+      }
+    ],
+    "events": [
+        {"event_type": "event_type_1"},
+        {"event_type": "event_type_1"}
+    ],
+    "badges_result": {
+      "slug_1": {
+        "event_type_1": {"count": 2, "goal": 2},
+        "done": false
+      }
+    }
+  },
+  {
+    "description": "3. Badge for badge (with actions).",
+    "actions_points": {"event_type_1": 1, "event_type_2": 1},
+    "rules": [
+      {
+        "actions": {"event_type_1": 2},
+        "slug": "slug_1",
+        "badge_image": "badge_image_1.gif"
+      },
+      {
+        "actions": {"event_type_2": 1},
+        "badges": ["slug_1"],
+        "slug": "slug_2",
+        "badge_image": "badge_image_2.gif"
+      }
+    ],
+    "events": [
+        {"event_type": "event_type_1"},
+        {"event_type": "event_type_2"},
+        {"event_type": "event_type_1"}
+    ],
+    "badges_result": {
+      "slug_1": {
+        "event_type_1": {"count": 2, "goal": 2},
+        "done": true
+      },
+      "slug_2": {
+        "event_type_2": {"count": 1, "goal": 1},
+        "done": true
+      }
+    }
+  },
+  {
+    "description": "4. Badge for badge chain (last without actions).",
+    "actions_points": {"event_type_1": 1, "event_type_2": 1},
+    "rules": [
+      {
+        "actions": {"event_type_1": 1},
+        "slug": "slug_1",
+        "badge_image": "badge_image_1.gif"
+      },
+      {
+        "actions": {"event_type_2": 1},
+        "badges": ["slug_1"],
+        "slug": "slug_2",
+        "badge_image": "badge_image_2.gif"
+      },
+      {
+        "badges": ["slug_1", "slug_2"],
+        "slug": "slug_3",
+        "badge_image": "badge_image_3.gif"
+      }
+    ],
+    "events": [
+        {"event_type": "event_type_2"},
+        {"event_type": "event_type_1"}
+    ],
+    "badges_result": {
+      "slug_1": {
+        "event_type_1": {"count": 1, "goal": 1},
+        "done": true
+      },
+      "slug_2": {
+        "event_type_2": {"count": 1, "goal": 1},
+        "done": true
+      },
+      "slug_3": {
+        "done": true
+      }
+    }
+  },
+  {
+    "description": "5. Long badge for badge chain with status badges (not completely granted).",
+    "actions_points": {"event_type_1": 1, "event_type_2": 5, "event_type_3": 10, "event_type_4": 9},
+    "status_badges": {"status_1":  10, "status_2": 40},
+    "rules": [
+      {
+        "actions": {"event_type_1": 1},
+        "slug": "slug_1",
+        "badge_image": "badge_image_1.gif"
+      },
+      {
+        "actions": {"event_type_2": 2},
+        "slug": "slug_2",
+        "badge_image": "badge_image_2.gif"
+      },
+      {
+        "actions": {"event_type_3": 1},
+        "slug": "slug_3",
+        "badge_image": "badge_image_3.gif"
+      },
+      {
+        "actions": {"event_type_4": 2},
+        "slug": "slug_4",
+        "badge_image": "badge_image_4.gif"
+      },
+      {
+        "badges": ["slug_1", "slug_2"],
+        "status_badge": "status_1",
+        "slug": "slug_5",
+        "badge_image": "badge_image_5.gif"
+      },
+      {
+        "badges": ["slug_3", "slug_4"],
+        "slug": "slug_6",
+        "badge_image": "badge_image_6.gif"
+      },
+      {
+        "badges": ["slug_5", "slug_6"],
+        "status_badge": "status_2",
+        "slug": "slug_7",
+        "badge_image": "badge_image_7.gif"
+      }
+    ],
+    "events": [
+      {"event_type": "event_type_4"},
+      {"event_type": "event_type_2"},
+      {"event_type": "event_type_1"},
+      {"event_type": "event_type_2"},
+      {"event_type": "event_type_3"}
+    ],
+    "badges_result": {
+      "slug_1": {
+        "event_type_1": {"count": 1, "goal": 1},
+        "done": true
+      },
+      "slug_2": {
+        "event_type_2": {"count": 2, "goal": 2},
+        "done": true
+      },
+      "slug_3": {
+        "event_type_3": {"count": 1, "goal": 1},
+        "done": true
+      },
+      "slug_4": {
+        "event_type_4": {"count": 1, "goal": 2},
+        "done": false
+      },
+      "slug_5": {
+        "done": true
+      },
+      "slug_6": {
+        "done": false
+      },
+      "slug_7": {
+        "done": false
+      }
+    }
+  },
+  {
+    "description": "6. Long badge for badge chain with status badges (all badges granted).",
+    "actions_points": {"event_type_1": 2, "event_type_2": 5, "event_type_3": 10, "event_type_4": 9},
+    "status_badges": {"status_1":  10, "status_2": 40},
+    "rules": [
+      {
+        "actions": {"event_type_1": 1},
+        "slug": "slug_1",
+        "badge_image": "badge_image_1.gif"
+      },
+      {
+        "actions": {"event_type_2": 2},
+        "slug": "slug_2",
+        "badge_image": "badge_image_2.gif"
+      },
+      {
+        "actions": {"event_type_3": 1},
+        "slug": "slug_3",
+        "badge_image": "badge_image_3.gif"
+      },
+      {
+        "actions": {"event_type_4": 2},
+        "slug": "slug_4",
+        "badge_image": "badge_image_4.gif"
+      },
+      {
+        "badges": ["slug_1", "slug_2"],
+        "status_badge": "status_1",
+        "slug": "slug_5",
+        "badge_image": "badge_image_5.gif"
+      },
+      {
+        "badges": ["slug_3", "slug_4"],
+        "slug": "slug_6",
+        "badge_image": "badge_image_6.gif"
+      },
+      {
+        "badges": ["slug_5", "slug_6"],
+        "status_badge": "status_2",
+        "slug": "slug_7",
+        "badge_image": "badge_image_7.gif"
+      }
+    ],
+    "events": [
+      {"event_type": "event_type_4"},
+      {"event_type": "event_type_2"},
+      {"event_type": "event_type_1"},
+      {"event_type": "event_type_2"},
+      {"event_type": "event_type_3"},
+      {"event_type": "event_type_4"},
+      {"event_type": "event_type_2"},
+      {"event_type": "event_type_3"}
+    ],
+    "badges_result": {
+      "slug_1": {
+        "event_type_1": {"count": 1, "goal": 1},
+        "done": true
+      },
+      "slug_2": {
+        "event_type_2": {"count": 2, "goal": 2},
+        "done": true
+      },
+      "slug_3": {
+        "event_type_3": {"count": 1, "goal": 1},
+        "done": true
+      },
+      "slug_4": {
+        "event_type_4": {"count": 2, "goal": 2},
+        "done": true
+      },
+      "slug_5": {
+        "done": true
+      },
+      "slug_6": {
+        "done": true
+      },
+      "slug_7": {
+        "done": true
+      }
+    }
+  },
+  {
+    "description": "7. Test getting badges for user with now events",
+    "actions_points": {"event_type_1": 1, "event_type_2": 1, "event_type_3": 1},
+    "rules": [
+      {
+        "actions": {"event_type_1": 2},
+        "slug": "slug_1",
+        "badge_image": "badge_image_1.gif"
+      },
+      {
+        "actions": {"event_type_2": 1, "event_type_3": 3},
+        "slug": "slug_2",
+        "badge_image": "badge_image_2.gif"
+      }
+    ],
+    "events": [],
+    "badges_result": {
+      "slug_1": {
+        "event_type_1": {"count": 0, "goal": 2},
+        "done": false
+      },
+      "slug_2": {
+        "event_type_2": {"count": 0, "goal": 1},
+		"event_type_3": {"count": 0, "goal": 3},
+        "done": false
+      }
+    }
+  }
+]

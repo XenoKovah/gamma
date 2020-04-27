@@ -3,15 +3,9 @@ from collections import OrderedDict
 from datetime import datetime, timedelta
 
 import http.client
-import os
 
-import pymongo
-from pymongo import MongoClient
 from django.contrib.auth.models import User
-from django.views.generic.edit import FormView
 from django.db.models import F
-from django.http import HttpResponseRedirect
-from django.shortcuts import render
 from django.conf import settings
 from django.core.cache.backends.base import DEFAULT_TIMEOUT
 from django.views.decorators.cache import cache_page
@@ -20,7 +14,6 @@ from django.utils.decorators import method_decorator
 from rest_framework import viewsets, generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.parsers import JSONParser
 
 from edx_integration.api.v2.client import EdxApiV2Client
 from edx_integration.api.v2.exceptions import (
@@ -35,12 +28,12 @@ from ..forms import EventPointsForm
 from ..serializers import (
     GameProfileSerializer,
     ProgressSerializer,
-    BadgesSerializer,
     LoggedEventSerializer,
     ApiAccessEventSerializer,
     UserStatusSerializer,
     StatusSerializer,
-    EventSerializer
+    EventSerializer,
+    StatusBadgeSlugSerializer
 )
 
 from core.services import MongoConnector
@@ -50,8 +43,8 @@ from core.mongo import c_badges
 from achievements.services import AchievementRulesMongo
 from pointlog.models import LoggedEvent
 from pointlog.models import ApiAccessEvent
-from pointlog.tasks import check_user_achievements, assign_status
-from achievements.models import UserAchievement, Achievement, StatusBadge, Event, UserStatus
+from pointlog.tasks import update_user_position, update_users_badge_data
+from achievements.models import Achievement, StatusBadge, Event
 from achievements.forms import AchievementForm
 
 
@@ -115,28 +108,6 @@ class GameProfileView(APIView):
                 # TODO try to avoid duplicate saving in Serializer
                 game_profile.save()
 
-                # TODO move this action to Celery
-                # Update point value in mongo
-                self.conn.find_one_and_update(
-                    filter_dict={
-                        'date': datetime.strptime(
-                            str(datetime.now().date()), '%Y-%m-%d'
-                        ),
-                        'username': user.username
-                    },
-                    key='points',
-                    value=event.award
-                )
-                # TODO refactor this
-                self.conn.find_one_and_update(
-                    filter_dict={
-                        'username': user.username
-                    },
-                    key=event_type,
-                    value=event.award,
-                    event_type='chart'
-                )
-
                 game_profile = GameProfile.objects.get(user=user)
                 serializer = GameProfileSerializer(game_profile, context={'request': request})
 
@@ -157,8 +128,11 @@ class GameProfileView(APIView):
                         uniq_id, event_type, event.award
                     )
                 ))
-                check_user_achievements(user.id, log_event)
-                assign_status(user.id, game_profile.points)
+                update_user_position.delay(
+                    user.id, user.username,
+                    game_profile.points,
+                    log_event.event_type, event.award, log_event.date, log_event.org
+                )
                 return Response(serializer.data)
             else:
                 logger.debug('For user {0} msg: {1}: {2}'.format(
@@ -307,83 +281,45 @@ class BadgesView(APIView):
 
         If UserNotFound - return status 404 w/ msg User not found.
         """
+        conn = AchievementRulesMongo()
+        conn.connect()
+        badges_rules = conn.collection.find({"active": True})
+
         user = User.objects.filter(
             username=request.GET.get('username')
         ).first()
-        if not user:
-            return Response(
-                {"Error": "User not found"},
-                status=status.HTTP_404_NOT_FOUND
+        user_badges = {}
+        if user:
+            log_api_access = ApiAccessEvent(
+                user=user,
+                api_name='Badges'
             )
+            log_api_access.save()
+            user_badges = c_badges().find_one({"user_id": user.id}, {"_id": 0}) or {}
+            user_badges = user_badges.get('badges', {})
 
-        conn = AchievementRulesMongo()
-        conn.connect()
-        badges = conn.collection.find({"active": True})
+        result = {}
+        for badge in badges_rules:
+            badge_granted = user_badges.get(badge['slug'], {}).get('done', False)
+            user_progress = user_badges.get(badge['slug'], {}).get('progress', {})
+            rules = badge.get('rules', {}).get('actions', {})
+            if badge_granted:
+                progress = user_progress
+            else:
+                progress = {
+                    event: {
+                        'count': user_progress.get(event, {}).get('count', 0),
+                        'goal': rules[event],
+                    } for event in rules.keys()
+                }
+            result[badge['slug']] = {
+                'done': badge_granted,
+                'url': badge.get('url'),
+                'progress': progress
+            }
 
-        for badge in badges:
-            rules = badge.get("rules", {}).get("actions", {})
-            default_progress = {k: {'count': 0, 'goal': v} for k, v in rules.items()}
-            user_stats = badge.get("users", {}).get(str(user.id), {})
-
-            # Exclude inactive rules (actions rules might have changed)
-            for a in set(user_stats.keys()).difference(set(rules.keys())).intersection(set(user_stats)):
-                del user_stats[a]
-
-            default_progress.update(user_stats)
-            c_badges().update(
-                {"user_id": user.id},
-                {
-                    "$set": {
-                        "badges.{}.progress".format(badge.get("slug")): default_progress
-                    }
-                },
-                upsert=True
-            )
-
-            # Check if a badge is already granted
-            # NOTE: consider adding 'done_date` (we'll be able to define if rules were
-            # changed after a badge was granted)
-            if not c_badges().find_one(
-                {"user_id": user.id}
-            ).get(
-                "badges", {}
-            ).get(
-                badge.get("slug"), {}
-            ).get(
-                "done"
-            ):
-                done = all(
-                    map(
-                        lambda x: x[0] >= x[1] if x[1] else False,
-                        (
-                            (user_stats[i].get('count', 0), rules.get(i))
-                            for i in user_stats if not i == 'done')
-                    )
-                ) if user_stats else False
-                sql_achievement = Achievement.objects.filter(slug=badge.get("slug")).first()
-                achievement_url = sql_achievement.badge_img.url if sql_achievement else ''
-                c_badges().update(
-                    {"user_id": user.id},
-                    {
-                        "$set": {
-                            "badges.{}.done".format(badge.get("slug")): done,
-                            "badges.{}.url".format(badge.get("slug")): request.build_absolute_uri(achievement_url)
-                        }
-                    },
-                )
-
-        log_api_access = ApiAccessEvent(
-            user=user,
-            api_name='Badges'
-        )
-        log_api_access.save()
-        res = c_badges().find_one({"user_id": user.id}, {"_id": 0})
-
-        if res:
-            res_budges = OrderedDict(sorted(res.get('badges').items(), key=lambda x: x[1]['done'], reverse=True))
-            return Response(res_budges if res else {})
-
-        return Response({}, status=status.HTTP_404_NOT_FOUND)
+        result = OrderedDict(sorted(result.items(), key=lambda x: x[1]['done'], reverse=True))
+        return Response(result)
 
 
 class UserStatuses(APIView):
@@ -469,17 +405,47 @@ class ApiAccessEventView(APIView):
         return Response(serializer.data)
 
 
-class EventsView(APIView):
+class ActionsListView(APIView):
     """
-    Return all available Events.
+    Return all available actions for badges granting rules.
+
+    Contains all Events that are set in system,
+    and additional items 'badge' and 'status_badge'
+    for 'badge-for-badge' granting.
     """
     def get(self, request, *args, **kwargs):
         """
-        Get all Events.
+        Get all Actions.
         """
         qs = Event.objects.all()
         serializer = EventSerializer(qs, many=True)
-        return Response(serializer.data)
+        data = [
+            {"event_type": "badge"},
+            {"event_type": "status_badge"},
+        ]
+        data.extend(serializer.data)
+        return Response(data)
+
+
+class BadgesListView(APIView):
+    """
+    Get available badges (for those rules are set).
+    """
+
+    def get(self, request, *args, **kwargs):
+        conn = AchievementRulesMongo()
+        conn.connect()
+        badges = conn.collection.find({"active": True})
+        data = [badge['slug'] for badge in badges if 'slug' in badge]
+        return Response(data)
+
+
+class StatusBadgesListView(generics.ListAPIView):
+    """
+    Get all status badges
+    """
+    queryset = StatusBadge.objects.all()
+    serializer_class = StatusBadgeSlugSerializer
 
 
 class FiltersView(APIView):
@@ -515,8 +481,24 @@ class BadgeRuleView(APIView):
 
     def put(self, request, *args, **kwargs):
         slug = request.data.pop('slug')
-        if slug:
-            self.conn.collection.update({'slug': slug}, {"$set": {'rules': request.data, 'active': True}}, upsert=True)
+        achievement = Achievement.objects.filter(slug=slug).first()
+        if slug and achievement:
+            old_rules = (self.conn.collection.find_one({'slug': slug}) or {}).get('rules')
+            new_rules = request.data
+            badge_url = request.build_absolute_uri(achievement.badge_img.url)
+            self.conn.collection.update(
+                {'slug': slug},
+                {"$set":
+                    {
+                        'rules': new_rules, 'active': True,
+                        'url': badge_url
+                    }
+                },
+                upsert=True
+            )
+            if old_rules and new_rules:
+                # don't try to open the badge for users if it's rules are completely deleted
+                update_users_badge_data(slug, old_rules, new_rules, badge_url)
             return Response({}, status=200)
         return Response({'message': 'Something went wrong'}, status=400)
 
@@ -583,6 +565,13 @@ class AchievementsView(APIView):
             form = AchievementForm(request.POST, request.FILES, instance=achievement)
             if form.is_valid():
                 form.save()
+                conn = AchievementRulesMongo()
+                conn.connect()
+                badge_url = request.build_absolute_uri(achievement.badge_img.url)
+                conn.collection.update(
+                    {'slug': slug},
+                    {"$set": {'url': badge_url}},
+                )
                 return Response({}, status=200)
             else:
                 errors = form.errors

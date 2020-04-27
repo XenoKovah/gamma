@@ -12,11 +12,17 @@ export default class Actions extends React.Component {
         this.containerChanged = this.containerChanged.bind(this);
         this.deleteBlock = this.deleteBlock.bind(this);
         this.getActions = this.getActions.bind(this);
-        this.updateAvailableActions = this.updateAvailableActions.bind(this);
+        this.updateAvailableItems = this.updateAvailableItems.bind(this);
+        this.getBadges = this.getBadges.bind(this);
+        this.getStatusBadges = this.getStatusBadges.bind(this);
+
+        this.allActions = [];
+        this.allBadges = [];
+        this.allStatusBadges = [];
 
         this.state = {
-            allActions: [],
-            availableActions: []
+            availableActions: [],
+            availableBadges: []
         }
 
     }
@@ -28,47 +34,97 @@ export default class Actions extends React.Component {
             let actions = result.map((el) => {
                 return el.event_type;
             })
-            this.updateAvailableActions(actions);
+            this.allActions = actions;
+            this.updateAvailableItems();
         })
     }
 
-    updateAvailableActions(actions) {
-        let actionList = actions || this.state.allActions;
+    getBadges() {
+        fetch('/api/v0/badges-list/')
+        .then(resp => resp.json())
+        .then(result => {
+            this.allBadges = result;
+            this.updateAvailableItems();
+        })
+    }
+
+    getStatusBadges() {
+        fetch('/api/v0/status-badges-list/')
+        .then(resp => resp.json())
+        .then(result => {
+            let statusBadges = result.map((el) => {
+                return el.slug;
+            })
+            this.allStatusBadges = statusBadges;
+            this.updateAvailableItems();
+        })
+    }
+
+    updateAvailableItems() {
+        // actions param is passed to function after initial actions api call  (on show of form popup),
+        // the list from actions param is set to this.state.allActions,
+        // at next calls value from this.state.allActions is used
+
+        let availableBadges = [...this.allBadges];
+        this.props.actions.forEach((action) => {
+            if(action.action === 'badge'){
+                let badgeIndex = availableBadges.indexOf(action.value);
+                if(badgeIndex > -1){
+                    availableBadges.splice(badgeIndex, 1);
+                }
+            }
+        });
+
         let occupiedActions = [];
         this.props.actions.forEach((action) => {
-            if (actionList.indexOf(action.action) > -1) {
+            if (this.allActions.indexOf(action.action) > -1) {
                 occupiedActions.push(action.action)
             }
         });
-        let available = actionList.filter((el) => {
+        let availableActions = this.allActions.filter((el) => {
+            if (el === 'badge'){
+                // 'badge' action should be visible only if there is available badges,
+                // could be used more than once until available badges not finished
+                return availableBadges.length > 0;
+            }
+            if (el === 'status_badge'){
+                // 'status_badge' action should be visible only if there is available status badges,
+                // could be used only once because status badges are sequential
+                return occupiedActions.indexOf(el) === -1 && this.allStatusBadges.length > 0;
+            }
             return occupiedActions.indexOf(el) === -1;
-        })
+        });
 
         this.setState({
-            allActions: actionList,
-            availableActions: available
-        })
+            availableBadges: availableBadges,
+            availableActions: availableActions
+        });
     }
 
     componentDidMount() {
+        this.getBadges();
         this.getActions();
+        this.getStatusBadges();
     }
 
     containerChanged(id, key, value) {
         let actions = this.props.actions;
         let actionToChange = this.props.getIndex(actions, id);
+
+        const typesToClearValue = ["badge", "status_badge"];
+        if(key === 'action' && (typesToClearValue.includes(value) ||
+                                typesToClearValue.includes(actions[actionToChange].action))){
+            actions[actionToChange]['value'] = null;
+        }
         actions[actionToChange][key] = value;
-        this.updateAvailableActions();
-        this.setState({
-            actions: actions
-        })
+        this.updateAvailableItems();
 
         this.props.onChangeProps('actions', actions);
     }
 
     addCondition(event) {
         const actions = Object.assign([], this.props.actions);
-        actions.push({action: "", count: 0, id: Math.random()});
+        actions.push({action: "", value: null, id: Math.random()});
         this.props.onChangeProps('actions', actions);
 
     }
@@ -76,7 +132,7 @@ export default class Actions extends React.Component {
     deleteBlock(id) {
         const { actions } = this.props;
         actions.splice(this.props.getIndex(actions, id), 1);
-        this.updateAvailableActions();
+        this.updateAvailableItems();
         this.props.onChangeProps('actions', actions);
     }
 
@@ -93,9 +149,12 @@ export default class Actions extends React.Component {
                                     onChange={this.containerChanged}
                                     deleteBlock={this.deleteBlock}
                                     action={el.action}
-                                    count={el.count}
+                                    value={el.value}
                                     actions={this.props.actions}
                                     availableActions={this.state.availableActions}
+
+                                    availableBadges={this.state.availableBadges}
+                                    statusBadges={this.allStatusBadges}
                                 />
                             })
                         }
