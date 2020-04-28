@@ -53,6 +53,9 @@ class EventAdmin(admin.ModelAdmin):
     class Media:
         js = ("achievements/js/event.js",)
 
+    def has_delete_permission(self, request, obj=None):
+        return False
+
 
 admin.site.register(Achievement, AchievementAdmin)
 admin.site.register(StatusBadge, StatusBadgeAdmin)
