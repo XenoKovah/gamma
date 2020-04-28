@@ -14,6 +14,7 @@ class LoggedEvent(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     event_type = models.CharField(max_length=64)
     org = models.CharField(max_length=128, blank=True)
+    course_id = models.CharField(max_length=255, blank=True)
     points = models.IntegerField()
     date = models.DateTimeField(auto_now_add=True)
     client = models.ForeignKey(AppClient, null=True, on_delete=models.DO_NOTHING)

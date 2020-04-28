@@ -90,7 +90,7 @@ def is_badge_granted(user_id, rules, progress, badges_got):
     return True
 
 
-def update_user_badges_by_event(user_id, event_type, event_date, event_org):
+def update_user_badges_by_event(user_id, event_type, event_date, event_org, event_course_id):
     conn = AchievementRulesMongo()
     conn.connect()
     affected_badges = conn.collection.find({
@@ -107,10 +107,11 @@ def update_user_badges_by_event(user_id, event_type, event_date, event_org):
             rules = badge.get("rules", {})
             progress = user_badges.get(badge_slug, {}).get('progress', {})
 
-            filters = rules.get('rules', {}).get('filters', {})
+            filters = rules.get('filters', {})
             frequency = filters.get('frequency', None)
             interval = filters.get('interval', None)
             organization =  filters.get('org', None)
+            course_id = filters.get('course', None)
 
             if frequency:
                 # frequency is count of days that should be
@@ -122,8 +123,13 @@ def update_user_badges_by_event(user_id, event_type, event_date, event_org):
             if interval and interval.get('start') and interval.get('end'):
                 if not (utc.localize(interval.get('start')) <= event_date <= utc.localize(interval.get('end'))):
                     continue
+
             if organization:
-                if event_org != organization:
+                if not (event_org and event_org == organization):
+                    continue
+
+            if course_id:
+                if not (event_course_id and event_course_id == course_id):
                     continue
 
             progress[event_type] = {

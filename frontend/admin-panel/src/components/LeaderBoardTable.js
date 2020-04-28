@@ -36,10 +36,9 @@ export default class LeaderBoardTable extends React.Component {
                                         <div className="LeaderboardBadges">
                                             {
                                                 profile.badges.map((badge, ind) => {
+                                                    const badgeImgSrc = badge.startsWith('http') ? badge : process.env.REACT_APP_LOCALHOST + badge;
                                                     return (
-                                                        <span className="LeaderboardBadges-Icon" key={ind}>
-                                                            <img src={process.env.REACT_APP_LOCALHOST + badge} alt="badge image" className="LeaderboardBadges-Icon"/>
-                                                        </span>
+                                                        <img key={ind} src={badgeImgSrc} alt="badge image" className="LeaderboardBadges-Icon"/>
                                                     )
                                                 })
                                             }

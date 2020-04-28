@@ -85,6 +85,7 @@ class GameProfileView(APIView):
         game_profile = GameProfile.objects.get(user=user)
         event_type = self.request.data.get('event_type')
         org = self.request.data.get('org', 'org')
+        coruse_id = self.request.data.get('course_id', '')
         uniq_id = self.request.data.get('uid')
 
         if not uniq_id:
@@ -117,6 +118,7 @@ class GameProfileView(APIView):
                     user=user,
                     event_type=event_type,
                     org=org,
+                    course_id=coruse_id,
                     points=game_profile.points,
                     client=AppClient.objects.first(),
                     rewarded_points=event.award
@@ -129,9 +131,14 @@ class GameProfileView(APIView):
                     )
                 ))
                 update_user_position.delay(
-                    user.id, user.username,
+                    user.id,
+                    user.username,
                     game_profile.points,
-                    log_event.event_type, event.award, log_event.date, log_event.org
+                    log_event.event_type,
+                    event.award,
+                    log_event.date,
+                    log_event.org,
+                    log_event.course_id
                 )
                 return Response(serializer.data)
             else:

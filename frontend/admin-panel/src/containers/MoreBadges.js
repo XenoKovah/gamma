@@ -30,30 +30,32 @@ export default class MoreBadges extends React.Component {
         return this.state.badges ? (
             <LeaderBoardModal history={this.props.history} assistentClass={true} >
                 {
-                    Object.keys(this.state.badges).map((badge, ind) => {
-                        let badgeItemClass = !this.state.badges[badge].done ?
+                    Object.keys(this.state.badges).map((badgeName, ind) => {
+                        const badge = this.state.badges[badgeName];
+                        const badgeItemClass = !badge.done ?
                             'BadgeItemFigure BadgeItemFigure_disable' : 'BadgeItemFigure';
-                        let imageSrc = this.state.badges[badge].url.startsWith('http')
-                          ? this.state.badges[badge].url
-                          : process.env.REACT_APP_LOCALHOST + this.state.badges[badge].url;
 
-                        if(!this.state.badges[badge].done){
+                        const imageSrc = badge.url && badge.url.startsWith('http')
+                          ? badge.url
+                          : process.env.REACT_APP_LOCALHOST + badge.url;
+
+                        if(!badge.done){
                         return (
                             <div className="BadgeItem BadgeItem_center" key={`${ind}-undone-badge-item`}>
                                 <div className={badgeItemClass}>
                                     <img src={imageSrc} alt="" className="BadgeItemFigure-Image" />
                                 </div>
-                                <div className="BadgeItem-Name">{badge}</div>
+                                <div className="BadgeItem-Name">{badgeName}</div>
                                 <div className="BadgeItemPopup">
-                                    <div className="BadgeItemPopup-Head">{badge}</div>
+                                    <div className="BadgeItemPopup-Head">{badgeName}</div>
                                     <div className="BadgeItemPopup-Body">
                                     <ul className="BadgeItemPopupList">
                                         {
-                                            Object.keys(this.state.badges[badge]['progress']).map((p, i)=>{
+                                            Object.keys(badge['progress']).map((p, i)=>{
                                                 return (
                                                     <li key={`${i}-badge-item-image`} className="BadgeItemPopupList-Item">
                                                         <span className="BadgeItemPopupList-Counter">
-                                                            {this.state.badges[badge]['progress'][p]['count']} /  { this.state.badges[badge]['progress'][p]['goal']} {p[0].toUpperCase() + p.slice(1).toLowerCase()}
+                                                            {badge['progress'][p]['count']} /  { badge['progress'][p]['goal']} {p[0].toUpperCase() + p.slice(1).toLowerCase()}
                                                         </span>
                                                     </li>
                                                 )
@@ -70,7 +72,7 @@ export default class MoreBadges extends React.Component {
                                     <div className={badgeItemClass}>
                                         <img src={imageSrc} alt="" className="BadgeItemFigure-Image" />
                                     </div>
-                                    <div className="BadgeItem-Name">{badge}</div>
+                                    <div className="BadgeItem-Name">{badgeName}</div>
 
                                 </div>
                             )
