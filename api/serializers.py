@@ -32,7 +32,7 @@ class GameProfileSerializer(serializers.ModelSerializer):
         return UserSerializer(obj.user).data
 
     def get_progress(self, obj):
-        return random.randint(0,50)
+        return random.randint(0, 50)
 
     def get_goal(self, obj):
         return 100
@@ -148,7 +148,7 @@ class StatusSerializer(serializers.ModelSerializer):
     def get_done(self, obj):
         if obj.status_points / self.context['progress'] <= 1:
             return True
-        else :
+        else:
             return False
 
 

@@ -49,6 +49,7 @@ from achievements.forms import AchievementForm
 
 
 CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
+USER_NOT_FOUND = 'User not found'
 logger = logging.getLogger('events')
 
 
@@ -85,7 +86,7 @@ class GameProfileView(APIView):
         game_profile = GameProfile.objects.get(user=user)
         event_type = self.request.data.get('event_type')
         org = self.request.data.get('org', 'org')
-        coruse_id = self.request.data.get('course_id', '')
+        course_id = self.request.data.get('course_id', '')
         uniq_id = self.request.data.get('uid')
 
         if not uniq_id:
@@ -118,7 +119,7 @@ class GameProfileView(APIView):
                     user=user,
                     event_type=event_type,
                     org=org,
-                    course_id=coruse_id,
+                    course_id=course_id,
                     points=game_profile.points,
                     client=AppClient.objects.first(),
                     rewarded_points=event.award
@@ -130,15 +131,17 @@ class GameProfileView(APIView):
                         uniq_id, event_type, event.award
                     )
                 ))
+
+                logged_event_data = LoggedEventSerializer(log_event).data
+                logged_event_data.update({
+                    'award': event.award
+                })
+
                 update_user_position.delay(
                     user.id,
                     user.username,
                     game_profile.points,
-                    log_event.event_type,
-                    event.award,
-                    log_event.date,
-                    log_event.org,
-                    log_event.course_id
+                    logged_event_data
                 )
                 return Response(serializer.data)
             else:
@@ -169,7 +172,7 @@ class GameProfileView(APIView):
         user = User.objects.filter(username=request.GET.get('username')).first()
         if not user:
             return Response(
-                {"Error": "User not found"},
+                {"Error": USER_NOT_FOUND},
                 status=status.HTTP_404_NOT_FOUND
             )
         game_profile = GameProfile.objects.get(user=user)
@@ -191,7 +194,7 @@ class ProgressView(APIView):
         user = User.objects.filter(username=request.GET.get('username')).first()
         if not user:
             return Response(
-                {"Error": "User not found"},
+                {"Error": USER_NOT_FOUND},
                 status=status.HTTP_404_NOT_FOUND
             )
         progress_data = self.conn.get_progress(user)
@@ -234,7 +237,7 @@ class ChartView(APIView):
         user = User.objects.filter(username=request.GET.get('username')).first()
         if not user:
             return Response(
-                {"Error": "User not found"},
+                {"Error": USER_NOT_FOUND},
                 status=status.HTTP_404_NOT_FOUND
             )
 
@@ -342,7 +345,7 @@ class UserStatuses(APIView):
         ).first()
         if not user:
             return Response(
-                {"Error": "User not found"},
+                {"Error": USER_NOT_FOUND},
                 status=status.HTTP_404_NOT_FOUND
             )
         user_statuses = StatusBadge.objects.all()
@@ -387,11 +390,11 @@ class LoggedEventView(APIView):
         ).first()
         if not user:
             return Response(
-                {"Error": "User not found"},
+                {"Error": USER_NOT_FOUND},
                 status=status.HTTP_404_NOT_FOUND
             )
         qs = LoggedEvent.objects.filter(
-            user=user, date__gte=datetime.now()-timedelta(minutes=5)
+            user=user, date__gte=datetime.now() - timedelta(minutes=5)
         )
         serializer = LoggedEventSerializer(qs, many=True)
         return Response(serializer.data)
@@ -499,8 +502,7 @@ class BadgeRuleView(APIView):
                     {
                         'rules': new_rules, 'active': True,
                         'url': badge_url
-                    }
-                },
+                    }},
                 upsert=True
             )
             if old_rules and new_rules:
@@ -583,7 +585,7 @@ class AchievementsView(APIView):
             else:
                 errors = form.errors
         except Achievement.DoesNotExist as e:
-            errors = 'Entry with "slug" - {} does not exist'.format()
+            errors = f'Entry with {slug=} does not exist'
         return Response({'errors': errors}, status=400)
 
     def delete(self, request):

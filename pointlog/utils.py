@@ -1,10 +1,6 @@
-from __future__ import absolute_import
-
 from datetime import timedelta, datetime
 import logging
 import pytz
-
-utc = pytz.UTC
 
 from django.db.models import Avg, Sum
 
@@ -14,6 +10,7 @@ from core.mongo import c_badges
 from core.services import MongoConnector
 
 
+utc = pytz.UTC
 logger = logging.getLogger('events')
 
 AGGREGATIONS = {
@@ -90,7 +87,12 @@ def is_badge_granted(user_id, rules, progress, badges_got):
     return True
 
 
-def update_user_badges_by_event(user_id, event_type, event_date, event_org, event_course_id):
+def update_user_badges_by_event(user_id, event_data):
+    event_type = event_data.get('event_type')
+    event_date = event_data.get('date')
+    event_org = event_data.get('org')
+    event_course_id = event_data.get('course_id')
+
     conn = AchievementRulesMongo()
     conn.connect()
     affected_badges = conn.collection.find({
@@ -120,17 +122,19 @@ def update_user_badges_by_event(user_id, event_type, event_date, event_org, even
                 if last and datetime.now() - last > delta:
                     continue
 
-            if interval and interval.get('start') and interval.get('end'):
-                if not (utc.localize(interval.get('start')) <= event_date <= utc.localize(interval.get('end'))):
-                    continue
+            if (
+                interval and
+                interval.get('start') and
+                interval.get('end') and not
+                (utc.localize(interval.get('start')) <= event_date <= utc.localize(interval.get('end')))
+            ):
+                continue
 
-            if organization:
-                if not (event_org and event_org == organization):
-                    continue
+            if organization and not (event_org and event_org == organization):
+                continue
 
-            if course_id:
-                if not (event_course_id and event_course_id == course_id):
-                    continue
+            if course_id and not (event_course_id and event_course_id == course_id):
+                continue
 
             progress[event_type] = {
                 'count': progress.get(event_type, {}).get('count', 0) + 1,

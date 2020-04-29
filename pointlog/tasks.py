@@ -5,14 +5,15 @@ from pointlog.utils import is_badge_granted, update_user_status, update_user_bad
 
 
 @app.task
-def update_user_position(user_id, username, game_points, event_type, event_award, event_date, event_org, event_course_id):
-    update_user_statistics(username, event_type, event_award)
+def update_user_position(user_id, username, game_points, event_data):
+    update_user_statistics(username, event_data.get('event_type'), event_data.get('award'))
     # update_user_status should be run before updating user badges
     update_user_status(user_id, game_points)
-    badges_granted = update_user_badges_by_event(user_id, event_type, event_date, event_org, event_course_id)
-    # for resolving badge-for-badges achievements
-    while badges_granted:
-        badges_granted = update_badges_by_badges(user_id, badges_granted)
+
+    if (badges_granted := update_user_badges_by_event(user_id, event_data)):
+        # for resolving badge-for-badges achievements
+        while (badges_granted := update_badges_by_badges(user_id, badges_granted)):
+            pass
 
 
 @app.task
