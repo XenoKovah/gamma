@@ -12,6 +12,7 @@ from core.services import MongoConnector
 
 utc = pytz.UTC
 logger = logging.getLogger('events')
+STRPTIME_FORMATTER = '%Y-%m-%dT%H:%M:%S.%fZ'
 
 AGGREGATIONS = {
     'sum': Sum,
@@ -126,8 +127,9 @@ def update_user_badges_by_event(user_id, event_data):
                 interval and
                 interval.get('start') and
                 interval.get('end') and not
-                (utc.localize(interval.get('start')) <= event_date <= utc.localize(interval.get('end')))
-            ):
+                (datetime.strptime(interval.get('start'), STRPTIME_FORMATTER)
+                    <= datetime.strptime(event_date, STRPTIME_FORMATTER) <= 
+                        datetime.strptime(interval.get('end'), STRPTIME_FORMATTER))):
                 continue
 
             if organization and not (event_org and event_org == organization):
