@@ -3,8 +3,7 @@ from django.views.generic import View
 from django.contrib.auth import logout
 from django.http import HttpResponseRedirect
 
-from .services import MongoConnector
-from .models import GameProfile
+from core import db
 
 
 def logout_view(request):
@@ -16,40 +15,14 @@ class DashboardView(View):
     """
     Provide base information for user.
     """
-    conn = MongoConnector()
-
     def get(self, request):
-        user_achievements, progress_data, charted_progress = None, None, None
+        progress_data, charted_progress = None, None
         if request.user.is_authenticated:
-            progress_data = self.conn.get_progress(request.user)
-            data = self.conn.get_charted_progress(request.user)
+            progress_data = db.read_progress(request.user.username)
+            data = db.read_charted_progress(request.user.username)
             if data:
                 charted_progress = [[_type, points] for _type, points in data.items()]
-            user_achievements = request.user.userachievement_set.select_related('achievement').all()
         return render(request, 'dashboard.html', {
             'progress_data': progress_data,
-            'charted_progress': charted_progress,
-            'user_achievements': user_achievements
-        })
-
-
-class LeaderBoardView(View):
-    """
-    Render top 100 users.
-    """
-    def get(self, request):
-        top = [
-            _id
-            for i in GameProfile.objects.order_by('-points')[:100].values_list('id')
-            for _id in i
-        ]
-        try:
-            rank = top.index(request.user.gameprofile.id) + 1
-        except ValueError:
-            pass
-        data = GameProfile.objects.order_by('-points')
-        return render(request, 'leaderboard.html', {
-            'data': data,
-            'top': top,
-            'rank': rank,
+            'charted_progress': charted_progress
         })

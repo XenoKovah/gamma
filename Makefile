@@ -1,11 +1,9 @@
 env :=
+path := 
 
 DEV_ENV := dev
 STAGE_ENV := stage
 PROD_ENV := prod
-
-NGINX_HOST = localhost
-NGINX_PORT = 8080
 
 GIT_TAG := $(shell git describe --abbrev=0)
 VERSION :=
@@ -23,11 +21,11 @@ else
 endif
 
 
-.PHONY: sh dev.up start debug build .build .migrate \
-	.mongo_populate .sql_init .static .mongo_init .stop .rm test version
+.PHONY: shell dev.up start debug build .build .migrate \
+		.static .stop .rm test version loadtests test-shell
 
 
-sh: ${PRIVATE_ENV}
+shell: ${PRIVATE_ENV}
 	docker-compose -f $(DOCKERCOMPOSE_PATH) run --rm dashboard bash
 
 dev.up: ${PRIVATE_ENV}
@@ -37,7 +35,11 @@ start: ${PRIVATE_ENV}
 	docker-compose -f $(DOCKERCOMPOSE_PATH) start
 
 debug: ${PRIVATE_ENV}
-	docker-compose -f $(DOCKERCOMPOSE_PATH) run --rm --service-ports dashboard
+	docker-compose -f $(DOCKERCOMPOSE_PATH) run --rm --service-ports dashboard \
+		bash -c \
+		" \
+		PYTHONBREAKPOINT=ipdb.set_trace python manage.py runserver 0.0.0.0:9000 \
+		"
 
 build: .build .migrate ${PRIVATE_ENV}
 ifneq ($(filter $(env),$(STAGE_ENV) $(PROD_ENV)),)
@@ -51,20 +53,9 @@ endif
 	docker-compose -f $(DOCKERCOMPOSE_PATH) run --rm dashboard \
 			python manage.py migrate
 
-.mongo_populate:
-	docker-compose -f $(DOCKERCOMPOSE_PATH) run --rm dashboard \
-			python manage.py mongo_setup
-
-.sql_init:
-	docker-compose -f $(DOCKERCOMPOSE_PATH) run --rm dashboard \
-			python manage.py loaddata dump.json
-
 .static:
 	docker-compose -f $(DOCKERCOMPOSE_PATH) run --rm dashboard \
 			python manage.py collectstatic --noinput
-
-.mongo_init:
-	docker-compose -f $(DOCKERCOMPOSE_PATH) run --rm mongo mongorestore --host=mongo dump
 
 stop:
 	docker-compose -f $(DOCKERCOMPOSE_PATH) stop
@@ -73,15 +64,23 @@ rm:
 	docker-compose -f $(DOCKERCOMPOSE_PATH) rm
 
 test:
-	docker-compose -f $(DOCKERCOMPOSE_PATH) run --rm dashboard \
+	docker-compose -f docker-compose-test.yml run --rm dashboard \
 			bash -c \
 			" \
 			find . | grep -E \"(__pycache__|\.pyc|\.pyo$\)\" | xargs rm -rf && \
-			export DJANGO_SETTINGS_MODULE=gamma.settings.test && \
-			pytest -s && \
+			DJANGO_SETTINGS_MODULE=gamma.settings.test \
+			PYTHONBREAKPOINT=ipdb.set_trace \
+			MONGO_DATABASE=gamma_data_test \
+			pytest -W ignore -s -vv --pdb $(path) && \
 			coverage xml && \
 			diff-cover coverage.xml --fail-under=60 \
 			"
+
+test-shell:
+	docker-compose -f docker-compose-test.yml run --rm dashboard bash
+
+loadtests:
+	locust --host=http://localhost:9000 -f loadtests/locustfile.py
 
 version:
 	echo "Tagged release $(VERSION)\n" > Changelog-$(VERSION).txt

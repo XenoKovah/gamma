@@ -1,64 +1,15 @@
 import base64
-import os
-import uuid
-import socket
 import random
 import string
 from datetime import datetime
 
 import pytest
-import docker as libdocker
 from webpack_loader.loader import WebpackLoader
 
-from django.conf import settings
 from django.core.files.base import ContentFile
 
-from core.services import MongoConnector
 from core.models import AppClient
 from achievements.models import Event
-
-
-@pytest.fixture(scope='session')
-def unused_port():
-    def factory():
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.bind(('127.0.0.1', 0))
-        return s.getsockname()[1]
-    return factory
-
-
-@pytest.fixture(scope='session')
-def session_id():
-    return str(uuid.uuid4())
-
-
-@pytest.fixture(scope='session')
-def docker():
-    return libdocker.Client(version='auto')
-
-
-@pytest.yield_fixture(scope='session')
-def mongo_server(unused_port, session_id, docker):
-    docker.pull('mongo:latest')
-    port = unused_port()
-    container = docker.create_container(
-        image='mongo:latest',
-        name='test-mongo-{}'.format(session_id),
-        ports=[27017],
-        detach=True,
-        host_config=docker.create_host_config(
-            port_bindings={27017: port}
-        )
-    )
-    docker.start(container=container['Id'])
-    yield port
-    docker.kill(container=container['Id'])
-    docker.remove_container(container['Id'])
-
-
-@pytest.fixture(scope='session')
-def mongo_conn():
-    return MongoConnector()
 
 
 @pytest.fixture(scope='function')
@@ -81,16 +32,14 @@ def app_client(rand_str):
 
 @pytest.fixture(scope='function')
 def event(rand_str, award):
-    ev = Event(event_type=rand_str, award=award)
+    ev = Event(event_type=rand_str, title=rand_str, award=award)
     ev.save()
     return ev
 
 
 @pytest.fixture(scope='session')
 def current_date():
-    return datetime.strptime(
-        str(datetime.now().date()), '%Y-%m-%d'
-    )
+    return datetime.now().date()
 
 
 @pytest.fixture(autouse=True)

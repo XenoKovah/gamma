@@ -1,30 +1,30 @@
-from datetime import datetime, timedelta
-
 import requests
 import pytest
-from django.contrib.auth.models import User
+from rest_framework import status
 
-from pointlog.models import LoggedEvent
 from achievements.models import StatusBadge
-from achievements.services import AchievementRulesMongo
-from core.mongo import c_badges
+from core.data_models.models import User
+from core import db
+
+GAMMA_PROFILE_API_URL = '/api/v0/gamma-profile/'
+PROGRESS_API_URL = '/api/v0/progress/'
 
 
+@pytest.mark.django_db
 @pytest.mark.parametrize("need_old_user", [True, False])
-def test_api(settings, live_server, rand_str, mongo_conn, need_old_user, app_client, event):
+def test_api(live_server, rand_str, need_old_user, app_client, event):
     """
     Test setting/getting progress documents.
     """
-    settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
+    user_uid = rand_str
     if need_old_user:
         # Creating User
-        user = User(username=rand_str)
-        user.save()
+        db.create_user(User({"user_uid": user_uid}))
 
     res = requests.put(
-        live_server + '/api/v0/gamma-profile/',
+        live_server + GAMMA_PROFILE_API_URL,
         data={
-            'username': rand_str,
+            'username': user_uid,
             'event_type': event.event_type,
             'org': rand_str,
             'uid': rand_str
@@ -34,31 +34,27 @@ def test_api(settings, live_server, rand_str, mongo_conn, need_old_user, app_cli
             'App-secret': app_client.secret
         }
     )
-    assert res.status_code == 200
+    assert res.status_code == status.HTTP_200_OK
     data = res.json()
     assert data['points'] == event.award
 
-    if not need_old_user:
-        # Get User created during API request
-        user = User.objects.get(username=rand_str)
+    progress = db.read_progress(user_uid)
+    chart = db.read_charted_progress(user_uid)
 
-    progress = mongo_conn.get_progress(user)
-    chart = mongo_conn.get_charted_progress(user)
-
-    assert progress.count() == 1
+    assert len(progress) == 1
     for item in progress:
         assert item['points'] == event.award
 
-    assert chart[event.event_type] == event.award
+    assert chart[event.event_type] == {'points': event.award}
 
 
-def test_uniq_id_required(settings, live_server, rand_str, app_client):
+@pytest.mark.django_db
+def test_uid_required(live_server, rand_str, app_client):
     """
-    `uniq_id` field is required.
+    `uid` field is required.
     """
-    settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
     res = requests.put(
-        live_server + '/api/v0/gamma-profile/',
+        live_server + GAMMA_PROFILE_API_URL,
         data={
             'username': rand_str,
             'event_type': rand_str,
@@ -71,16 +67,16 @@ def test_uniq_id_required(settings, live_server, rand_str, app_client):
     )
     assert res.status_code == 406
     data = res.json()
-    assert data['Error'] == 'UID field is mandatory'
+    assert data['Error'] == 'Event type is not recognizable'
 
 
-def test_event_not_created(settings, live_server, rand_str, app_client):
+@pytest.mark.django_db
+def test_event_not_created(live_server, rand_str, app_client):
     """
     Event should be created in DB.
     """
-    settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
     res = requests.put(
-        live_server + '/api/v0/gamma-profile/',
+        live_server + GAMMA_PROFILE_API_URL,
         data={
             'username': rand_str,
             # this event not created in the system
@@ -94,16 +90,16 @@ def test_event_not_created(settings, live_server, rand_str, app_client):
     )
     assert res.status_code == 406
     data = res.json()
-    assert data['Error'] == 'Event type is not recognizable'
+    assert data['Error'] == "Event type is not recognizable"
 
 
-def test_event_repeated(settings, live_server, rand_str, app_client, event):
+@pytest.mark.django_db
+def test_event_repeated(live_server, rand_str, app_client, event):
     """
     Repeated events is not acceptable.
     """
-    settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
-    res = requests.put(
-        live_server + '/api/v0/gamma-profile/',
+    _ = requests.put(
+        live_server + GAMMA_PROFILE_API_URL,
         data={
             'username': rand_str,
             'event_type': rand_str,
@@ -116,7 +112,7 @@ def test_event_repeated(settings, live_server, rand_str, app_client, event):
         }
     )
     res = requests.put(
-        live_server + '/api/v0/gamma-profile/',
+        live_server + GAMMA_PROFILE_API_URL,
         data={
             'username': rand_str,
             'event_type': rand_str,
@@ -132,33 +128,32 @@ def test_event_repeated(settings, live_server, rand_str, app_client, event):
     data = res.json()
     assert data['Error'] == 'Repeated event occurs'
 
-@pytest.mark.skip(reason="App client use id=1")
-def test_put_403(settings, live_server, rand_str):
+
+@pytest.mark.django_db
+def test_put_403(live_server, rand_str):
     """
     Get request for non existent user should return 404.
     """
-    settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
     res = requests.put(
-        live_server + '/api/v0/gamma-profile/',
-        data={'username': rand_str},
+        live_server + GAMMA_PROFILE_API_URL,
+        params={'username': rand_str},
     )
     assert res.status_code == 403
     data = res.json()
     assert data['detail'] == 'Please provide APP_KEY and APP_SECRET'
 
-@pytest.mark.skip(reason="App client use id=1")
-def test_get(settings, live_server, rand_str, app_client, event):
+
+@pytest.mark.django_db
+def test_get(live_server, rand_str, app_client, event):
     """
     Get request should return user game data.
     """
-    settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
-    user = User(username=rand_str)
-    user.save()
+    db.create_user(User({"user_uid": rand_str}))
 
     # TODO add tests for :points API
     res = requests.get(
-        live_server + '/api/v0/gamma-profile/',
-        data={'username': rand_str},
+        live_server + GAMMA_PROFILE_API_URL,
+        params={'username': rand_str},
         headers={
             'App-key': app_client.key,
             'App-secret': app_client.secret
@@ -168,49 +163,48 @@ def test_get(settings, live_server, rand_str, app_client, event):
     data = res.json()
     assert data['points'] == 0
 
-@pytest.mark.skip(reason="App client use id=1")
-def test_get_404(settings, live_server, rand_str, app_client):
+
+@pytest.mark.django_db
+def test_get_404(live_server, rand_str, app_client):
     """
-    Get request for non existent user should return 404.
+    Get request for non existent user should return 200 with zero progress.
     """
-    settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
     res = requests.get(
-        live_server + '/api/v0/gamma-profile/',
-        data={'username': rand_str},
+        live_server + GAMMA_PROFILE_API_URL,
+        params={'username': rand_str},
         headers={
             'App-key': app_client.key,
             'App-secret': app_client.secret
         }
     )
-    assert res.status_code == 404
+    assert res.status_code == 200
     data = res.json()
-    assert data['Error'] == 'User not found'
+    assert data['points'] == 0
 
-@pytest.mark.skip(reason="App client use id=1")
-def test_get_403(settings, live_server, rand_str):
+
+@pytest.mark.django_db
+def test_get_403( live_server, rand_str):
     """
     Get request for non existent user should return 404.
     """
-    settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
     res = requests.get(
-        live_server + '/api/v0/gamma-profile/',
-        data={'username': rand_str},
+        live_server + GAMMA_PROFILE_API_URL,
+        params={'username': rand_str},
     )
     assert res.status_code == 403
     data = res.json()
     assert data['detail'] == 'Please provide APP_KEY and APP_SECRET'
 
-@pytest.mark.skip(reason="App client use id=1")
-def test_progress(settings, live_server, rand_str, app_client):
+
+@pytest.mark.django_db
+def test_progress(live_server, rand_str, app_client):
     """
     Get request for `progress` url should return user progress data.
     """
-    settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
-    user = User(username=rand_str)
-    user.save()
+    db.create_user(User({"user_uid": rand_str}))
 
     res = requests.get(
-        live_server + '/api/v0/progress/',
+        live_server + PROGRESS_API_URL,
         params={'username': rand_str},
     )
     assert res.status_code == 200
@@ -219,119 +213,73 @@ def test_progress(settings, live_server, rand_str, app_client):
     assert isinstance(data, list)
 
 
-def test_progress_404(settings, live_server, rand_str, app_client):
+@pytest.mark.django_db
+def test_progress_empty(live_server, rand_str, app_client):
     """
     Get request for non existent user should return 404.
     """
-    settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
     res = requests.get(
-        live_server + '/api/v0/progress/',
-        data={'username': rand_str},
+        live_server + PROGRESS_API_URL,
+        params={'username': rand_str},
         headers={
             'App-key': app_client.key,
             'App-secret': app_client.secret
         }
-    )
-    assert res.status_code == 404
-    data = res.json()
-    assert data['Error'] == 'User not found'
-
-
-def test_eventlog_404(live_server, rand_str, settings):
-    """
-    Test getting events w/ nonexistent user.
-    """
-    settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
-    res = requests.get(
-        live_server + '/api/v0/logged-event/',
-        params={'username': rand_str}
-    )
-    assert res.status_code == 404
-    data = res.json()
-    assert data['Error'] == 'User not found'
-
-
-def test_eventlog(settings, live_server, rand_str, app_client, event):
-    """
-    Test getting events for last 5 mins.
-    """
-    settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
-    res = requests.put(
-        live_server + '/api/v0/gamma-profile/',
-        data={
-            'username': rand_str,
-            'event_type': event.event_type,
-            'org': rand_str,
-            'uid': rand_str
-        },
-        headers={
-            'App-key': app_client.key,
-            'App-secret': app_client.secret
-        }
-    )
-    # This event should not be returned by API.
-    old_event = LoggedEvent(
-        user=User.objects.get(username=rand_str),
-        uniq_id='some_dummy_test_str',
-        event_type=event.event_type,
-        points=100,
-        client=app_client,
-        rewarded_points=8
-    )
-    old_event.save()
-    old_event.date = datetime.now()-timedelta(minutes=6)
-    old_event.save()
-    res = requests.get(
-        live_server + '/api/v0/logged-event/',
-        params={'username': rand_str}
     )
     assert res.status_code == 200
     data = res.json()
-    assert len(data) == 1
-    assert data[0]['event_type'] == event.event_type
-    assert data[0]['rewarded_points'] == event.award
+    assert data == []
 
 
-def test_pointsview(live_server, admin_user, award, rand_str, settings):
+@pytest.mark.django_db
+def test_progress_400(live_server, rand_str, app_client):
+    """
+    Get request for non existent user should return 404.
+    """
+    res = requests.get(
+        live_server + PROGRESS_API_URL,
+        params={'username': ''},
+        headers={
+            'App-key': app_client.key,
+            'App-secret': app_client.secret
+        }
+    )
+    assert res.status_code == 400
+    data = res.json()
+    assert data['Error'] == 'user_uid must be set'
+
+
+@pytest.mark.django_db
+def test_pointsview(live_server, award, rand_str):
     """
     Test getting points for particular User.
     """
-    settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
-    admin_user.gameprofile.points = award
-    admin_user.gameprofile.save()
+    base_points_url = '/api/v0/points/'
+    user_uid = rand_str
+    db.create_user(User({"user_uid": rand_str, "points": award}))
+
     res = requests.get(
-        live_server+'/api/v0/points/',
-        params={'username': admin_user.username}
+        live_server + base_points_url,
+        params={'username': user_uid}
     )
     assert res.status_code == 200
     data = res.json()
+    assert "user_uid" not in data
     assert data['points'] == award
 
     res = requests.get(
-        live_server+'/api/v0/points/',
+        live_server + base_points_url,
     )
-    assert res.status_code == 200
-    data = res.json()
-    assert data['username'] is None
-    assert data['points'] == 0
-
-    res = requests.get(
-        live_server+'/api/v0/points/',
-        params={'username': rand_str}
-    )
-    assert res.status_code == 200
-    data = res.json()
-    assert data['username'] == rand_str
-    assert data['points'] == 0
+    assert res.status_code == 400
 
 
-def test_chartview(settings, live_server, rand_str, app_client, event):
+@pytest.mark.django_db
+def test_chartview(live_server, rand_str, app_client, event):
     """
     ChartView should return points by category/event_type.
     """
-    settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
-    res = requests.put(
-        live_server+'/api/v0/gamma-profile/',
+    _ = requests.put(
+        live_server+GAMMA_PROFILE_API_URL,
         data={
             'username': rand_str,
             'event_type': event.event_type,
@@ -349,54 +297,22 @@ def test_chartview(settings, live_server, rand_str, app_client, event):
     assert res.status_code == 200
     data = res.json()
     assert isinstance(data[event.event_type], list)
-    assert data[event.event_type] == [1, event.award]
+    assert data[event.event_type] == [1, {"points": event.award}]
 
     res = requests.get(
         live_server+'/api/v0/chart/'
     )
-    assert res.status_code == 404
-    assert res.json()['Error'] == 'User not found'
+    assert res.status_code == 400
+    assert res.json()['Error'] == 'user_uid must be set'
 
 
-def test_eventpointsview(settings, live_server, rand_str, award, admin_user):
-    """
-    Emulate rewarding user from admin page.
-    """
-    settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
-    res = requests.post(
-        live_server+'/api/v0/event-points/',
-        data={
-            'username': admin_user.username,
-            'points': award
-        }
-    )
-    res = requests.get(
-        live_server+'/api/v0/points/',
-        params={'username': admin_user.username}
-    )
-    assert res.status_code == 200
-    data = res.json()
-    assert data['points'] == award
-
-    res = requests.post(
-        live_server+'/api/v0/event-points/',
-        data={
-            'username': admin_user.username,
-        }
-    )
-    assert res.status_code == 401
-    data = res.json()
-    assert data['msg'] == "Requested reward is not valid."
-
-
-def test_badgesview(live_server, rand_str, event, admin_user, make_test_file):
+# TODO: test is dependent on integration tests. Need to change this!
+def test_badgesview(live_server, rand_str, make_test_file):
     """
     Get Badges for User.
     """
-    conn = AchievementRulesMongo()
-    conn.connect()
-    conn.collection.drop()  # cleaning badges rules
-    conn.collection.insert_many([
+    db.conn.db.badges.drop()  # cleaning badges rules
+    db.conn.db.badges.insert_many([
         {
             "slug": "slug_1", 'active': True, 'url': 'sometesturl1',
             'rules': {'actions': {'event_type_1': 2, 'event_type_2': 2}}
@@ -407,7 +323,7 @@ def test_badgesview(live_server, rand_str, event, admin_user, make_test_file):
         },
     ])
 
-    c_badges().drop()  # cleaning users badges data
+    db.conn.db.users.drop()  # cleaning users badges data
     badges_data = {
         "slug_1": {
             "progress": {
@@ -423,21 +339,14 @@ def test_badgesview(live_server, rand_str, event, admin_user, make_test_file):
         },
     }
 
-    c_badges().replace_one(
-        {
-            "user_id": admin_user.id
-        },
-        {
-            "user_id": admin_user.id,
-            "badges": badges_data
-
-        },
-        upsert=True
-    )
+    db.conn.db.users.replace_one(
+        {"user_uid": rand_str},
+        {"user_uid": rand_str, "badges": badges_data},
+        upsert=True)
 
     res = requests.get(
         live_server+'/api/v0/badges/',
-        params={'username': admin_user.username}
+        params={'username': rand_str}
     )
 
     assert res.status_code == 200
@@ -459,21 +368,19 @@ def test_badgesview(live_server, rand_str, event, admin_user, make_test_file):
 
     assert data == expected_data
 
-    res = requests.get(
-        live_server+'/api/v0/badges/'
-    )
+    _ = requests.get(live_server + '/api/v0/badges/')
 
     # TODO test deletion, non existing user
     #assert res.status_code == 404
     #assert res.json()['Error'] == 'User not found'
 
 
-def test_statusview(live_server, rand_str, award, settings):
+@pytest.mark.django_db
+def test_statusview(live_server, rand_str):
     """
     Get all Statuses/Status Badges.
     """
-
-    settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
+    db.conn.db.statuses.drop()
     statusbadge = StatusBadge(
         title=rand_str,
         slug=rand_str,

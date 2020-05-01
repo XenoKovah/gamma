@@ -32,6 +32,9 @@ Tests:
     - docker run -d --name redis_$CI_COMMIT_SHORT_SHA redis:latest
     - docker run
       --rm
+      -e MONGO_URL=mongodb://mongo:27017/
+      -e MONGO_DATABASE=gamma_data_test
+      -e DJANGO_SETTINGS_MODULE=gamma.settings.test
       --link mongo_$CI_COMMIT_SHORT_SHA:mongo
       --link redis_$CI_COMMIT_SHORT_SHA:redis
       $CI_REGISTRY_IMAGE/app:$CI_COMMIT_SHORT_SHA

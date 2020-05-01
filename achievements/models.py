@@ -1,5 +1,11 @@
+"""
+Achievement models.
+"""
+
 from django.db import models
-from django.contrib.auth.models import User
+
+from core import db
+from core.data_models.models import Status, SystemEvent, Badge
 
 
 COLOR_CHOOCES = (
@@ -45,12 +51,23 @@ class Achievement(models.Model):
     badge_img = models.ImageField(upload_to="media")
 
     def __str__(self):
-        return self.slug
+        return self.slug.__str__()
 
     @property
     def badge_img_name(self):
         if self.badge_img:
             return self.badge_img.name.split('/')[-1]
+    
+    def save(self, *args, **kwargs):
+        super(Achievement, self).save(*args, **kwargs)
+        # TODO remove this
+        db.update_badge_skeleton(Badge({
+            "badge_uid": self.slug,
+            "slug": self.slug,
+            "badge_title": self.title,
+            "url": self.badge_img.url,
+            "active": True
+        }))
 
 
 class StatusBadge(models.Model):
@@ -70,32 +87,19 @@ class StatusBadge(models.Model):
     )
     badge_img = models.ImageField(upload_to="media")
 
-    def __str__(self):
-        return self.slug
-
-
-class UserAchievement(models.Model):
-    """
-    Custom ManyToMany model for User<=>Achievement relation.
-    """
-    date = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    achievement = models.ForeignKey(Achievement, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return '{0} <=> {1} : {2}'.format(self.achievement, self.user.username, self.date)
-
-
-class UserStatus(models.Model):
-    """
-    Custom ManyToMany model for User<=>Status relation.
-    """
-    date = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    status = models.ForeignKey(StatusBadge, on_delete=models.CASCADE)
+    def save(self, *args, **kwargs):
+        super(StatusBadge, self).save(*args, **kwargs)
+        db.update_status(Status({
+            "status_uid": self.slug,
+            "slug": self.slug,
+            "title": self.title,
+            "active": True,
+            "points": self.status_points,
+            "color": self.status_color,
+            "url": self.badge_img.url if self.badge_img else None}))
 
     def __str__(self):
-        return '{0} <=> {1} : {2}'.format(self.status, self.user.username, self.date)
+        return self.slug.__str__()
 
 
 class Event(models.Model):
@@ -114,5 +118,14 @@ class Event(models.Model):
         help_text="You can use {} to insert awarded points into correct place. e.g. Congrats! You've earned {} points for watching videos"
     )
 
+    def save(self, *args, **kwargs):
+        super(Event, self).save(*args, **kwargs)
+        db.update_event(SystemEvent({
+            "event_type": self.event_type,
+            "title": self.title,
+            "award": self.award,
+            "color": self.color,
+        }))
+
     def __unicode__(self):
-        return "{0}: {1} points".format(self.event_type, self.award)
+        return f'{self.event_type}: {self.award} points'

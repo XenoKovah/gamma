@@ -115,7 +115,7 @@ $(function() {
                 function( data ) {
                     var events = [];
                     for (var key in data) {
-                        events.splice(data[key][0], 0, {name: key, y : data[key][1]});
+                        events.splice(data[key][0], 0, {name: key, y : data[key][1]["points"]});
                     }
                     $('#container-chart').highcharts({
                         chart: {

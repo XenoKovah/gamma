@@ -7,9 +7,6 @@
           "actions": {
             "event_type_1": 3
           },
-          "filters": {
-            "interval": {}
-          },
           "slug": "slug_1",
           "badge_image": "badge_image_1"
         }
@@ -18,9 +15,6 @@
         {
           "actions": {
             "event_type_1": 2
-          },
-          "filters": {
-            "interval": {}
           },
           "slug": "slug_1",
           "badge_image": "badge_image_1"
@@ -38,7 +32,7 @@
       ]
     },
     "output":  {
-      "pre_change_c_badges": {
+      "pre_change_use_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 1,
@@ -47,7 +41,7 @@
             "done": false
           }
       },
-      "post_change_pre_hit_c_badges": {
+      "post_change_pre_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 1,
@@ -56,7 +50,7 @@
             "done": false
           }
       },
-      "post_change_post_hit_c_badges": {
+      "post_change_post_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 2,
@@ -76,9 +70,6 @@
           "actions": {
             "event_type_1": 2
           },
-          "filters": {
-            "interval": {}
-          },
           "slug": "slug_1",
           "badge_image": "badge_image_1"
         }
@@ -87,9 +78,6 @@
         {
           "actions": {
             "event_type_1": 1
-          },
-          "filters": {
-            "interval": {}
           },
           "slug": "slug_1",
           "badge_image": "badge_image_1"
@@ -110,7 +98,7 @@
       ]
     },
     "output":  {
-      "pre_change_c_badges": {
+      "pre_change_use_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 2,
@@ -119,7 +107,7 @@
             "done": true
           }
       },
-      "post_change_pre_hit_c_badges": {
+      "post_change_pre_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 2,
@@ -128,7 +116,7 @@
             "done": true
           }
       },
-      "post_change_post_hit_c_badges": {
+      "post_change_post_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 2,
@@ -148,9 +136,6 @@
           "actions": {
             "event_type_1": 3
           },
-          "filters": {
-            "interval": {}
-          },
           "slug": "slug_1",
           "badge_image": "badge_image_1"
         }
@@ -159,9 +144,6 @@
         {
           "actions": {
             "event_type_1": 4
-          },
-          "filters": {
-            "interval": {}
           },
           "slug": "slug_1",
           "badge_image": "badge_image_1"
@@ -185,7 +167,7 @@
       ]
     },
     "output":  {
-      "pre_change_c_badges": {
+      "pre_change_use_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 2,
@@ -194,7 +176,7 @@
             "done": false
           }
       },
-      "post_change_pre_hit_c_badges": {
+      "post_change_pre_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 2,
@@ -203,7 +185,7 @@
             "done": false
           }
       },
-      "post_change_post_hit_c_badges": {
+      "post_change_post_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 4,
@@ -223,9 +205,6 @@
           "actions": {
             "event_type_1": 2
           },
-          "filters": {
-            "interval": {}
-          },
           "slug": "slug_1",
           "badge_image": "badge_image_1"
         }
@@ -234,9 +213,6 @@
         {
           "actions": {
             "event_type_1": 4
-          },
-          "filters": {
-            "interval": {}
           },
           "slug": "slug_1",
           "badge_image": "badge_image_1"
@@ -257,7 +233,7 @@
       ]
     },
     "output":  {
-      "pre_change_c_badges": {
+      "pre_change_use_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 2,
@@ -266,7 +242,7 @@
             "done": true
           }
       },
-      "post_change_pre_hit_c_badges": {
+      "post_change_pre_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 2,
@@ -275,7 +251,7 @@
             "done": true
           }
       },
-      "post_change_post_hit_c_badges": {
+      "post_change_post_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 2,
@@ -297,9 +273,6 @@
             "event_type_2": 2
 
           },
-          "filters": {
-            "interval": {}
-          },
           "slug": "slug_1",
           "badge_image": "badge_image_1"
         }
@@ -308,9 +281,6 @@
         {
           "actions": {
             "event_type_1": 2
-          },
-          "filters": {
-            "interval": {}
           },
           "slug": "slug_1",
           "badge_image": "badge_image_1"
@@ -334,7 +304,7 @@
       ]
     },
     "output":  {
-      "pre_change_c_badges": {
+      "pre_change_use_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 1,
@@ -347,7 +317,7 @@
             "done": false
           }
       },
-      "post_change_pre_hit_c_badges": {
+      "post_change_pre_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 1,
@@ -356,7 +326,7 @@
             "done": false
           }
       },
-      "post_change_post_hit_c_badges": {
+      "post_change_post_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 2,
@@ -378,9 +348,6 @@
             "event_type_2": 2
 
           },
-          "filters": {
-            "interval": {}
-          },
           "slug": "slug_1",
           "badge_image": "badge_image_1"
         }
@@ -389,9 +356,6 @@
         {
           "actions": {
             "event_type_1": 2
-          },
-          "filters": {
-            "interval": {}
           },
           "slug": "slug_1",
           "badge_image": "badge_image_1"
@@ -421,7 +385,7 @@
       ]
     },
     "output":  {
-      "pre_change_c_badges": {
+      "pre_change_use_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 2,
@@ -434,7 +398,7 @@
             "done": true
           }
       },
-      "post_change_pre_hit_c_badges": {
+      "post_change_pre_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 2,
@@ -447,7 +411,7 @@
             "done": true
           }
       },
-      "post_change_post_hit_c_badges": {
+      "post_change_post_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 2,
@@ -471,9 +435,6 @@
           "actions": {
             "event_type_1": 2
           },
-          "filters": {
-            "interval": {}
-          },
           "slug": "slug_1",
           "badge_image": "badge_image_1"
         }
@@ -483,9 +444,6 @@
           "actions": {
             "event_type_1": 2,
             "event_type_2": 2
-          },
-          "filters": {
-            "interval": {}
           },
           "slug": "slug_1",
           "badge_image": "badge_image_1"
@@ -509,7 +467,7 @@
       ]
     },
     "output":  {
-      "pre_change_c_badges": {
+      "pre_change_use_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 1,
@@ -518,7 +476,7 @@
             "done": false
           }
       },
-      "post_change_pre_hit_c_badges": {
+      "post_change_pre_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 1,
@@ -531,7 +489,7 @@
             "done": false
           }
       },
-      "post_change_post_hit_c_badges": {
+      "post_change_post_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 2,
@@ -556,9 +514,6 @@
           "actions": {
             "event_type_1": 2
           },
-          "filters": {
-            "interval": {}
-          },
           "slug": "slug_1",
           "badge_image": "badge_image_1"
         }
@@ -568,9 +523,6 @@
           "actions": {
             "event_type_1": 2,
             "event_type_2": 2
-          },
-          "filters": {
-            "interval": {}
           },
           "slug": "slug_1",
           "badge_image": "badge_image_1"
@@ -597,7 +549,7 @@
       ]
     },
     "output":  {
-      "pre_change_c_badges": {
+      "pre_change_use_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 2,
@@ -606,7 +558,7 @@
             "done": true
           }
       },
-      "post_change_pre_hit_c_badges": {
+      "post_change_pre_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 2,
@@ -615,7 +567,7 @@
             "done": true
           }
       },
-      "post_change_post_hit_c_badges": {
+      "post_change_post_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 2,
@@ -636,7 +588,6 @@
             "event_type_1": 2
           },
           "filters": {
-            "interval": {},
             "org": "org_1"
           },
           "slug": "slug_1",
@@ -647,9 +598,6 @@
         {
           "actions": {
             "event_type_1": 2
-          },
-          "filters": {
-            "interval": {}
           },
           "slug": "slug_1",
           "badge_image": "badge_image_1"
@@ -669,7 +617,7 @@
       ]
     },
     "output":  {
-      "pre_change_c_badges": {
+      "pre_change_use_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 1,
@@ -678,7 +626,7 @@
             "done": false
           }
       },
-      "post_change_pre_hit_c_badges": {
+      "post_change_pre_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 1,
@@ -687,7 +635,7 @@
             "done": false
           }
       },
-      "post_change_post_hit_c_badges": {
+      "post_change_post_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 2,
@@ -708,7 +656,6 @@
             "event_type_1": 2
           },
           "filters": {
-            "interval": {},
             "org": "org_1"
           },
           "slug": "slug_1",
@@ -719,9 +666,6 @@
         {
           "actions": {
             "event_type_1": 2
-          },
-          "filters": {
-            "interval": {}
           },
           "slug": "slug_1",
           "badge_image": "badge_image_1"
@@ -745,7 +689,7 @@
       ]
     },
     "output":  {
-      "pre_change_c_badges": {
+      "pre_change_use_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 2,
@@ -754,7 +698,7 @@
             "done": true
           }
       },
-      "post_change_pre_hit_c_badges": {
+      "post_change_pre_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 2,
@@ -763,7 +707,7 @@
             "done": true
           }
       },
-      "post_change_post_hit_c_badges": {
+      "post_change_post_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
               "count":2,
@@ -783,9 +727,6 @@
           "actions": {
             "event_type_1": 2
           },
-          "filters": {
-            "interval": {}
-          },
           "slug": "slug_1",
           "badge_image": "badge_image_1"
         }
@@ -796,7 +737,6 @@
             "event_type_1": 2
           },
           "filters": {
-            "interval": {},
             "org": "org_1"
           },
           "slug": "slug_1",
@@ -820,7 +760,7 @@
       ]
     },
     "output":  {
-      "pre_change_c_badges": {
+      "pre_change_use_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 1,
@@ -829,7 +769,7 @@
             "done": false
           }
       },
-      "post_change_pre_hit_c_badges": {
+      "post_change_pre_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 1,
@@ -838,7 +778,7 @@
             "done": false
           }
       },
-      "post_change_post_hit_c_badges": {
+      "post_change_post_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 2,
@@ -858,9 +798,6 @@
           "actions": {
             "event_type_1": 2
           },
-          "filters": {
-            "interval": {}
-          },
           "slug": "slug_1",
           "badge_image": "badge_image_1"
         }
@@ -871,7 +808,6 @@
             "event_type_1": 2
           },
           "filters": {
-            "interval": {},
             "org": "org_1"
           },
           "slug": "slug_1",
@@ -896,7 +832,7 @@
       ]
     },
     "output":  {
-      "pre_change_c_badges": {
+      "pre_change_use_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 2,
@@ -905,7 +841,7 @@
             "done": true
           }
       },
-      "post_change_pre_hit_c_badges": {
+      "post_change_pre_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 2,
@@ -914,7 +850,7 @@
             "done": true
           }
       },
-      "post_change_post_hit_c_badges": {
+      "post_change_post_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
               "count": 2,
@@ -949,21 +885,21 @@
       ]
     },
     "output":  {
-      "pre_change_c_badges": {
+      "pre_change_use_badges": {
         "slug_1": {
           "event_type_1": {"count": 1, "goal": 2},
           "event_type_2": {"count": 1, "goal": 1},
           "done": false
         }
       },
-      "post_change_pre_hit_c_badges": {
+      "post_change_pre_hit_use_badges": {
         "slug_1": {
           "event_type_1": {"count": 1, "goal": 1},
           "event_type_2": {"count": 1, "goal": 1},
           "done": true
         }
       },
-      "post_change_post_hit_c_badges": {
+      "post_change_post_hit_use_badges": {
         "slug_1": {
           "event_type_1": {"count": 1, "goal": 1},
           "event_type_2": {"count": 1, "goal": 1},
@@ -1002,7 +938,7 @@
       "post_change_events": []
     },
     "output":  {
-      "pre_change_c_badges": {
+      "pre_change_use_badges": {
         "slug_1": {
           "event_type_1": {"count": 1, "goal": 2},
           "event_type_2": {"count": 1, "goal": 1},
@@ -1011,7 +947,7 @@
 		"slug_2": {"done": false},
         "slug_3": {"done": false}
       },
-      "post_change_pre_hit_c_badges": {
+      "post_change_pre_hit_use_badges": {
         "slug_1": {
           "event_type_1": {"count": 1, "goal": 1},
           "event_type_2": {"count": 1, "goal": 1},
@@ -1020,7 +956,7 @@
 		"slug_2": {"done": true},
         "slug_3": {"done": true}
       },
-      "post_change_post_hit_c_badges": {
+      "post_change_post_hit_use_badges": {
         "slug_1": {
           "event_type_1": {"count": 1, "goal": 1},
           "event_type_2": {"count": 1, "goal": 1},

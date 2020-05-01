@@ -1,58 +1,49 @@
 import pytest
-import pymongo
-from django.core.management import call_command
-from django.contrib.auth.models import User
 
+from achievements.models import Event
 from core.models import key_secret_generator
-from achievements.services import AchievementRulesMongo
+from core import db
 
 
 @pytest.mark.django_db
-def test_progress_mongo(settings, mongo_conn, current_date, award, rand_str):
+def test_progress_mongo(current_date, award, rand_str):
     """
     Test setting/getting progress documents.
     """
-    settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
-    user = User.objects.create(username=rand_str)
-    assert isinstance(mongo_conn.db, pymongo.database.Database)
-    mongo_conn.find_one_and_update(
-        filter_dict={
-            'date': current_date,
-            'username': rand_str
-        },
-        key='points',
-        value=award
-    )
-    progress = mongo_conn.get_progress(user)
-    assert isinstance(progress, pymongo.cursor.Cursor)
+    user_uid = rand_str
+    db.update_user_progress(user_uid, award)
 
-    assert progress.count() == 1
-    for item in progress:
-        assert user.username not in item
-        assert item['date'] == current_date
-        assert item['points'] == award
+    progress = db.read_progress(user_uid)
+
+    assert isinstance(progress, list)
+    assert len(progress) == 1
+    assert progress[0]['date'] == current_date
+    assert progress[0]['points'] == award
+
+    serialized_progress_item = progress[0].to_primitive('public')
+    assert user_uid not in serialized_progress_item
+    assert "user_uid" not in serialized_progress_item
 
 
-@pytest.mark.skip(reason="KeyError: 'video' to fix.")
-def test_charted(settings, mongo_conn, admin_user, award, rand_str):
+@pytest.mark.django_db
+def test_charted(award, rand_str):
     """
     Test setting/getting charted progress documents.
     """
-    settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
-    charted_bf = mongo_conn.get_charted_progress(admin_user)
-    mongo_conn.find_one_and_update(
-        filter_dict={
-            'username': admin_user.username
-            },
-            key='video',
-            value=award,
-            event_type='chart'
-            )
+    user_uid = rand_str
+    event_type = "video"
 
-    charted = mongo_conn.get_charted_progress(admin_user)
+    Event.objects.create(event_type=event_type, title=event_type, award=award)
+
+    charted_bf = db.read_charted_progress(user_uid)
+    assert charted_bf == {}
+
+    db.update_charted_progress(user_uid, "video", award)
+    charted = db.read_charted_progress(user_uid)
+
     assert isinstance(charted, dict)
-    assert admin_user.username not in charted
-    assert charted['video'] == charted_bf['video'] + award
+    assert user_uid not in charted
+    assert charted[event_type] == {"points": award}
 
 
 def test_key_gen():
@@ -68,29 +59,36 @@ def test_key_gen():
         prev = secret
 
 
-def test_rules(settings, rand_str, award):
+@pytest.mark.django_db
+def test_rules(rand_str, award):
     """
     Set/get rules by achievement slug.
     """
     slug = rand_str
     title = slug.upper()
-    settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
-    storage = AchievementRulesMongo()
-    storage.connect()
-    storage.upsert_rule(slug, title, {"count": award})
-    rules = storage.get_rule(slug)
+    actions = {"count": award}
+
+    with db.read_badge_and_update(slug) as badge:
+        badge.update_badge({
+            "title": title, "badge_title": title,
+            "rules": {
+                "actions": actions
+            },
+            "url": "test_url"
+        })
+
+    rules = db.read_rules(rand_str)
 
     assert isinstance(rules, dict)
-    assert rules['count'] == award
+    assert rules['actions']['count'] == award
+    assert actions == badge.rules.actions
 
 
-def test_rules_none(settings, rand_str, award):
+@pytest.mark.django_db
+def test_rules_none(rand_str, award):
     """
     Get non existent achievement slug.
     """
-    settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
-    storage = AchievementRulesMongo()
-    storage.connect()
-    rules = storage.get_rule(rand_str)
+    rules = db.read_rules(rand_str)
 
     assert isinstance(rules, type(None))

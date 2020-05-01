@@ -20,7 +20,7 @@ from django.conf.urls.static import static
 from django.views.generic.base import TemplateView
 from django.contrib import admin
 
-from core.views import DashboardView, LeaderBoardView, logout_view
+from core.views import DashboardView, logout_view
 
 
 urlpatterns = [
@@ -38,6 +38,5 @@ urlpatterns = [
     # API
     path('api/', include(('api.urls', 'api'), namespace='api')),
 
-    path('leaderboard/', LeaderBoardView.as_view()),
     path('badges/', TemplateView.as_view(template_name='badges.html'))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

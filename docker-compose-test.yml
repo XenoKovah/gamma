@@ -3,18 +3,16 @@ version: '3'
 services:
 
   dashboard:
-    restart: unless-stopped
     container_name: gamma_dashboard
     build:
       context: .
       args:
         - node_env=dev
     env_file:
-      - ./envs/base.env
-      - ./envs/private.env
-    command: "gunicorn --config .conf/gunicorn/gunicorn.conf.py -b :9000 gamma.wsgi"
+      - ./envs/test.env
+    command: python manage.py runserver 0.0.0.0:9000
     volumes:
-      - ./gamma/media/:/app/gamma/media/
+      - .:/app
     ports:
       - "9000:9000"
     links:
@@ -23,43 +21,40 @@ services:
       - celery
 
   celery:
-    restart: unless-stopped
     container_name: gamma_celery
     build:
       context: .
       dockerfile: Dockerfile-celery
     command: celery worker -A gamma --loglevel=INFO -B
     env_file:
-      - ./envs/base.env
-      - ./envs/private.env
+      - ./envs/test.env
+    volumes:
+      - .:/app
     links:
       - rabbit
       - redis
 
   mongo:
-    restart: unless-stopped
     container_name: gamma_mongo
     image: mongo:4.2
+    ports:
+      - "27017:27017"
     volumes:
       - mongo_db:/data/db
 
   postgres:
-    restart: unless-stopped
     container_name: gamma_postgres
     image: postgres:12.1
     env_file:
-      - ./envs/base.env
-      - ./envs/private.env
+      - ./envs/test.env
     volumes:
         - pg_db:/var/lib/postgresql/data/
 
   rabbit:
-    restart: unless-stopped
     container_name: gamma_rabbit
     image: rabbitmq:latest
 
   redis:
-    restart: unless-stopped
     container_name: gamma_redis
     image: redis:latest
 

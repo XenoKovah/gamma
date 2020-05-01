@@ -1,11 +1,12 @@
 import json
 
-from django.core.cache import cache
-from achievements.models import StatusBadge
 import pytest
+from django.core.cache import cache
 
+from achievements.models import StatusBadge
 from edx_integration.api.v2.utils import get_gamma_events_list
-from pointlog.utils import is_badge_rules_simplified
+from core.utils import is_badge_rules_simplified
+from core import db
 
 
 def load_params_from_json(json_path):
@@ -42,7 +43,8 @@ def test_get_gamma_events_list_from_cache(monkeypatch):
     "entry",
     load_params_from_json('core/tests/resources/is_badge_rules_simplified_dataset.json'),
 )
-def test_is_badges_rules_simplified(entry, db, make_test_file):
+@pytest.mark.django_db
+def test_is_badges_rules_simplified(entry, make_test_file):
     new_rules = entry.get('new_rules')
     old_rules = entry.get('old_rules')
     expected_result = entry.get('rules_simplified')

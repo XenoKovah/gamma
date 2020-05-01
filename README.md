@@ -61,3 +61,37 @@ REACT_APP_LOCALHOST=
 EDX_LMS_BASE_URL=<edx_lms_base_url>
 EDX_API_KEY=<edx_api_key>
 ```
+
+
+Run loadtests
+---
+
+1. export all needed env variables:
+```
+export APP_KEY=****************
+export APP_SECRET==****************
+export EVENT_TYPE=edx_bookmark_added
+```
+
+2. Create virtualenv
+```
+mkvirtualenv gamma --python=python3.8
+pip install -r requirements/test.txt
+```
+
+Currently only one event type is supported.
+
+3. Run locust
+```
+locust --host=http://localhost:9000 -f loadtests/locustfile.py
+```
+
+or use Makefile
+
+```
+make loadtests
+```
+
+4. Open url http://localhost:8089
+
+5. Start tests

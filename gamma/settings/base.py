@@ -28,7 +28,6 @@ INSTALLED_APPS = [
     # Local apps
     'core',
     'achievements',
-    'pointlog',
     'api',
     'googlecharts',
 
@@ -122,22 +121,8 @@ STATICFILES_FINDERS = (
 X_FRAME_OPTIONS = "SAMEORIGIN"
 
 
-# MongoDB configuration
-MONGODB_CONF = {
-    'HOST': 'localhost',
-    'PORT': 27017,
-    'USERNAME': None,
-    'PASSWORD': None
-}
 
-# Points settings saved in MongoDB
-MONGO_SETTINGS_COLLECTION = "points_settings"
-MONGO_DB_NAME = "gamma_db"
-MONGO_PROGRESS_COLLECTION = "progress"
-MONGO_CHARTED_PROGRESS = "charted_progress"
-MONGO_RULES_COLLECTION = "rules"
 DB_DATA = 'data'
-MONGO_HOST = "mongo"
 
 
 MEDIA_ROOT = path.join(BASE_DIR, 'media')
@@ -172,15 +157,6 @@ CORS_ORIGIN_WHITELIST = [
     'http://localhost:9000',
 ]
 
-
-MONGO_HOST = environ.get('GAMMA_MONGO_HOST', 'mongo')
-# redundant for two connector types - need to fix
-MONGODB_CONF = {
-    'HOST': environ.get('GAMMA_MONGO_HOST', 'mongo'),
-    'PORT': environ.get('GAMMA_MONGO_PORT', 27017),
-    'USERNAME': environ.get('GAMMA_MONGO_USERNAME', None),
-    'PASSWORD': environ.get('GAMMA_MONGO_PASSWORD', None),
-}
 
 DB_OVERRIDES = dict(
     PASSWORD=environ.get('DB_PASSWORD', DATABASES['default']['PASSWORD']),

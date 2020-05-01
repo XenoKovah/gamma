@@ -1,9 +1,8 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from django.utils.safestring import mark_safe
 
 from .forms import EventForm
-from .models import Achievement, UserAchievement, StatusBadge, UserStatus, Event
+from .models import Achievement, StatusBadge, Event
 
 
 class AchievementAdmin(admin.ModelAdmin):
@@ -56,6 +55,4 @@ class EventAdmin(admin.ModelAdmin):
 
 admin.site.register(Achievement, AchievementAdmin)
 admin.site.register(StatusBadge, StatusBadgeAdmin)
-# admin.site.register(UserAchievement, admin.ModelAdmin)
-admin.site.register(UserStatus, admin.ModelAdmin)
 admin.site.register(Event, EventAdmin)

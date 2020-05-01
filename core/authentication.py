@@ -1,7 +1,6 @@
-from django.conf import settings
 from rest_framework import authentication, exceptions
 
-from .models import AppClient
+from core import db
 
 
 class KeySecretAuthentication(authentication.BaseAuthentication):
@@ -13,12 +12,14 @@ class KeySecretAuthentication(authentication.BaseAuthentication):
 
     def authenticate(self, request):
 
-        app_key = request.META.get('HTTP_APP_KEY')
-        app_secret = request.META.get('HTTP_APP_SECRET')
+        key = request.META.get('HTTP_APP_KEY')
+        secret = request.META.get('HTTP_APP_SECRET')
 
-        try:
-            app_client = AppClient.objects.get(key=app_key, secret=app_secret)
-            # Adding client for event tracking
-            request.client = app_client
-        except AppClient.DoesNotExist:
+        if not (key and secret):
             raise exceptions.AuthenticationFailed('Please provide APP_KEY and APP_SECRET')
+
+        if not (app_client := db.read_app_client(key, secret)):
+            raise exceptions.AuthenticationFailed('Please provide a valid APP_KEY and APP_SECRET')
+
+        # Adding client for event tracking
+        request.client = app_client

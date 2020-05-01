@@ -3,10 +3,9 @@ import json
 from django import forms
 
 from edx_integration.api.v2.utils import get_gamma_events_list
-from .models import Achievement, Event
-from .services import AchievementRulesMongo
+from core import db
 
-STORAGE = AchievementRulesMongo()
+from .models import Achievement, Event
 
 
 class AchievementForm(forms.ModelForm):
@@ -21,23 +20,8 @@ class AchievementForm(forms.ModelForm):
         super(AchievementForm, self).__init__(*args, **kwargs)
         instance = kwargs.get('instance')
         if instance:
-            STORAGE.connect()
-            rules = json.dumps(STORAGE.get_rule(instance.slug))
+            rules = db.read_rules(instance.slug)
             self.fields.get('rules').initial = rules
-
-    def save(self, commit=True, *args, **kwargs):
-        m = super(AchievementForm, self).save(commit=False)
-        # TODO: Refactor this - need to move details update into form or some else util
-        if self.cleaned_data.get('rules'):
-            STORAGE.connect()
-            STORAGE.upsert_rule(
-                self.cleaned_data.get('slug'),
-                self.cleaned_data.get('title'),
-                json.loads(self.cleaned_data.get('rules'))
-            )
-        if commit:
-            m.save()
-        return m
 
     def clean_rules(self):
         """
@@ -47,7 +31,7 @@ class AchievementForm(forms.ModelForm):
             data = self.cleaned_data['rules']
 
             try:
-                json_data = json.loads(data)
+                json.loads(data)
             except Exception:
                 raise forms.ValidationError("Invalid data in rules field")
 

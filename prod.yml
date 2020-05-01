@@ -12,7 +12,7 @@ services:
     env_file:
       - ./envs/base.env
       - ./envs/private.env
-    command: python manage.py runserver 0.0.0.0:9000
+    command: gunicorn --config ../.conf/gunicorn/gunicorn.conf -b :9000 gamma.wsgi
     volumes:
       - ./gamma/media/:/app/gamma/media/
     ports:

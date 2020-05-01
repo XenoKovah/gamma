@@ -1,26 +1,41 @@
+import re
+import hashlib
+from uuid import uuid4
+
 from django.db import models
-from django.contrib.auth.models import User
+from django.conf import settings
 
-from .utils import key_secret_generator
+from core.data_models.models import AppClient as AppClientModel
+from core import db
 
-from core import signals  # NOQA
 
-
-class GameProfile(models.Model):
+def key_secret_generator():
     """
-    Game User profile.
+    Generate a key/secret for AppClient.
     """
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    open_badges_id = models.CharField(max_length=128, blank=True)
-    points = models.IntegerField(default=0)
-    avatar = models.ImageField(upload_to="avatar", null=True, blank=True)
-    position = models.CharField(max_length=255, blank=True)
+    _hash = hashlib.sha1(uuid4().hex.encode('utf-8'))
+    _hash.update(settings.SECRET_KEY.encode('utf-8'))
+    return _hash.hexdigest()[::2]
 
- 
+
+def mongo_compatible(value):
+    """
+    Validate the value to be compatible with mondo naming.
+    """
+    return re.match(r"^[\da-z]+$", value)
+
+
 class AppClient(models.Model):
     """
     Client application models to hold KEY and SECRET.
     """
-    name = models.CharField(max_length=32, unique=True)
+    name = models.CharField(max_length=32, unique=True, validators=[mongo_compatible])
     key = models.CharField(max_length=32, unique=True, db_index=True, default=key_secret_generator)
     secret = models.CharField(max_length=32, unique=True, default=key_secret_generator)
+
+    def save(self, *args, **kwargs):
+        super(AppClient, self).save(*args, **kwargs)
+        db.update_app_client(AppClientModel({
+            "uid": self.name,
+            "key": self.key,
+            "secret": self.secret}))

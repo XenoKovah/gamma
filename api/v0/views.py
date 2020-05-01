@@ -1,17 +1,11 @@
 import logging
-from collections import OrderedDict
-from datetime import datetime, timedelta
 
-import http.client
-
-from django.contrib.auth.models import User
-from django.db.models import F
 from django.conf import settings
 from django.core.cache.backends.base import DEFAULT_TIMEOUT
 from django.views.decorators.cache import cache_page
 from django.utils.decorators import method_decorator
 
-from rest_framework import viewsets, generics, status
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
@@ -24,28 +18,14 @@ from edx_integration.api.v2.exceptions import (
     OtherEdxApiException,
 )
 
-from ..forms import EventPointsForm
-from ..serializers import (
-    GameProfileSerializer,
-    ProgressSerializer,
-    LoggedEventSerializer,
-    ApiAccessEventSerializer,
-    UserStatusSerializer,
-    StatusSerializer,
-    EventSerializer,
-    StatusBadgeSlugSerializer,
-    LeaderboardProfileSerializer
-)
-
-from core.services import MongoConnector
+from core import db
 from core.authentication import KeySecretAuthentication
-from core.models import GameProfile, AppClient
-from core.mongo import c_badges
-from achievements.services import AchievementRulesMongo
-from pointlog.models import LoggedEvent
-from pointlog.models import ApiAccessEvent
-from pointlog.tasks import update_user_position, update_users_badge_data
-from achievements.models import Achievement, StatusBadge, Event, UserStatus
+from core.utils import AppClientUtils
+from core.data_models.models import EventModel
+from core.utils import compile_user_badges
+from core.tasks import update_user_position, update_users_badge_data
+
+from achievements.models import Achievement, Event
 from achievements.forms import AchievementForm
 
 
@@ -54,12 +34,10 @@ USER_NOT_FOUND = 'User not found'
 logger = logging.getLogger('events')
 
 
-class GameProfileView(APIView):
+class GameProfileView(APIView, AppClientUtils):
     """
     GET or UPDATE user points.
     """
-
-    conn = MongoConnector()
     authentication_classes = (KeySecretAuthentication,)
 
     def put(self, request, *args, **kwargs):
@@ -76,186 +54,92 @@ class GameProfileView(APIView):
         where :username - username for User to update points
               :type - can be `video`, `unit` or `course`
         """
-        try:
-            user = User.objects.get(username=request.data.get('username'))
-        except User.DoesNotExist:
-            # Creating User instance
-            # In a future user can login with SSO
-            # Need to test it
-            user = User(username=request.data.get('username'))
-            user.save()
-        game_profile = GameProfile.objects.get(user=user)
-        event_type = self.request.data.get('event_type')
-        org = self.request.data.get('org', 'org')
-        course_id = self.request.data.get('course_id', '')
-        uniq_id = self.request.data.get('uid')
+        event_data = EventModel().import_data(request.data)
 
-        if not uniq_id:
-            logger.debug('For user {0} msg: {1} event_type=>{2}'.format(
-                user.username, 'UID field is mandatory', event_type
-            ))
+        if not (system_event := db.read_system_event(event_data.event_type)):
             return Response(
-                {"Error": "UID field is mandatory"},
-                status=status.HTTP_406_NOT_ACCEPTABLE
-            )
-        # TODO think about uniq_together and event_type
-        if not LoggedEvent.objects.filter(
-            uniq_id=uniq_id,
-            user=user,
-            event_type=event_type,
-            client=AppClient.objects.first()
-        ).exists():
-            event = Event.objects.filter(event_type=event_type).first()
-            if event and event.award:
-                game_profile.points = F('points') + event.award
-                # TODO try to avoid duplicate saving in Serializer
-                game_profile.save()
+                {"Error": "Event type is not recognizable"},
+                status=status.HTTP_406_NOT_ACCEPTABLE)
+        event_data.points = system_event.award
 
-                game_profile = GameProfile.objects.get(user=user)
-                serializer = GameProfileSerializer(game_profile, context={'request': request})
+        app_client = self.get_app_client(request)
+        event_data.client = app_client.uid
 
-                # Logging this event to prevent repeating
-                log_event = LoggedEvent(
-                    uniq_id=uniq_id,
-                    user=user,
-                    event_type=event_type,
-                    org=org,
-                    course_id=course_id,
-                    points=game_profile.points,
-                    client=AppClient.objects.first(),
-                    rewarded_points=event.award
-                )
-                log_event.save()
-                logger.debug('For user {0} msg: {1}'.format(
-                    user.username,
-                    'Event logged::uniq_id=>{0}::event_type=>{1}::points=>{2}'.format(
-                        uniq_id, event_type, event.award
-                    )
-                ))
+        if not (event := db.log_event(event_data)):
+            resp_msg = 'Repeated event occurs'
+            logger.debug(f'For user {event_data.username} msg: {resp_msg}: {event_data.event_type}::{event_data.uid}')
+            return Response({"Error": resp_msg}, status=status.HTTP_406_NOT_ACCEPTABLE)
 
-                logged_event_data = LoggedEventSerializer(log_event).data
-                logged_event_data.update({
-                    'award': event.award
-                })
-                update_user_position.delay(
-                    user.id,
-                    user.username,
-                    game_profile.points,
-                    logged_event_data
-                )
-                return Response(serializer.data)
-            else:
-                logger.debug('For user {0} msg: {1}: {2}'.format(
-                    user.username,
-                    'Event type is not recognizable',
-                    event_type
-                ))
-                return Response(
-                    {"Error": "Event type is not recognizable"},
-                    status.HTTP_406_NOT_ACCEPTABLE
-                )
-        else:
-            logger.debug('For user {0} msg: {1}: {2}::{3}'.format(
-                user.username,
-                'Repeated event occurs',
-                event_type, uniq_id
-            ))
-            return Response(
-                {"Error": "Repeated event occurs"},
-                status=status.HTTP_406_NOT_ACCEPTABLE
-            )
+        points = db.update_game_profile(event_data.username, event.points)
+
+        logger.debug('For user {0} msg: {1}'.format(
+            event_data.username,
+            f'Event logged::{event.uid=}::{event.event_type=}::{event.points=}'))
+
+        update_user_position(event_data.username, points, event.to_primitive())
+
+        return Response(event.to_primitive(), status=status.HTTP_200_OK)
 
     def get(self, request, *args, **kwargs):
         """
         Simply retrieve user GameProfile data.
         """
-        user = User.objects.filter(username=request.GET.get('username')).first()
-        if not user:
-            return Response(
-                {"Error": USER_NOT_FOUND},
-                status=status.HTTP_404_NOT_FOUND
-            )
-        game_profile = GameProfile.objects.get(user=user)
-        serializer = GameProfileSerializer(game_profile, context={'request': request})
+        if not (user_uid := request.GET.get('username')):
+            return Response({"Error": "user_uid must be set"}, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response(serializer.data)
+        user = db.read_user(user_uid)
+
+        badges_rules = db.read_active_badges()
+        user_badges = db.read_user_badges(request.GET.get('username'))
+
+        badges = compile_user_badges(badges_rules, user_badges)
+        response = user.to_primitive('public')
+
+        response['badges'] = badges
+
+        return Response(response)
 
 
 class ProgressView(APIView):
     """
     Retrieve User progress.
     """
-    conn = MongoConnector()
-
     def get(self, request, *args, **kwargs):
         """
         Simply retrieve user GameProfile data.
         """
-        user = User.objects.filter(username=request.GET.get('username')).first()
-        if not user:
-            return Response(
-                {"Error": USER_NOT_FOUND},
-                status=status.HTTP_404_NOT_FOUND
-            )
-        progress_data = self.conn.get_progress(user)
-        serializer = ProgressSerializer(progress_data, many=True)
-        data = serializer.data
-        # TODO reverse on Mongo side
-        data.reverse()
+        if not (user_uid := request.GET.get('username')):
+            return Response({"Error": "user_uid must be set"}, status=status.HTTP_400_BAD_REQUEST)
+
+        data = [_.to_primitive('public') for _ in db.read_progress(user_uid)]
 
         return Response(data)
-
-
-class EventPointsView(APIView):
-    """
-    API to reward particular User with points.
-    """
-    def post(self, request, *args, **kwargs):
-        form = EventPointsForm(request.data)
-        if form.is_valid():
-            form.save_event_points()
-            return Response({
-                'username': form.cleaned_data['username'],
-                'points': form.cleaned_data['points']
-            })
-        else:
-            return Response(
-                {'msg': "Requested reward is not valid."}, status=401
-            )
 
 
 class ChartView(APIView):
     """
     Retrieve User chart.
     """
-    conn = MongoConnector()
-
     def get(self, request, *args, **kwargs):
         """
         Simply retrieve user chart data.
         """
-        user = User.objects.filter(username=request.GET.get('username')).first()
-        if not user:
-            return Response(
-                {"Error": USER_NOT_FOUND},
-                status=status.HTTP_404_NOT_FOUND
-            )
+        if not (user_uid := request.GET.get('username')):
+            return Response({"Error": "user_uid must be set"}, status=status.HTTP_400_BAD_REQUEST)
 
-        progress_data = self.conn.get_charted_progress(user)
+        
         data = {}
-        for key in progress_data:
-            event_title, order = Event.objects.values_list(
-                'title', 'color'
-            ).filter(event_type=key).first()
-            if event_title:
-                data[event_title] = (order, progress_data[key])
-            else:
-                data[key] = (order, progress_data[key])
-        log_api_access = ApiAccessEvent(
-            user=user,
-            api_name='Charts'
-        )
-        log_api_access.save()
+
+        if (progress_data := db.read_charted_progress(user_uid)):
+            # TODO: get rid of this
+            for key in progress_data:
+                event_title, order = Event.objects.values_list(
+                    'title', 'color'
+                ).filter(event_type=key).first()
+                if event_title:
+                    data[event_title] = (order, progress_data[key])
+                else:
+                    data[key] = (order, progress_data[key])
 
         return Response(data)
 
@@ -270,15 +154,12 @@ class PointsView(APIView):
         """
         Simply retrieve user GameProfile data.
         """
-        user = User.objects.filter(username=request.GET.get('username')).first()
-        if not user:
-            return Response(
-                {"username": request.GET.get('username'), "points": 0}
-            )
-        game_profile = GameProfile.objects.get(user=user)
-        serializer = GameProfileSerializer(game_profile, context={'request': request})
+        if not (user_uid := request.GET.get('username')):
+            return Response({"Error": "user_uid must be set"}, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response(serializer.data)
+        user = db.read_user(user_uid)
+
+        return Response({"points": user.points})
 
 
 class BadgesView(APIView):
@@ -287,61 +168,15 @@ class BadgesView(APIView):
     """
     def get(self, request, *args, **kwargs):
         """
-        Get badges for particular User.
+        Get badges for particular user_uid.
 
         If UserNotFound - return status 404 w/ msg User not found.
         """
-        conn = AchievementRulesMongo()
-        conn.connect()
-        badges_rules = conn.collection.find({"active": True})
+        badges_rules = db.read_active_badges()
+        # TODO: use UserBadges model to serialize
+        user_badges = db.read_user_badges(request.GET.get('username'))
 
-        user = User.objects.filter(
-            username=request.GET.get('username')
-        ).first()
-        user_badges = {}
-        if user:
-            log_api_access = ApiAccessEvent(
-                user=user,
-                api_name='Badges'
-            )
-            log_api_access.save()
-            user_badges = c_badges().find_one({"user_id": user.id}, {"_id": 0}) or {}
-            user_badges = user_badges.get('badges', {})
-
-        # TODO: REFACTORING IS NEEDED! Event titles should be obtained from MongoDB.
-        events_map = {e.event_type: e.title for e in Event.objects.all()}
-
-        result = {}
-
-        for badge in badges_rules:
-            badge_granted = user_badges.get(badge['slug'], {}).get('done', False)
-            user_progress = user_badges.get(badge['slug'], {}).get('progress', {})
-            rules = badge.get('rules', {}).get('actions', {})
-            title = badge.get('title', badge['slug'])
-
-            if badge_granted:
-                progress = user_progress
-            else:
-                progress = {
-                    event: {
-                        'title': events_map.get(event, event),
-                        'count': user_progress.get(event, {}).get('count', 0),
-                        'goal': rules[event],
-                    } for event in rules.keys()
-                }
-
-            dependecies = badge.get('rules', {}).get('badges', [])
-
-            result[badge['slug']] = {
-                'title': title,
-                'done': badge_granted,
-                'url': badge.get('url'),
-                'progress': progress,
-                'dependencies': dependecies,
-            }
-
-        result = OrderedDict(sorted(result.items(), key=lambda x: x[1]['done'], reverse=True))
-        return Response(result)
+        return Response(compile_user_badges(badges_rules, user_badges))
 
 
 class UserStatuses(APIView):
@@ -352,23 +187,13 @@ class UserStatuses(APIView):
         """
         Get user's statuses.
         """
-        user = User.objects.filter(
-            username=request.GET.get('username')
-        ).first()
+        user = db.read_user(request.GET.get('username'))
         if not user:
             return Response(
                 {"Error": USER_NOT_FOUND},
-                status=status.HTTP_404_NOT_FOUND
-            )
-        user_statuses = StatusBadge.objects.all()
-        game_profile = GameProfile.objects.get(user=user)
+                status=status.HTTP_404_NOT_FOUND)
 
-        serializer = StatusSerializer(
-            user_statuses, context={'request': request, 'progress': game_profile.points}, many=True
-        )
-
-        serializer_data = sorted(serializer.data, key=lambda i: i['done'])
-        return Response(serializer_data)
+        return Response(user.to_primitive('public').get('statuses'))
 
 
 class StatusView(APIView):
@@ -379,52 +204,9 @@ class StatusView(APIView):
         """
         Get configured statuses.
         """
-        statuses = StatusBadge.objects.filter()
-        serializer = UserStatusSerializer(
-            statuses, context={'request': request}, many=True
-        )
+        statuses = db.read_statuses()
 
-        return Response(serializer.data)
-
-
-class LoggedEventView(APIView):
-    """
-    Return all new Events for user.
-
-    Computed based on request time.
-    """
-    def get(self, request, *args, **kwargs):
-        """
-        Get latest LoggedEvents.
-        """
-        user = User.objects.filter(
-            username=request.GET.get('username')
-        ).first()
-        if not user:
-            return Response(
-                {"Error": USER_NOT_FOUND},
-                status=status.HTTP_404_NOT_FOUND
-            )
-        qs = LoggedEvent.objects.filter(
-            user=user, date__gte=datetime.now() - timedelta(minutes=5)
-        )
-        serializer = LoggedEventSerializer(qs, many=True)
-        return Response(serializer.data)
-
-
-class ApiAccessEventView(APIView):
-    """
-    Return all new Events for user.
-
-    Computed based on request time.
-    """
-    def get(self, request, *args, **kwargs):
-        """
-        Get latest LoggedEvents.
-        """
-        qs = ApiAccessEvent.objects.all()
-        serializer = ApiAccessEventSerializer(qs, many=True)
-        return Response(serializer.data)
+        return Response([status.to_primitive('public') for status in statuses])
 
 
 class ActionsListView(APIView):
@@ -435,17 +217,16 @@ class ActionsListView(APIView):
     and additional items 'badge' and 'status_badge'
     for 'badge-for-badge' granting.
     """
-    def get(self, request, *args, **kwargs):
+    def get(self, *args, **kwargs):
         """
         Get all Actions.
         """
-        qs = Event.objects.all()
-        serializer = EventSerializer(qs, many=True)
+        events = [event.to_primitive() for event in db.read_events()]
         data = [
             {"event_type": "badge"},
             {"event_type": "status_badge"},
         ]
-        data.extend(serializer.data)
+        data.extend(events)
         return Response(data)
 
 
@@ -454,27 +235,28 @@ class BadgesListView(APIView):
     Get available badges (for those rules are set).
     """
 
-    def get(self, request, *args, **kwargs):
-        conn = AchievementRulesMongo()
-        conn.connect()
-        badges = conn.collection.find({"active": True})
+    def get(self, *args, **kwargs):
+        badges = db.read_active_badges()
         data = [badge['slug'] for badge in badges if 'slug' in badge]
         return Response(data)
 
 
-class StatusBadgesListView(generics.ListAPIView):
+class StatusBadgesListView(APIView):
     """
     Get all status badges
     """
-    queryset = StatusBadge.objects.all()
-    serializer_class = StatusBadgeSlugSerializer
+
+    def get(self, *args, **kwargs):
+        statuses = [status.to_primitive() for status in db.read_statuses()]
+        return Response(statuses)
 
 
 class FiltersView(APIView):
     """
     Return all available Filters.
     """
-    def get(self, request, *args, **kwargs):
+    @staticmethod
+    def get(*args, **kwargs):
         """
         Get all Filters.
         """
@@ -484,13 +266,10 @@ class FiltersView(APIView):
             {'frequency': 'Int32'}])
 
 
-class BadgeRuleView(APIView):
+class BadgeRulesView(APIView):
     """
     Return Badge rules.
     """
-    conn = AchievementRulesMongo()
-    conn.connect()
-
     def get(self, request, *args, **kwargs):
         """
         Get rules for badge by a slug.
@@ -498,34 +277,33 @@ class BadgeRuleView(APIView):
         slug = request.GET.get('slug')
         if not slug:
             return Response({})
-        badge = self.conn.collection.find_one({"slug": slug}, {"_id": 0})
+        badge = db.read_badge(badge_uid=slug)
         return Response(badge.get('rules', {}) if badge else {})
 
     def put(self, request, *args, **kwargs):
         slug = request.data.pop('slug')
-        achievement = Achievement.objects.filter(slug=slug).first()
-        if slug and achievement:
-            old_rules = (self.conn.collection.find_one({'slug': slug}) or {}).get('rules')
-            new_rules = request.data
-            # TODO: avoid relying on request for img's public storage URI
-            badge_url = request.build_absolute_uri(achievement.badge_img.url)
-            self.conn.collection.update(
-                {'slug': slug},
-                {"$set":
-                    {
-                        'rules': new_rules,
-                        'active': True,
-                        'url': badge_url,
-                        'title': achievement.title,
-                    }
-                },
-                upsert=True
-            )
-            if old_rules and new_rules:
-                # don't try to open the badge for users if it's rules are completely deleted
-                update_users_badge_data(slug, old_rules, new_rules, badge_url)
-            return Response({}, status=200)
-        return Response({'message': 'Something went wrong'}, status=400)
+
+        if not (badge_model := Achievement.objects.filter(slug=slug).first()):
+            return Response({"Error": "user_uid must be set"}, status=status.HTTP_400_BAD_REQUEST)
+
+        badge_url = request.build_absolute_uri(badge_model.badge_img.url)
+        data = request.data
+        data.update({'url': badge_url})
+
+        with db.read_badge_and_update(slug) as badge:
+            if badge:
+                old_rules = badge.rules.to_native() if badge.rules else None
+                new_rules = request.data
+            badge.update_badge({"rules": request.data})
+
+        db.activate_badge(slug)
+
+        if old_rules and new_rules:
+            # don't try to open the badge for users if it's ruldataes are completely deleted
+            update_users_badge_data.delay(slug, old_rules, new_rules, badge_url)
+
+        return Response({}, status=status.HTTP_200_OK)
+
 
 
 class CoursesView(APIView):
@@ -539,7 +317,7 @@ class CoursesView(APIView):
         try:
             return Response(
                 {'courses': client.get_courses()},
-                status=http.client.OK
+                status=status.HTTP_200_OK
             )
         except (
             EdxApiNotFoundException,
@@ -565,7 +343,7 @@ class OrganizationsView(APIView):
         try:
             return Response(
                 {'organisations': client.get_organizations()},
-                status=http.client.OK
+                status=status.HTTP_200_OK
             )
         except (
             EdxApiNotFoundException,
@@ -588,47 +366,49 @@ class AchievementsView(APIView):
         try:
             achievement = Achievement.objects.get(slug=slug)
             form = AchievementForm(request.POST, request.FILES, instance=achievement)
+
             if form.is_valid():
                 form.save()
-                conn = AchievementRulesMongo()
-                conn.connect()
-                # TODO: avoid relying on request for img's public storage URI
-                badge_url = request.build_absolute_uri(achievement.badge_img.url)
-                # TODO: Refactor this - need to move details update into form or some else util
-                conn.collection.update(
-                    {'slug': slug},
-                    {"$set": {'url': badge_url, 'title': form.cleaned_data.get('title')}},
-                )
-                return Response({}, status=200)
+
+                data = {"title": form.cleaned_data.get("title"),
+                        "url": request.build_absolute_uri(achievement.badge_img.url)}
+
+                with db.read_badge_and_update(slug) as badge:
+                    badge.update_badge(data)
+
+                return Response({}, status=status.HTTP_200_OK)
+
             else:
                 errors = form.errors
-        except Achievement.DoesNotExist as e:
+
+        except Achievement.DoesNotExist:
             errors = f'Entry with {slug} does not exist'
-        return Response({'errors': errors}, status=400)
+
+        return Response({'errors': errors}, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request):
         slug = request.data.get('slug')
         Achievement.objects.get(slug=slug).delete()
-        return Response({}, status=200)
+        return Response({}, status=status.HTTP_200_OK)
 
 
 class LeaderBoardView(APIView):
+    """
+    Return leaderbord data.
+    """
+    def get(self, request):   
+        if not (user := db.read_user(request.GET.get('username'))):
+            return Response(
+                {"Error": USER_NOT_FOUND},
+                status=status.HTTP_404_NOT_FOUND)
 
-    def get(self, request):
-        top = [
-            _id
-            for i in GameProfile.objects.order_by('-points')[:100].values_list('id')
-            for _id in i
-        ]
+        leaders = db.read_leaders()
+
         try:
-            rank = top.index(request.user.gameprofile.id) + 1
-        except (ValueError, AttributeError):
+            rank = leaders.roster.index(user) + 1
+        except ValueError:
             rank = None
-        gameprofiles = GameProfile.objects.order_by('-points')
-        statuses = dict(UserStatus.objects.values_list('user__username', 'status__title'))
         return Response({
-            'gameprofiles': LeaderboardProfileSerializer(gameprofiles,
-                                                         context={'request': request, 'statuses': statuses},
-                                                         many=True).data,
+            'gameprofiles': leaders.to_primitive('public').get("roster"),
             'rank': rank
-        }, status=200, content_type='application/json')
+        }, status=status.HTTP_200_OK, content_type='application/json')

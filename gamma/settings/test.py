@@ -12,7 +12,6 @@ DATABASES = {
 
 CELERY_TASK_ALWAYS_EAGER = True
 
-MONGO_DB_NAME = "test-db"
 DB_DATA = 'test-data'
 
 ENABLE_CORS_HEADERS = True
