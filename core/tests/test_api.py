@@ -444,12 +444,18 @@ def test_badgesview(live_server, rand_str, event, admin_user, make_test_file):
     data = res.json()
 
     expected_data = badges_data.copy()
-    expected_data['slug_1']['url'] = 'sometesturl1'
+
     expected_data['slug_2']['url'] = 'sometesturl2'
     expected_data['slug_2']['dependencies'] = []
+    expected_data['slug_2']['title'] = 'slug_2'
+
+    expected_data['slug_1']['url'] = 'sometesturl1'
     expected_data['slug_1']['progress']['event_type_1']['goal'] = 2
+    expected_data['slug_1']['progress']['event_type_1']['title'] = 'event_type_1'
     expected_data['slug_1']['progress']['event_type_2']['goal'] = 2
+    expected_data['slug_1']['progress']['event_type_2']['title'] = 'event_type_2'
     expected_data['slug_1']['dependencies'] = []
+    expected_data['slug_1']['title'] = 'slug_1'
 
     assert data == expected_data
 

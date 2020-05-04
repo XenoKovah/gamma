@@ -31,6 +31,7 @@ class AchievementForm(forms.ModelForm):
             STORAGE.connect()
             STORAGE.upsert_rule(
                 self.cleaned_data.get('slug'),
+                self.cleaned_data.get('title'),
                 json.loads(self.cleaned_data.get('rules'))
             )
         if commit:

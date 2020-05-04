@@ -36,11 +36,12 @@ class AchievementRulesMongo:
             rules = None
         return rules
 
-    def upsert_rule(self, achievement_slug, rules):
+    #TODO: REFACTORING IS NEEDED! Should be obtained from MongoDB model eventually.
+    def upsert_rule(self, achievement_slug, achievement_title, rules):
         try:
             self.collection.find_one_and_update(
                 filter={'slug': achievement_slug},
-                update={'$set': {'rules': rules}},
+                update={'$set': {'rules': rules, 'title': achievement_title}},
                 upsert=True
             )
         except Exception as e:

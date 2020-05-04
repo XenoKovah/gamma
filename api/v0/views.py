@@ -307,17 +307,23 @@ class BadgesView(APIView):
             user_badges = c_badges().find_one({"user_id": user.id}, {"_id": 0}) or {}
             user_badges = user_badges.get('badges', {})
 
+        # TODO: REFACTORING IS NEEDED! Event titles should be obtained from MongoDB.
+        events_map = {e.event_type: e.title for e in Event.objects.all()}
+
         result = {}
 
         for badge in badges_rules:
             badge_granted = user_badges.get(badge['slug'], {}).get('done', False)
             user_progress = user_badges.get(badge['slug'], {}).get('progress', {})
             rules = badge.get('rules', {}).get('actions', {})
+            title = badge.get('title', badge['slug'])
+
             if badge_granted:
                 progress = user_progress
             else:
                 progress = {
                     event: {
+                        'title': events_map.get(event, event),
                         'count': user_progress.get(event, {}).get('count', 0),
                         'goal': rules[event],
                     } for event in rules.keys()
@@ -326,6 +332,7 @@ class BadgesView(APIView):
             dependecies = badge.get('rules', {}).get('badges', [])
 
             result[badge['slug']] = {
+                'title': title,
                 'done': badge_granted,
                 'url': badge.get('url'),
                 'progress': progress,
@@ -504,9 +511,12 @@ class BadgeRuleView(APIView):
                 {'slug': slug},
                 {"$set":
                     {
-                        'rules': new_rules, 'active': True,
-                        'url': badge_url
-                    }},
+                        'rules': new_rules,
+                        'active': True,
+                        'url': badge_url,
+                        'title': achievement.title,
+                    }
+                },
                 upsert=True
             )
             if old_rules and new_rules:

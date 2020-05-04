@@ -72,11 +72,13 @@ def test_rules(settings, rand_str, award):
     """
     Set/get rules by achievement slug.
     """
+    slug = rand_str
+    title = slug.upper()
     settings.MONGO_DB_NAME = "test-db-{}".format(rand_str)
     storage = AchievementRulesMongo()
     storage.connect()
-    storage.upsert_rule(rand_str, {"count": award})
-    rules = storage.get_rule(rand_str)
+    storage.upsert_rule(slug, title, {"count": award})
+    rules = storage.get_rule(slug)
 
     assert isinstance(rules, dict)
     assert rules['count'] == award
