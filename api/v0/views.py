@@ -136,7 +136,6 @@ class GameProfileView(APIView):
                 logged_event_data.update({
                     'award': event.award
                 })
-
                 update_user_position.delay(
                     user.id,
                     user.username,
@@ -309,6 +308,7 @@ class BadgesView(APIView):
             user_badges = user_badges.get('badges', {})
 
         result = {}
+
         for badge in badges_rules:
             badge_granted = user_badges.get(badge['slug'], {}).get('done', False)
             user_progress = user_badges.get(badge['slug'], {}).get('progress', {})
@@ -322,10 +322,14 @@ class BadgesView(APIView):
                         'goal': rules[event],
                     } for event in rules.keys()
                 }
+
+            dependecies = badge.get('rules', {}).get('badges', [])
+
             result[badge['slug']] = {
                 'done': badge_granted,
                 'url': badge.get('url'),
-                'progress': progress
+                'progress': progress,
+                'dependencies': dependecies,
             }
 
         result = OrderedDict(sorted(result.items(), key=lambda x: x[1]['done'], reverse=True))
@@ -585,7 +589,7 @@ class AchievementsView(APIView):
             else:
                 errors = form.errors
         except Achievement.DoesNotExist as e:
-            errors = f'Entry with {slug=} does not exist'
+            errors = f'Entry with {slug} does not exist'
         return Response({'errors': errors}, status=400)
 
     def delete(self, request):

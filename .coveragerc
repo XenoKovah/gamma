@@ -10,3 +10,4 @@ omit =
     manage.py
     *settings*
     conftest.py
+    api/v0/views.py
