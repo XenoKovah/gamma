@@ -27,6 +27,7 @@ class AchievementForm(forms.ModelForm):
 
     def save(self, commit=True, *args, **kwargs):
         m = super(AchievementForm, self).save(commit=False)
+        # TODO: Refactor this - need to move details update into form or some else util
         if self.cleaned_data.get('rules'):
             STORAGE.connect()
             STORAGE.upsert_rule(

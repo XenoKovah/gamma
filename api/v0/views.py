@@ -506,6 +506,7 @@ class BadgeRuleView(APIView):
         if slug and achievement:
             old_rules = (self.conn.collection.find_one({'slug': slug}) or {}).get('rules')
             new_rules = request.data
+            # TODO: avoid relying on request for img's public storage URI
             badge_url = request.build_absolute_uri(achievement.badge_img.url)
             self.conn.collection.update(
                 {'slug': slug},
@@ -590,10 +591,12 @@ class AchievementsView(APIView):
                 form.save()
                 conn = AchievementRulesMongo()
                 conn.connect()
+                # TODO: avoid relying on request for img's public storage URI
                 badge_url = request.build_absolute_uri(achievement.badge_img.url)
+                # TODO: Refactor this - need to move details update into form or some else util
                 conn.collection.update(
                     {'slug': slug},
-                    {"$set": {'url': badge_url}},
+                    {"$set": {'url': badge_url, 'title': form.cleaned_data.get('title')}},
                 )
                 return Response({}, status=200)
             else:
