@@ -68,7 +68,7 @@
 
 // custom select
 .Select {
-    width: 130px;
+    min-width: 130px;
 
     > div:first-of-type {
         border: 2px solid $base-color !important;
@@ -131,12 +131,14 @@
         background: $selecd-list-background;
         box-sizing: border-box;
         box-shadow: none;
-        width: 100%;
         border-radius: 10px;
         font-size: 12px;
         font-weight: 400;
-        overflow: hidden;
+        overflow-x: auto;
+        max-height: 200px;
         z-index: 11;
+        width: auto;
+        min-width: 100%;
 
         &:before {
             content: '';
@@ -168,6 +170,9 @@
                 }
             }
         }
+    }
+    .css-15k3avv {
+        right: 0;
     }
 }
 
@@ -312,6 +317,7 @@ div[class*="MuiDialog-paper"],
 
 // popup container item
 .Container-Item {
+    
     &:first-of-type {
         margin-right: 55px;
     }
