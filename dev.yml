@@ -2,6 +2,26 @@ version: '3'
 
 services:
 
+  traefik:
+    restart: unless-stopped
+    image: traefik:v2.0
+    container_name: gamma_traefik
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.mytlschallenge.acme.tlschallenge=true"
+      - "--certificatesresolvers.mytlschallenge.acme.email=maksim.sokolskiy@raccoongang.com"
+      - "--certificatesresolvers.mytlschallenge.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - 80:80
+      - 443:443
+      - 8080:8080
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
   dashboard:
     restart: unless-stopped
     container_name: gamma_dashboard
@@ -12,15 +32,47 @@ services:
     env_file:
       - ./envs/base.env
       - ./envs/private.env
-    command: "gunicorn --config .conf/gunicorn/gunicorn.conf.py -b :9000 gamma.wsgi"
+    command: "gunicorn --config .conf/gunicorn/gunicorn.conf.py -b :8000 gamma.wsgi"
     volumes:
-      - ./gamma/media/:/app/gamma/media/
+      - static_files:/app/gamma/static/
+      - media_files:/app/gamma/media/
     ports:
-      - "9000:9000"
+      - "8000:8000"
     links:
       - mongo
       - postgres
       - celery
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.middlewares.redirect-https.redirectscheme.scheme=https"
+      - "traefik.http.routers.app-http.entrypoints=web"
+      - "traefik.http.routers.app-http.rule=Host(`${HOST:-localhost}`)"
+      - "traefik.http.routers.app-https.entrypoints=websecure"
+      - "traefik.http.routers.app-https.rule=Host(`${HOST:-localhost}`)"
+      - "traefik.http.routers.app-https.tls.certresolver=mytlschallenge"
+
+  nginx:
+    restart: unless-stopped
+    image: nginx:alpine
+    container_name: gamma_nginx
+    links:
+      - dashboard
+    volumes:
+      - .conf/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - static_files:/static
+      - media_files:/media
+    labels:
+        - "traefik.enable=true"
+        - "traefik.backend=nginx"
+        - "traefik.port=9000"
+        - "traefik.http.routers.static-http.entrypoints=web"
+        - "traefik.http.routers.static-http.rule=Host(`${HOST:-localhost}`) && PathPrefix(`/static`) || PathPrefix(`/media`)"
+        - "traefik.http.routers.static-https.entrypoints=websecure"
+        - "traefik.http.routers.static-https.rule=Host(`${HOST:-localhost}`) && PathPrefix(`/static`) || PathPrefix(`/media`)"
+        - "traefik.http.routers.static-https.tls.certresolver=mytlschallenge"
+    ports:
+      - "9000:9000"
+      
 
   celery:
     restart: unless-stopped
@@ -42,6 +94,8 @@ services:
     image: mongo:4.2
     volumes:
       - mongo_db:/data/db
+    ports:
+      - "27017:27017"
 
   postgres:
     restart: unless-stopped
@@ -66,3 +120,5 @@ services:
 volumes:
   pg_db:
   mongo_db:
+  static_files:
+  media_files:
