@@ -115,7 +115,11 @@ $(function() {
                 function( data ) {
                     var events = [];
                     for (var key in data) {
-                        events.splice(data[key][0], 0, {name: key, y : data[key][1]["points"]});
+                        let points = data[key][1]
+                        if (typeof points !== 'number') {
+                            points = points["points"]
+                        }
+                        events.splice(data[key][0], 0, {name: key, y : points});
                     }
                     $('#container-chart').highcharts({
                         chart: {

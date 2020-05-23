@@ -3,6 +3,7 @@ Achievement models.
 """
 
 from django.db import models
+from django.contrib.sites.models import Site
 
 from core import db
 from core.data_models.models import Status, SystemEvent, Badge
@@ -37,7 +38,31 @@ BADGE_STATUS_COLORS = (
 )
 
 
-class Achievement(models.Model):
+class BadgeAbsoluteUrl:
+    """
+    Provide a method to create an absolute url.
+    """
+    def get_absolute_url(self):
+        """
+        Add https://example.com to the badge url.
+
+        Do nothing if url is already absolute.
+        Return None if not self.badge_img
+        """
+        if not self.badge_img:
+            return None
+
+        current_site = Site.objects.get_current()
+
+        if not self.badge_img.url.startswith('http') and current_site:
+            badge_url = f"https://{current_site.domain}" + self.badge_img.url
+        else:
+            badge_url = self.badge_img.url
+
+        return badge_url
+
+
+class Achievement(models.Model, BadgeAbsoluteUrl):
     """
     Models for custom achievement.
 
@@ -65,12 +90,11 @@ class Achievement(models.Model):
             "badge_uid": self.slug,
             "slug": self.slug,
             "badge_title": self.title,
-            "url": self.badge_img.url,
-            "active": True
+            "url": self.get_absolute_url(),
         }))
 
 
-class StatusBadge(models.Model):
+class StatusBadge(models.Model, BadgeAbsoluteUrl):
     """
     Models for Status badge.
     """
@@ -89,6 +113,7 @@ class StatusBadge(models.Model):
 
     def save(self, *args, **kwargs):
         super(StatusBadge, self).save(*args, **kwargs)
+
         db.update_status(Status({
             "status_uid": self.slug,
             "slug": self.slug,
@@ -96,7 +121,8 @@ class StatusBadge(models.Model):
             "active": True,
             "points": self.status_points,
             "color": self.status_color,
-            "url": self.badge_img.url if self.badge_img else None}))
+            "url": self.get_absolute_url()
+        }))
 
     def __str__(self):
         return self.slug.__str__()

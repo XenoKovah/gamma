@@ -20,7 +20,7 @@ from schematics.types import (
     DictType,
     DateType
 )
-from schematics.transforms import blacklist
+from schematics.transforms import blacklist, whitelist
 
 
 class EventModel(Model):
@@ -59,7 +59,8 @@ class UserAction(Model):
 
     class Options:
         roles = {
-            'public': blacklist('last')
+            'public': blacklist('last'),
+            'roster': blacklist(''),
         }
 
 
@@ -72,7 +73,8 @@ class UserBadge(Model):
 
     class Options:
         roles = {
-            'public': blacklist('')
+            'public': blacklist(''),
+            'roster': blacklist(''),
         }
 
 
@@ -82,8 +84,12 @@ class Status(Model):
     title = StringType(required=True)
     active = BooleanType(default=False)
     points = IntType(serialized_name='status_points')
+    progress = IntType()
     color = StringType()
     url = URLType()
+
+    def __hash__(self):
+        return hash(self.status_uid)
 
     class Options:
         roles = {
@@ -132,6 +138,7 @@ class User(Model):
     Game profile data model.
     """
     user_uid = StringType(required=True)
+    username = StringType()
     points = IntType(default=0)
     badges = DictType(ModelType(UserBadge), default={})
     statuses = ListType(ModelType(Status), default=[])
@@ -140,7 +147,8 @@ class User(Model):
 
     class Options:
         roles = {
-            'public': blacklist('user_uid')
+            'public': blacklist('user_uid'),
+            'roster': whitelist('username', 'user_uid', 'badges'),
         }
 
 class Leaders(Model):
@@ -153,7 +161,8 @@ class Leaders(Model):
 
     class Options:
         roles = {
-            'public': blacklist('')
+            'public': blacklist(''),
+            'roster': blacklist(''),
         }
 
 class DepBadge(Model):

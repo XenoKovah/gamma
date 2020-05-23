@@ -212,6 +212,15 @@ def compile_user_badges(badges_rules, user_badges):
     return OrderedDict(sorted(result.items(), key=lambda x: x[1]['done'], reverse=True))
 
 
+def merge_statuses(statuses, user):
+    """
+    Merge achieved user's statuses with status badges.
+    """
+    for status in statuses:
+        status.progress = user.points
+    return statuses
+
+
 class AppClientUtils:
     """
     Misc utility method to work with AppClient.

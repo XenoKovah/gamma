@@ -20,7 +20,7 @@ from edx_integration.api.v2.exceptions import (
 
 from core import db
 from core.authentication import KeySecretAuthentication
-from core.utils import AppClientUtils
+from core.utils import AppClientUtils, merge_statuses
 from core.data_models.models import EventModel
 from core.utils import compile_user_badges
 from core.tasks import update_user_position, update_users_badge_data
@@ -93,6 +93,7 @@ class GameProfileView(APIView, AppClientUtils):
         user_badges = db.read_user_badges(request.GET.get('username'))
 
         badges = compile_user_badges(badges_rules, user_badges)
+        user.statuses = merge_statuses(db.read_statuses(), user)
         response = user.to_primitive('public')
 
         response['badges'] = badges
@@ -187,13 +188,18 @@ class UserStatuses(APIView):
         """
         Get user's statuses.
         """
+        # TODO: use aggregation addField
         user = db.read_user(request.GET.get('username'))
+        statuses = db.read_statuses()
+
+        merged_statuses = merge_statuses(statuses, user)
+
         if not user:
             return Response(
                 {"Error": USER_NOT_FOUND},
                 status=status.HTTP_404_NOT_FOUND)
 
-        return Response(user.to_primitive('public').get('statuses'))
+        return Response([_.to_primitive('public') for _ in merged_statuses if _])
 
 
 class StatusView(APIView):
@@ -294,7 +300,8 @@ class BadgeRulesView(APIView):
             if badge:
                 old_rules = badge.rules.to_native() if badge.rules else None
                 new_rules = request.data
-            badge.update_badge({"rules": request.data})
+            active = True if new_rules else False
+            badge.update_badge({"rules": request.data, "active": active})
 
         db.activate_badge(slug)
 
@@ -396,8 +403,9 @@ class LeaderBoardView(APIView):
     """
     Return leaderbord data.
     """
-    def get(self, request):   
-        if not (user := db.read_user(request.GET.get('username'))):
+    def get(self, request):
+        user_uid = request.GET.get('username')
+        if user_uid and not (user := db.read_user(user_uid)):
             return Response(
                 {"Error": USER_NOT_FOUND},
                 status=status.HTTP_404_NOT_FOUND)
@@ -405,10 +413,10 @@ class LeaderBoardView(APIView):
         leaders = db.read_leaders()
 
         try:
-            rank = leaders.roster.index(user) + 1
+            rank = leaders.roster.index(user) + 1 if user_uid else None
         except ValueError:
             rank = None
         return Response({
-            'gameprofiles': leaders.to_primitive('public').get("roster"),
+            'gameprofiles': leaders.to_primitive('roster').get("roster"),
             'rank': rank
         }, status=status.HTTP_200_OK, content_type='application/json')
