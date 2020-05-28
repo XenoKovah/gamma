@@ -134,8 +134,6 @@
         border-radius: 10px;
         font-size: 12px;
         font-weight: 400;
-        overflow-x: auto;
-        max-height: 200px;
         z-index: 11;
         width: auto;
         min-width: 100%;
@@ -155,6 +153,8 @@
         }
 
         .css-11unzgr {
+            max-height: 200px;
+
             div {
                 color: $input-color;
                 font-size: 12px;
