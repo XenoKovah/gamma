@@ -36,10 +36,6 @@
                             <label for="">Title</label>
                             <input type="text" name="title" id="title-{{ achievement.id }}" value="{{achievement.title}}">
                         </div>
-                        <div class="AchievementFormGroup">
-                            <label for="">Description</label>
-                            <textarea id="" name="description">{{ achievement.description }}</textarea>
-                        </div>
                     </div>
                     <div class="AchievementForm-Block">
                         <div class="AchievementFormGroup AchievementForm-Group_combined">
@@ -60,29 +56,18 @@
 
                             </div>
                         </div>
+                    </div>
+                    <div class="AchievementForm-GroupWrapper">
                         <div class="AchievementFormGroup">
-                            <label for="">Slug</label>
-                            <input type="text" id="slug-{{ achievement.id }}" value="{{ achievement.slug }}" name="slug">
-                        </div>
-                        <div class="AchievementFormGroup">
-                            <label for="">Badge id</label>
-                            <input type="text" id="" value="{{ achievement.badge_id }}">
+                            <label for="">Description</label>
+                            <textarea id="" name="description">{{ achievement.description }}</textarea>
+                            <input type="hidden" id="slug-{{ achievement.id }}" value="{{ achievement.slug }}" name="slug">
                         </div>
                     </div>
                     <div class="AchievementForm-Controls">
                         <button class="Btn Btn_primary save-achievement-click" data-form-id="{{ achievement.id }}">Save</button>
                         <button class="Btn Btn_info cancel-achievement-click">Cancel</button>
                     </div>
-                    <script>
-                    $("#slug-{{ achievement.id }}").off('change keyup keydown');
-                    $("#title-{{ achievement.id }}").on('change keyup keydown', function() {
-                        $("#slug-{{ achievement.id }}").val(
-                            URLify(
-                                $("#title-{{ achievement.id }}").val(), 50
-                            )
-                        );
-                    });
-                </script>
                 </div>
             </form>
         </div>

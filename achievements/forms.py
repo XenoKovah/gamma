@@ -55,7 +55,7 @@ class AchievementForm(forms.ModelForm):
 
     class Meta:
         model = Achievement
-        fields = '__all__'
+        fields = ('id', 'title', 'badge_img', 'description')
 
 
 class EventForm(forms.ModelForm):

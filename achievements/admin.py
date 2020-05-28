@@ -10,14 +10,12 @@ class AchievementAdmin(admin.ModelAdmin):
     list_display = (
         'title',
         'slug',
-        'badge_id',
         'get_badge_edit_url'
     )
     fields = (
         'title',
         'slug',
         'badge_img',
-        'badge_id',
         'description',
     )
     prepopulated_fields = {"slug": ("title",)}
@@ -30,7 +28,6 @@ class StatusBadgeAdmin(admin.ModelAdmin):
     list_display = (
         'title',
         'slug',
-        'badge_id',
         'status_points',
         'status_color'
     )
@@ -38,7 +35,6 @@ class StatusBadgeAdmin(admin.ModelAdmin):
         'title',
         'slug',
         'badge_img',
-        'badge_id',
         'description',
         'status_points',
         'status_color',
@@ -47,7 +43,8 @@ class StatusBadgeAdmin(admin.ModelAdmin):
 
 
 class EventAdmin(admin.ModelAdmin):
-    list_display = ('event_type', 'award', 'title', 'color', 'notification_message')
+    list_display = ('event_type', 'award', 'title')
+    exclude = ('color', 'notification_message')
     form = EventForm
 
     class Media:
