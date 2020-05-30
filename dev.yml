@@ -4,22 +4,13 @@ services:
 
   traefik:
     restart: unless-stopped
-    image: traefik:v2.0
+    image: traefik:v2.2
     container_name: gamma_traefik
-    command:
-      - "--api.insecure=true"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
-      - "--certificatesresolvers.mytlschallenge.acme.tlschallenge=true"
-      - "--certificatesresolvers.mytlschallenge.acme.email=maksim.sokolskiy@raccoongang.com"
-      - "--certificatesresolvers.mytlschallenge.acme.storage=/letsencrypt/acme.json"
     ports:
-      - 80:80
-      - 443:443
+      - 9000:80
       - 8080:8080
     volumes:
+      - .conf/traefik/traefik.toml:/etc/traefik/traefik.toml
       - /var/run/docker.sock:/var/run/docker.sock:ro
 
   dashboard:
@@ -36,8 +27,8 @@ services:
     volumes:
       - static_files:/app/gamma/static/
       - media_files:/app/gamma/media/
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     links:
       - mongo
       - postgres
@@ -46,9 +37,9 @@ services:
       - "traefik.enable=true"
       - "traefik.http.middlewares.redirect-https.redirectscheme.scheme=https"
       - "traefik.http.routers.app-http.entrypoints=web"
-      - "traefik.http.routers.app-http.rule=Host(`${HOST:-localhost}`)"
+      - "traefik.http.routers.app-http.rule=Host(`${HOST:-localhost}`) || Host(`${GAMMA_CUSTOM_DOMAIN}`)"
       - "traefik.http.routers.app-https.entrypoints=websecure"
-      - "traefik.http.routers.app-https.rule=Host(`${HOST:-localhost}`)"
+      - "traefik.http.routers.app-https.rule=Host(`${HOST:-localhost}`) || Host(`${GAMMA_CUSTOM_DOMAIN}`)"
       - "traefik.http.routers.app-https.tls.certresolver=mytlschallenge"
 
   nginx:
@@ -66,13 +57,12 @@ services:
         - "traefik.backend=nginx"
         - "traefik.port=9000"
         - "traefik.http.routers.static-http.entrypoints=web"
-        - "traefik.http.routers.static-http.rule=Host(`${HOST:-localhost}`) && PathPrefix(`/static`) || PathPrefix(`/media`)"
+        - "traefik.http.routers.static-http.rule=(Host(`${HOST:-localhost}`) || Host(`${GAMMA_CUSTOM_DOMAIN}`)) && PathPrefix(`/static`) || PathPrefix(`/media`)"
         - "traefik.http.routers.static-https.entrypoints=websecure"
-        - "traefik.http.routers.static-https.rule=Host(`${HOST:-localhost}`) && PathPrefix(`/static`) || PathPrefix(`/media`)"
+        - "traefik.http.routers.static-https.rule=(Host(`${HOST:-localhost}`) || Host(`${GAMMA_CUSTOM_DOMAIN}`)) && PathPrefix(`/static`) || PathPrefix(`/media`)"
         - "traefik.http.routers.static-https.tls.certresolver=mytlschallenge"
-    ports:
-      - "9000:9000"
-      
+    expose:
+      - "9000"
 
   celery:
     restart: unless-stopped
@@ -94,8 +84,6 @@ services:
     image: mongo:4.2
     volumes:
       - mongo_db:/data/db
-    ports:
-      - "27017:27017"
 
   postgres:
     restart: unless-stopped

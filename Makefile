@@ -28,7 +28,7 @@ endif
 shell: ${PRIVATE_ENV}
 	docker-compose -f $(DOCKERCOMPOSE_PATH) run --rm dashboard bash
 
-dev.up: ${PRIVATE_ENV}
+dev.up: ${PRIVATE_ENV} .static
 	docker-compose -f $(DOCKERCOMPOSE_PATH) up -d
 
 start: ${PRIVATE_ENV}
