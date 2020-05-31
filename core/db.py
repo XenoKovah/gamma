@@ -311,6 +311,11 @@ def read_badge(badge_uid):
     return conn.db.badges.find_one({"slug": badge_uid}, {"_id": 0}) or {}
 
 
+def read_badge_as_ob(badge_uid):
+    data = conn.db.badges.find_one({"slug": badge_uid})
+    return _create_badge_ob(data)
+
+
 @contextmanager
 def read_badge_and_update(badge_uid):
     """

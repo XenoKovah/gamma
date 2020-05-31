@@ -148,12 +148,13 @@ class User(Model):
     statuses = ListType(ModelType(Status), default=[])
     chart = DictType(ModelType(UserEventPoints), default={})
     progress = DictType(ListType(ModelType(DailyProgress)), default={})
-    player_ids = ListType(StringType(), required=False)
+    player_ids = ListType(StringType(), required=False, serialize_when_none=False)
 
     class Options:
         roles = {
             'public': blacklist('_id', 'user_uid', 'player_ids'),
             'roster': whitelist('points', 'username', 'user_uid', 'badges'),
+            'notif':  whitelist('username', 'player_ids'),
         }
 
     def get_player_ids(self):

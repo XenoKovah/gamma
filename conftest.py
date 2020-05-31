@@ -9,6 +9,10 @@ from webpack_loader.loader import WebpackLoader
 from django.core.files.base import ContentFile
 
 from core.models import AppClient
+from core.notif import push
+from core.notif.onesignal_provider import OneSignalServiceBuilder
+from core.notif.cfg import Provider
+
 from achievements.models import Event
 
 
@@ -60,3 +64,45 @@ def make_test_file():
         return ContentFile(base64.b64decode(image_string), name=name)
 
     return _make_test_file
+
+
+@pytest.fixture(scope='function')
+def push_factory():
+    """
+    Unregister providers for test purposes.
+    """
+    factory = push.factory
+    factory.register_builder(Provider.ONESIGNAL, OneSignalServiceBuilder())
+
+    yield factory
+
+    factory.unregister_builder(Provider.ONESIGNAL)
+
+
+@pytest.fixture(scope="function")
+def notif_data(mocker):
+    """
+    Reuser data.
+    """
+    _heading = "Message heading"
+    _content = "Hello username"
+    _icon_url = "http://localhost/icon"
+    _url = "http://localhost"
+
+    _data = {
+        "head": _heading,
+        "body": _content,
+        "lang": "en",
+        "icon": _icon_url,
+        "url":  _url
+    }
+
+    return _data
+
+@pytest.fixture(scope="function")
+def user(mocker):
+    _user = mocker.Mock()
+    _user.user_uid = "user1"
+    _user.player_ids = None
+
+    return _user
