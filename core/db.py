@@ -115,13 +115,29 @@ def _update(badge):
     )
 
 
+def _update_user(user):
+    """
+    Update User document.
+    """
+    data = user.to_native()
+    user_id = data.pop('_id')
+
+    conn.db.users.find_one_and_replace(
+        {
+            '_id': ObjectId(user_id),
+        },
+        data,
+        upsert=True
+    )
+
+
 def update_user_progress(user_uid, event_award):
     """
     Update user progress with points for a particular date.
     """
     year = datetime.now().year
-    daily_progress = DailyProgress({"date": datetime.now(), "points": event_award})
-    date = daily_progress.to_primitive().get('date')
+    date = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    daily_progress = DailyProgress({"date": date, "points": event_award})
 
     if conn.db.users.find_one({"user_uid": user_uid,
                               f"progress.{year}.date": date}, {"_id": 1}):
@@ -310,6 +326,21 @@ def read_badge_and_update(badge_uid):
     yield badge
 
     _update(badge)
+
+
+@contextmanager
+def read_user_and_update(user_uid):
+    """
+    Read user from db by user_uid.
+    """
+    if data := conn.db.users.find_one({"user_uid": user_uid}):
+        user = _create_user_ob(data)
+    else:
+        user = User({"user_uid": user_uid})
+
+    yield user
+
+    _update_user(user)
 
 
 def update_game_profile(user_uid, points) -> int:

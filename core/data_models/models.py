@@ -115,7 +115,7 @@ class UserStatus(Model):
 
 
 class DailyProgress(Model):
-    date = DateType(required=True)
+    date = UTCDateTimeType(required=True)
     points = IntType(required=True, default=0)
 
     class Options:
@@ -137,6 +137,10 @@ class User(Model):
     """
     Game profile data model.
     """
+    _id = ObjectIdType(
+        metadata={'readOnly': True},
+        serialize_when_none=False, default=ObjectId
+    )
     user_uid = StringType(required=True)
     username = StringType()
     points = IntType(default=0)
@@ -144,12 +148,17 @@ class User(Model):
     statuses = ListType(ModelType(Status), default=[])
     chart = DictType(ModelType(UserEventPoints), default={})
     progress = DictType(ListType(ModelType(DailyProgress)), default={})
+    player_ids = ListType(StringType(), required=False)
 
     class Options:
         roles = {
-            'public': blacklist('user_uid'),
+            'public': blacklist('_id', 'user_uid', 'player_ids'),
             'roster': whitelist('username', 'user_uid', 'badges'),
         }
+
+    def get_player_ids(self):
+        return self.player_ids
+
 
 class Leaders(Model):
     """

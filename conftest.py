@@ -39,7 +39,7 @@ def event(rand_str, award):
 
 @pytest.fixture(scope='session')
 def current_date():
-    return datetime.now().date()
+    return datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
 
 
 @pytest.fixture(autouse=True)
