@@ -76,7 +76,7 @@ class GameProfileView(APIView, AppClientUtils):
             event_data.username,
             f'Event logged::{event.uid=}::{event.event_type=}::{event.points=}'))
 
-        update_user_position(event_data.username, points, event.to_primitive())
+        update_user_position.delay(event_data.username, points, event.to_primitive())
 
         return Response(event.to_primitive(), status=status.HTTP_200_OK)
 

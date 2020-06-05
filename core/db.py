@@ -381,6 +381,7 @@ def update_user_status(user_uid, points):
             {"user_uid": user_uid}, {"$addToSet": {"statuses": status.to_native('client')}})
 
 
+
 def matched_statuses(points):
     """
     Returns all status matched statuses.
@@ -388,6 +389,19 @@ def matched_statuses(points):
     return [_create_status_ob(status) for
         status in conn.db.statuses.find(
             {"active": True, "status_points": {"$lte": points}})]
+
+
+def get_status_achieved(prev_points, new_points):
+    """
+    Return top status that can be achieved between two points.
+
+    Return None if specified status does not exist.
+    """
+    res = list(
+        conn.db.statuses.find(
+            {"active": True, "status_points": {"$gt": prev_points, "$lte": new_points}}
+        ).sort([("status_points", -1)]).limit(1))
+    return res[0]['status_uid'] if res else None
 
 
 def update_status(status):

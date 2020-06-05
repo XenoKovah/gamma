@@ -1,3 +1,5 @@
+import logging
+from django.conf import settings
 from gamma.celery import app
 
 from core.utils import (
@@ -7,20 +9,62 @@ from core.utils import (
     is_badge_granted
 )
 from core import db
+from core import onesignal_provider
+
+log = logging.getLogger(__name__)
 
 
 @app.task
-def update_user_position(user_uid, game_points, event_data):
+def update_user_position(user_uid, points, event_data):
     db.update_user_progress(user_uid, event_data.get('points'))
     db.update_charted_progress(user_uid, event_data.get('event_type'), event_data.get('points'))
     # update_user_status should be run before updating user badges
-    db.update_user_status(user_uid, game_points)
+    db.update_user_status(user_uid, points)
+    prev_points = points - event_data.get('points')
+    if (achieved_status_uid := db.get_status_achieved(prev_points, points)):
+        notify_status_granted.delay(user_uid, achieved_status_uid)
 
     if (badges_granted := update_user_badges_by_event(user_uid, event_data)):
+        notify_badges_granted.delay(user_uid, badges_granted)
         # for resolving badge-for-badges achievements
         # TODO: rewrite this to be able to grant when dependency already achieved
         while (badges_granted := update_badges_by_badges(user_uid, badges_granted)):
-            pass
+            notify_badges_granted.delay(user_uid, badges_granted)
+
+
+@app.task
+def notify_badges_granted(user_uid, badges):
+    user = db.read_user(user_uid)
+    for badge_slug in badges:
+        badge = db.read_badge_as_ob(badge_slug)
+        data = {
+            "head": "New Achievement!",
+            "body": badge.badge_title,
+            "lang": "en",
+            "icon": badge.url,
+            "url":  f"{settings.EDX_LMS_BASE_URL}/dashboard/gamification/"
+        }
+        try:
+            onesignal_provider.send_notif(user, data)
+        except Exception as e:
+            log.debug(e)
+
+
+@app.task
+def notify_status_granted(user_uid, status_uid):
+    user = db.read_user(user_uid)
+    status = db.read_status(status_uid)
+    data = {
+        "head": "New Status!",
+        "body": status.title,
+        "lang": "en",
+        "icon": status.url,
+        "url": f"{settings.EDX_LMS_BASE_URL}/dashboard/gamification/"
+    }
+    try:
+        onesignal_provider.send_notif(user, data)
+    except Exception as e:
+        log.debug(e)
 
 
 @app.task
