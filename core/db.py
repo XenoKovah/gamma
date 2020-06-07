@@ -400,7 +400,7 @@ def update_status(status):
 
 def read_user(user_uid):
     """
-    Read used/game_profile from db.
+    Read user/game_profile from db.
     """
     return _create_user_ob(conn.db.users.find_one({"user_uid": user_uid}) or {"user_uid": user_uid})
 

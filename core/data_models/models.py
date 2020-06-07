@@ -153,7 +153,7 @@ class User(Model):
     class Options:
         roles = {
             'public': blacklist('_id', 'user_uid', 'player_ids'),
-            'roster': whitelist('username', 'user_uid', 'badges'),
+            'roster': whitelist('points', 'username', 'user_uid', 'badges'),
         }
 
     def get_player_ids(self):

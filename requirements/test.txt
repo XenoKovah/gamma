@@ -6,3 +6,4 @@ pytest-django==3.7.0
 pytest-cov==2.8.1
 diff-cover==2.4.1
 locust
+pytest-mock
