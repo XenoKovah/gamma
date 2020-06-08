@@ -71,7 +71,7 @@ test:
 			DJANGO_SETTINGS_MODULE=gamma.settings.test \
 			PYTHONBREAKPOINT=ipdb.set_trace \
 			MONGO_DATABASE=gamma_data_test \
-			pytest -W ignore -s -vv --pdb $(path) && \
+			pytest -W ignore -s -vv --pdb core/tests/$(path) && \
 			coverage xml && \
 			diff-cover coverage.xml --fail-under=60 \
 			"

@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.shortcuts import render
 from django.views.generic import View
 from django.contrib.auth import logout
@@ -18,8 +20,9 @@ class DashboardView(View):
     def get(self, request):
         progress_data, charted_progress = None, None
         if request.user.is_authenticated:
-            progress_data = db.read_progress(request.user.username)
-            data = db.read_charted_progress(request.user.username)
+            user = db.users.read_one(request.user.username)
+            progress_data = user.progress[str(datetime.now().year)] if user.progress else []
+            data = db.users.read_one(request.user.username).chart
             if data:
                 charted_progress = [[_type, points] for _type, points in data.items()]
         return render(request, 'dashboard.html', {

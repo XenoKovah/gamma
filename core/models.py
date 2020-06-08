@@ -35,7 +35,7 @@ class AppClient(models.Model):
 
     def save(self, *args, **kwargs):
         super(AppClient, self).save(*args, **kwargs)
-        db.update_app_client(AppClientModel({
+        db.clients.update_one(AppClientModel({
             "uid": self.name,
             "key": self.key,
             "secret": self.secret}))

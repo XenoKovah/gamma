@@ -32,24 +32,3 @@ class GameProfileTasks(TaskSet):
             "/api/v0/gamma-profile/",
             params={'username': self.USER_UID},
             headers=self.HEADERS)
-
-    @task(weight=2)
-    def read_leaderboard(self):
-        self.client.get(
-            "/api/v0/leaderboard/",
-            params={'username': self.USER_UID},
-            headers=self.HEADERS)
-
-    @task(weight=2)
-    def read_progress(self):
-        self.client.get(
-            "/api/v0/progress/",
-            params={'username': self.USER_UID},
-            headers=self.HEADERS)
-
-    @task(weight=2)
-    def read_charts(self):
-        self.client.get(
-            "/api/v0/chart/",
-            params={'username': self.USER_UID},
-            headers=self.HEADERS)

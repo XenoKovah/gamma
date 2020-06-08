@@ -18,7 +18,6 @@ from schematics.types import (
     ModelType,
     IntType,
     DictType,
-    DateType
 )
 from schematics.transforms import blacklist, whitelist
 
@@ -133,48 +132,6 @@ class UserEventPoints(Model):
         }
 
 
-class User(Model):
-    """
-    Game profile data model.
-    """
-    _id = ObjectIdType(
-        metadata={'readOnly': True},
-        serialize_when_none=False, default=ObjectId
-    )
-    user_uid = StringType(required=True)
-    username = StringType()
-    points = IntType(default=0)
-    badges = DictType(ModelType(UserBadge), default={})
-    statuses = ListType(ModelType(Status), default=[])
-    chart = DictType(ModelType(UserEventPoints), default={})
-    progress = DictType(ListType(ModelType(DailyProgress)), default={})
-    player_ids = ListType(StringType(), required=False, serialize_when_none=False)
-
-    class Options:
-        roles = {
-            'public': blacklist('_id', 'user_uid', 'player_ids'),
-            'roster': whitelist('points', 'username', 'user_uid', 'badges'),
-            'notif':  whitelist('username', 'player_ids'),
-        }
-
-    def get_player_ids(self):
-        return self.player_ids
-
-
-class Leaders(Model):
-    """
-    Leaderboard data model.
-
-    List of User models.
-    """
-    roster = ListType(ModelType(User), default=[])
-
-    class Options:
-        roles = {
-            'public': blacklist(''),
-            'roster': blacklist(''),
-        }
-
 class DepBadge(Model):
     """
     Dependency badge.
@@ -182,6 +139,7 @@ class DepBadge(Model):
     badge_uid = StringType(required=True)
     badge_title = StringType(required=True)
     url = URLType(required=True)
+
 
 class SystemAction(Model):
     name = StringType(required=True)
@@ -199,6 +157,11 @@ class Filters(Model):
     frequency = IntType()
     course = StringType()
 
+    class Options:
+        roles = {
+            'public': blacklist(''),
+        }
+
 
 class Rules(Model):
     actions = DictType(IntType(), default={})
@@ -206,28 +169,81 @@ class Rules(Model):
     status_badge = StringType()
     filters = ModelType(Filters)
 
+    class Options:
+        roles = {
+            'public': blacklist(''),
+        }
+
 
 class Badge(Model):
     _id = ObjectIdType(
         metadata={'readOnly': True},
         serialize_when_none=False, default=ObjectId
     )
-    badge_uid = StringType(required=True)
+    badge_uid = StringType(required=True, serialize_when_none=False)
     slug = StringType(required=True)
-    title = StringType()
-    badge_title = StringType(required=True)
+    title = StringType(serialize_when_none=False)
+    badge_title = StringType(required=True, serialize_when_none=False)
     url = URLType(required=True)
     rules = ModelType(Rules)
     active = BooleanType(default=False)
 
     class Options:
         roles = {
-            'public': blacklist(''),
+            'public': blacklist('_id'),
             'skeleton': blacklist('rules', '_id')
         }
 
     def update_badge(self, data):
         self.import_data(data)
+
+
+class User(Model):
+    """
+    Game profile data model.
+    """
+    _id = ObjectIdType(
+        metadata={'readOnly': True},
+        serialize_when_none=False, default=ObjectId
+    )
+    user_uid = StringType(required=True)
+    username = StringType()
+    points = IntType(default=0)
+    badges = DictType(ModelType(UserBadge), default={})
+    system_badges = ListType(ModelType(Badge), default=[])
+    statuses = ListType(ModelType(Status), default=[])
+    system_statuses = ListType(ModelType(Status), default=[])
+    chart = DictType(ModelType(UserEventPoints), default={})
+    progress = DictType(ListType(ModelType(DailyProgress)), default={})
+    player_ids = ListType(StringType(), required=False)
+
+    class Options:
+        roles = {
+            'public': blacklist('_id', 'user_uid', 'player_ids'),
+            'roster': whitelist('points', 'username', 'user_uid', 'badges'),
+        }
+
+    def get_player_ids(self):
+        return self.player_ids
+
+    @property
+    def achieved_badges(self):
+        return [badge for badge in self.badges if self.badges[badge].done]
+
+
+class Leaders(Model):
+    """
+    Leaderboard data model.
+
+    List of User models.
+    """
+    roster = ListType(ModelType(User), default=[])
+
+    class Options:
+        roles = {
+            'public': blacklist(''),
+            'roster': blacklist(''),
+        }
 
 
 class AppClient(Model):

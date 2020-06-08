@@ -2,16 +2,10 @@
 from django.urls import path
 
 from .views import (
-    ProgressView,
-    ChartView,
-    PointsView,
     GameProfileView,
-    BadgesView,
-    StatusView,
-    UserStatuses,
     ActionsListView,
-    BadgesListView,
-    StatusBadgesListView,
+    BadgesView,
+    StatusBadgesView,
     FiltersView,
     BadgeRulesView,
     CoursesView,
@@ -22,16 +16,10 @@ from .views import (
 
 
 urlpatterns = [
-    path(r'progress/', ProgressView.as_view(), name='progress'),
-    path(r'chart/', ChartView.as_view(), name='chart'),
-    path(r'points/', PointsView.as_view(), name='points'),
     path(r'gamma-profile/', GameProfileView.as_view(), name='gamma-profile'),
-    path(r'badges/', BadgesView.as_view(), name='badges'),
-    path(r'user-statuses/', UserStatuses.as_view(), name='user-statuses'),
-    path(r'statuses/', StatusView.as_view(), name='statuses'),
     path(r'actions/', ActionsListView.as_view(), name='actions'),
-    path(r'badges-list/', BadgesListView.as_view(), name='badges-list'),
-    path(r'status-badges-list/', StatusBadgesListView.as_view(), name='status-badges-list'),
+    path(r'badges-list/', BadgesView.as_view(), name='badges-list'),
+    path(r'status-badges-list/', StatusBadgesView.as_view(), name='status-badges-list'),
     path(r'filters/', FiltersView.as_view(), name='filters'),
     path(r'badge-rules/', BadgeRulesView.as_view(), name='badge-rules'),
     path(r'courses/', CoursesView.as_view(), name='courses'),

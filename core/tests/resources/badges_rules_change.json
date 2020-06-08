@@ -35,8 +35,7 @@
       "pre_change_use_badges": {
           "slug_1": {
             "event_type_1": {
-              "count": 1,
-              "goal": 3
+              "count": 1
             },
             "done": false
           }
@@ -44,8 +43,7 @@
       "post_change_pre_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
-              "count": 1,
-              "goal": 2
+              "count": 1
             },
             "done": false
           }
@@ -53,8 +51,7 @@
       "post_change_post_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
-              "count": 2,
-              "goal": 2
+              "count": 2
             },
             "done": true
           }
@@ -101,8 +98,7 @@
       "pre_change_use_badges": {
           "slug_1": {
             "event_type_1": {
-              "count": 2,
-              "goal": 2
+              "count": 2
             },
             "done": true
           }
@@ -110,8 +106,7 @@
       "post_change_pre_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
-              "count": 2,
-              "goal": 2
+              "count": 2
             },
             "done": true
           }
@@ -119,8 +114,7 @@
       "post_change_post_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
-              "count": 2,
-              "goal": 2
+              "count": 2
             },
             "done": true
           }
@@ -170,8 +164,7 @@
       "pre_change_use_badges": {
           "slug_1": {
             "event_type_1": {
-              "count": 2,
-              "goal": 3
+              "count": 2
             },
             "done": false
           }
@@ -179,8 +172,7 @@
       "post_change_pre_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
-              "count": 2,
-              "goal": 4
+              "count": 2
             },
             "done": false
           }
@@ -188,8 +180,7 @@
       "post_change_post_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
-              "count": 4,
-              "goal": 4
+              "count": 4
             },
             "done": true
           }
@@ -236,8 +227,7 @@
       "pre_change_use_badges": {
           "slug_1": {
             "event_type_1": {
-              "count": 2,
-              "goal": 2
+              "count": 2
             },
             "done": true
           }
@@ -245,8 +235,7 @@
       "post_change_pre_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
-              "count": 2,
-              "goal": 2
+              "count": 2
             },
             "done": true
           }
@@ -254,8 +243,7 @@
       "post_change_post_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
-              "count": 2,
-              "goal": 2
+              "count": 2
             },
             "done": true
           }
@@ -307,12 +295,10 @@
       "pre_change_use_badges": {
           "slug_1": {
             "event_type_1": {
-              "count": 1,
-              "goal": 2
+              "count": 1
             },
             "event_type_2": {
-              "count": 1,
-              "goal": 2
+              "count": 1
             },
             "done": false
           }
@@ -320,8 +306,10 @@
       "post_change_pre_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
-              "count": 1,
-              "goal": 2
+              "count": 1
+            },
+            "event_type_2": {
+              "count": 1
             },
             "done": false
           }
@@ -329,8 +317,7 @@
       "post_change_post_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
-              "count": 2,
-              "goal": 2
+              "count": 2
             },
             "done": true
           }
@@ -388,12 +375,10 @@
       "pre_change_use_badges": {
           "slug_1": {
             "event_type_1": {
-              "count": 2,
-              "goal": 2
+              "count": 2
             },
             "event_type_2": {
-              "count": 2,
-              "goal": 2
+              "count": 2
             },
             "done": true
           }
@@ -401,12 +386,10 @@
       "post_change_pre_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
-              "count": 2,
-              "goal": 2
+              "count": 2
             },
             "event_type_2": {
-              "count": 2,
-              "goal": 2
+              "count": 2
             },
             "done": true
           }
@@ -414,12 +397,10 @@
       "post_change_post_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
-              "count": 2,
-              "goal": 2
+              "count": 2
             },
             "event_type_2": {
-              "count": 2,
-              "goal": 2
+              "count": 2
             },
             "done": true
           }
@@ -470,8 +451,7 @@
       "pre_change_use_badges": {
           "slug_1": {
             "event_type_1": {
-              "count": 1,
-              "goal": 2
+              "count": 1
             },
             "done": false
           }
@@ -479,12 +459,7 @@
       "post_change_pre_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
-              "count": 1,
-              "goal": 2
-            },
-            "event_type_2": {
-              "count": 0,
-              "goal": 2
+              "count": 1
             },
             "done": false
           }
@@ -492,12 +467,10 @@
       "post_change_post_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
-              "count": 2,
-              "goal": 2
+              "count": 2
             },
             "event_type_2": {
-              "count": 2,
-              "goal": 2
+              "count": 2
             },
             "done": true
           }
@@ -552,8 +525,7 @@
       "pre_change_use_badges": {
           "slug_1": {
             "event_type_1": {
-              "count": 2,
-              "goal": 2
+              "count": 2
             },
             "done": true
           }
@@ -561,8 +533,7 @@
       "post_change_pre_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
-              "count": 2,
-              "goal": 2
+              "count": 2
             },
             "done": true
           }
@@ -570,8 +541,7 @@
       "post_change_post_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
-              "count": 2,
-              "goal": 2
+              "count": 2
             },
             "done": true
           }
@@ -620,8 +590,7 @@
       "pre_change_use_badges": {
           "slug_1": {
             "event_type_1": {
-              "count": 1,
-              "goal": 2
+              "count": 1
             },
             "done": false
           }
@@ -629,8 +598,7 @@
       "post_change_pre_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
-              "count": 1,
-              "goal": 2
+              "count": 1
             },
             "done": false
           }
@@ -638,8 +606,7 @@
       "post_change_post_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
-              "count": 2,
-              "goal": 2
+              "count": 2
             },
             "done": true
           }
@@ -692,8 +659,7 @@
       "pre_change_use_badges": {
           "slug_1": {
             "event_type_1": {
-              "count": 2,
-              "goal": 2
+              "count": 2
             },
             "done": true
           }
@@ -701,8 +667,7 @@
       "post_change_pre_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
-              "count": 2,
-              "goal": 2
+              "count": 2
             },
             "done": true
           }
@@ -710,8 +675,7 @@
       "post_change_post_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
-              "count":2,
-              "goal": 2
+              "count":2
             },
             "done": true
           }
@@ -763,8 +727,7 @@
       "pre_change_use_badges": {
           "slug_1": {
             "event_type_1": {
-              "count": 1,
-              "goal": 2
+              "count": 1
             },
             "done": false
           }
@@ -772,8 +735,7 @@
       "post_change_pre_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
-              "count": 1,
-              "goal": 2
+              "count": 1
             },
             "done": false
           }
@@ -781,8 +743,7 @@
       "post_change_post_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
-              "count": 2,
-              "goal": 2
+              "count": 2
             },
             "done": true
           }
@@ -835,8 +796,7 @@
       "pre_change_use_badges": {
           "slug_1": {
             "event_type_1": {
-              "count": 2,
-              "goal": 2
+              "count": 2
             },
             "done": true
           }
@@ -844,8 +804,7 @@
       "post_change_pre_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
-              "count": 2,
-              "goal": 2
+              "count": 2
             },
             "done": true
           }
@@ -853,8 +812,7 @@
       "post_change_post_hit_use_badges": {
           "slug_1": {
             "event_type_1": {
-              "count": 2,
-              "goal": 2
+              "count": 2
             },
             "done": true
           }
@@ -887,22 +845,22 @@
     "output":  {
       "pre_change_use_badges": {
         "slug_1": {
-          "event_type_1": {"count": 1, "goal": 2},
-          "event_type_2": {"count": 1, "goal": 1},
+          "event_type_1": {"count": 1},
+          "event_type_2": {"count": 1},
           "done": false
         }
       },
       "post_change_pre_hit_use_badges": {
         "slug_1": {
-          "event_type_1": {"count": 1, "goal": 1},
-          "event_type_2": {"count": 1, "goal": 1},
+          "event_type_1": {"count": 1},
+          "event_type_2": {"count": 1},
           "done": true
         }
       },
       "post_change_post_hit_use_badges": {
         "slug_1": {
-          "event_type_1": {"count": 1, "goal": 1},
-          "event_type_2": {"count": 1, "goal": 1},
+          "event_type_1": {"count": 1},
+          "event_type_2": {"count": 1},
           "done": true
         }
       }
@@ -940,29 +898,27 @@
     "output":  {
       "pre_change_use_badges": {
         "slug_1": {
-          "event_type_1": {"count": 1, "goal": 2},
-          "event_type_2": {"count": 1, "goal": 1},
+          "event_type_1": {"count": 1},
+          "event_type_2": {"count": 1},
           "done": false
-        },
-		"slug_2": {"done": false},
-        "slug_3": {"done": false}
+        }
       },
       "post_change_pre_hit_use_badges": {
         "slug_1": {
-          "event_type_1": {"count": 1, "goal": 1},
-          "event_type_2": {"count": 1, "goal": 1},
+          "event_type_1": {"count": 1},
+          "event_type_2": {"count": 1},
           "done": true
         },
-		"slug_2": {"done": true},
+		    "slug_2": {"done": true},
         "slug_3": {"done": true}
       },
       "post_change_post_hit_use_badges": {
         "slug_1": {
-          "event_type_1": {"count": 1, "goal": 1},
-          "event_type_2": {"count": 1, "goal": 1},
+          "event_type_1": {"count": 1},
+          "event_type_2": {"count": 1},
           "done": true
         },
-		"slug_2": {"done": true},
+		    "slug_2": {"done": true},
         "slug_3": {"done": true}
       }
     }

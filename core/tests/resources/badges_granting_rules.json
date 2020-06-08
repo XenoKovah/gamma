@@ -21,11 +21,11 @@
     ],
     "badges_result": {
       "slug_1": {
-        "event_type_1": {"count": 1, "goal": 2},
+        "event_type_1": {"count": 1},
         "done": false
       },
       "slug_2": {
-        "event_type_2": {"count": 1, "goal": 1},
+        "event_type_2": {"count": 1},
         "done": false
       }
     }
@@ -48,7 +48,7 @@
     ],
     "badges_result": {
       "slug_1": {
-        "event_type_1": {"count": 2, "goal": 2},
+        "event_type_1": {"count": 2},
         "done": false
       }
     }
@@ -76,11 +76,11 @@
     ],
     "badges_result": {
       "slug_1": {
-        "event_type_1": {"count": 2, "goal": 2},
+        "event_type_1": {"count": 2},
         "done": true
       },
       "slug_2": {
-        "event_type_2": {"count": 1, "goal": 1},
+        "event_type_2": {"count": 1},
         "done": true
       }
     }
@@ -112,11 +112,11 @@
     ],
     "badges_result": {
       "slug_1": {
-        "event_type_1": {"count": 1, "goal": 1},
+        "event_type_1": {"count": 1},
         "done": true
       },
       "slug_2": {
-        "event_type_2": {"count": 1, "goal": 1},
+        "event_type_2": {"count": 1},
         "done": true
       },
       "slug_3": {
@@ -176,29 +176,23 @@
     ],
     "badges_result": {
       "slug_1": {
-        "event_type_1": {"count": 1, "goal": 1},
+        "event_type_1": {"count": 1},
         "done": true
       },
       "slug_2": {
-        "event_type_2": {"count": 2, "goal": 2},
+        "event_type_2": {"count": 2},
         "done": true
       },
       "slug_3": {
-        "event_type_3": {"count": 1, "goal": 1},
+        "event_type_3": {"count": 1},
         "done": true
       },
       "slug_4": {
-        "event_type_4": {"count": 1, "goal": 2},
+        "event_type_4": {"count": 1},
         "done": false
       },
       "slug_5": {
         "done": true
-      },
-      "slug_6": {
-        "done": false
-      },
-      "slug_7": {
-        "done": false
       }
     }
   },
@@ -257,19 +251,19 @@
     ],
     "badges_result": {
       "slug_1": {
-        "event_type_1": {"count": 1, "goal": 1},
+        "event_type_1": {"count": 1},
         "done": true
       },
       "slug_2": {
-        "event_type_2": {"count": 2, "goal": 2},
+        "event_type_2": {"count": 2},
         "done": true
       },
       "slug_3": {
-        "event_type_3": {"count": 1, "goal": 1},
+        "event_type_3": {"count": 1},
         "done": true
       },
       "slug_4": {
-        "event_type_4": {"count": 2, "goal": 2},
+        "event_type_4": {"count": 2},
         "done": true
       },
       "slug_5": {
@@ -300,15 +294,6 @@
     ],
     "events": [],
     "badges_result": {
-      "slug_1": {
-        "event_type_1": {"count": 0, "goal": 2},
-        "done": false
-      },
-      "slug_2": {
-        "event_type_2": {"count": 0, "goal": 1},
-		"event_type_3": {"count": 0, "goal": 3},
-        "done": false
-      }
     }
   }
 ]

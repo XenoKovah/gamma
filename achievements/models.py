@@ -86,7 +86,7 @@ class Achievement(models.Model, BadgeAbsoluteUrl):
     def save(self, *args, **kwargs):
         super(Achievement, self).save(*args, **kwargs)
         # TODO remove this
-        db.update_badge_skeleton(Badge({
+        db.badges.update_skeleton(Badge({
             "badge_uid": self.slug,
             "slug": self.slug,
             "badge_title": self.title,
@@ -114,7 +114,7 @@ class StatusBadge(models.Model, BadgeAbsoluteUrl):
     def save(self, *args, **kwargs):
         super(StatusBadge, self).save(*args, **kwargs)
 
-        db.update_status(Status({
+        db.statuses.update(Status({
             "status_uid": self.slug,
             "slug": self.slug,
             "title": self.title,
@@ -146,7 +146,7 @@ class Event(models.Model):
 
     def save(self, *args, **kwargs):
         super(Event, self).save(*args, **kwargs)
-        db.update_event(SystemEvent({
+        db.events.update(SystemEvent({
             "event_type": self.event_type,
             "title": self.title,
             "award": self.award,

@@ -86,7 +86,7 @@ def test_badges_granting_rules(entry, live_server, rand_str, app_client, make_te
     _send_events(live_server, user_uid, app_client, entry["events"])
 
     # 3. OUTPUT Check a badge: call '/api/v0/badges/' with "badges_result"
-    _check_badges(live_server, user_uid, entry["badges_result"])
+    _check_badges(live_server, user_uid, entry["badges_result"], app_client)
 
 
 @pytest.mark.parametrize(
@@ -140,13 +140,13 @@ def test_badgesview_rules_change(entry, live_server, rand_str, app_client, make_
     _send_events(live_server, user_uid, app_client, pre_change_events)
 
     # 3. OUTPUT Check a badge: call '/api/v0/badges/' with "pre_change_use_badges"
-    _check_badges(live_server, user_uid, pre_change_use_badges)
+    _check_badges(live_server, user_uid, pre_change_use_badges, app_client)
 
     # 4. INPUT Change a rule: call '/api/v0/badge-rules/' with "changed_rules"
     _update_rules(live_server, changed_rules)
 
     # 5. OUTPUT Check a badge: call '/api/v0/badges/' with "post_change_pre_hit_use_badges"
-    _check_badges(live_server, user_uid, post_change_pre_hit_use_badges)
+    _check_badges(live_server, user_uid, post_change_pre_hit_use_badges, app_client)
 
     # 6. INPUT Hit a changed rule: call '/api/v0/gamma-profile/' with "post_change_events"
     _send_events(live_server, user_uid, app_client, post_change_events)
@@ -154,7 +154,7 @@ def test_badgesview_rules_change(entry, live_server, rand_str, app_client, make_
     # 7. OUTPUT Check a badge: call '/api/v0/badges/' with "post_change_post_hit_use_badges"
     # Ensure accrual continues even after a badge is granted
     # Ensure a new badge is granted post-change OR an old badge isn't revoked
-    _check_badges(live_server, user_uid, post_change_post_hit_use_badges)
+    _check_badges(live_server, user_uid, post_change_post_hit_use_badges, app_client)
 
 
 @pytest.mark.parametrize(
@@ -204,13 +204,13 @@ def test_leaderboard_api(entry, live_server, app_client, mocker):
     for i in range(USERS_VERBOSE_NUMERATION_START, USERS_VERBOSE_NUMERATION_STOP):
         username = USERNAME_PATTERN.format(i)
 
-        with db.read_user_and_update(username) as user:
+        with db.users.read_and_update(username) as user:
             user.username = username
             user.points = users_points.get(str(i), {}).get("points")
             user.badges = badges
 
     if output_status_code == status.HTTP_404_NOT_FOUND:
-        mocked = mocker.patch("api.v0.views.db.read_user")
+        mocked = mocker.patch("api.v0.views.db.users.read_one")
         mocked.return_value = None
 
     headers = {
@@ -287,7 +287,7 @@ def _create_badges(user_uid, badges, badge_uid, upsert=True):
     """
     for badge in badges:
         badge_data = list(badge.values())[0]
-        db.update_user_badge(
+        db.users.update_badge(
             user_uid,
             badge_uid=badge_uid,
             badge_url=badge_data["url"],
@@ -302,11 +302,11 @@ def _cleanup_badges():
     Clean up badges and rules Mongo collections.
     """
 
-    db.conn.db.users.drop()
-    db.conn.db.badges.drop()
-    db.conn.db.statuses.drop()
-    db.conn.db.events.drop()
-    db.conn.db.event_history.drop()
+    db.engine.conn.db.users.drop()
+    db.engine.conn.db.badges.drop()
+    db.engine.conn.db.statuses.drop()
+    db.engine.conn.db.events.drop()
+    db.engine.conn.db.event_history.drop()
 
 
 def _rand_str(string_length=10):
@@ -353,25 +353,30 @@ def _update_rules(live_server, rules):
         assert response.status_code == status.HTTP_200_OK
 
 
-def _check_badges(live_server, user_uid, expected_badges):
+def _check_badges(live_server, user_uid, expected_badges, app_client):
     """
     Badges integration test logic.
     """
     res = requests.get(
-        live_server+'/api/v0/badges/',
-        params={'username': user_uid}
+        live_server + '/api/v0/gamma-profile/',
+        params={'username': user_uid},
+        headers={
+            'App-key': app_client.key,
+            'App-secret': app_client.secret
+        }
     )
     assert res.status_code == status.HTTP_200_OK
     data = res.json()
+    user_badges = data["badges"]
 
     data_to_check = {}
 
-    for badge_slug in data:
+    for badge_slug in user_badges:
         data_to_check[badge_slug] = {}
-        data_to_check[badge_slug]['done'] = data[badge_slug]['done']
-        progress = data[badge_slug].get('progress', {})
+        data_to_check[badge_slug]['done'] = user_badges[badge_slug]['done']
+        progress = user_badges[badge_slug].get('progress', {})
         for event in progress:
-            data_to_check[badge_slug][event] = {'count': progress[event]['count'], 'goal': progress[event]['goal']}
+            data_to_check[badge_slug][event] = {'count': progress[event]['count']}
             # NOTE: consider checking urls
 
     assert data_to_check == expected_badges

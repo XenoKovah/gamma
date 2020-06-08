@@ -18,7 +18,7 @@ class KeySecretAuthentication(authentication.BaseAuthentication):
         if not (key and secret):
             raise exceptions.AuthenticationFailed('Please provide APP_KEY and APP_SECRET')
 
-        if not (app_client := db.read_app_client(key, secret)):
+        if not (app_client := db.clients.read_one(key, secret)):
             raise exceptions.AuthenticationFailed('Please provide a valid APP_KEY and APP_SECRET')
 
         # Adding client for event tracking

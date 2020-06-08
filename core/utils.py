@@ -1,5 +1,4 @@
 import logging
-from collections import OrderedDict
 from datetime import datetime, timedelta
 
 from core import db
@@ -10,13 +9,14 @@ STRPTIME_FORMATTER = '%Y-%m-%dT%H:%M:%S.%fZ'
 
 
 def update_badges_by_badges(user_uid, badges_granted):
-    badges = db.read_active_badges()
+    badges = db.badges.read_active()
     badges_granted = set(badges_granted)
 
-    new_badges_granted = []
+    user = db.users.read_one(user_uid)
+    user_badges = user.badges
+    badges_got = user.achieved_badges
 
-    user_badges = db.read_user_badges(user_uid)
-    badges_got = [b for b in user_badges if user_badges[b].get('done')]
+    new_badges_granted = []
 
     for badge in badges:
         required_badges = set(badge.get("rules", {}).get("badges", []))
@@ -24,11 +24,10 @@ def update_badges_by_badges(user_uid, badges_granted):
 
         if not user_badges.get(badge_slug, {}).get('done') and required_badges.intersection(badges_granted):
             progress = user_badges.get(badge_slug, {}).get('progress', {})
-            badge_granted = is_badge_granted(user_uid, badge.get("rules", {}), progress, badges_got)
-            if badge_granted:
+            if is_badge_granted(user_uid, badge.get("rules", {}), progress, badges_got):
                 actions = badge.get("rules", {}).get('actions', {})
                 progress = {event: {'count': actions[event], 'goal': actions[event]} for event in actions}
-                db.update_user_badge(user_uid, badge_slug, badge.get("url"), progress, True, True)
+                db.users.update_badge(user_uid, badge_slug, badge.get("url"), progress, True, True)
                 new_badges_granted.append(badge_slug)
                 badges_got.append(badge_slug)
 
@@ -41,12 +40,15 @@ def update_user_badges_by_event(user_uid, event_data):
     event_org = event_data.get('org')
     event_course_id = event_data.get('course_id')
 
-    affected_badges = db.conn.db.badges.find({
+    affected_badges = db.engine.conn.db.badges.find({
         "active": True,
         f"rules.actions.{event_type}": {"$exists": True}
     })
-    user_badges = db.read_user_badges(user_uid)
-    badges_got = [b for b in user_badges if user_badges[b].get('done')]
+
+    user = db.users.read_one(user_uid)
+    user_badges = user.to_native().get("badges")
+    badges_got = user.achieved_badges
+
     new_badges_granted = []
 
     for badge in affected_badges:
@@ -87,6 +89,7 @@ def update_user_badges_by_event(user_uid, event_data):
                 'count': progress.get(event_type, {}).get('count', 0) + 1,
                 'last': event_date
             }
+
             badge_granted = is_badge_granted(user_uid, rules, progress, badges_got)
 
             if badge_granted:
@@ -97,7 +100,7 @@ def update_user_badges_by_event(user_uid, event_data):
                 actions = rules.get('actions', {})
                 progress = {event: {'count': actions[event], 'goal': actions[event]} for event in actions}
 
-            db.update_user_badge(user_uid, badge_slug, badge.get("url"), progress, badge_granted, True)
+            db.users.update_badge(user_uid, badge_slug, badge.get("url"), progress, badge_granted, True)
 
     return new_badges_granted
 
@@ -112,7 +115,7 @@ def is_badge_granted(user_uid, rules, progress, badges_got):
             if progress.get(action, {}).get('count', 0) < action_rules[action]:
                 return False
 
-        if status_badge_rule and not db.read_user_status(user_uid, status_badge_rule):
+        if status_badge_rule and not db.users.read_status(user_uid, status_badge_rule):
             return False
 
         if badge_rules:
@@ -151,8 +154,8 @@ def is_badge_rules_simplified(new_rules, old_rules) -> bool:
     status_badge_simplified = False
     if new_status_badge and old_status_badge:
         if new_status_badge != old_status_badge:
-            new_status_badge_data = db.read_status(new_status_badge)
-            old_status_badge_data = db.read_status(old_status_badge)
+            new_status_badge_data = db.statuses.read_one(new_status_badge)
+            old_status_badge_data = db.statuses.read_one(old_status_badge)
             # to avoid error if status badge deleted from DB but not from rules
             if new_status_badge_data and old_status_badge_data:
                 if new_status_badge_data > old_status_badge_data:
@@ -174,53 +177,6 @@ def is_badge_rules_simplified(new_rules, old_rules) -> bool:
     return actions_simplified or status_badge_simplified or badges_simplified
 
 
-# TODO: refactor the data structure to not compile anything
-def compile_user_badges(badges_rules, user_badges):
-    """
-    Compile user badges to include all needed info.
-    """
-    result = {}
-
-    events_map = {e.event_type: e.title for e in db.read_events()}
-    for badge in badges_rules:
-        badge_granted = user_badges.get(badge['slug'], {}).get('done', False)
-        user_progress = user_badges.get(badge['slug'], {}).get('progress', {})
-        rules = badge.get('rules', {}).get('actions', {})
-        title = badge.get('title', badge['slug'])
-
-        if badge_granted:
-            progress = user_progress
-        else:
-            progress = {
-                event: {
-                    'title': events_map.get(event, event),
-                    'count': user_progress.get(event, {}).get('count', 0),
-                    'goal': rules[event],
-                } for event in rules.keys()
-            }
-
-        dependecies = badge.get('rules', {}).get('badges', [])
-
-        result[badge['slug']] = {
-            'title': title,
-            'done': badge_granted,
-            'url': badge.get('url'),
-            'progress': progress,
-            'dependencies': dependecies,
-        }
-
-    return OrderedDict(sorted(result.items(), key=lambda x: x[1]['done'], reverse=True))
-
-
-def merge_statuses(statuses, user):
-    """
-    Merge achieved user's statuses with status badges.
-    """
-    for status in statuses:
-        status.progress = user.points
-    return statuses
-
-
 class AppClientUtils:
     """
     Misc utility method to work with AppClient.
@@ -232,6 +188,6 @@ class AppClientUtils:
         secret = request.META.get('HTTP_APP_SECRET')
 
         if not self._app_client:
-            self._app_client = db.read_app_client(key, secret)
+            self._app_client = db.clients.read_one(key, secret)
 
         return self._app_client

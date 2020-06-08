@@ -1,19 +1,23 @@
+from datetime import datetime
+
 import pytest
 
 from achievements.models import Event
 from core.models import key_secret_generator
+from core.data_models.models import User, UserEventPoints
 from core import db
 
 
 @pytest.mark.django_db
-def test_progress_mongo(current_date, award, rand_str):
+def test_progress(current_date, award, rand_str):
     """
     Test setting/getting progress documents.
     """
     user_uid = rand_str
-    db.update_user_progress(user_uid, award)
+    db.users.update_progress(user_uid, award)
 
-    progress = db.read_progress(user_uid)
+    user = db.users.read_one(user_uid)
+    progress = user.progress[str(datetime.now().year)]
 
     assert isinstance(progress, list)
     assert len(progress) == 1
@@ -35,15 +39,15 @@ def test_charted(award, rand_str):
 
     Event.objects.create(event_type=event_type, title=event_type, award=award)
 
-    charted_bf = db.read_charted_progress(user_uid)
+    charted_bf = db.users.read_one(user_uid).chart
     assert charted_bf == {}
 
-    db.update_charted_progress(user_uid, "video", award)
-    charted = db.read_charted_progress(user_uid)
+    db.users.update_chart(user_uid, "video", award)
+    charted = db.users.read_one(user_uid).chart
 
     assert isinstance(charted, dict)
     assert user_uid not in charted
-    assert charted[event_type] == {"points": award}
+    assert charted[event_type] == UserEventPoints({"points": award})
 
 
 def test_key_gen():
@@ -68,7 +72,7 @@ def test_rules(rand_str, award):
     title = slug.upper()
     actions = {"count": award}
 
-    with db.read_badge_and_update(slug) as badge:
+    with db.badges.read_and_update(slug) as badge:
         badge.update_badge({
             "title": title, "badge_title": title,
             "rules": {
@@ -77,7 +81,7 @@ def test_rules(rand_str, award):
             "url": "test_url"
         })
 
-    rules = db.read_rules(rand_str)
+    rules = db.badges.read_rules(rand_str)
 
     assert isinstance(rules, dict)
     assert rules['actions']['count'] == award
@@ -89,6 +93,6 @@ def test_rules_none(rand_str, award):
     """
     Get non existent achievement slug.
     """
-    rules = db.read_rules(rand_str)
+    rules = db.badges.read_rules(rand_str)
 
     assert isinstance(rules, type(None))

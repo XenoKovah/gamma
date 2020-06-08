@@ -20,7 +20,7 @@ class AchievementForm(forms.ModelForm):
         super(AchievementForm, self).__init__(*args, **kwargs)
         instance = kwargs.get('instance')
         if instance:
-            rules = db.read_rules(instance.slug)
+            rules = db.badges.read_rules(instance.slug)
             self.fields.get('rules').initial = rules
 
     def clean_rules(self):
