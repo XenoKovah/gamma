@@ -35,11 +35,11 @@ export default class FilterList extends React.Component {
     }
 
     render() {
-        let start = this.props.filters && this.props.filters.interval && this.props.filters.interval.start ? new Date(this.props.filters.interval.start).toDateString() : "";
-        let end = this.props.filters &&  this.props.filters.interval && this.props.filters.interval.end ? new Date(this.props.filters.interval.end).toDateString() : "";
-        let org = this.props.filters ? this.props.filters.org : "";
-        let frequency = this.props.filters ? this.props.filters.frequency : "";
-        let course = this.props.filters ? this.props.filters.course : "";
+        let start = this.props.filters && this.props.filters.interval && this.props.filters.interval.start ? new Date(this.props.filters.interval.start).toDateString() : null;
+        let end = this.props.filters &&  this.props.filters.interval && this.props.filters.interval.end ? new Date(this.props.filters.interval.end).toDateString() : null;
+        let org = this.props.filters ? this.props.filters.org : null;
+        let frequency = this.props.filters ? this.props.filters.frequency : null;
+        let course = this.props.filters ? this.props.filters.course : null;
         return (
             <Paper>
                 <Typography color="inherit" variant="subtitle1" className="TableHeading">

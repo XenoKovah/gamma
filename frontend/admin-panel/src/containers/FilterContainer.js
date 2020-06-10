@@ -12,19 +12,33 @@ export default class FilterContainer extends React.Component {
     }
 
     onChangeFilter(key, value) {
-        let filters = this.props.filters || {interval: {}};
-        if (!filters.interval) {
-            filters.interval = {};
-        };
+        let filters = this.props.filters || {};
+
         switch(key) {
-          case 'start':
-            filters.interval[key] = value;
+          case "start":
+          case "end":
+            let interval = filters.interval || {};
+
+            if ( value === null ) {
+              delete filters.interval[key]; 
+            } else {
+              interval[key] = value;
+            }
+
+            if (Object.keys(interval).length !== 0) {
+              filters.interval = interval;
+            } else {
+              delete filters.interval;
+            }
+            
             break;
-          case 'end':
-            filters.interval[key] = value;
-            break;
+
           default:
-            filters[key] = value;
+            if ( value === null ) {
+              delete filters[key]; 
+            } else {
+              filters[key] = value;
+            }
         }
         this.props.filtersChanged(filters);
       }
@@ -34,8 +48,4 @@ export default class FilterContainer extends React.Component {
             <Filter {...this.props.filters} shouldFilterUpdate={this.props.shouldFilterUpdate} onChange={this.onChangeFilter}/>
         )
     }
-};
-
-// FilterContainer.propTypes = {
-//     filters: PropTypes.array
-// }
+}

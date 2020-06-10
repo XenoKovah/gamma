@@ -219,7 +219,7 @@ export default class Filter extends React.Component {
 
         let start = this.state && this.state.interval && this.state.interval.start ? this.state.interval.start : null;
         let end = this.state && this.state.interval && this.state.interval.end ? this.state.interval.end : null;
-        let emptySelectValue = [{value: "", label: "------"}];
+        let emptySelectValue = [{value: null, label: "------"}];
         let courses = emptySelectValue.concat(
             this.state.courses.map(el => {
                 return {value: el, label: el}
