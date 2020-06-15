@@ -33,7 +33,8 @@ from ..serializers import (
     UserStatusSerializer,
     StatusSerializer,
     EventSerializer,
-    StatusBadgeSlugSerializer
+    StatusBadgeSlugSerializer,
+    LeaderboardProfileSerializer
 )
 
 from core.services import MongoConnector
@@ -44,7 +45,7 @@ from achievements.services import AchievementRulesMongo
 from pointlog.models import LoggedEvent
 from pointlog.models import ApiAccessEvent
 from pointlog.tasks import update_user_position, update_users_badge_data
-from achievements.models import Achievement, StatusBadge, Event
+from achievements.models import Achievement, StatusBadge, Event, UserStatus
 from achievements.forms import AchievementForm
 
 
@@ -624,7 +625,10 @@ class LeaderBoardView(APIView):
         except (ValueError, AttributeError):
             rank = None
         gameprofiles = GameProfile.objects.order_by('-points')
+        statuses = dict(UserStatus.objects.values_list('user__username', 'status__title'))
         return Response({
-            'gameprofiles': GameProfileSerializer(gameprofiles, context={'request': request}, many=True).data,
+            'gameprofiles': LeaderboardProfileSerializer(gameprofiles,
+                                                         context={'request': request, 'statuses': statuses},
+                                                         many=True).data,
             'rank': rank
         }, status=200, content_type='application/json')

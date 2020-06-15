@@ -20,22 +20,14 @@ class GameProfileSerializer(serializers.ModelSerializer):
     GameProfile Model Serializer.
     """
     user = serializers.SerializerMethodField()
-    progress = serializers.SerializerMethodField()
-    goal = serializers.SerializerMethodField()
     badges = serializers.SerializerMethodField()
 
     class Meta:
         model = GameProfile
-        fields = ('points', 'user', 'progress', 'goal', 'avatar', 'position', 'badges')
+        fields = ('points', 'user', 'avatar', 'position', 'badges')
 
     def get_user(self, obj):
         return UserSerializer(obj.user).data
-
-    def get_progress(self, obj):
-        return random.randint(0, 50)
-
-    def get_goal(self, obj):
-        return 100
 
     def get_badges(self, obj):
         user_badges = c_badges().find_one({"user_id": obj.user.id}) or {}
@@ -44,6 +36,18 @@ class GameProfileSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         return [request.build_absolute_uri(user_badges.get('badges', {}).get(badge, {}).get('url')) for
             badge in user_badges.get('badges', {}) if user_badges.get('badges', {}).get(badge, {}).get('done')]
+
+
+class LeaderboardProfileSerializer(GameProfileSerializer):
+    status = serializers.SerializerMethodField()
+
+    class Meta:
+        model = GameProfile
+        fields = ('points', 'user', 'status', 'avatar', 'position', 'badges')
+
+    def get_status(self, obj):
+        statuses = self.context.get('statuses')
+        return statuses.get(obj.user.username)
 
 
 class ProgressSerializer(serializers.Serializer):
