@@ -1,3 +1,4 @@
+from pymongo import ASCENDING
 from schematics.exceptions import DataError
 
 from core.data_models.models import Status
@@ -17,7 +18,7 @@ def read():
     Read all system statuses.
     """
     return [_create_status(status) for
-        status in conn.db.statuses.find({"active": True})]
+        status in conn.db.statuses.find({"active": True}).sort([("status_points", ASCENDING)])]
 
 
 def read_one(status_uid):

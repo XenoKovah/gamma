@@ -290,6 +290,7 @@ class LeaderBoardView(APIView):
                 status=status.HTTP_404_NOT_FOUND)
 
         leaders = db.leaders.read()
+        system_statuses = db.statuses.read()
 
         try:
             rank = leaders.roster.index(user) + 1 if user_uid else None
@@ -297,5 +298,7 @@ class LeaderBoardView(APIView):
             rank = None
         return Response({
             'gameprofiles': leaders.to_primitive('roster').get("roster"),
-            'rank': rank
+            'rank': rank,
+            'system_statuses': system_statuses
+
         }, status=status.HTTP_200_OK, content_type='application/json')
