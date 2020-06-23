@@ -89,7 +89,7 @@ class Achievement(models.Model, BadgeAbsoluteUrl):
         db.badges.update_skeleton(Badge({
             "badge_uid": self.slug,
             "slug": self.slug,
-            "badge_title": self.title,
+            "title": self.title,
             "url": self.get_absolute_url(),
         }))
 

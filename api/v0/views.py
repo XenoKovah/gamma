@@ -186,7 +186,7 @@ class BadgeRulesView(APIView):
 
         if old_rules and new_rules:
             # don't try to open the badge for users if it's ruldataes are completely deleted
-            update_users_badge_data.delay(slug, old_rules, new_rules, badge_url)
+            update_users_badge_data.delay(slug, old_rules, new_rules, badge_url, badge_model.title)
 
         return Response({}, status=status.HTTP_200_OK)
 

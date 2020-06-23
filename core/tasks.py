@@ -38,7 +38,7 @@ def notify_badges_granted(user_uid, badges):
         badge = db.badges.read_one_as_ob(badge_slug)
         data = {
             "head": "New Achievement!",
-            "body": badge.badge_title,
+            "body": badge.title,
             "lang": "en",
             "icon": badge.url,
             "url":  f"{settings.EDX_LMS_BASE_URL}/dashboard/gamification/"
@@ -67,7 +67,7 @@ def notify_status_granted(user_uid, status_uid):
 
 
 @app.task
-def update_users_badge_data(badge_slug, old_rules, new_rules, badge_url):
+def update_users_badge_data(badge_slug, old_rules, new_rules, badge_url, badge_title):
     """
     Run on badge rules change, recalculate badges granted for users if needed.
     """
@@ -91,7 +91,7 @@ def update_users_badge_data(badge_slug, old_rules, new_rules, badge_url):
         if granted:
             actions = new_rules.get('actions', {})
             progress = {event: {'count': actions[event], 'goal': actions[event]} for event in actions}
-            db.users.update_badge(user_uid, badge_slug, badge_url, progress, True, False)
+            db.users.update_badge(user_uid, badge_slug, badge_url, badge_title, progress, True, False)
             badges_granted = [badge_slug]
             while badges_granted:
                 badges_granted = update_badges_by_badges(user_uid, badges_granted)

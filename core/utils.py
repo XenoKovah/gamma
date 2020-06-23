@@ -27,7 +27,8 @@ def update_badges_by_badges(user_uid, badges_granted):
             if is_badge_granted(user_uid, badge.get("rules", {}), progress, badges_got):
                 actions = badge.get("rules", {}).get('actions', {})
                 progress = {event: {'count': actions[event], 'goal': actions[event]} for event in actions}
-                db.users.update_badge(user_uid, badge_slug, badge.get("url"), progress, True, True)
+                db.users.update_badge(user_uid, badge_slug, badge.get("url"),
+                                      badge.get("title"), progress, True, True)
                 new_badges_granted.append(badge_slug)
                 badges_got.append(badge_slug)
 
@@ -100,7 +101,8 @@ def update_user_badges_by_event(user_uid, event_data):
                 actions = rules.get('actions', {})
                 progress = {event: {'count': actions[event], 'goal': actions[event]} for event in actions}
 
-            db.users.update_badge(user_uid, badge_slug, badge.get("url"), progress, badge_granted, True)
+            db.users.update_badge(user_uid, badge_slug, badge.get("url"),
+                                  badge.get("title"), progress, badge_granted, True)
 
     return new_badges_granted
 

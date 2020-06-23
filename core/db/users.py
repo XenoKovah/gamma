@@ -161,14 +161,15 @@ def read_one(user_uid):
     return _create_ob(conn.db.users.find_one({"user_uid": user_uid}) or {"user_uid": user_uid})
 
 
-def update_badge(user_uid, badge_uid, badge_url, progress, done, upsert):
+def update_badge(user_uid, badge_uid, badge_url, badge_title, progress, done, upsert):
     conn.db.users.update_one(
         {"user_uid": user_uid},
         {
             "$set": {
                 f"badges.{badge_uid}.progress": progress,
                 f"badges.{badge_uid}.done": done,
-                f"badges.{badge_uid}.url": badge_url
+                f"badges.{badge_uid}.url": badge_url,
+                f"badges.{badge_uid}.title": badge_title
             }
         },
         upsert=upsert

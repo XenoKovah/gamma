@@ -74,7 +74,7 @@ def test_rules(rand_str, award):
 
     with db.badges.read_and_update(slug) as badge:
         badge.update_badge({
-            "title": title, "badge_title": title,
+            "title": title, "title": title,
             "rules": {
                 "actions": actions
             },
