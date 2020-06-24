@@ -33,3 +33,7 @@ schematics~=2.1.0
 
 # push providers
 onesignal-sdk==1.1.0
+
+
+# sentry
+sentry-sdk==0.15.1

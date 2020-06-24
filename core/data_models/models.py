@@ -150,6 +150,11 @@ class Interval(Model):
     start = UTCDateTimeType(required=True)
     end = UTCDateTimeType(required=True)
 
+    class Options:
+        roles = {
+            'public': blacklist(''),
+        }
+
 
 class Filters(Model):
     interval = ModelType(Interval)
