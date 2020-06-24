@@ -52,3 +52,12 @@ def get_achieved(prev_points, new_points):
             {"active": True, "status_points": {"$gt": prev_points, "$lte": new_points}}
         ).sort([("status_points", -1)]).limit(1))
     return res[0]['status_uid'] if res else None
+
+
+def deactivate(status_uid):
+    """
+    Deactivate status.
+    """
+    conn.db.statuses.update_one(
+        filter={'status_uid': status_uid},
+        update={'$set': {'active': False}})

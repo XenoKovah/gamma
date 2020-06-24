@@ -93,6 +93,10 @@ class Achievement(models.Model, BadgeAbsoluteUrl):
             "url": self.get_absolute_url(),
         }))
 
+    def delete(self, *args, **kwargs):
+        db.badges.deactivate(self.slug)
+        super(Achievement, self).delete(*args, **kwargs)
+
 
 class StatusBadge(models.Model, BadgeAbsoluteUrl):
     """
@@ -123,6 +127,10 @@ class StatusBadge(models.Model, BadgeAbsoluteUrl):
             "color": self.status_color,
             "url": self.get_absolute_url()
         }))
+
+    def delete(self, *args, **kwargs):
+        db.statuses.deactivate(self.slug)
+        super(StatusBadge, self).delete(*args, **kwargs)
 
     def __str__(self):
         return self.slug.__str__()

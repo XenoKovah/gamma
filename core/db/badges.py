@@ -54,7 +54,7 @@ def deactivate(badge_uid):
     Deactivate badge.
     """
     conn.db.badges.update_one(
-        filter={'slug': badge_uid},
+        filter={'badge_uid': badge_uid},
         update={'$set': {'active': False}})
 
 

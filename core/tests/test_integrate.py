@@ -157,6 +157,44 @@ def test_badgesview_rules_change(entry, live_server, rand_str, app_client, make_
     _check_badges(live_server, user_uid, post_change_post_hit_use_badges, app_client)
 
 
+def test_badge_deactivated(live_server, rand_str, app_client, make_test_file):
+    """
+    Test events after deactivation do not increase badge count.
+    """
+    # Setup
+    user_uid = rand_str
+    event_type = "event_for_test_badge_deactivated"
+    ev, _ = Event.objects.get_or_create(event_type=event_type, title=event_type, award=10)
+    ev.save()
+    achievement_slug = "test_badge_deactivated"
+    achiev, _ = Achievement.objects.get_or_create(title=achievement_slug, slug=achievement_slug,
+                                                  badge_img=make_test_file())
+    achiev.save()
+    rules = [{"slug": achievement_slug, "actions": {event_type: 3}}]
+    badges_status_before_deactivation = {achievement_slug: {event_type: {"count": 1}, "done": False}}
+    event_to_send = [{"event_type": event_type}]
+
+    # 1. INPUT Set up a rule: call '/api/v0/badge-rules/' with "initial_rules"
+    _update_rules(live_server, rules)
+
+    # 2. INPUT Hit a rule: call '/api/v0/gamma-profile/' with "pre_change_events"
+    _send_events(live_server, user_uid, app_client, event_to_send)
+
+    # 3. OUTPUT Check a badge: call '/api/v0/badges/' with "pre_change_use_badges"
+    _check_badges(live_server, user_uid, badges_status_before_deactivation, app_client)
+
+    # 4. Check badge deleted from relational DB is still present at mongo but it's active field is set to False
+    achiev.delete()
+    badge_state_after_deactivation = db.badges.read_one(achievement_slug)
+    assert badge_state_after_deactivation['active'] is False
+
+    # 5. INPUT Send events after badge deactivation
+    _send_events(live_server, user_uid, app_client, event_to_send * 3)
+
+    # 6. OUTPUT Check badge state after deactivation is not changed for user
+    _check_badges(live_server, user_uid, badges_status_before_deactivation, app_client)
+
+
 @pytest.mark.parametrize(
     "entry",
     load_params_from_json('core/tests/resources/leaderboard_cases.json'),
