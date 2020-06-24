@@ -23,7 +23,7 @@ def _update(badge):
     data = badge.to_native()
     badge_id = data.pop('_id')
 
-    conn.db.badges.find_one_and_replace(
+    conn.db.badges.replace_one(
         {
             '_id': ObjectId(badge_id),
         },

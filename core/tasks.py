@@ -21,12 +21,14 @@ def update_user_position(user_uid, points, event_data):
 
     prev_points = points - event_data.get('points')
     if achieved_status_uid := db.statuses.get_achieved(prev_points, points):
+        # TODO: Invoke badges_by_badges flow
         notify_status_granted.delay(user_uid, achieved_status_uid)
 
     if badges_granted := update_user_badges_by_event(user_uid, event_data):
         notify_badges_granted.delay(user_uid, badges_granted)
         # for resolving badge-for-badges achievements
         # TODO: rewrite this to be able to grant when dependency already achieved
+        # TODO: handle case when dependend badge was granted befoe dependency was intoduced
         while badges_granted := update_badges_by_badges(user_uid, badges_granted):
             notify_badges_granted.delay(user_uid, badges_granted)
 
@@ -80,7 +82,7 @@ def update_users_badge_data(badge_slug, old_rules, new_rules, badge_url, badge_t
         users_badges_data = db.engine.conn.db.users.find({'badges.{}.done'.format(badge_slug): {'$ne': True}})
     for user_data in users_badges_data:
         user_uid = user_data.get('user_uid')
-        user_badges = user_data.get('badges')
+        user_badges = user_data.get('badges', {})
         badges_got = [b for b in user_badges.get('progress', {}) if b.get('done')]
         granted = is_badge_granted(
             user_uid,

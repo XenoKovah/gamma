@@ -121,7 +121,7 @@ class BadgesView(APIView):
 
     def get(self, *args, **kwargs):
         badges = db.badges.read_active()
-        data = [badge.slug for badge in badges]
+        data = [badge.slug for badge in badges if badge]
 
         return Response(data)
 
@@ -179,10 +179,12 @@ class BadgeRulesView(APIView):
             if badge:
                 old_rules = badge.rules.to_native() if badge.rules else None
                 new_rules = request.data
-            active = True if new_rules else False
-            badge.update_badge({"rules": request.data, "active": active})
 
-        db.badges.activate(slug)
+            active = False
+            if any((new_rules.get(rule) for rule in ('actions', 'badges', 'status_badge'))):
+                active = True
+
+            badge.update_badge({"rules": request.data, "active": active})
 
         if old_rules and new_rules:
             # don't try to open the badge for users if it's ruldataes are completely deleted
