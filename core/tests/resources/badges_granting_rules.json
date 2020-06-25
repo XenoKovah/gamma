@@ -295,5 +295,58 @@
     "events": [],
     "badges_result": {
     }
+  },
+  {
+    "description": "8. Badge depends on status only.",
+    "actions_points": {"event_type_1": 10},
+    "status_badges": {"status_1":  10},
+    "rules": [
+      {
+        "actions": {},
+        "status_badge": "status_1",
+        "slug": "slug_1",
+        "badge_image": "badge_image_1.gif"
+      }
+    ],
+    "events": [
+        {"event_type": "event_type_1"}
+    ],
+    "badges_result": {
+      "slug_1": {
+        "done": true
+      }
+    }
+  },
+  {
+    "description": "9. Status dependency is resolved last.",
+    "actions_points": {"event_type_1": 1, "event_type_2": 10, "event_type_3": 20},
+    "status_badges": {"status_1":  30},
+    "rules": [
+      {
+        "actions": {"event_type_1": 1},
+        "slug": "slug_1",
+        "badge_image": "badge_image_1.gif"
+      },
+      {
+        "actions": {"event_type_2": 1},
+        "badges": ["slug_1"],
+        "status_badge": "status_1",
+        "slug": "slug_2",
+        "badge_image": "badge_image_2.gif"
+      }
+    ],
+    "events": [
+        {"event_type": "event_type_2"}, {"event_type": "event_type_1"}, {"event_type": "event_type_3"}
+    ],
+    "badges_result": {
+      "slug_1": {
+        "event_type_1": {"count": 1},
+        "done": true
+      },
+      "slug_2": {
+        "event_type_2": {"count": 1},
+        "done": true
+      }
+    }
   }
 ]

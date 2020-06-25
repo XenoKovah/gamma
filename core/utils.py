@@ -35,7 +35,7 @@ def update_badges_by_badges(user_uid, badges_granted):
     return new_badges_granted
 
 
-def update_user_badges_by_event(user_uid, event_data):
+def update_user_badges_by_event(user_uid, event_data, achieved_status_uid):
     event_type = event_data.get('event_type')
     event_date = event_data.get('date')
     event_org = event_data.get('org')
@@ -43,7 +43,8 @@ def update_user_badges_by_event(user_uid, event_data):
 
     affected_badges = db.engine.conn.db.badges.find({
         "active": True,
-        f"rules.actions.{event_type}": {"$exists": True}
+        "$or": [{f"rules.actions.{event_type}": {"$exists": True}},
+                {"$and": [{"rules.status_badge": achieved_status_uid}, {"rules.status_badge": {"$exists": True}}]}]
     })
 
     user = db.users.read_one(user_uid)
@@ -63,33 +64,35 @@ def update_user_badges_by_event(user_uid, event_data):
             interval = filters.get('interval', None)
             organization = filters.get('org', None)
             course_id = filters.get('course', None)
+            is_affected_by_event = event_type in rules.get('actions', {})
 
-            if frequency:
-                # frequency is count of days that should be
-                delta = timedelta(frequency)
-                last = progress.get('last')
-                if last and datetime.now() - last > delta:
+            if is_affected_by_event:
+                if frequency:
+                    # frequency is count of days that should be
+                    delta = timedelta(frequency)
+                    last = progress.get('last')
+                    if last and datetime.now() - last > delta:
+                        continue
+
+                if (
+                    interval and
+                    interval.get('start') and
+                    interval.get('end') and not
+                    interval.get('start')
+                        <= datetime.strptime(event_date, STRPTIME_FORMATTER) <=
+                            interval.get('end')):
                     continue
 
-            if (
-                interval and
-                interval.get('start') and
-                interval.get('end') and not
-                interval.get('start')
-                    <= datetime.strptime(event_date, STRPTIME_FORMATTER) <=
-                        interval.get('end')):
-                continue
+                if organization and not (event_org and event_org == organization):
+                    continue
 
-            if organization and not (event_org and event_org == organization):
-                continue
+                if course_id and not (event_course_id and event_course_id == course_id):
+                    continue
 
-            if course_id and not (event_course_id and event_course_id == course_id):
-                continue
-
-            progress[event_type] = {
-                'count': progress.get(event_type, {}).get('count', 0) + 1,
-                'last': event_date
-            }
+                progress[event_type] = {
+                    'count': progress.get(event_type, {}).get('count', 0) + 1,
+                    'last': event_date
+                }
 
             badge_granted = is_badge_granted(user_uid, rules, progress, badges_got)
 
@@ -100,9 +103,12 @@ def update_user_badges_by_event(user_uid, event_data):
                 # so update it to actual rules and 'freeze' from further changes
                 actions = rules.get('actions', {})
                 progress = {event: {'count': actions[event], 'goal': actions[event]} for event in actions}
+                # TODO: save badges and status dependencies for granted badges
+                # to output it if granted badge is deactivated
 
-            db.users.update_badge(user_uid, badge_slug, badge.get("url"),
-                                  badge.get("title"), progress, badge_granted, True)
+            if is_affected_by_event or badge_granted:
+                db.users.update_badge(user_uid, badge_slug, badge.get("url"),
+                                      badge.get("title"), progress, badge_granted, True)
 
     return new_badges_granted
 
