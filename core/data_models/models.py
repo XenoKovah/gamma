@@ -234,6 +234,18 @@ class User(Model):
     def achieved_badges(self):
         return [badge for badge in self.badges if self.badges[badge].done]
 
+    def filter_done(self):
+        """
+        Filter Badges to return only achieved ones.
+        """
+
+        if not self.get('badges'):
+            return
+
+        self.badges = {
+            badge: self.badges[badge]
+            for badge in self.badges if self.badges[badge].done}
+
 
 class Leaders(Model):
     """
@@ -248,6 +260,16 @@ class Leaders(Model):
             'public': blacklist(''),
             'roster': blacklist(''),
         }
+
+    def to_primitive(self, role=None, app_data=None, **kwargs):
+        """
+        Adding filtering for User badges.
+        """
+
+        for user in self.roster:
+            user.filter_done()
+
+        return super().to_primitive(role=role, app_data=app_data, **kwargs)
 
 
 class AppClient(Model):

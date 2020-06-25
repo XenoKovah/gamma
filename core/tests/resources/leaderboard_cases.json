@@ -9,6 +9,16 @@
         "3": {"points": 200}
       },
       "badges": {
+        "badge_false": {
+          "done": false,
+          "progress": {
+            "edx_cert_created": {
+              "count": 1,
+              "goal": 1
+            }
+          },
+          "url": "https://example.com/media/media/badge_image_1"
+        },
         "badge_1": {
           "done": true,
           "progress": {

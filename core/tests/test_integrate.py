@@ -300,6 +300,10 @@ def test_leaderboard_api(entry, live_server, app_client, mocker):
             assert "badge_1" in gameprofiles[i]["badges"]
             response_badges_data = gameprofiles[i]["badges"]["badge_1"]
             expected_badges_data = badges["badge_1"]
+
+            if badges.get('badge_false'):
+                assert "badge_false" not in gameprofiles[i]["badges"]
+
             # Key defined in the input data
             response_badge_progress_data = response_badges_data["progress"]["edx_cert_created"]
             expected_badge_progress_data = expected_badges_data["progress"]["edx_cert_created"]
