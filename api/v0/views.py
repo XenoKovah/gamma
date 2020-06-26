@@ -176,9 +176,11 @@ class BadgeRulesView(APIView):
         data.update({'url': badge_url})
 
         with db.badges.read_and_update(slug) as badge:
-            if badge:
-                old_rules = badge.rules.to_native() if badge.rules else None
-                new_rules = request.data
+            if not badge:
+                return Response({}, status=status.HTTP_400_BAD_REQUEST)
+
+            old_rules = badge.rules.to_native() if badge.rules else None
+            new_rules = request.data
 
             active = False
             if any((new_rules.get(rule) for rule in ('actions', 'badges', 'status_badge'))):
@@ -191,7 +193,6 @@ class BadgeRulesView(APIView):
             update_users_badge_data.delay(slug, old_rules, new_rules, badge_url, badge_model.title)
 
         return Response({}, status=status.HTTP_200_OK)
-
 
 
 class CoursesView(APIView):

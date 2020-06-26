@@ -36,10 +36,12 @@ def update_badges_by_badges(user_uid, badges_granted):
 
 
 def update_user_badges_by_event(user_uid, event_data, achieved_status_uid):
+    """
+    Pass event through filtering.
+
+    Also take into account newly achieved status.
+    """
     event_type = event_data.get('event_type')
-    event_date = event_data.get('date')
-    event_org = event_data.get('org')
-    event_course_id = event_data.get('course_id')
 
     affected_badges = db.engine.conn.db.badges.find({
         "active": True,
@@ -59,44 +61,15 @@ def update_user_badges_by_event(user_uid, event_data, achieved_status_uid):
             rules = badge.get("rules", {})
             progress = user_badges.get(badge_slug, {}).get('progress', {})
 
-            filters = rules.get('filters', {})
-            frequency = filters.get('frequency', None)
-            interval = filters.get('interval', None)
-            organization = filters.get('org', None)
-            course_id = filters.get('course', None)
             is_affected_by_event = event_type in rules.get('actions', {})
 
-            if is_affected_by_event:
-                if frequency:
-                    # frequency is count of days that should be
-                    delta = timedelta(frequency)
-                    last = progress.get('last')
-                    if last and datetime.now() - last > delta:
-                        continue
-
-                if (
-                    interval and
-                    interval.get('start') and
-                    interval.get('end') and not
-                    interval.get('start')
-                        <= datetime.strptime(event_date, STRPTIME_FORMATTER) <=
-                            interval.get('end')):
-                    continue
-
-                if organization and not (event_org and event_org == organization):
-                    continue
-
-                if course_id and not (event_course_id and event_course_id == course_id):
-                    continue
-
+            if is_affected_by_event and filter_event(event_data, rules, progress):
+                # TODO: refactor this to to atomic Mongo $inc
                 progress[event_type] = {
                     'count': progress.get(event_type, {}).get('count', 0) + 1,
-                    'last': event_date
-                }
+                    'last': event_data.get('date')}
 
-            badge_granted = is_badge_granted(user_uid, rules, progress, badges_got)
-
-            if badge_granted:
+            if badge_granted := is_badge_granted(user_uid, rules, progress, badges_got):
                 new_badges_granted.append(badge_slug)
                 badges_got.append(badge_slug)
                 # progress could contain outdated data if badge rules was changed during badge receiving process
@@ -111,6 +84,43 @@ def update_user_badges_by_event(user_uid, event_data, achieved_status_uid):
                                       badge.get("title"), progress, badge_granted, True)
 
     return new_badges_granted
+
+
+def filter_event(event, rules, progress):
+    """
+    Filter Event by a given rules.
+
+    Return True if event does pass the filtering.
+    Return False if event doesn't pass the filtering.
+    """
+    filters = rules.get('filters', {})
+    frequency = filters.get('frequency', None)
+    interval = filters.get('interval', None)
+    organization = filters.get('org', None)
+    course_id = filters.get('course', None)
+
+    if frequency:
+        # frequency is count of days that should be
+        delta = timedelta(frequency)
+        last = progress.get('last')
+        if last and datetime.now() - last > delta:
+            return False
+
+    if (interval and
+        interval.get('start') and
+        interval.get('end') and not
+        interval.get('start')
+            <= datetime.strptime(event.get('date'), STRPTIME_FORMATTER) <=
+                interval.get('end')):
+        return False
+
+    if organization and not (event.get('org') and event.get('org') == organization):
+        return False
+
+    if course_id and not (event.get('course_id') and event.get('course_id') == course_id):
+        return False
+
+    return True
 
 
 def is_badge_granted(user_uid, rules, progress, badges_got):
@@ -140,6 +150,9 @@ def is_badge_granted(user_uid, rules, progress, badges_got):
 
 
 def is_badge_rules_simplified(new_rules, old_rules) -> bool:
+    """
+    Check where the changes rules simplify constraints.
+    """
     new_actions = new_rules.get('actions', {})
     old_actions = old_rules.get('actions', {})
     new_badges = set(new_rules.get('badges', []))

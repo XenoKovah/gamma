@@ -1,3 +1,5 @@
+import logging
+
 from bson import ObjectId
 from contextlib import contextmanager
 
@@ -7,12 +9,15 @@ from core.data_models.models import Badge
 from core.db.engine import conn
 
 
+LOG = logging.getLogger(__name__)
+
+
 def _create_badge_ob(data) -> Badge:
     try:
         badge = Badge().import_data(data)
-    except DataError:
-        # TODO: add logging
+    except DataError as ex:
         badge = None
+        LOG.error(f"Can't import Badge data {ex}")
     return badge
 
 
@@ -96,9 +101,7 @@ def read_and_update(badge_uid):
     """
     Read badge from db by badge_uid.
     """
-    # TODO: change slug to badge_uid
-
-    if data := conn.db.badges.find_one({"slug": badge_uid}):
+    if data := conn.db.badges.find_one({"badge_uid": badge_uid}):
         badge = _create_badge_ob(data)
     else:
         badge = Badge({"badge_uid": badge_uid, "slug": badge_uid})

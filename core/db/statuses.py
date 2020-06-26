@@ -1,3 +1,5 @@
+import logging
+
 from pymongo import ASCENDING
 from schematics.exceptions import DataError
 
@@ -5,11 +7,15 @@ from core.data_models.models import Status
 from core.db.engine import conn
 
 
+LOG = logging.getLogger(__name__)
+
+
 def _create_status(data) -> Status:
     try:
         status = Status().import_data(data)
-    except DataError:
+    except DataError as ex:
         status = None
+        LOG.error(f"Can't import Status data {ex}")
     return status
 
 

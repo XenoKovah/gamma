@@ -46,8 +46,8 @@ def notify_badges_granted(user_uid, badges):
         }
         try:
             onesignal_provider.send_notif(user, data)
-        except Exception as e:
-            log.debug(e)
+        except Exception as ex:
+            log.debug(ex)
 
 
 @app.task
@@ -63,8 +63,8 @@ def notify_status_granted(user_uid, status_uid):
     }
     try:
         onesignal_provider.send_notif(user, data)
-    except Exception as e:
-        log.debug(e)
+    except Exception as ex:
+        log.debug(ex)
 
 
 @app.task
