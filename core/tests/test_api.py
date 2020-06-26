@@ -336,7 +336,7 @@ def test_badgesview(live_server, rand_str, make_test_file, app_client):
     Get Badges for User.
     """
     db.engine.conn.db.badges.drop()  # cleaning badges rules
-    system_badges = [
+    active_badges = [
         {
             "slug": "slug_1", 'active': True, 'url': 'sometesturl1',
             'rules': {'actions': {'event_type_1': 2, 'event_type_2': 2}}
@@ -346,6 +346,19 @@ def test_badgesview(live_server, rand_str, make_test_file, app_client):
             'rules': {'actions': {'event_type_1': 1}},
         },
     ]
+    unactive_badges = [
+        {
+            'slug': 'slug_3', 'active': False, 'url': 'sometesturl3',
+            'rules': {'actions': {'event_type_1': 1}}
+        },
+        {
+            'slug': 'slug_4', 'active': True, 'url': 'sometesturl4'
+        },
+        {
+            'slug': 'slug_5', 'active': True, 'url': 'sometesturl5', 'rules': {}
+        },
+    ]
+    system_badges = active_badges + unactive_badges
     db.engine.conn.db.badges.insert_many(system_badges)
 
     # Avoid pymongo inset_many side effect
@@ -387,7 +400,8 @@ def test_badgesview(live_server, rand_str, make_test_file, app_client):
     assert res.status_code == 200
     data = res.json()
 
-    assert data["system_badges"] == system_badges
+    # check only badges that has rules and are active present in system_badges
+    assert data["system_badges"] == active_badges
     assert data["badges"] == badges_data
 
 

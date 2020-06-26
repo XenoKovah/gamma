@@ -67,7 +67,8 @@ def read_active():
     """
     Read all active badges from db.
     """
-    return [_create_badge_ob(badge) for badge in conn.db.badges.find({"active": True})]
+    return [_create_badge_ob(badge) for badge
+            in conn.db.badges.find({"active": True, "rules":  {"$exists": True, "$ne": {}}})]
 
 
 def update_skeleton(badge):

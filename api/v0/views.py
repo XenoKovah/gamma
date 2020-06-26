@@ -182,11 +182,7 @@ class BadgeRulesView(APIView):
             old_rules = badge.rules.to_native() if badge.rules else None
             new_rules = request.data
 
-            active = False
-            if any((new_rules.get(rule) for rule in ('actions', 'badges', 'status_badge'))):
-                active = True
-
-            badge.update_badge({"rules": request.data, "active": active})
+            badge.update_badge({"rules": request.data})
 
         if old_rules and new_rules:
             # don't try to open the badge for users if it's ruldataes are completely deleted

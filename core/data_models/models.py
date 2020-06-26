@@ -190,12 +190,12 @@ class Badge(Model):
     title = StringType(required=True, serialize_when_none=False)
     url = URLType(required=True)
     rules = ModelType(Rules)
-    active = BooleanType(default=False)
+    active = BooleanType(default=True)
 
     class Options:
         roles = {
             'public': blacklist('_id'),
-            'skeleton': blacklist('rules', '_id', 'active')
+            'skeleton': blacklist('rules', '_id')
         }
 
     def update_badge(self, data):
