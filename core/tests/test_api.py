@@ -338,24 +338,24 @@ def test_badgesview(live_server, rand_str, make_test_file, app_client):
     db.engine.conn.db.badges.drop()  # cleaning badges rules
     active_badges = [
         {
-            "slug": "slug_1", 'active': True, 'url': 'sometesturl1',
+            "badge_uid": "slug_1", "slug": "slug_1", 'active': True, 'url': 'http://badge.url',
             'rules': {'actions': {'event_type_1': 2, 'event_type_2': 2}}
         },
         {
-            'slug': 'slug_2', 'active': True, 'url': 'sometesturl2',
+            "badge_uid": "slug_2", 'slug': 'slug_2', 'active': True, 'url': 'http://badge.url',
             'rules': {'actions': {'event_type_1': 1}},
         },
     ]
     unactive_badges = [
         {
-            'slug': 'slug_3', 'active': False, 'url': 'sometesturl3',
+            "badge_uid": "slug_3", 'slug': 'slug_3', 'active': False, 'url': 'http://badge.url',
             'rules': {'actions': {'event_type_1': 1}}
         },
         {
-            'slug': 'slug_4', 'active': True, 'url': 'sometesturl4'
+            '"badge_uid": "slug_4", slug': 'slug_4', 'active': True, 'url': 'http://badge.url'
         },
         {
-            'slug': 'slug_5', 'active': True, 'url': 'sometesturl5', 'rules': {}
+            "badge_uid": "slug_5", 'slug': 'slug_5', 'active': True, 'url': 'http://badge.url', 'rules': {}
         },
     ]
     system_badges = active_badges + unactive_badges
@@ -368,6 +368,7 @@ def test_badgesview(live_server, rand_str, make_test_file, app_client):
     db.engine.conn.db.users.drop()  # cleaning users badges data
     badges_data = {
         "slug_1": {
+            "badge_uid": "slug_1", "title": "title",
             "progress": {
                 "event_type_1": {"count": 2}, "event_type_2": {"count": 1}
             },
@@ -375,6 +376,7 @@ def test_badgesview(live_server, rand_str, make_test_file, app_client):
             "done": False,
         },
         "slug_2": {
+            "badge_uid": "slug_2", "title": "title",
             "progress": {
                 "event_type_2": {"count": 1, "goal": 1}
             },
@@ -432,4 +434,5 @@ def test_statusview(live_server, rand_str, app_client):
     statuses = data["system_statuses"]
     assert len(statuses) == 1
     assert statuses[0]['title'] == rand_str
+    assert statuses[0]['status_uid'] == rand_str
     assert statuses[0]['slug'] == rand_str

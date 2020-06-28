@@ -2,7 +2,6 @@
 Unittests for push notification providers.
 """
 import pytest
-from schematics.exceptions import DataError
 
 from core.notif.cfg import Config, Provider
 from core.notif.models import OneSignalNotif as Notif

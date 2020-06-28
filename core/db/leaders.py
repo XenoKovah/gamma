@@ -8,4 +8,5 @@ def read():
     """
     Read top 100 users based on points field.
     """
-    return Leaders().import_data({"roster": conn.db.users.find({}).sort([("points", DESCENDING)]).limit(100)})
+    return Leaders(
+        {"roster": conn.db.users.find({}).sort([("points", DESCENDING)]).limit(100)})

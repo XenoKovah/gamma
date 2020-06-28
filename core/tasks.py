@@ -10,6 +10,7 @@ from core.utils import (
 )
 from core import db
 from core import onesignal_provider
+from core.data_models.models import UserAction, UserBadge, Rules, EventModel
 
 log = logging.getLogger(__name__)
 
@@ -18,12 +19,13 @@ log = logging.getLogger(__name__)
 def update_user_position(user_uid, points, event_data):
     # update_user_status should be run before updating user badges
     db.users.update_status(user_uid, points)
+    event = EventModel(event_data)
 
-    prev_points = points - event_data.get('points')
+    prev_points = points - event.points
     if achieved_status_uid := db.statuses.get_achieved(prev_points, points):
         notify_status_granted.delay(user_uid, achieved_status_uid)
 
-    if badges_granted := update_user_badges_by_event(user_uid, event_data, achieved_status_uid):
+    if badges_granted := update_user_badges_by_event(user_uid, event, achieved_status_uid):
         notify_badges_granted.delay(user_uid, badges_granted)
         # for resolving badge-for-badges achievements
         # TODO: rewrite this to be able to grant when dependency already achieved
@@ -36,7 +38,7 @@ def update_user_position(user_uid, points, event_data):
 def notify_badges_granted(user_uid, badges):
     user = db.users.read_one(user_uid)
     for badge_slug in badges:
-        badge = db.badges.read_one_as_ob(badge_slug)
+        badge = db.badges.read_one(badge_slug)
         data = {
             "head": "New Achievement!",
             "body": badge.title,
@@ -72,27 +74,46 @@ def update_users_badge_data(badge_slug, old_rules, new_rules, badge_url, badge_t
     """
     Run on badge rules change, recalculate badges granted for users if needed.
     """
+    old_rules = Rules(old_rules)
+    new_rules = Rules(new_rules)
+
     if not is_badge_rules_simplified(new_rules, old_rules):
         return
-    if new_rules.get('actions'):
-        users_badges_data = db.engine.conn.db.users.find({'badges.{}.done'.format(badge_slug): False})
-    else:
-        # if no actions, users without data for the badge could be affected
-        users_badges_data = db.engine.conn.db.users.find({'badges.{}.done'.format(badge_slug): {'$ne': True}})
-    for user_data in users_badges_data:
-        user_uid = user_data.get('user_uid')
-        user_badges = user_data.get('badges', {})
-        badges_got = [b for b in user_badges.get('progress', {}) if b.get('done')]
-        granted = is_badge_granted(
-            user_uid,
-            new_rules,
-            user_badges.get(badge_slug, {}).get('progress', {}),
-            badges_got
-        )
-        if granted:
-            actions = new_rules.get('actions', {})
-            progress = {event: {'count': actions[event], 'goal': actions[event]} for event in actions}
-            db.users.update_badge(user_uid, badge_slug, badge_url, badge_title, progress, True, False)
+
+     # if no actions, users without data for the badge could be affected
+    _filter = {
+        f"badges.{badge_slug}.done": False if new_rules.get('actions') else {'$ne': True}
+    }
+
+    for user in db.users.read(_filter):
+
+        user_progress = user.badges.get(badge_slug, {}).get('progress', {})
+        if is_badge_granted(user, new_rules, user_progress):
+            """
+            Changing progress to
+            {
+              'count': action_goal,
+              'goal': action_goal
+            }
+            """
+            with db.users.read_and_update(user.user_uid) as user:
+
+                actions = new_rules.get('actions', {})
+                progress = {
+                    event: UserAction({
+                        # in case this badge has no action in rules
+                        'count': actions.get(event, 0),
+                        'goal': actions.get(event, 0)
+                    }) for event in actions
+                }
+                user_badge = UserBadge({
+                    "title": badge_title,
+                    "url": badge_url,
+                    "done": True,
+                    "progress": progress
+                })
+                user.badges[badge_slug] = user_badge
+
             badges_granted = [badge_slug]
             while badges_granted:
-                badges_granted = update_badges_by_badges(user_uid, badges_granted)
+                badges_granted = update_badges_by_badges(user.user_uid, badges_granted)

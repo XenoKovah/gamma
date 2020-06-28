@@ -1,3 +1,5 @@
+import logging
+from typing import List
 from bson import ObjectId
 from datetime import datetime
 from contextlib import contextmanager
@@ -14,19 +16,35 @@ from core.data_models.models import (
 from core.db.engine import conn
 
 
+LOG = logging.getLogger(__name__)
+
+
 def _create_status_ob(data) -> Status:
     try:
-        status = Status().import_data(data)
-    except DataError:
+        status = Status(data, strict=False)
+    except DataError as ex:
         status = None
+        LOG.error(f"Can't import Status data {ex}")
     return status
+
+
+def _create_ob(data) -> User:
+    try:
+        user = User(data, strict=False)
+    except DataError as ex:
+        user = None
+        LOG.error(f"Can't import User data {ex}")
+
+    return user
 
 
 def _update(user):
     """
     Update User document.
     """
-    data = user.to_native()
+    user.validate()
+
+    data = user.to_native('user')
     user_id = data.pop('_id')
 
     conn.db.users.find_one_and_replace(
@@ -36,10 +54,6 @@ def _update(user):
         data,
         upsert=True
     )
-
-def _create_ob(data) -> User:
-    return User().import_data(data)
-
 
 
 def update_profile(user_uid, event):
@@ -119,20 +133,14 @@ def read_and_update(user_uid):
     _update(user)
 
 
-# TODO: remove
-def read_status(user_uid, status_uid):
-    """
-    Read particular user status.
-    """
-    return conn.db.users.find_one({"user_uid": user_uid, "statuses.status_uid": status_uid})
-
-
 def create(user):
     """
     Create blank user.
 
     Actually just a helper function.
     """
+    user.validate()
+
     conn.db.users.insert_one(user.to_native())
 
 
@@ -150,8 +158,8 @@ def matched_statuses(points):
     Returns all status matched statuses.
     """
     return [_create_status_ob(status) for
-        status in conn.db.statuses.find(
-            {"active": True, "status_points": {"$lte": points}})]
+            status in conn.db.statuses.find(
+                {"active": True, "status_points": {"$lte": points}})]
 
 
 def read_one(user_uid):
@@ -161,16 +169,8 @@ def read_one(user_uid):
     return _create_ob(conn.db.users.find_one({"user_uid": user_uid}) or {"user_uid": user_uid})
 
 
-def update_badge(user_uid, badge_uid, badge_url, badge_title, progress, done, upsert):
-    conn.db.users.update_one(
-        {"user_uid": user_uid},
-        {
-            "$set": {
-                f"badges.{badge_uid}.progress": progress,
-                f"badges.{badge_uid}.done": done,
-                f"badges.{badge_uid}.url": badge_url,
-                f"badges.{badge_uid}.title": badge_title
-            }
-        },
-        upsert=upsert
-    )
+def read(_filter=None) -> List[User]:
+    """
+    Read users by optional filter.
+    """
+    return [_create_ob(data) for data in conn.db.users.find(_filter)]

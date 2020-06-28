@@ -112,7 +112,7 @@
       "actions": {"event1": 1},
       "badges": ["badge1"]
     },
-    "rules_simplified": false
+    "rules_simplified": true
   },
   {
     "description": "12 Badge removed",
@@ -198,5 +198,30 @@
       "actions": {"event1": 2}
     },
     "rules_simplified": false
+  },
+  {
+    "description": "19 Badges have been replaced by the same amount of badges but another ones",
+    "status_badges": {"status1":  10},
+    "old_rules": {
+      "actions": {"event1": 1},
+      "badges": ["badge1", "badge2"]
+    },
+    "new_rules": {
+      "actions": {"event1": 1},
+      "badges": ["badge3", "badge4"]
+    },
+    "rules_simplified": true
+  },
+  {
+    "description": "20 Badge's count have been decreased but completelly different badge has been added",
+    "old_rules": {
+      "actions": {"event1": 1},
+      "badges": ["badge1", "badge2"]
+    },
+    "new_rules": {
+      "actions": {"event1": 1},
+      "badges": ["badge3"]
+    },
+    "rules_simplified": true
   }
 ]

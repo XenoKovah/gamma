@@ -11,6 +11,8 @@ from schematics.models import Model
 from schematics.types import StringType, DictType, ListType, URLType
 from schematics.transforms import blacklist
 
+from core.data_models.types import CustomURLType
+
 
 class BaseOneSignalNotif(Model):
     """
@@ -24,8 +26,8 @@ class BaseOneSignalNotif(Model):
     )
     headings = DictType(StringType(), required=True, serialize_when_none=False)
     contents = DictType(StringType(), required=True, serialize_when_none=False)
-    chrome_web_icon = URLType(required=False, serialize_when_none=False)
-    url = URLType(required=False, serialize_when_none=False)
+    chrome_web_icon = CustomURLType(required=False, serialize_when_none=False)
+    url = CustomURLType(required=False, serialize_when_none=False)
 
     class Options:
         roles = {
@@ -67,7 +69,7 @@ class OneSignalNotif(BaseOneSignalNotif):
     def create_by_user_ids(cls, users: list):
         assert isinstance(users, list)
 
-        return cls().import_data({"include_external_user_ids": [user.user_uid for user in users]})
+        return cls({"include_external_user_ids": [user.user_uid for user in users]})
 
     @classmethod
     def create_by_player_ids(cls, users: list):
@@ -77,7 +79,7 @@ class OneSignalNotif(BaseOneSignalNotif):
         for user in users:
             include_player_ids.extend(user.player_ids)
 
-        return cls().import_data({"include_player_ids": include_player_ids})
+        return cls({"include_player_ids": include_player_ids})
 
     def validate_include_external_user_ids(self, data, value):
         """

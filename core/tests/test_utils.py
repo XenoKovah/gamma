@@ -7,6 +7,7 @@ from achievements.models import StatusBadge
 from edx_integration.api.v2.utils import get_gamma_events_list
 from core.utils import is_badge_rules_simplified
 from core import db
+from core.data_models.models import Rules
 
 
 def load_params_from_json(json_path):
@@ -45,8 +46,8 @@ def test_get_gamma_events_list_from_cache(monkeypatch):
 )
 @pytest.mark.django_db
 def test_is_badges_rules_simplified(entry, make_test_file):
-    new_rules = entry.get('new_rules')
-    old_rules = entry.get('old_rules')
+    old_rules = Rules(entry.get('old_rules'))
+    new_rules = Rules(entry.get('new_rules'))
     expected_result = entry.get('rules_simplified')
     for slug, points in entry.get("status_badges", {}).items():
         StatusBadge.objects.update_or_create(

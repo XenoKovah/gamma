@@ -29,7 +29,7 @@ class OneSignalService:
     onesignal_provider = push.factory.get(Provider.ONESIGNAL, **cfg)
 
     user = db.users.read_one("username1")
-    badge = db.badges.read_one_as_ob("badge_uid")
+    badge = db.badges.read_one("badge_uid")
 
     heading = "Message heading"
     content = "Hello username"
@@ -51,7 +51,10 @@ class OneSignalService:
 
     @staticmethod
     def _create_base_notif_ob(data):
-        return OneSignalNotif().import_data(data)
+        notif = OneSignalNotif(data)
+        notif.validate()
+
+        return notif
 
     def _create_notif(self, notif):
         new_notif = onesignal_sdk.Notification(post_body=notif.to_native("public"))

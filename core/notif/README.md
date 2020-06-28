@@ -21,7 +21,7 @@ cfg = {
 onesignal_provider = push.factory.get(Provider.ONESIGNAL, **cfg)
 
 user = db.users.read_one("username1")
-badge = db.badges.read_one_as_ob("badge_uid")
+badge = db.badges.read_one("badge_uid")
 
 heading = "Message heading"
 content = "Hello username"

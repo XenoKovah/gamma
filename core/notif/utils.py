@@ -17,7 +17,7 @@ class ObjectFactory:
         Save builders for push providers.
         """
         self._builders[key] = builder
-    
+
     def unregister_builder(self, key):
         """
         Save builders for push providers.

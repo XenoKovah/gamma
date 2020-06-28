@@ -1,11 +1,22 @@
+import logging
+
 from pymongo import WriteConcern
+from schematics.exceptions import DataError
 
 from core.data_models.models import SystemEvent
 from core.db.engine import conn
 
 
-def _create_event_ob(data) -> SystemEvent:
-    return SystemEvent().import_data(data)
+LOG = logging.getLogger(__name__)
+
+
+def _create_ob(data) -> SystemEvent:
+    try:
+        system_event = SystemEvent(data, strict=False)
+    except DataError as ex:
+        system_event = None
+        LOG.error(f"Can't import SystemEvent data {ex}")
+    return system_event
 
 
 def log(event):
@@ -14,6 +25,8 @@ def log(event):
 
     Return None in case of duplicated event.
     """
+    event.validate()
+
     if conn.db.event_history.find_one({"uid": event.uid, "user_uid": event.username, "client": event.client}):
         return None
 
@@ -26,7 +39,7 @@ def read():
     """
     Read all accepted events.
     """
-    return [_create_event_ob(event) for event in conn.db.events.find()]
+    return [_create_ob(event) for event in conn.db.events.find()]
 
 
 def read_one(event_type):
@@ -35,7 +48,7 @@ def read_one(event_type):
     """
     event = {}
     if data := conn.db.events.find_one({"event_type": event_type}):
-        event = _create_event_ob(data)
+        event = _create_ob(data)
     return event
 
 
@@ -45,8 +58,11 @@ def update(system_event):
 
     system_event: SystemEvent
     """
+    data = system_event.to_native()
+    data.pop("_id")
+
     conn.db.events.update_one(
         {"event_type": system_event.event_type},
-        {"$set": system_event.to_native()},
+        {"$set": data},
         upsert=True
     )

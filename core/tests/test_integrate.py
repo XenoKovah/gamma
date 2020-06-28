@@ -12,6 +12,7 @@ from rest_framework import status
 from achievements.models import Achievement, Event, StatusBadge
 from api.v0.views import USER_NOT_FOUND
 from core import db
+from core.data_models.models import UserBadge
 
 
 def test_dashboard(live_server, settings, admin_client, rand_str):
@@ -186,7 +187,7 @@ def test_badge_deactivated(live_server, rand_str, app_client, make_test_file):
     # 4. Check badge deleted from relational DB is still present at mongo but it's active field is set to False
     achiev.delete()
     badge_state_after_deactivation = db.badges.read_one(achievement_slug)
-    assert badge_state_after_deactivation['active'] is False
+    assert badge_state_after_deactivation.active is False
 
     # 5. INPUT Send events after badge deactivation
     _send_events(live_server, user_uid, app_client, event_to_send * 3)
@@ -320,22 +321,6 @@ def test_leaderboard_api(entry, live_server, app_client, mocker):
     else:
         raise NotImplementedError(
             "Tests for the cases with other status codes are not implemented."
-        )
-
-
-def _create_badges(user_uid, badges, badge_uid, upsert=True):
-    """
-    Insert badges as ready-made docs instead of using API.
-    """
-    for badge in badges:
-        badge_data = list(badge.values())[0]
-        db.users.update_badge(
-            user_uid,
-            badge_uid=badge_uid,
-            badge_url=badge_data["url"],
-            progress=badge_data["progress"],
-            done=badge_data["done"],
-            upsert=upsert,
         )
 
 

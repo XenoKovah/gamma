@@ -80,14 +80,14 @@ def push_factory():
 
 
 @pytest.fixture(scope="function")
-def notif_data(mocker):
+def notif_data():
     """
     Reuser data.
     """
     _heading = "Message heading"
     _content = "Hello username"
-    _icon_url = "http://localhost/icon"
-    _url = "http://localhost"
+    _icon_url = "http://localhost:9000/icon.png"
+    _url = "http://localhost:9000/performance"
 
     _data = {
         "head": _heading,

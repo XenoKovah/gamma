@@ -12,7 +12,7 @@ LOG = logging.getLogger(__name__)
 
 def _create_status(data) -> Status:
     try:
-        status = Status().import_data(data)
+        status = Status(data, strict=False)
     except DataError as ex:
         status = None
         LOG.error(f"Can't import Status data {ex}")
@@ -23,8 +23,10 @@ def read():
     """
     Read all system statuses.
     """
-    return [_create_status(status) for
+    data = [_create_status(status) for
         status in conn.db.statuses.find({"active": True}).sort([("status_points", ASCENDING)])]
+
+    return [status for status in data if status]
 
 
 def read_one(status_uid):
@@ -41,9 +43,14 @@ def update(status):
 
     status: Status model
     """
+    status.validate()
+
+    data = status.to_native()
+    data.pop("_id")
+
     conn.db.statuses.update_one(
         {"status_uid": status.status_uid},
-        {"$set": status.to_native()},
+        {"$set": data},
         upsert=True
     )
 

@@ -1,6 +1,7 @@
 from datetime import datetime
 
 import pytest
+from schematics.exceptions import DataError
 
 from achievements.models import Event
 from core.models import key_secret_generator
@@ -74,11 +75,11 @@ def test_rules(rand_str, award):
 
     with db.badges.read_and_update(slug) as badge:
         badge.update_badge({
-            "title": title, "title": title,
+            "title": title,
             "rules": {
                 "actions": actions
             },
-            "url": "test_url"
+            "url": "http://test_url"
         })
 
     rules = db.badges.read_rules(rand_str)
@@ -86,6 +87,25 @@ def test_rules(rand_str, award):
     assert isinstance(rules, dict)
     assert rules['actions']['count'] == award
     assert actions == badge.rules.actions
+
+
+@pytest.mark.xfail(raises=DataError)
+def test_rules(rand_str, award):
+    """
+    Set/get rules by achievement slug.
+    """
+    slug = rand_str
+    title = slug.upper()
+    actions = {"count": award}
+
+    with db.badges.read_and_update(slug) as badge:
+        badge.update_badge({
+            "title": title,
+            "rules": {
+                "actions": actions
+            },
+            "url": "test_url"
+        })
 
 
 @pytest.mark.django_db

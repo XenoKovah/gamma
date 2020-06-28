@@ -20,8 +20,8 @@ from edx_integration.api.v2.exceptions import (
 
 from core import db
 from core.authentication import KeySecretAuthentication
-from core.utils import AppClientUtils
-from core.data_models.models import EventModel
+from core.utils import AppClientUtils, clean_rules
+from core.data_models.models import EventModel, Rules
 from core.tasks import update_user_position, update_users_badge_data
 
 from achievements.models import Achievement
@@ -53,7 +53,7 @@ class GameProfileView(APIView, AppClientUtils):
         where :username - username for User to update points
               :type - can be `video`, `unit` or `course`
         """
-        event_data = EventModel().import_data(request.data)
+        event_data = EventModel(request.data, strict=False)
 
         if not (system_event := db.events.read_one(event_data.event_type)):
             return Response(
@@ -77,7 +77,7 @@ class GameProfileView(APIView, AppClientUtils):
 
         update_user_position.delay(event.username, points, event.to_primitive())
 
-        return Response(event.to_primitive(), status=status.HTTP_200_OK)
+        return Response(event.to_primitive('public'), status=status.HTTP_200_OK)
 
     def get(self, request, *args, **kwargs):
         """
@@ -105,7 +105,7 @@ class ActionsListView(APIView):
         """
         Get all Actions.
         """
-        events = [event.to_primitive() for event in db.events.read()]
+        events = [event.to_primitive('public') for event in db.events.read()]
         data = [
             {"event_type": "badge"},
             {"event_type": "status_badge"},
@@ -121,7 +121,7 @@ class BadgesView(APIView):
 
     def get(self, *args, **kwargs):
         badges = db.badges.read_active()
-        data = [badge.slug for badge in badges if badge]
+        data = [badge.badge_uid for badge in badges if badge]
 
         return Response(data)
 
@@ -132,7 +132,7 @@ class StatusBadgesView(APIView):
     """
 
     def get(self, *args, **kwargs):
-        statuses = [status.to_primitive() for status in db.statuses.read()]
+        statuses = [status.to_primitive('public') for status in db.statuses.read()]
         return Response(statuses)
 
 
@@ -163,7 +163,7 @@ class BadgeRulesView(APIView):
         if not slug:
             return Response({})
         badge = db.badges.read_one(badge_uid=slug)
-        return Response(badge.get('rules', {}) if badge else {})
+        return Response(badge.to_primitive('public').get('rules', {}) if badge else {})
 
     def put(self, request, *args, **kwargs):
         slug = request.data.pop('slug')
@@ -176,17 +176,19 @@ class BadgeRulesView(APIView):
         data.update({'url': badge_url})
 
         with db.badges.read_and_update(slug) as badge:
-            if not badge:
-                return Response({}, status=status.HTTP_400_BAD_REQUEST)
+            if badge:
+                old_rules = badge.rules
+                new_rules = Rules(clean_rules(request.data), validate=True)
 
-            old_rules = badge.rules.to_native() if badge.rules else None
-            new_rules = request.data
+                badge.update_badge({"rules": request.data})
 
-            badge.update_badge({"rules": request.data})
+        if not badge:
+            return Response({}, status=status.HTTP_400_BAD_REQUEST)
 
         if old_rules and new_rules:
             # don't try to open the badge for users if it's ruldataes are completely deleted
-            update_users_badge_data.delay(slug, old_rules, new_rules, badge_url, badge_model.title)
+            update_users_badge_data.delay(slug, old_rules.to_primitive(), new_rules.to_primitive(),
+                                          badge_url, badge_model.title)
 
         return Response({}, status=status.HTTP_200_OK)
 
@@ -298,6 +300,6 @@ class LeaderBoardView(APIView):
         return Response({
             'gameprofiles': leaders.to_primitive('roster').get("roster"),
             'rank': rank,
-            'system_statuses': system_statuses
+            'system_statuses': [status.to_primitive('public') for status in system_statuses]
 
         }, status=status.HTTP_200_OK, content_type='application/json')
