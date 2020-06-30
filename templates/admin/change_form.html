@@ -78,4 +78,7 @@
 
 </div>
 </form></div>
+{% if opts.model_name == "statusbadge" %}
+  {% include 'admin/status_edit_scripts.html' %}
+{% endif %}
 {% endblock %}

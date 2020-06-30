@@ -1,0 +1,27 @@
+<script   src="https://code.jquery.com/jquery-3.3.1.min.js"   integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="   crossorigin="anonymous"></script>
+<script>
+  const check_dependencies_url = "{% url 'api:v0:status-dependent-badges-list' %}";
+  const slug = "{{ original.slug }}"
+
+  $('.deletelink').click((event) => {
+      event.preventDefault();
+      $.ajax({
+          url: check_dependencies_url,
+          method: 'GET',
+          data: {slug: slug},
+          success: (resp, xhr, settings)=>{
+              if (!(resp === null || resp.length === 0)){
+                  alert(`Can't delete, the status is dependency for badge(s): ${resp}`)
+              }
+              else {
+                  window.location.href = $('.deletelink').attr('href'); // proceed deletion
+              }
+          },
+          error: function (request, status, error) {
+              console.log(status);
+              console.log(request.responseText);
+              alert("Check for deletion possibility can't be performed");
+          }
+      })
+  });
+</script>

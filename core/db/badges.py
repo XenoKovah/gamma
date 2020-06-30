@@ -119,3 +119,12 @@ def read_and_update(badge_uid):
     yield badge
 
     _update(badge)
+
+
+def dependent_badges(badge_uid):
+    """
+    Return list of active badges uids that depend on specified badge.
+    """
+    return [badge['badge_uid'] for badge in
+            conn.db.badges.find({"active": True, "rules.badges": badge_uid},
+                                {"badge_uid": 1, "_id": 0})]

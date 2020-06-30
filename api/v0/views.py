@@ -303,3 +303,25 @@ class LeaderBoardView(APIView):
             'system_statuses': [status.to_primitive('public') for status in system_statuses]
 
         }, status=status.HTTP_200_OK, content_type='application/json')
+
+
+class BadgeDependentBadgesView(APIView):
+
+    def get(self, request):
+        if slug := request.GET.get('slug'):
+            return Response(db.badges.dependent_badges(slug),
+                            status=status.HTTP_200_OK,
+                            content_type='application/json')
+
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class StatusDependentBadgesView(APIView):
+
+    def get(self, request):
+        if slug := request.GET.get('slug'):
+            return Response(db.statuses.dependent_badges(slug),
+                            status=status.HTTP_200_OK,
+                            content_type='application/json')
+
+        return Response(status=status.HTTP_400_BAD_REQUEST)

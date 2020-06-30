@@ -74,3 +74,12 @@ def deactivate(status_uid):
     conn.db.statuses.update_one(
         filter={'status_uid': status_uid},
         update={'$set': {'active': False}})
+
+
+def dependent_badges(status_uid):
+    """
+    Return uids of active badges that depend on specified status.
+    """
+    return [badge['badge_uid'] for badge in
+            conn.db.badges.find({"active": True, "rules.status_badge": status_uid},
+                                {"badge_uid": 1, "_id": 0})]

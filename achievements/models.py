@@ -4,6 +4,7 @@ Achievement models.
 
 from django.db import models
 from django.contrib.sites.models import Site
+from django.core.exceptions import PermissionDenied
 
 from core import db
 from core.data_models.models import Status, SystemEvent, Badge
@@ -84,16 +85,30 @@ class Achievement(models.Model, BadgeAbsoluteUrl):
             return self.badge_img.name.split('/')[-1]
     
     def save(self, *args, **kwargs):
+        creating = not self.id
         super(Achievement, self).save(*args, **kwargs)
         # TODO remove this
-        db.badges.update_skeleton(Badge({
+        badges_data = {
             "badge_uid": self.slug,
             "slug": self.slug,
             "title": self.title,
             "url": self.get_absolute_url(),
-        }))
+        }
+        if creating:
+            # for the case of re-creation object with the same slug
+            # that was deactivated, we need clear badge rules at mongo storage
+            with db.badges.read_and_update(self.slug) as badge:
+                badges_data['rules'] = {}
+                badges_data['active'] = True
+                badge.update_badge(badges_data)
+        else:
+            db.badges.update_skeleton(Badge(badges_data))
 
     def delete(self, *args, **kwargs):
+        if dependent := db.badges.dependent_badges(self.slug):
+            raise PermissionDenied(f'Deletion of current badge "{self.slug}" '
+                                   f'is denied, it is dependency for {dependent}')
+
         db.badges.deactivate(self.slug)
         super(Achievement, self).delete(*args, **kwargs)
 
@@ -129,6 +144,10 @@ class StatusBadge(models.Model, BadgeAbsoluteUrl):
         }))
 
     def delete(self, *args, **kwargs):
+        if dependent := db.statuses.dependent_badges(self.slug):
+            raise PermissionDenied(f'Deletion of current status "{self.slug}" '
+                                   f'is denied, it is dependency for: {dependent}')
+
         db.statuses.deactivate(self.slug)
         super(StatusBadge, self).delete(*args, **kwargs)
 

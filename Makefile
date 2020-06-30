@@ -1,5 +1,5 @@
 env :=
-path := 
+path := core/tests core/notif/tests
 
 DEV_ENV := dev
 STAGE_ENV := stage

@@ -1,11 +1,12 @@
 from datetime import datetime
 
+from django.urls import reverse
 import requests
 import pytest
 from rest_framework import status
 
 from achievements.models import StatusBadge
-from core.data_models.models import User, UserEventPoints
+from core.data_models.models import User, UserEventPoints, Status, Badge
 from core import db
 
 
@@ -436,3 +437,126 @@ def test_statusview(live_server, rand_str, app_client):
     assert statuses[0]['title'] == rand_str
     assert statuses[0]['status_uid'] == rand_str
     assert statuses[0]['slug'] == rand_str
+
+
+def _create_statuses(statuses_data):
+    for status_data in statuses_data:
+        slug = status_data["slug"]
+        db.statuses.update(Status({
+            "status_uid": slug,
+            "slug": slug,
+            "title": slug,
+            "active": status_data.get('active', True),
+            "points": 5,
+            "url": f"http://test.url/{slug}"
+        }))
+
+
+def _create_badges(badges_data):
+    for badge_data in badges_data:
+        slug = badge_data["slug"]
+        with db.badges.read_and_update(slug) as badge:
+            badge.update_badge({
+                "badge_uid": slug,
+                "slug": slug,
+                "title": slug,
+                "url": f"http://test.url/{slug}",
+                "rules": badge_data.get('rules', {}),
+                "active": badge_data.get('active', True),
+            })
+
+
+def test_badge_dependent_badges_list_dependencies(live_server, rand_str, app_client):
+    """
+    Test api for get badge slugs dependent on other badge.
+    """
+    url = live_server + reverse('api:v0:badge-dependent-badges-list')
+    db.engine.conn.db.badges.drop()
+
+    data = [
+        {"slug": "b_slug1"},
+        {"slug": "b_slug2", "rules": {"badges": ["b_slug1"]}},
+        {"slug": "b_slug3", "rules": {"badges": ["b_slug1", "b_slug2"]}},
+        {"slug": "b_slug4", "rules": {"badges": ["b_slug1"]}, "active": False},
+        {"slug": "b_slug5"},
+        {"slug": "b_slug6", "rules": {"badges": ["b_slug5"]}},
+    ]
+    _create_badges(data)
+
+    resp = requests.get(url, params={"slug": "b_slug1"},)
+    assert resp.status_code == 200
+    result = set(resp.json())
+    # check only active badges dependent on "b_slug1" are in response
+    assert result == {"b_slug2", "b_slug3"}
+
+
+def test_badge_dependent_badges_list_no_dependencies(live_server, rand_str, app_client):
+    """
+    Test api for get badge slugs dependent on other badge when no dependencies.
+    """
+    url = live_server + reverse('api:v0:badge-dependent-badges-list')
+    db.engine.conn.db.badges.drop()
+    data = [
+        {"slug": "b_slug1"},
+        {"slug": "b_slug2"},
+        {"slug": "b_slug3", "rules": {"badges": ["b_slug2"]}},
+        {"slug": "b_slug4", "rules": {"badges": ["b_slug3"]}}
+    ]
+    _create_badges(data)
+
+    resp = requests.get(url, params={"slug": "b_slug1"},)
+    assert resp.status_code == 200
+    result = resp.json()
+    # check response is empty - no dependent badges
+    assert result == []
+
+
+def test_status_dependent_badges_list_dependencies(live_server, rand_str, app_client):
+    """
+    Test api for get badge slugs dependent on status badge.
+    """
+    url = live_server + reverse('api:v0:status-dependent-badges-list')
+    db.engine.conn.db.statuses.drop()
+    db.engine.conn.db.badges.drop()
+
+    statuses_data = [
+        {"slug": "st_slug1"}, {"slug": "st_slug2"}
+    ]
+    _create_statuses(statuses_data)
+    badges_data = [
+        {"slug": "b_slug1", "rules": {"status_badge": "st_slug1"}},
+        {"slug": "b_slug2", "rules": {"status_badge": "st_slug1"}},
+        {"slug": "b_slug3", "rules": {"status_badge": "st_slug1"}, "active": False},
+        {"slug": "b_slug4", "rules": {"status_badge": "st_slug2"}},
+    ]
+    _create_badges(badges_data)
+
+    resp = requests.get(url, params={"slug": "st_slug1"},)
+    assert resp.status_code == 200
+    result = set(resp.json())
+    # check only active badges dependent on "st_slug1" are in response
+    assert result == {"b_slug1", "b_slug2"}
+
+
+def test_status_dependent_badges_list_no_dependencies(live_server, rand_str, app_client):
+    """
+    Test api for get badge slugs dependent on status badge when no dependencies.
+    """
+    url = live_server + reverse('api:v0:status-dependent-badges-list')
+    db.engine.conn.db.statuses.drop()
+    db.engine.conn.db.badges.drop()
+
+    statuses_data = [
+        {"slug": "st_slug1"}, {"slug": "st_slug2"}
+    ]
+    _create_statuses(statuses_data)
+    badges_data = [
+        {"slug": "b_slug1", "rules": {"status_badge": "st_slug2"}}
+    ]
+    _create_badges(badges_data)
+
+    resp = requests.get(url, params={"slug": "st_slug1"},)
+    assert resp.status_code == 200
+    result = resp.json()
+    # check response is empty - no dependent badges
+    assert result == []

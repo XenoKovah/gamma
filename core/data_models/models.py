@@ -216,7 +216,7 @@ class Badge(Model):
     class Options:
         roles = {
             'public': blacklist('_id'),
-            'skeleton': blacklist('rules', '_id')
+            'skeleton': blacklist('rules', '_id', 'active')
         }
 
     def update_badge(self, data):

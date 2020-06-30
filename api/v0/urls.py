@@ -11,7 +11,9 @@ from .views import (
     CoursesView,
     OrganizationsView,
     AchievementsView,
-    LeaderBoardView
+    LeaderBoardView,
+    BadgeDependentBadgesView,
+    StatusDependentBadgesView
 )
 
 
@@ -26,4 +28,6 @@ urlpatterns = [
     path(r'organizations/', OrganizationsView.as_view(), name='organizations'),
     path(r'achievements/', AchievementsView.as_view(), name='achievements'),
     path(r'leaderboard/', LeaderBoardView.as_view(), name='leaderboard'),
+    path(r'badge-dependent-badges-list/', BadgeDependentBadgesView.as_view(), name='badge-dependent-badges-list'),
+    path(r'status-dependent-badges-list/', StatusDependentBadgesView.as_view(), name='status-dependent-badges-list'),
 ]

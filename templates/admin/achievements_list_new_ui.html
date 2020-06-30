@@ -96,6 +96,7 @@
             'X-CSRFToken': $('input[name=csrfmiddlewaretoken]').val()
         }
         const url = "{% url 'api:v0:achievements' %}";
+        const check_dependencies_url = "{% url 'api:v0:badge-dependent-badges-list' %}";
 
         $(document).ready(() => {
             // Save changes
@@ -119,9 +120,7 @@
                 })
             });
 
-            $('.delete-achievement-click').click((event) => {
-                event.preventDefault();
-                let slug = $(event.currentTarget).data('slug');
+            function confirm_and_delete(slug){
                 let confirmed = confirm(`Do you really want to delete achievement with slug "${slug}"`);
                 if (confirmed) {
                     $.ajax({
@@ -136,6 +135,29 @@
                         }
                     })
                 }
+            }
+
+            $('.delete-achievement-click').click((event) => {
+                event.preventDefault();
+                let slug = $(event.currentTarget).data('slug');
+                $.ajax({
+                    url: check_dependencies_url,
+                    method: 'GET',
+                    data: {slug: slug},
+                    success: (resp, xhr, settings)=>{
+                        if (!(resp === null || resp.length === 0)){
+                            alert(`Can't delete, the badge is dependency for other badge(s): ${resp}`)
+                        }
+                        else {
+                            confirm_and_delete(slug);
+                        }
+                    },
+                    error: function (request, status, error) {
+                        console.log(status);
+                        console.log(request.responseText);
+                        alert("Check for deletion possibility can't be performed");
+                    }
+                })
             })
 
 
