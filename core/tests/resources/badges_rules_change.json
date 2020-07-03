@@ -32,6 +32,7 @@
       ]
     },
     "output":  {
+      "notifications_count": 1,
       "pre_change_use_badges": {
           "slug_1": {
             "event_type_1": {
@@ -95,6 +96,7 @@
       ]
     },
     "output":  {
+      "notifications_count": 1,
       "pre_change_use_badges": {
           "slug_1": {
             "event_type_1": {
@@ -161,6 +163,7 @@
       ]
     },
     "output":  {
+      "notifications_count": 1,
       "pre_change_use_badges": {
           "slug_1": {
             "event_type_1": {
@@ -224,6 +227,7 @@
       ]
     },
     "output":  {
+      "notifications_count": 1,
       "pre_change_use_badges": {
           "slug_1": {
             "event_type_1": {
@@ -292,6 +296,7 @@
       ]
     },
     "output":  {
+      "notifications_count": 1,
       "pre_change_use_badges": {
           "slug_1": {
             "event_type_1": {
@@ -372,6 +377,7 @@
       ]
     },
     "output":  {
+      "notifications_count": 1,
       "pre_change_use_badges": {
           "slug_1": {
             "event_type_1": {
@@ -448,6 +454,7 @@
       ]
     },
     "output":  {
+      "notifications_count": 1,
       "pre_change_use_badges": {
           "slug_1": {
             "event_type_1": {
@@ -480,7 +487,7 @@
 
   {
     "description": "8. Action’s event type is added (a badge WAS granted before rules changed).",
-    "comment": "Event progress requirements are not changed because badge is already got",
+    "comment": "8. Event progress requirements are not changed because badge is already got",
     "input": {
       "initial_rules":  [
         {
@@ -522,6 +529,7 @@
       ]
     },
     "output":  {
+      "notifications_count": 1,
       "pre_change_use_badges": {
           "slug_1": {
             "event_type_1": {
@@ -587,6 +595,7 @@
       ]
     },
     "output":  {
+      "notifications_count": 1,
       "pre_change_use_badges": {
           "slug_1": {
             "event_type_1": {
@@ -656,6 +665,7 @@
       ]
     },
     "output":  {
+      "notifications_count": 1,
       "pre_change_use_badges": {
           "slug_1": {
             "event_type_1": {
@@ -724,6 +734,7 @@
       ]
     },
     "output":  {
+      "notifications_count": 1,
       "pre_change_use_badges": {
           "slug_1": {
             "event_type_1": {
@@ -793,6 +804,7 @@
       ]
     },
     "output":  {
+      "notifications_count": 1,
       "pre_change_use_badges": {
           "slug_1": {
             "event_type_1": {
@@ -843,6 +855,7 @@
       ]
     },
     "output":  {
+      "notifications_count": 1,
       "pre_change_use_badges": {
         "slug_1": {
           "event_type_1": {"count": 1},
@@ -896,6 +909,7 @@
       "post_change_events": []
     },
     "output":  {
+      "notifications_count": 3,
       "pre_change_use_badges": {
         "slug_1": {
           "event_type_1": {"count": 1},
@@ -922,5 +936,119 @@
         "slug_3": {"done": true}
       }
     }
+  },
+
+  {
+    "description": "15. Removing rules. Should NOT trigger a badge granting event.",
+    "input": {
+      "initial_rules":  [
+        {
+          "actions": {
+            "event_type_1": 3
+          },
+          "slug": "slug_1",
+          "badge_image": "badge_image_1"
+        }
+      ],
+      "changed_rules":  [
+        {
+          "slug": "slug_1",
+          "badge_image": "badge_image_1"
+        }
+      ],
+      "pre_change_events": [
+        {
+          "event_type": "event_type_1"
+        }
+      ],
+      "post_change_events": [
+        {
+          "event_type": "event_type_1"
+        }
+      ]
+    },
+    "output":  {
+      "notifications_count": 0,
+      "pre_change_use_badges": {
+          "slug_1": {
+            "event_type_1": {
+              "count": 1
+            },
+            "done": false
+          }
+      },
+      "post_change_pre_hit_use_badges": {
+          "slug_1": {
+            "event_type_1": {
+              "count": 1
+            },
+            "done": false
+          }
+      },
+      "post_change_post_hit_use_badges": {
+          "slug_1": {
+            "event_type_1": {
+              "count": 1
+            },
+            "done": false
+          }
+      }
+    }
+  },
+
+  {
+    "description": "16. Removing rules but leave filters. Should NOT trigger a badge granting event.",
+    "input": {
+      "initial_rules":  [
+        {
+          "actions": {
+            "event_type_1": 3
+          },
+          "slug": "slug_1",
+          "badge_image": "badge_image_1",
+          "filters": {
+            "org": "org_1"
+          }
+        }
+      ],
+      "changed_rules":  [
+        {
+          "slug": "slug_1",
+          "badge_image": "badge_image_1",
+          "filters": {
+            "org": "org_1"
+          }
+        }
+      ],
+      "pre_change_events": [
+        {
+          "event_type": "event_type_1"
+        }
+      ],
+      "post_change_events": [
+        {
+          "event_type": "event_type_1"
+        }
+      ]
+    },
+    "output":  {
+      "notifications_count": 0,
+      "pre_change_use_badges": {
+          "slug_1": {
+            "done": false
+          }
+      },
+      "post_change_pre_hit_use_badges": {
+          "slug_1": {
+            "done": false
+          }
+      },
+      "post_change_post_hit_use_badges": {
+          "slug_1": {
+            "done": false
+          }
+      }
+    }
   }
+
 ]

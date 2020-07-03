@@ -29,7 +29,7 @@ def update_user_position(user_uid, points, event_data):
         notify_badges_granted.delay(user_uid, badges_granted)
         # for resolving badge-for-badges achievements
         # TODO: rewrite this to be able to grant when dependency already achieved
-        # TODO: handle case when dependend badge was granted befoe dependency was intoduced
+        # TODO: handle case when dependend badge was granted before dependency was intoduced
         while badges_granted := update_badges_by_badges(user_uid, badges_granted):
             notify_badges_granted.delay(user_uid, badges_granted)
 
@@ -115,5 +115,8 @@ def update_users_badge_data(badge_slug, old_rules, new_rules, badge_url, badge_t
                 user.badges[badge_slug] = user_badge
 
             badges_granted = [badge_slug]
+            notify_badges_granted.delay(user.user_uid, badges_granted)
+
             while badges_granted:
-                badges_granted = update_badges_by_badges(user.user_uid, badges_granted)
+                if badges_granted := update_badges_by_badges(user.user_uid, badges_granted):
+                    notify_badges_granted.delay(user.user_uid, badges_granted)

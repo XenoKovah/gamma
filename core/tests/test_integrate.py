@@ -99,7 +99,7 @@ def test_badges_granting_rules(entry, live_server, rand_str, app_client, make_te
     "entry",
     load_params_from_json('core/tests/resources/badges_rules_change.json'),
 )
-def test_badgesview_rules_change(entry, live_server, rand_str, app_client, make_test_file):
+def test_badgesview_rules_change(entry, live_server, rand_str, app_client, make_test_file, mocker):
     """
     Integration tests for Achievements Rules Changes and consequences.
 
@@ -114,6 +114,8 @@ def test_badgesview_rules_change(entry, live_server, rand_str, app_client, make_
       6. INPUT Hit a changed rule: call '/api/v0/gamma-profile/' with "post_change_events"
       7. OUTPUT Check a badge: call '/api/v0/badges/' with "post_change_post_hit_use_badges"
     """
+    notify_badges_granted_mock = mocker.patch('core.tasks.notify_badges_granted')
+
     user_uid = rand_str
     # `use_badges` and `rules` cleanup is absolutely necessary here
     # NOTE: consider cleaning up in all pytest's
@@ -128,6 +130,7 @@ def test_badgesview_rules_change(entry, live_server, rand_str, app_client, make_
     pre_change_use_badges = entry["output"]["pre_change_use_badges"]
     post_change_pre_hit_use_badges = entry["output"]["post_change_pre_hit_use_badges"]
     post_change_post_hit_use_badges = entry["output"]["post_change_post_hit_use_badges"]
+    notifications_count = entry["output"].get("notifications_count", 0)
 
     # Setup
     achievements_slug = set([rule['slug'] for rule in initial_rules + changed_rules])
@@ -161,6 +164,10 @@ def test_badgesview_rules_change(entry, live_server, rand_str, app_client, make_
     # Ensure accrual continues even after a badge is granted
     # Ensure a new badge is granted post-change OR an old badge isn't revoked
     _check_badges(live_server, user_uid, post_change_post_hit_use_badges, app_client)
+
+    # Finaly check for notifications count has been invoked
+    # It should be equal to the badge granted events
+    assert notify_badges_granted_mock.delay.call_count == notifications_count
 
 
 def test_badge_deactivated(live_server, rand_str, app_client, make_test_file):

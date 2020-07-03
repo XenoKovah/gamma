@@ -203,6 +203,18 @@ class Rules(Model):
             'public': blacklist(''),
         }
 
+    def __bool__(self):
+        """
+        Evaluates Rules to bool.
+
+        Returns True if any of the valid rules is
+        presented.
+        """
+        return any((self.get("actions"),
+                    self.get("badges"),
+                    self.get("status_badge")))
+
+
 class Badge(Model):
     _id = ObjectIdType(
         metadata={'readOnly': True},

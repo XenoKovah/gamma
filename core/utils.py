@@ -188,10 +188,12 @@ def check_frequency_fit(filters, progress, event):
     return True
 
 
-def is_badge_granted(user, rules, progress):
+def is_badge_granted(user, rules: Rules, progress):
     """
     Check for all badge rules to be passed.
     """
+    if not rules: return False
+
     for action in rules.actions:
         if progress.get(action, {}).get('count', 0) < rules.actions[action]:
             return False
@@ -210,6 +212,8 @@ def is_badge_rules_simplified(new_rules: Rules, old_rules: Rules) -> bool:
     """
     Check where the changed rules simplify constraints.
     """
+    if not new_rules: return False
+
     new_badges_set = set(new_rules.badges)
     old_badges_set = set(old_rules.badges)
 
