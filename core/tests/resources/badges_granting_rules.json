@@ -348,5 +348,79 @@
         "done": true
       }
     }
+  },
+  {
+    "description": "10. Frequency filter reset progress for current event (and don't touch other).",
+    "actions_points": {"event_type_1": 10},
+    "rules": [
+      {
+        "actions": {"event_type_1": 3},
+        "slug": "slug_1",
+        "badge_image": "badge_image_1.gif",
+        "filters": {"frequency": 1}
+      }
+    ],
+    "events": [
+        {"event_type": "event_type_1", "date": "1975-07-03T08:00:27.000+00:00"},
+        {"event_type": "event_type_1", "date": "1975-07-03T08:21:27.000+00:00"},
+        {"event_type": "event_type_1", "date": "1975-07-04T08:21:28.000+00:00"}
+    ],
+    "badges_result": {
+      "slug_1": {
+        "event_type_1": {"count": 1},
+        "done": false
+      }
+    }
+  },
+  {
+    "description": "11. Check correct frequency passed.",
+    "actions_points": {"event_type_1": 10, "event_type_2": 5},
+    "rules": [
+      {
+        "actions": {"event_type_1": 3, "event_type_2": 2},
+        "slug": "slug_1",
+        "badge_image": "badge_image_1.gif",
+        "filters": {"frequency": 2}
+      }
+    ],
+    "events": [
+        {"event_type": "event_type_1", "date": "1975-07-03T08:00:27.000+00:00"},
+        {"event_type": "event_type_2", "date": "1975-07-03T08:00:00.000+00:00"},
+        {"event_type": "event_type_2", "date": "1975-07-03T08:00:00.001+00:00",
+         "description": "second event_type_2 comes after 1 microsecond after first"},
+        {"event_type": "event_type_1", "date": "1975-07-03T08:21:27.000+00:00"},
+        {"event_type": "event_type_1", "date": "1975-07-05T08:21:26.999+00:00",
+         "description": "event is sent at last microsecond before 2 days finished"}
+    ],
+    "badges_result": {
+      "slug_1": {
+        "event_type_1": {"count": 3},
+        "event_type_2": {"count": 2},
+        "done": true
+      }
+    }
+  },
+  {
+    "description": "11. Check failed frequency don't reset count if event has already reached it's goal (badge isn't got).",
+    "actions_points": {"event_type_1": 10, "event_type_2": 5},
+    "rules": [
+      {
+        "actions": {"event_type_1": 2, "event_type_2": 1},
+        "slug": "slug_1",
+        "badge_image": "badge_image_1.gif",
+        "filters": {"frequency": 2}
+      }
+    ],
+    "events": [
+        {"event_type": "event_type_1", "date": "1975-07-03T08:00:27.000+00:00"},
+        {"event_type": "event_type_1", "date": "1975-07-03T08:21:27.000+00:00"},
+        {"event_type": "event_type_1", "date": "1975-07-05T08:21:27.001+00:00"}
+    ],
+    "badges_result": {
+      "slug_1": {
+        "event_type_1": {"count": 2},
+        "done": false
+      }
+    }
   }
 ]

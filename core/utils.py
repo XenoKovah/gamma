@@ -91,10 +91,18 @@ def update_user_badges_by_event(user_uid, event, achieved_status_uid):
             is_affected_by_event = event.event_type in badge.rules.actions if badge.rules else False
 
             if is_affected_by_event and filter_event(event, badge.rules.filters, progress):
-                # TODO: refactor this to to atomic Mongo $inc
-                progress[event.event_type] = UserAction({
-                    'count': progress.get(event.event_type, {}).get('count', 0) + 1,
-                    'last': event.date})
+
+                if not check_frequency_fit(badge.rules.filters, progress, event):
+                    # if frequency condition is not performed and count don't reach goal value
+                    # it triggers progress recalculation for the current event
+                    # and set it's value to 1
+                    if progress.get(event.event_type, {}).get('count', 0) < badge.rules.actions[event.event_type]:
+                        progress[event.event_type] = UserAction({'count': 1, 'last': event.date})
+                else:
+                    # TODO: refactor this to use atomic Mongo $inc
+                    progress[event.event_type] = UserAction({
+                        'count': progress.get(event.event_type, {}).get('count', 0) + 1,
+                        'last': event.date})
 
             if badge.rules and (badge_granted := is_badge_granted(user, badge.rules, progress)):
                 """
@@ -142,13 +150,6 @@ def filter_event(event, filters, progress):
     """
     if not filters: return True
 
-    if filters.frequency:
-        # frequency is count of days that should be
-        delta = timedelta(filters.frequency)
-        last = progress.get('last')
-        if last and datetime.now() - last > delta:
-            return False
-
     if (filters.interval and
             filters.interval.start and
             filters.interval.end and not
@@ -161,6 +162,28 @@ def filter_event(event, filters, progress):
 
     if filters.course and not (event.course_id and event.course_id == filters.course):
         return False
+
+    return True
+
+
+def check_frequency_fit(filters, progress, event):
+    """
+    Check if frequency rule is performed for the event.
+
+    Frequency is count of days between same type events,
+    i.e. Frequency 2 means that if some type of event for badge is not
+    performed during 2 days, badge progress for the event should be reset
+    to 1 when new event of this type is received.
+    Other events from rules won't be affected.
+    """
+    if not filters: return True
+
+    if filters.frequency:
+        delta = timedelta(filters.frequency)
+        last = progress.get(event.event_type, {}).get('last')
+
+        if last and event.date - last > delta:
+            return False
 
     return True
 
