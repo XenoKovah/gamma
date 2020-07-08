@@ -58,7 +58,7 @@ def _update(user):
 
 def update_profile(user_uid, event):
     update_progress(user_uid, event.points)
-    update_chart(user_uid, event.event_type, event.points)
+    update_chart(user_uid, event.event_type, event.points, event.title)
     points = update_points(user_uid, event.points)
 
     return points
@@ -93,13 +93,16 @@ def update_progress(user_uid, event_award):
             }, upsert=True)
 
 
-def update_chart(user_uid, event_type, event_award):
+def update_chart(user_uid, event_type, event_award, event_title):
     """
     Update user chart with points for a particular event type.
     """
     conn.db.users.update_one(
         filter={"user_uid": user_uid},
-        update={"$inc": {f"chart.{event_type}.points": event_award}},
+        update={
+            "$set": {f"chart.{event_type}.title": event_title},
+            "$inc": {f"chart.{event_type}.points": event_award}
+        },
         upsert=True)
 
 

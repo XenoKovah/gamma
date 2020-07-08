@@ -34,6 +34,7 @@ class EventModel(Model):
     event_type = StringType(required=True)
     org = StringType()
     course_id = StringType()
+    title = StringType(required=False)
     points = IntType()
     date = UTCDateTimeType(metadata={'readOnly': True}, default=datetime.now)
     client = StringType()
@@ -145,6 +146,7 @@ class DailyProgress(Model):
 
 
 class UserEventPoints(Model):
+    title = StringType(required=False)
     points = IntType(required=True, default=0)
 
     class Options:

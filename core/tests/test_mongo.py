@@ -35,7 +35,7 @@ def test_charted(award, rand_str):
     """
     Test setting/getting charted progress documents.
     """
-    user_uid = rand_str
+    user_uid = event_title = rand_str
     event_type = "video"
 
     Event.objects.create(event_type=event_type, title=event_type, award=award)
@@ -43,12 +43,12 @@ def test_charted(award, rand_str):
     charted_bf = db.users.read_one(user_uid).chart
     assert charted_bf == {}
 
-    db.users.update_chart(user_uid, "video", award)
+    db.users.update_chart(user_uid, "video", award, event_title)
     charted = db.users.read_one(user_uid).chart
 
     assert isinstance(charted, dict)
     assert user_uid not in charted
-    assert charted[event_type] == UserEventPoints({"points": award})
+    assert charted[event_type] == UserEventPoints({'title': event_title, "points": award})
 
 
 def test_key_gen():

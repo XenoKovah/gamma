@@ -50,7 +50,7 @@ def test_api(live_server, rand_str, need_old_user, app_client, event):
     for item in progress:
         assert item.points == event.award
 
-    assert chart[event.event_type] == UserEventPoints({'points': event.award})
+    assert chart[event.event_type] == UserEventPoints({'title': event.title, 'points': event.award})
 
 
 @pytest.mark.django_db
@@ -318,7 +318,7 @@ def test_chartview(live_server, rand_str, app_client, event):
     assert res.status_code == 200
     data = res.json()
     chart = data['chart']
-    assert chart[event.event_type] == {"points": event.award}
+    assert chart[event.event_type] == {'title': event.title, "points": event.award}
 
     res = requests.get(
         live_server + GAMMA_PROFILE_API_URL,

@@ -60,6 +60,7 @@ class GameProfileView(APIView, AppClientUtils):
                 {"Error": "Event type is not recognizable"},
                 status=status.HTTP_406_NOT_ACCEPTABLE)
         event_data.points = system_event.award
+        event_data.title = system_event.title
 
         app_client = self.get_app_client(request)
         event_data.client = app_client.uid
