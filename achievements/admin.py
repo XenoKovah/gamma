@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 
-from .forms import EventForm
+from .forms import EventForm, StatusBadgeForm
 from .models import Achievement, StatusBadge, Event
 
 
@@ -39,6 +39,7 @@ class StatusBadgeAdmin(admin.ModelAdmin):
         'status_color',
     )
     prepopulated_fields = {"slug": ("title",)}
+    form = StatusBadgeForm
 
 
 class EventAdmin(admin.ModelAdmin):

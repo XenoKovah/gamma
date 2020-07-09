@@ -5,7 +5,7 @@ from django import forms
 from edx_integration.api.v2.utils import get_gamma_events_list
 from core import db
 
-from .models import Achievement, Event
+from .models import Achievement, Event, StatusBadge
 
 
 class AchievementForm(forms.ModelForm):
@@ -70,3 +70,23 @@ class EventForm(forms.ModelForm):
             return instance.event_type
         else:
             return self.cleaned_data['event_type']
+
+
+class StatusBadgeForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        instance = getattr(self, 'instance', None)
+        if instance and instance.pk:
+            self.fields['slug'].widget.attrs['readonly'] = True
+
+    class Meta:
+        model = StatusBadge
+        fields = ('title', 'slug', 'badge_img', 'description', 'status_points', 'status_color')
+
+    def clean_slug(self):
+        instance = getattr(self, 'instance', None)
+        if instance and instance.pk:
+            return instance.slug
+        else:
+            return self.cleaned_data['slug']

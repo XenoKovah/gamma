@@ -3,8 +3,9 @@ import json
 from django.core.cache import cache
 from django.forms import modelform_factory
 
-from achievements.forms import EventForm as BaseEventForm
-from achievements.models import Event
+from achievements.forms import EventForm as BaseEventForm, StatusBadgeForm
+from achievements.models import Event, StatusBadge
+from core import db as db_mongo
 from edx_integration.api.v2.utils import EVENTS_CACHE_KEY
 
 import requests
@@ -15,7 +16,6 @@ EventForm = modelform_factory(
     # fields are got from achievments.admin.EventAdmin
     fields=('event_type', 'award', 'title', 'color', 'notification_message')
 )
-
 
 class MockResponse:
     def __init__(self, status_code):
@@ -151,3 +151,52 @@ def test_event_form_validation_on_create(db):
 
     assert not edit_form['event_type'].field.widget.attrs.get('readonly')
     assert edit_form.is_valid() is True
+
+
+def test_status_badge_form_edit(db, make_test_file):
+    test_status = StatusBadge(
+        slug='test-status',
+        title='Test Status',
+        status_points=10,
+        badge_img=make_test_file())
+    test_status.save()
+    edit_data = {
+        'slug': 'test-status-edited',
+        'title': 'Test Status [Edited]',
+        'status_points': 3
+    }
+    edit_form = StatusBadgeForm(edit_data, instance=test_status, files={'badge_img': make_test_file()})
+
+    # Check that editing is disabled at UI level
+    assert edit_form['slug'].field.widget.attrs.get('readonly') is True
+    assert edit_form.is_valid() is True
+    edit_form.save()
+
+    # But even if user will bypass UI disables
+    # check that object with edited slug is not created at both relational and noSQL databases
+    assert StatusBadge.objects.filter(slug='test-status-edited').exists() is False
+    assert db_mongo.statuses.read_one('test-status-edited') is None
+
+    # And other changes are saved to the object with the old slug
+    after_editing_status = StatusBadge.objects.get(slug='test-status')
+    assert after_editing_status.title == edit_data['title']
+    assert after_editing_status.status_points == edit_data['status_points']
+    status_obj = db_mongo.statuses.read_one('test-status')
+    assert status_obj.title == edit_data['title']
+    assert status_obj.points == edit_data['status_points']
+
+
+def test_status_badge_form_validation_on_create(db, make_test_file):
+    form_data = {
+        'slug': 'test-status',
+        'title': 'Test Status',
+        'status_points': 3,
+    }
+    new_form = StatusBadgeForm(form_data, files={'badge_img': make_test_file()})
+
+    assert not new_form['slug'].field.widget.attrs.get('readonly')
+    assert new_form.is_valid() is True
+    new_form.save()
+    status_obj = db_mongo.statuses.read_one('test-status')
+    assert status_obj.title == form_data['title']
+    assert status_obj.points == form_data['status_points']

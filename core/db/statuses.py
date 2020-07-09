@@ -34,7 +34,7 @@ def read_one(status_uid):
     Read all user statuses.
     """
     data = conn.db.statuses.find_one({"status_uid": status_uid})
-    return _create_status(data)
+    return _create_status(data) if data else None
 
 
 def update(status):
