@@ -90,6 +90,7 @@ class GameProfileView(APIView, AppClientUtils):
         user = db.users.read_one(user_uid)
         user.system_statuses = db.statuses.read()
         user.system_badges = db.badges.read_active()
+        user.system_events = db.events.read()
 
         return Response(user.to_primitive('public'))
 

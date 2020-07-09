@@ -4,6 +4,8 @@ Integration tests.
 import random
 import string
 import json
+from enum import Enum
+from copy import deepcopy
 
 import pytest
 import requests
@@ -12,7 +14,10 @@ from rest_framework import status
 from achievements.models import Achievement, Event, StatusBadge
 from api.v0.views import USER_NOT_FOUND
 from core import db
-from core.data_models.models import UserBadge
+from core.data_models.models import UserBadge, SystemEvent, User
+
+
+GAMMA_PROFILE_API_URL = "/api/v0/gamma-profile/"
 
 
 def test_dashboard(live_server, settings, admin_client, rand_str):
@@ -322,6 +327,46 @@ def test_leaderboard_api(entry, live_server, app_client, mocker):
         raise NotImplementedError(
             "Tests for the cases with other status codes are not implemented."
         )
+
+
+def test_system_events_profile_field(live_server, app_client):
+    """
+    GameProfile API should provide client with the system events data.
+    """
+    db.engine.conn.db.users.drop()
+    db.engine.conn.db.events.drop()
+
+    class Color(Enum):
+        RED = 1
+        GREEN = 2
+        BLUE = 3
+
+    system_events_data = [
+        SystemEvent({
+            "event_type": f"system-event-type-{i}",
+            "title": f"System Event title {i}",
+            "award": i,
+            "color": Color(i+1).name
+        }).to_primitive("public") for i in range(2)
+    ]
+
+    db.engine.conn.db.events.insert_many(deepcopy(system_events_data))
+
+    user = User({"user_uid": "test_user"})
+    db.users.create(user)
+
+    res = requests.get(
+        live_server + GAMMA_PROFILE_API_URL,
+        params={
+            'username': user.user_uid,
+        },
+        headers={
+            'App-key': app_client.key,
+            'App-secret': app_client.secret
+        }
+    )
+
+    assert res.json()["system_events"] == system_events_data
 
 
 def _cleanup_badges():

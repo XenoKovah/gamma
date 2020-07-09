@@ -244,6 +244,7 @@ class User(Model):
     system_badges = ListType(ModelType(Badge), default=[])
     statuses = ListType(ModelType(Status), default=[])
     system_statuses = ListType(ModelType(Status), default=[])
+    system_events = ListType(ModelType(SystemEvent), default=[])
     chart = DictType(ModelType(UserEventPoints), default={})
     progress = DictType(ListType(ModelType(DailyProgress)), default={})
     player_ids = ListType(StringType(), serialize_when_none=False, required=False)
