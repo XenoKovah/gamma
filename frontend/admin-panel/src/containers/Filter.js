@@ -126,7 +126,8 @@ export default class Filter extends React.Component {
     }
 
     handleChangeDateStart(date) {
-
+        // DatePicker returns current time with a date, reset it to make start of the interval being start of of the day
+        date.setUTCHours(0, 0, 0, 0);
         let formattedDate = date.toISOString();
         let state = this.state;
         state.interval.start = formattedDate;
@@ -154,6 +155,8 @@ export default class Filter extends React.Component {
     }
 
     handleChangeDateEnd(date) {
+        // DatePicker returns current time with a date, reset it to make end of the interval being end of of the day
+        date.setUTCHours(23, 59, 59, 999);
         let formattedDate = date.toISOString();
         let state = this.state;
         state.interval.end = formattedDate;
