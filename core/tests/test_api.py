@@ -417,7 +417,8 @@ def test_statusview(live_server, rand_str, app_client):
     statusbadge = StatusBadge(
         title=rand_str,
         slug=rand_str,
-        badge_id=rand_str
+        badge_id=rand_str,
+        status_points=99
     )
     statusbadge.save()
     db.users.create(User({"user_uid": rand_str}))

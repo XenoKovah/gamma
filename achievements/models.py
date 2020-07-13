@@ -5,6 +5,7 @@ Achievement models.
 from django.db import models
 from django.contrib.sites.models import Site
 from django.core.exceptions import PermissionDenied
+from django.core.validators import MinValueValidator
 
 from core import db
 from core.data_models.models import Status, SystemEvent, Badge
@@ -123,7 +124,7 @@ class StatusBadge(models.Model, BadgeAbsoluteUrl):
     description = models.TextField(blank=True, null=True)
 
     status_points = models.PositiveIntegerField(
-        unique=True, blank=True, null=True
+        unique=True, validators=[MinValueValidator(1)]
     )
     status_color = models.CharField(
         max_length=16, choices=BADGE_STATUS_COLORS, blank=True

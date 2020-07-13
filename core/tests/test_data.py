@@ -42,7 +42,7 @@ def test_deactivated_badge_creation(make_test_file):
 @pytest.mark.django_db
 def test_deleted_status_deactivated(make_test_file):
     slug = 'statusslug1'
-    status = StatusBadge.objects.create(title=slug, slug=slug, badge_img=make_test_file())
+    status = StatusBadge.objects.create(title=slug, slug=slug, badge_img=make_test_file(), status_points=10)
     status_mongo = db.statuses.read_one(slug)
     assert status_mongo.status_uid == slug
     assert status_mongo.active is True
@@ -55,10 +55,11 @@ def test_deleted_status_deactivated(make_test_file):
 @pytest.mark.django_db
 def test_deactivated_status_creation(make_test_file):
     slug = 'statusslug1'
-    status = StatusBadge.objects.create(title=slug, slug=slug, badge_img=make_test_file())
+    status = StatusBadge.objects.create(title=slug, slug=slug, badge_img=make_test_file(), status_points=15)
     status.delete()
     # Delete status and than create status with the same slug
-    status = StatusBadge.objects.create(title=slug, slug=slug, badge_img=make_test_file())
+    status = StatusBadge.objects.create(title=slug, slug=slug, badge_img=make_test_file(), status_points=20)
     status_mongo = db.statuses.read_one(slug)
     assert status_mongo.status_uid == slug
     assert status_mongo.active is True
+    assert status_mongo.points == 20
