@@ -242,3 +242,10 @@ body:not(.login) #container {
 .object-tools {
     margin-top: -55px;
 }
+
+input[type=text]:-moz-read-only { /* For Firefox */
+  background: $body-background;
+}
+input[type=text]:read-only {
+  background: $body-background;
+}
