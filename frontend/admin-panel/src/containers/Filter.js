@@ -126,20 +126,17 @@ export default class Filter extends React.Component {
     }
 
     handleChangeDateStart(date) {
-        // DatePicker returns current time with a date, reset it to make start of the interval being start of of the day
-        date.setUTCHours(0, 0, 0, 0);
-        let formattedDate = date.toISOString();
         let state = this.state;
-        state.interval.start = formattedDate;
+        state.interval.start = date;
         state.stateUpdated = false;
         this.setState(state, () => {
-            if (!formattedDate && !state.interval.end) {
+            if (!date && !state.interval.end) {
                 state.manuallyAdded.interval = false;
                 delete state['interval'];
                 this.setState(state);
                 this.props.onChange("interval", {});
             } else {
-                this.props.onChange("start", formattedDate);
+                this.props.onChange("start", date);
             }
         })
     }
@@ -155,20 +152,17 @@ export default class Filter extends React.Component {
     }
 
     handleChangeDateEnd(date) {
-        // DatePicker returns current time with a date, reset it to make end of the interval being end of of the day
-        date.setUTCHours(23, 59, 59, 999);
-        let formattedDate = date.toISOString();
         let state = this.state;
-        state.interval.end = formattedDate;
+        state.interval.end = date;
         state.stateUpdated = false;
         this.setState(state, () => {
-            if (!this.state.interval.start && !formattedDate) {
+            if (!this.state.interval.start && !date) {
                 state.manuallyAdded.interval = false;
                 delete state['interval'];
                 this.setState(state);
                 this.props.onChange("interval", {});
             } else {
-                this.props.onChange("end", formattedDate);
+                this.props.onChange("end", date);
             }
         })
     }

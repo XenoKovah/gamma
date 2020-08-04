@@ -90,9 +90,19 @@ class App extends Component {
                 )
             }
         }
+        let filters = result.filters;
+        if (filters && filters.interval && filters.interval.start && filters.interval.end) {
+            // Add local timezone shift to avoid date shift due to interval values are stored with UTC timezone
+            let start = new Date(filters.interval.start);
+            let end = new Date(filters.interval.end);
+            start.setMinutes( start.getMinutes() + start.getTimezoneOffset());
+            end.setMinutes( end.getMinutes() + end.getTimezoneOffset());
+            filters.interval.start = start;
+            filters.interval.end = end;
+        }
         this.setState({
             actions: actions,
-            filters: result.filters,
+            filters: filters,
             rawActions: result.actions,
             shouldFilterUpdate: true
         })
@@ -129,6 +139,17 @@ class App extends Component {
         rules.badges = badges;
       }
       rules.filters = this.state.filters;
+      if (rules.filters.interval) {
+          // Remove user timezone and send interval in UTC time,
+          // set time for the start of the interval to be start of of the day
+          // and end of the interval to be end of of the day.
+          let start = rules.filters.interval.start;
+          let end = rules.filters.interval.end;
+          start.setHours(0, -1 * start.getTimezoneOffset(), 0, 0);
+          end.setHours(23, 59 - end.getTimezoneOffset(), 59, 999);
+          rules.filters.interval.start = start.toISOString();
+          rules.filters.interval.end = end.toISOString();
+      }
 
       fetch(process.env.REACT_APP_LOCALHOST + BADGE_RULES, {
         method: 'PUT',
