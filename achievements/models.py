@@ -2,6 +2,7 @@
 Achievement models.
 """
 
+from django.conf import settings
 from django.db import models
 from django.contrib.sites.models import Site
 from django.core.exceptions import PermissionDenied
@@ -93,7 +94,7 @@ class Achievement(models.Model, BadgeAbsoluteUrl):
             "badge_uid": self.slug,
             "slug": self.slug,
             "title": self.title,
-            "url": self.get_absolute_url(),
+            "url": self.badge_img.url if settings.STORE_RELATIVE_URLS else self.get_absolute_url(),
         }
         if creating:
             # for the case of re-creation object with the same slug
@@ -141,7 +142,7 @@ class StatusBadge(models.Model, BadgeAbsoluteUrl):
             "active": True,
             "points": self.status_points,
             "color": self.status_color,
-            "url": self.get_absolute_url()
+            "url": self.badge_img.url if settings.STORE_RELATIVE_URLS else self.get_absolute_url()
         }))
 
     def delete(self, *args, **kwargs):

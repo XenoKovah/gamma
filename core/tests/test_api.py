@@ -409,7 +409,7 @@ def test_badgesview(live_server, rand_str, make_test_file, app_client):
 
 
 @pytest.mark.django_db
-def test_statusview(live_server, rand_str, app_client):
+def test_statusview(live_server, rand_str, app_client, make_test_file):
     """
     Get all Statuses/Status Badges.
     """
@@ -418,7 +418,8 @@ def test_statusview(live_server, rand_str, app_client):
         title=rand_str,
         slug=rand_str,
         badge_id=rand_str,
-        status_points=99
+        status_points=99,
+        badge_img=make_test_file()
     )
     statusbadge.save()
     db.users.create(User({"user_uid": rand_str}))
@@ -438,6 +439,7 @@ def test_statusview(live_server, rand_str, app_client):
     assert statuses[0]['title'] == rand_str
     assert statuses[0]['status_uid'] == rand_str
     assert statuses[0]['slug'] == rand_str
+    assert statuses[0]['url'] == statusbadge.badge_img.url
 
 
 def _create_statuses(statuses_data):
@@ -449,7 +451,7 @@ def _create_statuses(statuses_data):
             "title": slug,
             "active": status_data.get('active', True),
             "points": 5,
-            "url": f"http://test.url/{slug}"
+            "url": f"/test_url/{slug}"
         }))
 
 
@@ -461,7 +463,7 @@ def _create_badges(badges_data):
                 "badge_uid": slug,
                 "slug": slug,
                 "title": slug,
-                "url": f"http://test.url/{slug}",
+                "url": f"/test_url/{slug}",
                 "rules": badge_data.get('rules', {}),
                 "active": badge_data.get('active', True),
             })

@@ -104,7 +104,7 @@ def test_rules(rand_str, award):
             "rules": {
                 "actions": actions
             },
-            "url": "test_url"
+            "url": "/test_url"
         })
 
 

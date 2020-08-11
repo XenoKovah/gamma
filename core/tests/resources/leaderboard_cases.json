@@ -17,7 +17,7 @@
               "goal": 1
             }
           },
-          "url": "https://example.com/media/media/badge_image_1"
+          "url": "/media/media/badge_image_1"
         },
         "badge_1": {
           "done": true,
@@ -27,7 +27,7 @@
               "goal": 1
             }
           },
-          "url": "https://example.com/media/media/badge_image_1"
+          "url": "/media/media/badge_image_1"
         }
       }
     },
@@ -57,7 +57,7 @@
               "goal": 1
             }
           },
-          "url": "https://example.com/media/media/badge_image_1"
+          "url": "/media/media/badge_image_1"
         }
       }
     },
@@ -87,7 +87,7 @@
               "goal": 1
             }
           },
-          "url": "https://example.com/media/media/badge_image_1"
+          "url": "/media/media/badge_image_1"
         }
       }
     },
@@ -117,7 +117,7 @@
               "goal": 1
             }
           },
-          "url": "https://example.com/media/media/badge_image_1"
+          "url": "/media/media/badge_image_1"
         }
       }
     },
@@ -147,7 +147,7 @@
               "goal": 1
             }
           },
-          "url": "https://example.com/media/media/badge_image_1"
+          "url": "/media/media/badge_image_1"
         }
       }
     },
@@ -177,7 +177,7 @@
               "goal": 1
             }
           },
-          "url": "https://example.com/media/media/badge_image_1"
+          "url": "/media/media/badge_image_1"
         }
       }
     },
@@ -204,7 +204,7 @@
               "goal": 1
             }
           },
-          "url": "https://example.com/media/media/badge_image_1"
+          "url": "/media/media/badge_image_1"
         }
       }
     },
@@ -234,7 +234,7 @@
               "goal": 1
             }
           },
-          "url": "https://example.com/media/media/badge_image_1"
+          "url": "/media/media/badge_image_1"
         }
       }
     },

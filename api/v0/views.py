@@ -173,10 +173,6 @@ class BadgeRulesView(APIView):
         if not (badge_model := Achievement.objects.filter(slug=slug).first()):
             return Response({"Error": "user_uid must be set"}, status=status.HTTP_400_BAD_REQUEST)
 
-        badge_url = request.build_absolute_uri(badge_model.badge_img.url)
-        data = request.data
-        data.update({'url': badge_url})
-
         with db.badges.read_and_update(slug) as badge:
             if badge:
                 old_rules = badge.rules
@@ -190,7 +186,7 @@ class BadgeRulesView(APIView):
         if old_rules and new_rules:
             # don't try to open the badge for users if it's ruldataes are completely deleted
             update_users_badge_data.delay(slug, old_rules.to_primitive(), new_rules.to_primitive(),
-                                          badge_url, badge_model.title)
+                                          badge_model.badge_img.url, badge_model.title)
 
         return Response({}, status=status.HTTP_200_OK)
 
@@ -258,12 +254,6 @@ class AchievementsView(APIView):
 
             if form.is_valid():
                 form.save()
-
-                data = {"title": form.cleaned_data.get("title"),
-                        "url": request.build_absolute_uri(achievement.badge_img.url)}
-
-                with db.badges.read_and_update(slug) as badge:
-                    badge.update_badge(data)
 
                 return Response({}, status=status.HTTP_200_OK)
 

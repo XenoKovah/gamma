@@ -202,3 +202,5 @@ WEBPACK_LOADER = {
         'IGNORE': [r'.+\.hot-update.js', r'.+\.map']
     }
 }
+
+STORE_RELATIVE_URLS = environ.get('STORE_RELATIVE_URLS', True)

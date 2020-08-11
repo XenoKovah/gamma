@@ -26,7 +26,13 @@ class CustomURLType(URLType):
             (\# (?P<frag>   %(frag)s   )     )?)$
             """ % URI_PATTERNS, re.I + re.X)
 
-    def valid_url(self, value):
+    RELATIVE_URL_REGEX = re.compile("^\/[\.a-zA-Z0-9\-_]+(\/[\.a-zA-Z0-9\-_]+)*\/?$")
+
+    def __init__(self, relative=False, **kwargs):
+        self.relative = relative
+        super().__init__(**kwargs)
+
+    def _validate_absolute_url(self, value):
         """
         Overrides validation method to support local hostnames with a port.
         """
@@ -75,3 +81,14 @@ class CustomURLType(URLType):
         url['hostn_enc'] = hostname
 
         return url
+
+    def _validate_relative_url(self, value):
+        match = self.RELATIVE_URL_REGEX.match(value)
+        if not match:
+            return False
+        return value
+
+    def valid_url(self, value):
+        if self.relative:
+            return self._validate_relative_url(value)
+        return self._validate_absolute_url(value)

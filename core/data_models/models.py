@@ -10,6 +10,8 @@ from typing import List
 from datetime import datetime
 from bson import ObjectId
 
+from django.conf import settings
+
 from schematics.models import Model
 from schematics.contrib.mongo import ObjectIdType
 from schematics.types import (
@@ -82,7 +84,7 @@ class UserBadge(Model):
     title = StringType(required=False, serialize_when_none=False)
     done = BooleanType(default=False)
     progress = DictType(ModelType((UserAction), default={}))
-    url = CustomURLType(required=True)
+    url = CustomURLType(required=True, relative=settings.STORE_RELATIVE_URLS)
 
     class Options:
         roles = {
@@ -104,7 +106,7 @@ class Status(Model):
     points = IntType(serialized_name='status_points')
     progress = IntType(serialize_when_none=False)
     color = StringType(serialize_when_none=False)
-    url = CustomURLType(serialize_when_none=False)
+    url = CustomURLType(serialize_when_none=False, relative=settings.STORE_RELATIVE_URLS)
 
     def __hash__(self):
         return hash(self.status_uid)
@@ -126,7 +128,7 @@ class Status(Model):
 class UserStatus(Model):
     status_uid = StringType(required=True)
     status_title = StringType(required=True)
-    url = CustomURLType(required=True)
+    url = CustomURLType(required=True, relative=settings.STORE_RELATIVE_URLS)
 
     class Options:
         roles = {
@@ -162,7 +164,7 @@ class DepBadge(Model):
     """
     badge_uid = StringType(required=True)
     badge_title = StringType(required=True)
-    url = CustomURLType(required=True)
+    url = CustomURLType(required=True, relative=settings.STORE_RELATIVE_URLS)
 
 
 class SystemAction(Model):
@@ -223,7 +225,7 @@ class Badge(Model):
     badge_uid = StringType(required=True, serialize_when_none=False)
     slug = StringType(required=False)
     title = StringType(required=False, serialize_when_none=False)
-    url = CustomURLType(required=True)
+    url = CustomURLType(required=True, relative=settings.STORE_RELATIVE_URLS)
     rules = ModelType(Rules, serialize_when_none=False)
     active = BooleanType(default=True)
 
