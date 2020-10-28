@@ -139,7 +139,7 @@ class App extends Component {
         rules.badges = badges;
       }
       rules.filters = this.state.filters;
-      if (rules.filters.interval) {
+      if (rules.filters && rules.filters.interval) {
           // Remove user timezone and send interval in UTC time,
           // set time for the start of the interval to be start of of the day
           // and end of the interval to be end of of the day.
