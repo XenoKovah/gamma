@@ -1,4 +1,5 @@
 from os import environ, path
+from distutils.util import strtobool
 
 from .edx_platform import *
 from .logging import LOGGING
@@ -203,4 +204,4 @@ WEBPACK_LOADER = {
     }
 }
 
-STORE_RELATIVE_URLS = environ.get('STORE_RELATIVE_URLS', True)
+STORE_RELATIVE_URLS = strtobool(environ.get('STORE_RELATIVE_URLS', 'True'))
