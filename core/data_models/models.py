@@ -330,5 +330,5 @@ class AppClient(Model):
     class Options:
         roles = {
             'public': blacklist('_id', 'key', 'secret'),
-            'internal': blacklist('')
+            'internal': blacklist('_id')
         }
