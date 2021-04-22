@@ -52,6 +52,7 @@ def update_badges_by_badges(user_uid, badges_granted):
                     }
                     user_badge = UserBadge({
                         "title": badge.title,
+                        "description": badge.description,
                         "url": badge.url,
                         "done": True,
                         "progress": progress
@@ -132,6 +133,7 @@ def update_user_badges_by_event(user_uid, event, achieved_status_uid):
                 with db.users.read_and_update(user.user_uid) as user:
                     user_badge = UserBadge({
                         "title": badge.title,
+                        "description": badge.description,
                         "url": badge.url,
                         "done": badge_granted,
                         "progress": progress

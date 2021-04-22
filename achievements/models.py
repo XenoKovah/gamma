@@ -94,6 +94,7 @@ class Achievement(models.Model, BadgeAbsoluteUrl):
             "badge_uid": self.slug,
             "slug": self.slug,
             "title": self.title,
+            "description": self.description,
             "url": self.badge_img.url if settings.STORE_RELATIVE_URLS else self.get_absolute_url(),
         }
         if creating:
@@ -139,6 +140,7 @@ class StatusBadge(models.Model, BadgeAbsoluteUrl):
             "status_uid": self.slug,
             "slug": self.slug,
             "title": self.title,
+            "description": self.description,
             "active": True,
             "points": self.status_points,
             "color": self.status_color,

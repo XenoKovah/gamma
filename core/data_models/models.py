@@ -82,6 +82,7 @@ class UserAction(Model):
 class UserBadge(Model):
     badge_uid = StringType(required=False, serialize_when_none=False)
     title = StringType(required=False, serialize_when_none=False)
+    description = StringType(required=False, serialize_when_none=False)
     done = BooleanType(default=False)
     progress = DictType(ModelType((UserAction), default={}))
     url = CustomURLType(required=True, relative=settings.STORE_RELATIVE_URLS)
@@ -102,6 +103,7 @@ class Status(Model):
     status_uid = StringType(required=True)
     slug = StringType(required=True)
     title = StringType(required=True)
+    description = StringType(required=False)
     active = BooleanType(default=False)
     points = IntType(serialized_name='status_points')
     progress = IntType(serialize_when_none=False)
@@ -225,6 +227,7 @@ class Badge(Model):
     badge_uid = StringType(required=True, serialize_when_none=False)
     slug = StringType(required=False)
     title = StringType(required=False, serialize_when_none=False)
+    description = StringType(required=False, serialize_when_none=False)
     url = CustomURLType(required=True, relative=settings.STORE_RELATIVE_URLS)
     rules = ModelType(Rules, serialize_when_none=False)
     active = BooleanType(default=True)

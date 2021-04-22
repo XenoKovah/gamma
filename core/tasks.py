@@ -70,7 +70,7 @@ def notify_status_granted(user_uid, status_uid):
 
 
 @app.task
-def update_users_badge_data(badge_slug, old_rules, new_rules, badge_url, badge_title):
+def update_users_badge_data(badge_slug, old_rules, new_rules, badge_url, badge_title, badge_description):
     """
     Run on badge rules change, recalculate badges granted for users if needed.
     """
@@ -108,6 +108,7 @@ def update_users_badge_data(badge_slug, old_rules, new_rules, badge_url, badge_t
                 }
                 user_badge = UserBadge({
                     "title": badge_title,
+                    "description": badge_description,
                     "url": badge_url,
                     "done": True,
                     "progress": progress
