@@ -1,4 +1,5 @@
 import base64
+from core.notif.edx_provider import EdxServiceBuilder
 import random
 import string
 from datetime import datetime
@@ -9,6 +10,7 @@ from webpack_loader.loader import WebpackLoader
 from django.core.files.base import ContentFile
 
 from core.models import AppClient
+from core.data_models.models import User
 from core.notif import push
 from core.notif.onesignal_provider import OneSignalServiceBuilder
 from core.notif.cfg import Provider
@@ -73,10 +75,12 @@ def push_factory():
     """
     factory = push.factory
     factory.register_builder(Provider.ONESIGNAL, OneSignalServiceBuilder())
+    factory.register_builder(Provider.EDX, EdxServiceBuilder())
 
     yield factory
 
     factory.unregister_builder(Provider.ONESIGNAL)
+    factory.unregister_builder(Provider.EDX)
 
 
 @pytest.fixture(scope="function")
@@ -86,7 +90,7 @@ def notif_data():
     """
     _heading = "Message heading"
     _content = "Hello username"
-    _icon_url = "http://localhost:9000/icon.png"
+    _icon_url = "/media/icon.png"
     _url = "http://localhost:9000/performance"
 
     _data = {
@@ -99,10 +103,11 @@ def notif_data():
 
     return _data
 
+
 @pytest.fixture(scope="function")
-def user(mocker):
-    _user = mocker.Mock()
-    _user.user_uid = "user1"
-    _user.player_ids = None
+def user():
+    _user = User({
+        "user_uid": "user1"
+    })
 
     return _user

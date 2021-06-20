@@ -1,5 +1,7 @@
 env :=
-path := core/tests core/notif/tests
+# Local devstack can have a lot of trash data
+# So we boosting pytest colelction speed
+path := core/tests core/notif/tests edx_integration/tests
 
 DEV_ENV := dev
 STAGE_ENV := stage

@@ -2,6 +2,7 @@
 Integration with edX REST API v2 clients.
 """
 
+import json
 import http.client
 import urllib.parse
 
@@ -43,15 +44,53 @@ class EdxApiBaseClient(object):
         Returns:
             endpoint response with custom data (dict).
         """
-        headers_ = {
+        _headers = {
             "content-type": "application/json",
             "X-Edx-Api-Key": self.api_key,
         }
         if headers is not None:
-            headers_.update(headers)
+            _headers.update(headers)
         try:
-            resp = requests.get(url, headers=headers_, timeout=timeout)
-            print(resp, resp.status_code)
+            resp = requests.get(url, headers=_headers, timeout=timeout)
+
+            if resp.status_code == http.client.OK:
+                return resp.json()
+            elif resp.status_code == http.client.UNAUTHORIZED:
+                raise EdxApiUnauthorizedException
+            elif resp.status_code == http.client.INTERNAL_SERVER_ERROR:
+                raise EdxApiServerErrorException
+            elif resp.status_code == http.client.NOT_FOUND:
+                raise EdxApiNotFoundException
+            else:
+                raise OtherEdxApiException
+        except requests.exceptions.ReadTimeout:
+            raise EdxApiResponseTimeoutException
+        except ValueError:
+            raise EdxApiResponseParsingException
+    
+    def post(self, url, data=None, headers=None, timeout=None):
+        """
+        Issue REST POST request to a given URL.
+
+        Arguments:
+            url (str): API url to post data to.
+            data (dict): data to post
+            headers (dict): Headers necessary as per API.
+            timeout (int): Set request timeout in seconds if not None.
+        Returns:
+            endpoint response with custom data (dict).
+        """
+        _headers = {
+            "content-type": "application/json",
+            "X-Edx-Api-Key": self.api_key,
+        }
+        if headers is not None:
+            _headers.update(headers)
+        if data is not None:
+            _data = json.dumps(data)
+        try:
+            resp = requests.post(url, data=_data, headers=_headers, timeout=timeout)
+
             if resp.status_code == http.client.OK:
                 return resp.json()
             elif resp.status_code == http.client.UNAUTHORIZED:
@@ -143,3 +182,27 @@ class EdxApiV2Client(EdxApiBaseClient):
         """
         url = self.base_url + "tracking-events-list/"
         return self.get(url, timeout=timeout)
+
+
+class EdxNotificationClient(EdxApiBaseClient):
+    """
+    EdX base notification client.
+    """
+    def __init__(self, api_key=None, base_url=None):
+        """
+        Initialize a high-level edX API v2 client.
+
+        Arguments:
+            api_key (str): edx API key required for authorization.
+            base_url (str): base URL of API calls.
+        """
+        self.base_url = base_url or urllib.parse.urljoin(settings.EDX_LMS_BASE_URL, settings.EDX_NOTIFICATION_API_SUFFIX)
+        super().__init__(api_key)
+
+    def send_notification(self, data, timeout=None):
+        """
+        Send prepared notification.
+        """
+        # This is for future modifications
+        url = self.base_url
+        return self.post(url, data=data, timeout=timeout)

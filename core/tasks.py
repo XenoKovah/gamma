@@ -9,7 +9,7 @@ from core.utils import (
     is_badge_granted
 )
 from core import db
-from core import onesignal_provider
+from core import onesignal_provider, edx_provider
 from core.data_models.models import UserAction, UserBadge, Rules, EventModel
 
 log = logging.getLogger(__name__)
@@ -47,7 +47,9 @@ def notify_badges_granted(user_uid, badges):
             "url":  f"{settings.EDX_LMS_BASE_URL}/dashboard/gamification/"
         }
         try:
+            # TODO: implement single action send based on configuration
             onesignal_provider.send_notif(user, data)
+            edx_provider.send_notif(user, data)
         except Exception as ex:
             log.debug(ex)
 
@@ -65,6 +67,7 @@ def notify_status_granted(user_uid, status_uid):
     }
     try:
         onesignal_provider.send_notif(user, data)
+        edx_provider.send_notif(user, data)
     except Exception as ex:
         log.debug(ex)
 

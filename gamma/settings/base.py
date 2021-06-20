@@ -204,4 +204,5 @@ WEBPACK_LOADER = {
     }
 }
 
-STORE_RELATIVE_URLS = strtobool(environ.get('STORE_RELATIVE_URLS', 'True'))
+STORE_RELATIVE_URLS            = strtobool(environ.get('STORE_RELATIVE_URLS', 'True'))
+ONESIGNAL_NOTIFICATION_ENABLED = strtobool(environ.get('ONESIGNAL_NOTIFICATION_ENABLED', 'False'))

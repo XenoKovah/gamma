@@ -3,6 +3,7 @@ OneSignal provider module.
 """
 
 import onesignal as onesignal_sdk
+from django.conf import settings
 
 from core.notif.models import OneSignalNotif
 
@@ -83,6 +84,10 @@ class OneSignalService:
         """
         Sending notification by user_id (currently username) or by player_ids.
         """
+        # TODO: cover with units
+        if not settings.ONESIGNAL_NOTIFICATION_ENABLED:
+            return
+
         result = []
 
         _notif = self._create_base_notif(data)

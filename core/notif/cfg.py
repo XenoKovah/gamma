@@ -17,6 +17,8 @@ class Config:
     # Webpushr provider config
     WEBPUSHR_KEY:             str = "webpushr_key"
     WEBPUSHR_SECRET:          str = "webpushr_secret"
+    # EDX custom notifications
+    EDX_API_KEY:              str = "edx_api_key"
 
 
 @dataclass
@@ -26,3 +28,4 @@ class Provider:
     """
     ONESIGNAL: int = 1
     WEBPUSHR:  int = 2
+    EDX:       int = 3
