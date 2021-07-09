@@ -1,7 +1,7 @@
-GAMMA - Gamefication for OpenEdx.
+GAMMA - Gamification for OpenEdx.
 ===
 
-GAMMA is a microservice for gamefication.
+GAMMA is a microservice for gamification.
 We provide REST API to work with users coins,
 manage Badges or Achievements.
 
