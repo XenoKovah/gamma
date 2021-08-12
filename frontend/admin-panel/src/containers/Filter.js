@@ -235,12 +235,12 @@ export default class Filter extends React.Component {
         let currentOrg = {value: this.state.org, label:this.state.org};
         return (
             <div>
-                <h3>Filters</h3>
+                <h3>{gettext('Filters')}</h3>
                 <div className="FilterItem">
                     {
                         this.state.course || this.state.manuallyAdded.course ? (
                             <div className="FormGroup">
-                                <label htmlFor="courses">Courses</label>
+                                <label htmlFor="courses">{gettext('Courses')}</label>
                                 <Select inputId="course" name="course"
                                     styles={customStyles}
                                     value={currentCourse}
@@ -256,7 +256,7 @@ export default class Filter extends React.Component {
                     {
                         this.state.org || this.state.manuallyAdded.org ? (
                             <div className="FormGroup">
-                                <label htmlFor="org">Organisation</label>
+                                <label htmlFor="org">{gettext('Organisation')}</label>
                                 <Select inputId="org" name="org"
                                     styles={this.customFilterStyles}
                                     value={currentOrg}
@@ -272,7 +272,7 @@ export default class Filter extends React.Component {
                     {
                         this.state.frequency || this.state.manuallyAdded.frequency ? (
                             <div className="FormGroup">
-                                <label htmlFor="frequency">Frequency</label>
+                                <label htmlFor="frequency">{gettext('Frequency')}</label>
                                 <InputNumber name="frequency" id="frequency" type="number" min={1}
                                     value={this.state.frequency}
                                     onChange={this.handleChangeInput}
@@ -297,7 +297,7 @@ export default class Filter extends React.Component {
                                         />
 
                                     </MuiPickersUtilsProvider>
-                                    <button className="Btn Btn_danger" onClick={this.clearStart}>Clear</button>
+                                    <button className="Btn Btn_danger" onClick={this.clearStart}>{gettext('Clear')}</button>
                                 </div>
                                 <div className="FormGroup">
 
@@ -311,7 +311,7 @@ export default class Filter extends React.Component {
                                         />
 
                                     </MuiPickersUtilsProvider>
-                                    <button className="Btn Btn_danger" onClick={this.clearEnd}>Clear</button>
+                                    <button className="Btn Btn_danger" onClick={this.clearEnd}>{gettext('Clear')}</button>
                                 </div>
                             </div>
                         ) : false
@@ -321,7 +321,7 @@ export default class Filter extends React.Component {
                         {
                             emptyFields.length ? (
                                 <div className="FormGroup">
-                                    <label htmlFor="avFields">Add fields</label>
+                                    <label htmlFor="avFields">{gettext('Add fields')}</label>
                                     <Select id="avFields"
                                             onChange={this.avFieldsChanged}
                                             className="Select"
@@ -329,7 +329,7 @@ export default class Filter extends React.Component {
                                             value={filterSelectedItem}
                                             styles={customStyles}
                                             options={emptyFields}/>
-                                    <button className="Btn Btn_primary Btn_add" onClick={this.addField}>Add</button>
+                                    <button className="Btn Btn_primary Btn_add" onClick={this.addField}>{gettext('Add')}</button>
                                 </div>
                             ) : false
                         }

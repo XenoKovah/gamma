@@ -101,7 +101,7 @@ class EventType extends React.Component {
 
         return (
             <DropdownSelector
-                label="Event type"
+                label={gettext("Event type")}
                 value={defaultValue}
                 options={options}
                 onChanged={this.props.onChanged}
@@ -122,7 +122,7 @@ class BadgeSelector extends React.Component {
 
         return (
             <DropdownSelector
-                label="Badge type"
+                label={gettext("Badge type")}
                 value={defaultValue}
                 options={options}
                 onChanged={this.props.onChanged}
@@ -149,7 +149,7 @@ class StatusBadgeSelector extends React.Component {
 
         return (
             <DropdownSelector
-                label="Status Badge type"
+                label={gettext("Status Badge type")}
                 value={defaultValue}
                 options={options}
                 onChanged={this.props.onChanged}

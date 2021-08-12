@@ -7,9 +7,9 @@ export default class LeaderBoardTable extends React.Component {
         return this.props.gameProfiles.length > 0 ? (
             <div className="LeaderboardTable">
                 <div className="LeaderboardTableHead">
-                    <div className="LeaderboardTableHead-Item">Students</div>
-                    <div className="LeaderboardTableHead-Item">Progress</div>
-                    <div className="LeaderboardTableHead-Item">Badges</div>
+                    <div className="LeaderboardTableHead-Item">{gettext('Students')}</div>
+                    <div className="LeaderboardTableHead-Item">{gettext('Progress')}</div>
+                    <div className="LeaderboardTableHead-Item">{gettext('Badges')}</div>
                 </div>
                 <div className="LeaderboardTableBody">
                     {

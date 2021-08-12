@@ -12,7 +12,7 @@ class And extends Component {
 
     render() {
         return (
-            <button onClick={this.handleClick} className="Btn Btn_primary Btn_add">Add</button>
+            <button onClick={this.handleClick} className="Btn Btn_primary Btn_add">{gettext('Add')}</button>
         )
     }
 }

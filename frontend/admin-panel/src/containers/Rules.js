@@ -53,10 +53,10 @@ export default class Rules extends React.Component {
                 {
                     window.slug ? (
                         <div>
-                            <h1 className="RulesHeading">Rules</h1>
+                            <h1 className="RulesHeading">{gettext('Rules')}</h1>
                             <ActionList actions={this.state.actions}/>
                             <FilterList filters={this.state.filters}/>
-                            <Button onClick={this.handleClick}>Edit rules</Button>
+                            <Button onClick={this.handleClick}>{gettext('Edit rules')}</Button>
                         </div>
                     ) : false
                 }

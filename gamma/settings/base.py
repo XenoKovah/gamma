@@ -1,5 +1,8 @@
+import os
 from os import environ, path
 from distutils.util import strtobool
+
+from django.utils.translation import ugettext_lazy as _
 
 from .edx_platform import *
 from .logging import LOGGING
@@ -43,6 +46,7 @@ SITE_ID = 1
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -66,6 +70,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.i18n',
             ],
         },
     },
@@ -107,6 +112,14 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
+LANGUAGES = (
+    ('en', _('English')),
+    ('zh-cn', _('Chinese (China)')),
+)
+
+LOCALE_PATHS = (
+    os.path.join(BASE_DIR, 'locale'),
+)
 
 STATIC_URL = '/static/'
 STATIC_ROOT = path.join(BASE_DIR, 'static')

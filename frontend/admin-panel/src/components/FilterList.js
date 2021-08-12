@@ -48,10 +48,10 @@ export default class FilterList extends React.Component {
                 <Table>
                     <TableHead>
                     <TableRow>
-                        <TableCell align="center">Organisation</TableCell>
-                        <TableCell align="center">Course</TableCell>
-                        <TableCell align="center">Frequency</TableCell>
-                        <TableCell align="center">Interval</TableCell>
+                        <TableCell align="center">{gettext('Organisation')}</TableCell>
+                        <TableCell align="center">{gettext('Course')}</TableCell>
+                        <TableCell align="center">{gettext('Frequency')}</TableCell>
+                        <TableCell align="center">{gettext('Interval')}</TableCell>
                     </TableRow>
                     </TableHead>
                     <TableBody>

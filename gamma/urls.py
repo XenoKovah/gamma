@@ -18,6 +18,7 @@ from django.conf import settings
 from django.urls import include, path
 from django.conf.urls.static import static
 from django.views.generic.base import TemplateView
+from django.views.i18n import JavaScriptCatalog
 from django.contrib import admin
 
 from core.views import DashboardView, logout_view
@@ -29,6 +30,8 @@ urlpatterns = [
 
     # Native admin page
     path('admin/', admin.site.urls),
+
+    path('jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),
 
     # Django Rest Framework
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),

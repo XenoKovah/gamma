@@ -139,7 +139,7 @@ export default class Actions extends React.Component {
     render() {
         return (
                 <div>
-                    <h3>Actions</h3>
+                    <h3>{gettext('Actions')}</h3>
                     <div>
                         {
                             this.props.actions.map(el => {

@@ -1,3 +1,4 @@
+{% load i18n static %}
 <section class="Achievement">
         <script   src="https://code.jquery.com/jquery-3.3.1.min.js"   integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="   crossorigin="anonymous"></script>
         {% for achievement in achievements %}
@@ -13,27 +14,27 @@
                     </div>
                 </div>
                 <div class="Achievement-Controls">
-                    <a href="#/edit-rules/{{ achievement.slug }}" class="Btn Btn_danger">Edit rules</a>
+                    <a href="#/edit-rules/{{ achievement.slug }}" class="Btn Btn_danger">{% trans "Edit rules" %}</a>
                     <div class="Achievement-ControlsHover">
                         <!-- <label class="AchievementForm-CheckBlock">
                             <input type="checkbox" class="AchievementForm-CheckInput">
                             <span class="AchievementForm-CheckIcon"></span>
                         </label> -->
                         <button class="Btn Btn-Primary Btn_control Btn_edit edit-achievement-click">
-                            <span class="sr">edit</span>
+                            <span class="sr">{% trans "edit" %}</span>
                         </button>
                         <button class="Btn Btn-Default Btn_control Btn_remove delete-achievement-click" data-slug="{{ achievement.slug }}">
-                            <span class="sr">remove</span>
+                            <span class="sr">{% trans "remove" %}</span>
                         </button>
                     </div>
                 </div>
             </div>
             <form class="AchievementForm" id="form-{{ achievement.id }}" enctype="multipart/form-data">
                 <div class="AchievementForm-Wrapper">
-                    <div class="AchievementForm-Title">Change achievement</div>
+                    <div class="AchievementForm-Title">{% trans "Change achievement" %}</div>
                     <div class="AchievementForm-Block">
                         <div class="AchievementFormGroup">
-                            <label for="">Title</label>
+                            <label for="">{% trans "Title" %}</label>
                             <input type="text" name="title" id="title-{{ achievement.id }}" value="{{achievement.title}}">
                         </div>
                     </div>
@@ -43,14 +44,14 @@
                                 <img src="{{ achievement.badge_img.url }}" alt="" class="AchievementForm-Img">
                             </figure>
                             <div class="AchievementForm-GroupWrapper">
-                                <label for="">Image</label>
+                                <label for="">{% trans "Image" %}</label>
                                 <!--<input type="file" id="" name="badge_img" value="{{ achievement.badge_img.file }}">-->
 
 
                                 <div class="FileInput">
                                     <input type="file" class="image-upload" name="badge_img">
                                     <span class="FileInput-Label" data-js-label>{{ achievement.badge_img_name }}</span>
-                                    <span class="FileInput-Btn">Choose</span>
+                                    <span class="FileInput-Btn">{% trans "Choose" %}</span>
                                 </div>
 
 
@@ -59,14 +60,14 @@
                     </div>
                     <div class="AchievementForm-GroupWrapper">
                         <div class="AchievementFormGroup">
-                            <label for="">Description</label>
+                            <label for="">{% trans "Description" %}</label>
                             <textarea id="" name="description">{{ achievement.description }}</textarea>
                             <input type="hidden" id="slug-{{ achievement.id }}" value="{{ achievement.slug }}" name="slug">
                         </div>
                     </div>
                     <div class="AchievementForm-Controls">
-                        <button class="Btn Btn_primary save-achievement-click" data-form-id="{{ achievement.id }}">Save</button>
-                        <button class="Btn Btn_info cancel-achievement-click">Cancel</button>
+                        <button class="Btn Btn_primary save-achievement-click" data-form-id="{{ achievement.id }}">{% trans "Save" %}</button>
+                        <button class="Btn Btn_info cancel-achievement-click">{% trans "Cancel" %}</button>
                     </div>
                 </div>
             </form>
@@ -121,7 +122,7 @@
             });
 
             function confirm_and_delete(slug){
-                let confirmed = confirm(`Do you really want to delete achievement with slug "${slug}"`);
+                let confirmed = confirm(`${gettext("Do you really want to delete achievement with slug ")}"${slug}"`;
                 if (confirmed) {
                     $.ajax({
                         url: url,
@@ -146,7 +147,7 @@
                     data: {slug: slug},
                     success: (resp, xhr, settings)=>{
                         if (!(resp === null || resp.length === 0)){
-                            alert(`Can't delete, the badge is dependency for other badge(s): ${resp}`)
+                            alert(`${gettext("Can't delete, the badge is dependency for other badge(s): ")}${resp}`)
                         }
                         else {
                             confirm_and_delete(slug);
@@ -155,7 +156,7 @@
                     error: function (request, status, error) {
                         console.log(status);
                         console.log(request.responseText);
-                        alert("Check for deletion possibility can't be performed");
+                        alert(`${gettext("Check for deletion possibility can't be performed")}`);
                     }
                 })
             })

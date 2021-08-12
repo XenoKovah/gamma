@@ -29,8 +29,8 @@ export default class ActionList extends React.Component {
                 <Table>
                     <TableHead>
                         <TableRow>
-                            <TableCell align="center">Action</TableCell>
-                            <TableCell align="center">Points</TableCell>
+                            <TableCell align="center">{gettext('Actions')}</TableCell>
+                            <TableCell align="center">{gettext('Points')}</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>

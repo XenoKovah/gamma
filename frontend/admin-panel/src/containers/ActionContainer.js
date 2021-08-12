@@ -80,7 +80,7 @@ class ActionContainer extends React.Component {
                     action={this.props.action}
                     actions={this.props.availableActions}/>
                 {valueComponent}
-                <button onClick={this.deleteBlock} className="Btn Btn_danger">Delete</button>
+                <button onClick={this.deleteBlock} className="Btn Btn_danger">{gettext('Delete')}</button>
             </div>
         )
     }

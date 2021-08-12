@@ -1,0 +1,94 @@
+msgid ""
+msgstr ""
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: POEditor.com\n"
+"Project-Id-Version: Harrow\n"
+"Language: zh-CN\n"
+
+#: frontend/admin-panel/src/App.js:181
+msgid "Rules for "
+msgstr "...的规则"
+
+#: frontend/admin-panel/src/App.js:192
+msgid "Save"
+msgstr "保存"
+
+#: frontend/admin-panel/src/App.js:193
+msgid "Close"
+msgstr "关闭"
+
+#: frontend/admin-panel/src/components/ActionList.js:27
+#: frontend/admin-panel/src/containers/Actions.js:142
+msgid "Actions"
+msgstr "行动"
+
+#: frontend/admin-panel/src/components/ActionList.js:32
+msgid "Action"
+msgstr "行动"
+
+#: frontend/admin-panel/src/components/ActionList.js:33
+msgid "Points"
+msgstr "论点"
+
+#: frontend/admin-panel/src/components/And.js:15
+#: frontend/admin-panel/src/containers/Filter.js:329
+msgid "Add"
+msgstr "增加"
+
+#: frontend/admin-panel/src/components/Count.js:18
+msgid "Count"
+msgstr "计算"
+
+#: frontend/admin-panel/src/components/FilterList.js:51
+#: frontend/admin-panel/src/containers/Filter.js:257
+msgid "Organisation"
+msgstr "机构"
+
+#: frontend/admin-panel/src/components/FilterList.js:52
+msgid "Course"
+msgstr "课程"
+
+#: frontend/admin-panel/src/components/FilterList.js:53
+#: frontend/admin-panel/src/containers/Filter.js:273
+msgid "Frequency"
+msgstr "频率"
+
+#: frontend/admin-panel/src/components/FilterList.js:54
+msgid "Interval"
+msgstr "间距"
+
+#: frontend/admin-panel/src/components/LeaderBoardTable.js:10
+msgid "Students"
+msgstr "学生"
+
+#: frontend/admin-panel/src/components/LeaderBoardTable.js:11
+msgid "Progress"
+msgstr "进度"
+
+#: frontend/admin-panel/src/components/LeaderBoardTable.js:12
+msgid "Badges"
+msgstr "徽章"
+
+#: frontend/admin-panel/src/containers/ActionContainer.js:83
+msgid "Delete"
+msgstr "删除"
+
+#: frontend/admin-panel/src/containers/Filter.js:237
+msgid "Filters"
+msgstr "筛选"
+
+#: frontend/admin-panel/src/containers/Filter.js:242
+msgid "Courses"
+msgstr "课程"
+
+#: frontend/admin-panel/src/containers/Filter.js:298
+#: frontend/admin-panel/src/containers/Filter.js:312
+msgid "Clear"
+msgstr "清除"
+
+#: frontend/admin-panel/src/containers/Filter.js:322
+msgid "Add fields"
+msgstr "增加栏目"
+

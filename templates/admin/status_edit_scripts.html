@@ -11,7 +11,7 @@
           data: {slug: slug},
           success: (resp, xhr, settings)=>{
               if (!(resp === null || resp.length === 0)){
-                  alert(`Can't delete, the status is dependency for badge(s): ${resp}`)
+                  alert(`${gettext("Can't delete, the status is dependency for badge(s): ")}${resp}`)
               }
               else {
                   window.location.href = $('.deletelink').attr('href'); // proceed deletion
@@ -20,7 +20,7 @@
           error: function (request, status, error) {
               console.log(status);
               console.log(request.responseText);
-              alert("Check for deletion possibility can't be performed");
+              alert(`${gettext("Check for deletion possibility can't be performed")}`);
           }
       })
   });

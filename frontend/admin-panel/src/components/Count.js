@@ -15,7 +15,7 @@ class Count extends React.Component {
     render() {
         return (
             <div className="FormGroup">
-                <label htmlFor="count-input">Count</label>
+                <label htmlFor="count-input">{gettext('Count')}</label>
                 <InputNumber id="count-input" inputProps={{type: "number"}} min={1}
                     value={this.props.count}
                     onChange={this.onChange} />
