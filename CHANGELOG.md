@@ -1,9 +1,26 @@
 Changelog
 ===
 
-Versions follow Semantic Versioning.
+Versions follows PEP440 version scheme.
 ---
 
+gamma-core 3.1 (2021-08-27)
+---
+* ad603fe feat: implement pluggable notification for edx
+* 3417029 docs: fix typo in README
+* 898c645 feat: add description to badges models
+
+gamma-core 3.0.1 (2020-12-01)
+---
+* 6278fd0 Fix AppClient rewriting issue
+
+gamma-core 3.0.0 (2020-10-06)
+---
+* f79801e Fix relative urls storing settings
+* e4ac1a1 Fix filter.interval undefined issue
+* 58cb93c celery[redis]==4.3.0. Pinned dependency vine==1.3.0.
+* f9ad8e0 [RGG-443][RGG-444] Store URLs as relative by default
+* 4a1701e [RGG-412] Fix interval filter dates representation at admin form is shifted due to user timezone
 
 gamma-core 2.0.0 (2020-07-20)
 ---
