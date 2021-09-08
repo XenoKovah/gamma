@@ -70,6 +70,22 @@
 .Select {
     min-width: 130px;
 
+    &--filter .react-select {
+        &__menu {
+            right: 0;
+            width: 250px;
+
+            &:before {
+                left: auto;
+                right: 10%;
+            }
+        }
+
+        &__option {
+            text-transform: none;
+        }
+    }
+
     > div:first-of-type {
         border: 2px solid $base-color !important;
         border-right: 20px;
@@ -128,51 +144,13 @@
 
     .css-15k3avv,
     .css-1upx155 {
-        background: $selecd-list-background;
-        box-sizing: border-box;
-        box-shadow: none;
-        border-radius: 10px;
-        font-size: 12px;
-        font-weight: 400;
-        z-index: 11;
-        width: auto;
-        min-width: 100%;
-
-        &:before {
-            content: '';
-            display: inline-block;
-            position: absolute;
-            top: -12px;
-            left: 10%;
-            border: 6px solid transparent;
-            border-bottom: 6px solid $selecd-list-background;
-        }
-
         .css-1gl4k7y {
             font: inherit;
         }
 
         .css-11unzgr {
             max-height: 200px;
-
-            div {
-                color: $input-color;
-                font-size: 12px;
-                text-transform: uppercase;
-                padding: 5px 20px;
-                margin: 0 !important;
-                background: transparent;
-
-                &:hover {
-                    background-color: $base-color;
-                    color: $base-white-color;
-                    cursor: pointer;
-                }
-            }
         }
-    }
-    .css-15k3avv {
-        right: 0;
     }
 }
 

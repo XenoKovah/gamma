@@ -11,6 +11,7 @@ import DateFnsUtils from '@date-io/date-fns';
 import {AllowedFilters, isObjectEmpty} from '../Utils';
 
 import { COURSES, ORGANISATIONS } from '../api/Api';
+import { customStyles } from '../components/Select';
 
 import "react-datepicker/dist/react-datepicker.css";
 
@@ -241,11 +242,12 @@ export default class Filter extends React.Component {
                             <div className="FormGroup">
                                 <label htmlFor="courses">Courses</label>
                                 <Select inputId="course" name="course"
-                                    styles={this.customFilterStyles}
+                                    styles={customStyles}
                                     value={currentCourse}
                                     onChange={this.handleChangeInput}
                                     onBlur={this.handleBlurInput}
-                                    className="Select"
+                                    className="Select Select--filter"
+                                    classNamePrefix="react-select"
                                     options={courses}
                                     placeholder="-----"/>
                             </div>
@@ -325,6 +327,7 @@ export default class Filter extends React.Component {
                                             className="Select"
                                             defaultInputValue=""
                                             value={filterSelectedItem}
+                                            styles={customStyles}
                                             options={emptyFields}/>
                                     <button className="Btn Btn_primary Btn_add" onClick={this.addField}>Add</button>
                                 </div>

@@ -1,6 +1,64 @@
 import React from 'react';
 import Select from 'react-select';
 
+
+export const customStyles = {
+    menu: (provided, state) => ({
+        ...provided,
+        background: "#cdcecd",
+        boxSizing: "border-box",
+        boxShadow: "none",
+        borderRadius: "10px",
+        fontSize: "12px",
+        fontWeight: 400,
+        zIndex: 11,
+        width: "auto",
+        minWidth: "100%",
+        "&:before": {
+            content: '""',
+            position: "absolute",
+            top: "-12px",
+            left: "10%",
+            border: "6px solid transparent",
+            borderBottom: "6px solid #cdcecd"
+        }
+    }),
+    menuList: (base) => ({
+        ...base,
+        maxHeight: "150px",
+        overflowX: "hidden",
+        overflowY: "auto",
+  
+        "::-webkit-scrollbar": {
+            width: "7px",
+        },
+        "::-webkit-scrollbar-track": {
+            background: "#45a2d6",
+            borderRadius: '10px',
+        },
+        "::-webkit-scrollbar-thumb": {
+            background: "#3e3e3e",
+            borderRadius: '10px',
+        },
+        "::-webkit-scrollbar-thumb:hover": {
+            background: "#000",
+        }
+    }),
+    option: (base) => ({
+        ...base,
+        color: "#3e3e3e",
+        fontSize: "12px",
+        textTransform: "uppercase",
+        padding: "5px 20px",
+        margin: "0 !important",
+        background: "transparent",
+        "&:hover": {
+            backgroundColor: "#45a2d6",
+            color: "#fafafa",
+            cursor: "pointer"
+        }
+    }),
+}
 class DropdownSelector extends React.Component {
     constructor(props) {
         super(props);
@@ -12,12 +70,6 @@ class DropdownSelector extends React.Component {
     }
 
     render() {
-
-        const customStyles = {
-            menu: (provided, state) => ({
-                ...provided,
-                width: 400,
-            }),}
 
         return (
             <div className="FormGroup">
