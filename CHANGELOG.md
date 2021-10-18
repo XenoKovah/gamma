@@ -4,6 +4,12 @@ Changelog
 Versions follows PEP440 version scheme.
 ---
 
+gamma-core 3.2 (2021-10-18)
+---
+* 677d2de fix: [RGG-520] translation typo in achievements_list_new_ui.html
+* e458a75 feat: Translations to chinese for Gamification
+* e0ab186 fix: [harrow-695] added scroll to a select dropdowns
+
 gamma-core 3.1 (2021-08-27)
 ---
 * ad603fe feat: implement pluggable notification for edx
