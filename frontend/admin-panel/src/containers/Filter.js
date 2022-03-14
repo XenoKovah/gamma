@@ -91,6 +91,11 @@ export default class Filter extends React.Component {
             manuallyAdded
         } = this.state;
 
+        if (selectedItem.value == 'frequency') {
+            this.setState({frequency: 1});
+            this.props.onChange('frequency', 1);
+        }
+
         manuallyAdded[selectedItem.value] = true;
 
         this.setState({
@@ -273,7 +278,7 @@ export default class Filter extends React.Component {
                         this.state.frequency || this.state.manuallyAdded.frequency ? (
                             <div className="FormGroup">
                                 <label htmlFor="frequency">{gettext('Frequency')}</label>
-                                <InputNumber name="frequency" id="frequency" type="number" min={1}
+                                <InputNumber name="frequency" id="frequency" type="number" min={0}
                                     value={this.state.frequency}
                                     onChange={this.handleChangeInput}
                                     onBlur={this.handleBlurInput}

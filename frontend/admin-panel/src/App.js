@@ -151,6 +151,8 @@ class App extends Component {
           rules.filters.interval.end = end.toISOString();
       }
 
+      (!rules.filters.frequency || rules.filters.frequency == '0') && delete rules.filters.frequency
+
       fetch(process.env.REACT_APP_LOCALHOST + BADGE_RULES, {
         method: 'PUT',
         headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken')},
