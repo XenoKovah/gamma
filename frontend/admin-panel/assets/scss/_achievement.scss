@@ -47,12 +47,16 @@
 .Achievement-Content {
     padding: 15px 20px 20px;
     width: 100%;
+    overflow: hidden;
 }
 
 .Achievement-Title {
     font-size: 16px;
     font-weight: 700;
     text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .Achievement-Description {
