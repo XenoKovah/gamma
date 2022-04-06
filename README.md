@@ -21,6 +21,7 @@ Optionally we can use
 ✗ make dev.up env=dev
 ```
 
+Note that the Node.js supported version is 12.
 
 For staging/production usage
 ---
@@ -53,15 +54,22 @@ DB_PORT=5432
 DJANGO_SETTINGS_MODULE=gamma.settings.production
 
 # React
-# Optional reackt backend base url
+# Optional react backend base url
 # For local deployment we can use REACT_APP_LOCALHOST=http://0.0.0.0:9000
 REACT_APP_LOCALHOST=
 
 # EDX integrarion
 EDX_LMS_BASE_URL=<edx_lms_base_url>
+# For local deployment the default setting is EDX_API_KEY="PUT_YOUR_API_KEY_HERE"
 EDX_API_KEY=<edx_api_key>
 ```
 
+### For local installation:
+
+IP address in the EDX_LMS_BASE_URL setting must be your private IP address. You can find how to get your private IP 
+here: https://www.avg.com/en/signal/find-ip-address. For example, the value may be http://192.168.140.191:18000.  
+Note that the private ip can be changed because it is issued by a router, so it will be necessary to change this setting
+in the future.
 
 Run loadtests
 ---
@@ -69,7 +77,7 @@ Run loadtests
 1. export all needed env variables:
 ```
 export APP_KEY=****************
-export APP_SECRET==****************
+export APP_SECRET=****************
 export EVENT_TYPE=edx_bookmark_added
 ```
 
