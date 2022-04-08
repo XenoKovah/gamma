@@ -1,4 +1,5 @@
 from datetime import datetime
+from random import randint
 
 import pytest
 from schematics.exceptions import DataError
@@ -15,7 +16,12 @@ def test_progress(current_date, award, rand_str):
     Test setting/getting progress documents.
     """
     user_uid = rand_str
-    db.users.update_progress(user_uid, award)
+
+    # We want to test that Progress works for repeated awards
+    repeated_awards = randint(2, 10)
+
+    for _ in range(repeated_awards):
+        db.users.update_progress(user_uid, award)
 
     user = db.users.read_one(user_uid)
     progress = user.progress[str(datetime.now().year)]
@@ -23,7 +29,7 @@ def test_progress(current_date, award, rand_str):
     assert isinstance(progress, list)
     assert len(progress) == 1
     assert progress[0]['date'] == current_date
-    assert progress[0]['points'] == award
+    assert progress[0]['points'] == award * repeated_awards
 
     serialized_progress_item = progress[0].to_primitive('public')
     assert user_uid not in serialized_progress_item

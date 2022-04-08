@@ -69,9 +69,13 @@ def update_progress(user_uid, event_award):
     """
     Update user progress with points for a particular date.
     """
-    year = datetime.now().year
-    date = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-    daily_progress = DailyProgress({"date": date, "points": event_award})
+    daily_progress = DailyProgress({
+        "date": datetime.now().replace(hour=0, minute=0, second=0, microsecond=0),
+        "points": event_award,
+    })
+    daily_progress_primitives = daily_progress.to_primitive()
+    date = daily_progress_primitives['date']
+    year = daily_progress.date.year
 
     if conn.db.users.find_one({"user_uid": user_uid,
                               f"progress.{year}.date": date}, {"_id": 1}):
@@ -88,7 +92,7 @@ def update_progress(user_uid, event_award):
             filter={"user_uid": user_uid},
             update={
                 "$addToSet": {
-                    f"progress.{year}": daily_progress.to_primitive()
+                    f"progress.{year}": daily_progress_primitives
                 }
             }, upsert=True)
 
