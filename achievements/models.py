@@ -8,6 +8,7 @@ from django.contrib.sites.models import Site
 from django.core.exceptions import PermissionDenied
 from django.core.validators import MinValueValidator
 
+from achievements.fields import CustomImageField
 from core import db
 from core.data_models.models import Status, SystemEvent, Badge
 
@@ -76,7 +77,7 @@ class Achievement(models.Model, BadgeAbsoluteUrl):
     slug = models.SlugField(max_length=64, unique=True)
     badge_id = models.CharField(max_length=64, blank=True)
     description = models.TextField(blank=True, null=True)
-    badge_img = models.ImageField(upload_to="media")
+    badge_img = CustomImageField(upload_to="media")
 
     def __str__(self):
         return self.slug.__str__()
@@ -131,7 +132,7 @@ class StatusBadge(models.Model, BadgeAbsoluteUrl):
     status_color = models.CharField(
         max_length=16, choices=BADGE_STATUS_COLORS, blank=True
     )
-    badge_img = models.ImageField(upload_to="media")
+    badge_img = CustomImageField(upload_to="media")
 
     def save(self, *args, **kwargs):
         super(StatusBadge, self).save(*args, **kwargs)

@@ -27,6 +27,8 @@ requests==2.22.0
 django-redis-cache==2.1.0
 mongo-tools==0.0.2
 
+awesome-slugify==1.6.5
+
 # Assets
 django-webpack-loader==0.6.0
 
