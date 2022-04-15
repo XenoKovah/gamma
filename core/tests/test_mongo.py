@@ -37,6 +37,31 @@ def test_progress(current_date, award, rand_str):
 
 
 @pytest.mark.django_db
+def test_random_award_progress(current_date, rand_str):
+    """
+    Test setting/getting progress documents.
+    """
+    user_uid = rand_str
+
+    # We want to test that Progress works for repeated awards
+    repeated_awards = randint(2, 10)
+    total_award = 0
+
+    for _ in range(repeated_awards):
+        award = randint(1, 20)
+        db.users.update_progress(user_uid, award)
+        total_award += award
+
+    user = db.users.read_one(user_uid)
+    progress = user.progress[str(datetime.now().year)]
+
+    assert isinstance(progress, list)
+    assert len(progress) == 1
+    assert progress[0]['date'] == current_date
+    assert progress[0]['points'] == total_award
+
+
+@pytest.mark.django_db
 def test_charted(award, rand_str):
     """
     Test setting/getting charted progress documents.
