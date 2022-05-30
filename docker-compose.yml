@@ -39,8 +39,6 @@ services:
   mongo:
     container_name: gamma_mongo
     image: mongo:4.2
-    ports:
-      - "27017:27017"
     volumes:
       - mongo_db:/data/db
 
@@ -51,7 +49,7 @@ services:
       - ./envs/base.env
       - ./envs/private.env
     volumes:
-        - pg_db:/var/lib/postgresql/data/
+      - pg_db:/var/lib/postgresql/data/
 
   rabbit:
     container_name: gamma_rabbit
