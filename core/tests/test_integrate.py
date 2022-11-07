@@ -15,7 +15,7 @@ from achievements.models import Achievement, Event, StatusBadge
 from api.v0.views import USER_NOT_FOUND
 from core import db
 from core.data_models.models import UserBadge, SystemEvent, User
-
+from core.tests.utils.helpers import get_authenticated_api_client
 
 GAMMA_PROFILE_API_URL = "/api/v0/gamma-profile/"
 
@@ -376,6 +376,28 @@ def test_system_events_profile_field(live_server, app_client):
     assert res.json()["system_events"] == system_events_data
 
 
+@pytest.mark.parametrize(
+    "is_staff",
+    [True, False],
+)
+def test_user_access_to_badge_api(live_server, is_staff):
+    """
+    BadgeRules API should be only accessible for admin.
+    """
+
+    api_client = get_authenticated_api_client(is_staff=is_staff)
+    response = api_client.get(live_server + '/api/v0/badge-rules/')
+    assert response.status_code == (status.HTTP_200_OK if is_staff else status.HTTP_403_FORBIDDEN)
+
+
+def test_anonymous_access_to_badge_api(live_server):
+    """
+    BadgeRules API should not be accessible for an anonymous user.
+    """
+    anonymous_response = requests.get(live_server + '/api/v0/badge-rules/')
+    assert anonymous_response.status_code == status.HTTP_403_FORBIDDEN
+
+
 def _cleanup_badges():
     """
     Clean up badges and rules Mongo collections.
@@ -427,8 +449,9 @@ def _update_rules(live_server, rules):
 
     Update rules.
     """
+    api_client = get_authenticated_api_client(is_staff=True)
     for rule in rules:
-        response = requests.put(live_server + "/api/v0/badge-rules/", json=rule)
+        response = api_client.put(live_server + "/api/v0/badge-rules/", rule, format='json')
         assert response.status_code == status.HTTP_200_OK
 
 

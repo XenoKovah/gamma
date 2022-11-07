@@ -60,6 +60,10 @@ class App extends Component {
   getRules() {
     getRules(this.slug)
     .then(result => {
+        if (result.detail) {
+            this.props.history.push("/");
+            return;
+        }
         let actions = [];
         for (let key in result.actions) {
             actions.push(
@@ -109,7 +113,7 @@ class App extends Component {
     },
     error => {
         console.log(error);
-    })
+    });
   }
 
   putRules() {
@@ -166,7 +170,7 @@ class App extends Component {
         }
         return response.json();
       }).catch(error => alert(error));
-  }
+    }
   }
 
   componentDidMount() {
