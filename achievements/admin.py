@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.conf import settings
 from django.utils.html import format_html
 
 from .forms import EventForm, StatusBadgeForm
@@ -40,6 +41,9 @@ class StatusBadgeAdmin(admin.ModelAdmin):
     )
     prepopulated_fields = {"slug": ("title",)}
     form = StatusBadgeForm
+
+    def view_on_site(self, obj):
+        return obj.badge_img.url if settings.STORE_RELATIVE_URLS else obj.get_absolute_url()
 
 
 class EventAdmin(admin.ModelAdmin):
