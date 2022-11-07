@@ -469,6 +469,21 @@ def _create_badges(badges_data):
             })
 
 
+def _setup_dependent_badges_test(live_server):
+    """
+    Generates a URL for a request.
+
+    The function accepts live_server parameter to generate a URL.
+    The function also calls methods to lock records in the
+    affected database and blocks other operations until they are completed.
+    """
+    url = live_server + reverse('api:v0:status-dependent-badges-list')
+    db.engine.conn.db.statuses.drop()
+    db.engine.conn.db.badges.drop()
+
+    return url
+
+
 def test_badge_dependent_badges_list_dependencies(live_server, rand_str, app_client):
     """
     Test api for get badge slugs dependent on other badge.
@@ -518,48 +533,94 @@ def test_status_dependent_badges_list_dependencies(live_server, rand_str, app_cl
     """
     Test api for get badge slugs dependent on status badge.
     """
-    url = live_server + reverse('api:v0:status-dependent-badges-list')
-    db.engine.conn.db.statuses.drop()
-    db.engine.conn.db.badges.drop()
+    url = _setup_dependent_badges_test(live_server)
 
     statuses_data = [
-        {"slug": "st_slug1"}, {"slug": "st_slug2"}
+        {"slug": "st_slug1"},
+        {"slug": "st_slug2"},
+        {"slug": "st_slug3"},
     ]
     _create_statuses(statuses_data)
     badges_data = [
-        {"slug": "b_slug1", "rules": {"status_badge": "st_slug1"}},
+        {"slug": "b_slug1", "rules": {"status_badge": "st_slug2"}},
         {"slug": "b_slug2", "rules": {"status_badge": "st_slug1"}},
         {"slug": "b_slug3", "rules": {"status_badge": "st_slug1"}, "active": False},
         {"slug": "b_slug4", "rules": {"status_badge": "st_slug2"}},
     ]
     _create_badges(badges_data)
 
-    resp = requests.get(url, params={"slug": "st_slug1"},)
+    resp = requests.get(url, params={"status_badges_slugs": ["st_slug1", "st_slug3"]},)
     assert resp.status_code == 200
-    result = set(resp.json())
+    result = resp.json()
     # check only active badges dependent on "st_slug1" are in response
-    assert result == {"b_slug1", "b_slug2"}
+    assert result == {'st_slug1': ['b_slug2']}
 
 
 def test_status_dependent_badges_list_no_dependencies(live_server, rand_str, app_client):
     """
     Test api for get badge slugs dependent on status badge when no dependencies.
     """
-    url = live_server + reverse('api:v0:status-dependent-badges-list')
-    db.engine.conn.db.statuses.drop()
-    db.engine.conn.db.badges.drop()
+    url = _setup_dependent_badges_test(live_server)
 
     statuses_data = [
-        {"slug": "st_slug1"}, {"slug": "st_slug2"}
+        {"slug": "st_slug1"},
+        {"slug": "st_slug2"},
+        {"slug": "st_slug3"},
     ]
     _create_statuses(statuses_data)
     badges_data = [
-        {"slug": "b_slug1", "rules": {"status_badge": "st_slug2"}}
+        {"slug": "b_slug1", "rules": {"status_badge": "st_slug2"}},
+
+        {"slug": "b_slug1", "rules": {"status_badge": "st_slug1"}},
+        {"slug": "b_slug2", "rules": {"status_badge": "st_slug1"}},
+        {"slug": "b_slug3", "rules": {"status_badge": "st_slug1"}},
     ]
     _create_badges(badges_data)
 
-    resp = requests.get(url, params={"slug": "st_slug1"},)
+    resp = requests.get(url, params={"status_badges_slugs": ["st_slug2", "st_slug3"]},)
     assert resp.status_code == 200
     result = resp.json()
     # check response is empty - no dependent badges
-    assert result == []
+    assert result == {}
+
+
+def test_status_dependent_badges_list_empty(live_server, rand_str, app_client):
+    """
+    Test api for get 400 when there is no data (empty list) in the request.
+    """
+    url = _setup_dependent_badges_test(live_server)
+
+    statuses_data = [
+        {"slug": "st_slug1"},
+        {"slug": "st_slug2"},
+    ]
+    _create_statuses(statuses_data)
+    badges_data = [
+        {"slug": "b_slug1", "rules": {"status_badge": "st_slug1"}},
+        {"slug": "b_slug2", "rules": {"status_badge": "st_slug1"}},
+    ]
+    _create_badges(badges_data)
+
+    resp = requests.get(url, params={"status_badges_slugs": []},)
+    assert resp.status_code == 400
+
+
+def test_status_dependent_badges_list_no_data(live_server, rand_str, app_client):
+    """
+    Test api for get 400 when there is no data in the request.
+    """
+    url = _setup_dependent_badges_test(live_server)
+
+    statuses_data = [
+        {"slug": "st_slug1"},
+        {"slug": "st_slug2"},
+    ]
+    _create_statuses(statuses_data)
+    badges_data = [
+        {"slug": "b_slug1", "rules": {"status_badge": "st_slug2"}},
+        {"slug": "b_slug2", "rules": {"status_badge": "st_slug2"}},
+    ]
+    _create_badges(badges_data)
+
+    resp = requests.get(url, params={},)
+    assert resp.status_code == 400
