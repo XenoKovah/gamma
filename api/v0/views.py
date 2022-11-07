@@ -7,6 +7,7 @@ from django.utils.decorators import method_decorator
 
 from rest_framework import status
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 
 from edx_integration.api.v2.client import EdxApiV2Client
@@ -154,6 +155,7 @@ class FiltersView(APIView):
 
 
 class BadgeRulesView(APIView):
+    permission_classes = [IsAdminUser]
     """
     Return Badge rules.
     """
