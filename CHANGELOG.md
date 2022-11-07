@@ -4,6 +4,13 @@ Changelog
 Versions follows PEP440 version scheme.
 ---
 
+[Unreleased]
+************
+
+Fixed
+=====
+* View on site button in the admin panel on the StatusBadge edit page opens correct URL for image
+
 gamma-core 3.2 (2021-10-18)
 ---
 * 677d2de fix: [RGG-520] translation typo in achievements_list_new_ui.html
