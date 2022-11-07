@@ -10,18 +10,72 @@ Usage
 ===
 For local development
 ---
+
+Set up `.env` variables. Copy content of the `private.local.example.env` into `private.env` (`<devstack root>/gamma/envs/private.env`). Note that `LOCAL_IP_ADDRESS` can be found using shell command `ifconfig en0` right after `inet` keyword.
+
+Install Gamma application. Note that the Node.js supported version is 12.
+
 ```
+# Build cloned Gamma repo:
 ✗ npm install
 ✗ npm run build:dev
 ✗ make build
+
+# To run gamma use:
 ✗ make debug
+
+# You'll need to create a superuser to access the gamma admin site:
+✗ make shell
+✗ python manage.py createsuperuser
 ```
 Optionally we can use
 ```
 ✗ make dev.up env=dev
 ```
 
-Note that the Node.js supported version is 12.
+Install [edx-gamma-bridge](https://gitlab.raccoongang.com/products/rg-gamification/gamification-bridge)
+and [edx-gamma-dashboard](https://gitlab.raccoongang.com/products/rg-gamification/edx-gamma-dashboard) to the **edx-platform**.
+
+```
+# Go to the <devstack root>/src (sibling to the devstack repository)
+cd src
+git clone https://gitlab.raccoongang.com/products/rg-gamification/gamification-bridge.git
+git clone https://gitlab.raccoongang.com/products/rg-gamification/edx-gamma-dashboard.git
+cd ../devstack
+make lms-shell
+pip install -e /edx/src/edx-gamme-bridge
+pip install -e /edx/src/edx-gamma-dashboard
+exit # exit lms-shell. CTRL + D works as well
+make studio-shell
+pip install -e /edx/src/edx-gamme-bridge
+pip install -e /edx/src/edx-gamma-dashboard
+exit # exit lms-shell. CTRL + D works as well
+make lms-restart
+make studio-restart
+```
+
+Gamification settings should be added to the `edx-platform`.
+
+1. Log into the http://0.0.0.0:9000/admin/#/
+2. Add new `App client` http://0.0.0.0:9000/admin/core/appclient/add/#/
+3. Further settings will use `key` and `secret` from the created `App client`
+#### Next step works for Nutmeg only. Use `lms.yml` and `cms.yml` files from `/edx/etc/` inside the container for older edx releases.
+4. Go to the `edx-platform/lms/envs/devstack-experimental.yml`
+5. Add the following settings.
+Note that `LOCAL_IP_ADDRESS` can be found using shell command `ifconfig en0` right after `inet` keyword.
+
+```yml
+FEATURES:
+    ...
+    RG_GAMIFICATION:
+        ENABLED: true
+        RG_GAMIFICATION_ENDPOINT: http://<LOCAL_IP_ADDRESS>:9000/
+        KEY: key
+        SECRET: secret
+        IGNORED_EVENT_TYPES: []
+```
+6. The same for the `edx-platform/cms/envs/devstack-experimental.yml`
+7. Restart `lms` and `studio` (`make lms-restart && make studio-restart`)
 
 For staging/production usage
 ---
@@ -29,7 +83,6 @@ For staging/production usage
 ✗ make build
 ✗ make dev.up env=prod
 ```
-
 
 Configuration
 ===
