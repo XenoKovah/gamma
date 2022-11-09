@@ -11,6 +11,7 @@ Fixed
 =====
 * admin permissions are required to access Badge API
 * View on site button in the admin panel on the StatusBadge edit page opens correct URL for image
+* reduced height of the select dropdown 'Event type' in the 'Edit rules' popup
 
 gamma-core 3.2 (2021-10-18)
 ---

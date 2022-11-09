@@ -272,6 +272,11 @@ div[class*="MuiDialog-paper"],
     background-color: $base-white-color;
     box-shadow: 0 6px 88px 0 rgba(0, 0, 0, 0.35);
     max-height: calc(100% - 20px);
+
+    // fix height of the select dropdown 'Event type' in the 'Edit rules' popup
+    .css-1gyo4zw {
+        max-height: 125px;
+    }
 }
 
 // popup title
