@@ -311,11 +311,37 @@ class BadgeDependentBadgesView(APIView):
 
 
 class StatusDependentBadgesView(APIView):
-
+    """
+    Status badges dependencies API view.
+    """
     def get(self, request):
-        if slug := request.GET.get('slug'):
-            return Response(db.statuses.dependent_badges(slug),
-                            status=status.HTTP_200_OK,
-                            content_type='application/json')
+        """
+        Get the status badge dependencies.
+
+        Requires a 'status_badges_slugs' list containing status badges' slugs in the request data.
+
+        Returns:
+            dict: badge slug as a key and the list of its dependencies titles as a values.
+            Example response:
+                {
+                     'slug_status_badge_1': ['dependency_1', 'dependency_2'],
+                     'slug_status_badge_2': ['dependency_3'],
+                     ....
+                     'slug_status_badge_n': ['dependency_x', ...],
+                }
+
+        Returns:
+            400 - if there is empty list 'status_badges_deps' in the request data.
+        """
+        if slugs := request.GET.getlist('status_badges_slugs'):
+            status_badges_deps = {}
+            for slug in slugs:
+                if dependency := db.statuses.dependent_badges(slug):
+                    status_badges_deps[slug] = dependency
+            return Response(
+                status_badges_deps,
+                status=status.HTTP_200_OK,
+                content_type='application/json'
+            )
 
         return Response(status=status.HTTP_400_BAD_REQUEST)

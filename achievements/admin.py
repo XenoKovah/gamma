@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.conf import settings
 from django.utils.html import format_html
 
+from core import db
 from .forms import EventForm, StatusBadgeForm
 from .models import Achievement, StatusBadge, Event
 
@@ -44,6 +45,18 @@ class StatusBadgeAdmin(admin.ModelAdmin):
 
     def view_on_site(self, obj):
         return obj.badge_img.url if settings.STORE_RELATIVE_URLS else obj.get_absolute_url()
+
+    def delete_queryset(self, request, queryset):
+        """
+        Override the "delete selected" action.
+
+        The batch deletion performed using the QuerySet.delete(), so the model's
+        delete() method isn't called here.
+        We're deactivating statuses in the Mongo DB on deletion from Postgresql.
+        """
+        for status_badge in queryset:
+            db.statuses.deactivate(status_badge.slug)
+        super().delete_queryset(request, queryset)
 
 
 class EventAdmin(admin.ModelAdmin):

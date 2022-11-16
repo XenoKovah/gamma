@@ -1,27 +1,46 @@
 <script   src="https://code.jquery.com/jquery-3.3.1.min.js"   integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="   crossorigin="anonymous"></script>
 <script>
-  const check_dependencies_url = "{% url 'api:v0:status-dependent-badges-list' %}";
-  const slug = "{{ original.slug }}"
+    const check_dependencies_url = "{% url 'api:v0:status-dependent-badges-list' %}";
 
-  $('.deletelink').click((event) => {
-      event.preventDefault();
-      $.ajax({
-          url: check_dependencies_url,
-          method: 'GET',
-          data: {slug: slug},
-          success: (resp, xhr, settings)=>{
-              if (!(resp === null || resp.length === 0)){
-                  alert(`${gettext("Can't delete, the status is dependency for badge(s): ")}${resp}`)
-              }
-              else {
-                  window.location.href = $('.deletelink').attr('href'); // proceed deletion
-              }
-          },
-          error: function (request, status, error) {
-              console.log(status);
-              console.log(request.responseText);
-              alert(`${gettext("Check for deletion possibility can't be performed")}`);
-          }
-      })
-  });
+    $('#changelist-form .button').click((event) => {
+        let deleteForm = $('#changelist-form');
+        let deleteAction = () => {deleteForm.submit()};
+        const slugs = $("#changelist-form .selected .field-slug").map(function() {
+            return $(this).text()
+        ;}).get();
+        checkStatusForDependencies(event, slugs, deleteAction);
+    })
+
+    $('.deletelink').click((event) => {
+        let deleteAction = () => {window.location.href = $('.deletelink').attr('href');};
+        const slugs= "{{ original.slug }}"
+        checkStatusForDependencies(event, slugs, deleteAction);
+    })
+
+    function checkStatusForDependencies(event, slugs, deleteAction) {
+        event.preventDefault()
+        $.ajax({
+            url: check_dependencies_url,
+            method: 'GET',
+            data: {status_badges_slugs: slugs},
+            traditional: true,
+            success: (resp, xhr, settings)=>{
+                if (!($.isEmptyObject(resp))){
+                    let message = '';
+                    for (let slug in resp) {
+                        message += `Status badge "${slug}" has dependency(ies): ${resp[slug]}.\n\n`
+                    };
+                    alert(`${gettext("Can't delete because of the dependencies: \n\n")}${message}`);
+                }
+                else {
+                    deleteAction();
+                }
+            },
+            error: function (request, status, error) {
+                console.log(status);
+                console.log(request.responseText);
+                alert(`${gettext("Check for deletion possibility can't be performed")}`);
+            }
+        });
+    }
 </script>
