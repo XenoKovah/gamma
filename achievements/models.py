@@ -12,7 +12,6 @@ from achievements.fields import CustomImageField
 from core import db
 from core.data_models.models import Status, SystemEvent, Badge
 
-
 COLOR_CHOOCES = (
     (1, 'Applied Blue'),
     (2, 'Green'),
@@ -184,6 +183,9 @@ class Event(models.Model):
             "award": self.award,
             "color": self.color,
         }))
+        # When changing event title in PostgreSQL DB, it is necessary to change
+        # this event title in Mongo DB for each user who has this event in the "chart".
+        db.users.update_event_title_in_charts(self.event_type, self.title)
 
     def __unicode__(self):
         return f'{self.event_type}: {self.award} points'
