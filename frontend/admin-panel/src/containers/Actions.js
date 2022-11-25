@@ -43,7 +43,7 @@ export default class Actions extends React.Component {
         fetch('/api/v0/badges-list/')
         .then(resp => resp.json())
         .then(result => {
-            this.allBadges = result;
+            this.allBadges = result.filter(badge => badge !== this.props.slug);
             this.updateAvailableItems();
         })
     }
