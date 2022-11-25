@@ -9,6 +9,8 @@ Versions follows PEP440 version scheme.
 
 Fixed
 =====
+
+* fix: [RGG-591] badges cannot be configured with the pre-condition depend on itself
 * admin permissions are required to access Badge API
 * View on site button in the admin panel on the StatusBadge edit page opens correct URL for image
 * reduced height of the select dropdown 'Event type' in the 'Edit rules' popup
