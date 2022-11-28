@@ -179,3 +179,16 @@ def read(_filter=None) -> List[User]:
     Read users by optional filter.
     """
     return [_create_ob(data) for data in conn.db.users.find(_filter)]
+
+
+def update_event_title_in_charts(event_type, event_title):
+    """
+    Change event title in "chart" field (in Mongo DB).
+
+    Change event title in the "chart" field in Mongo DB for each
+    user who has this event in the "chart" field.
+    """
+    conn.db.users.update_many(
+        {f'chart.{event_type}': {'$exists': True}},
+        {'$set': {f"chart.{event_type}.title": event_title}},
+    )

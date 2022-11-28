@@ -6,7 +6,7 @@ from schematics.exceptions import DataError
 
 from achievements.models import Event
 from core.models import key_secret_generator
-from core.data_models.models import User, UserEventPoints
+from core.data_models.models import UserEventPoints
 from core import db
 
 
@@ -80,6 +80,42 @@ def test_charted(award, rand_str):
     assert isinstance(charted, dict)
     assert user_uid not in charted
     assert charted[event_type] == UserEventPoints({'title': event_title, "points": award})
+
+
+@pytest.mark.django_db
+def test_update_event_title_in_charts(award, rand_str):
+    """
+    Testing the function update_event_title_in_charts.
+    """
+    user_uid = event_title = rand_str
+    event_type = "course"
+    db.users.update_chart(user_uid, event_type, award, event_title)
+    new_event_title = f'new_{event_title}'
+    db.users.update_event_title_in_charts(event_type, new_event_title)
+
+    assert (db.users.read_one(user_uid).chart[event_type] ==
+            UserEventPoints({'title': new_event_title, "points": award}))
+
+
+@pytest.mark.django_db
+def test_change_event_title(award, rand_str):
+    """
+    Test changing the Event title will also change it in user charts.
+    """
+    user_uid = event_title = rand_str
+    event_type = "course"
+
+    Event.objects.create(event_type=event_type, title=event_title, award=award)
+    db.users.update_chart(user_uid, event_type, award, event_title)
+    assert (db.users.read_one(user_uid).chart[event_type] ==
+           UserEventPoints({'title': event_title, "points": award}))
+
+    obj = Event.objects.get(event_type=event_type)
+    obj.title = f'new_{event_title}'
+    obj.save()
+
+    assert (db.users.read_one(user_uid).chart[event_type] ==
+           UserEventPoints({'title': f'new_{event_title}', "points": award}))
 
 
 def test_key_gen():
