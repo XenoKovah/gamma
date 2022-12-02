@@ -87,7 +87,10 @@ class DropdownSelector extends React.Component {
 class EventType extends React.Component {
 
     render() {
-        let options = [{value: this.props.action, label: this.props.action}];
+        // Only those options that are available at this stage are displayed,
+        // if there are no available options in the selector,
+        // "No options" is displayed.
+        let options = [];
         let actions = this.props.actions || [];
         for (const el of actions){
             // Special case for badge type because it's visibility at the list depends on non-used badges present
@@ -113,7 +116,10 @@ class EventType extends React.Component {
 class BadgeSelector extends React.Component {
 
     render() {
-        let options = [{value: this.props.badge, label: this.props.badge}];
+        // Only those options that are available at this stage are displayed,
+        // if there are no available options in the selector,
+        // "No options" is displayed.
+        let options = [];
         let badges = this.props.badges || [];
         badges.forEach((el, ind) => {
             options.push({value:el, label:el});
@@ -135,7 +141,10 @@ class BadgeSelector extends React.Component {
 class StatusBadgeSelector extends React.Component {
 
     render() {
-        let options = [{value: this.props.badge, label: this.props.badge}];
+        // Only those options that are available at this stage are displayed,
+        // if there are no available options in the selector,
+        // "No options" is displayed.
+        let options = [];
         let badges = this.props.badges || [];
 
         for (const el of badges){

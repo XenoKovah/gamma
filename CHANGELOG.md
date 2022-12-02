@@ -9,6 +9,7 @@ Versions follows PEP440 version scheme.
 
 Fixed
 =====
+* fix: [RGG-670] "Null" value is removed from the Badge Achievement Dropdowns
 * 'Event Title' changes in the admin site immediately reflect in the user dashboard chart
 * fix: [RGG-591] badges cannot be configured with the pre-condition depend on itself
 * admin permissions are required to access Badge API
