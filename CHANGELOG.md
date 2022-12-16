@@ -7,16 +7,47 @@ Versions follows PEP440 version scheme.
 [Unreleased]
 ************
 
-Fixed
-=====
-* fix: [RGG-670] "Null" value is removed from the Badge Achievement Dropdowns
-* 'Event Title' changes in the admin site immediately reflect in the user dashboard chart
+gamma-core 3.2.4 (2022-12-16)
+---
+Fixes
+===
+* fix: [RGG-670] Null value is removed from the Badge Achievement Dropdowns
+* fix: [RGG-440] add more accurate selector to fix select max-height options list
+* fix: [RGG-594] event title doesn't change
+* fix: [RGG-591] dependence of the badge on itself
 * fix: [RGG-591] badges cannot be configured with the pre-condition depend on itself
+* fix: [RGG-593] reduce more max-height of the select dropdown element
+* fix: [RGG-594] editing mode for the 1st achievement
+* fix: [RGG-595] admin cannot delete status badge
+* fix: [RGG-593] values in Event type dropdown in Editing rules for Achievement are not fit into the window
+* fix: add permission class and redirect if error
+* fix: use relative url for view on site
+* 'Event Title' changes in the admin site immediately reflect in the user dashboard chart
 * admin permissions are required to access Badge API
 * View on site button in the admin panel on the StatusBadge edit page opens correct URL for image
 * reduced height of the select dropdown 'Event type' in the 'Edit rules' popup
-* fix: [RGG-593] values in Event type dropdown in Editing rules for Achievement are not fit into the window
-* fix: [RGG-595] an admin can delete status
+
+Docs
+====
+* docs: add local installation steps
+
+gamma-core 3.2.3 (2022-08-08)
+---
+* build: [RGG-552] do not expose mongo container port
+
+gamma-core 3.2.2 (2022-04-16)
+---
+* fix: [RGOeX-1121] use additional check for rules.filters
+* fix: [RGOeX-1126|RGOeX-1127|RGOeX-1128] Update daily progress selection logic
+* fix: [RGOeX-1072] Unicode support is added for relative urls in CustomURLType
+* tests: [RGOeX-1126|RGOeX-1127|RGOeX-1128] add DailyProgress tests
+
+gamma-core 3.2.1 (2022-04-08)
+---
+* fix:  [RGOeX-756] change update_progress query and increment logic
+* fix:  [RGOeX-1025] add limit for achievement titles
+* docs: [RGOeX-1004] update documentation for local installation
+* fix:  [RGOeX-758] adjust frequency filter UI behaviour
 
 gamma-core 3.2 (2021-10-18)
 ---
