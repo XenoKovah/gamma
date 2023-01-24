@@ -3,3 +3,11 @@
 **/bower_components
 **/webpack_bundles
 webpack-stats-*.json
+!.conf
+.*
+envs/private.env
+Dockerfile*
+prod.yml
+dev.yml
+docker-compose.yml
+docker-compose*.yml
