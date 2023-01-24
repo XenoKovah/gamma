@@ -23,7 +23,7 @@ services:
     env_file:
       - ./envs/base.env
       - ./envs/private.env
-    command: "gunicorn --config .conf/gunicorn/gunicorn.conf.py -b :8000 gamma.wsgi"
+    command: "gunicorn --config .conf/gunicorn/gunicorn.conf.py -b :8000 --access-logfile - --error-logfile - --log-file - --capture-output --log-level warning gamma.wsgi"
     volumes:
       - static_files:/app/gamma/static/
       - media_files:/app/gamma/media/

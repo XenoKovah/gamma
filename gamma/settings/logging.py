@@ -20,5 +20,9 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True
         },
+        'django': {
+            'handlers': ['console'],
+            'level': 'WARNING',
+        },
     },
 }
