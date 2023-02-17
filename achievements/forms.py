@@ -5,7 +5,7 @@ from django import forms
 from edx_integration.api.v2.utils import get_gamma_events_list
 from core import db
 
-from .models import Achievement, Event, StatusBadge
+from .models import Achievement, Event, StatusBadge, BADGE_STATUS_COLORS
 
 
 class AchievementForm(forms.ModelForm):
@@ -73,6 +73,18 @@ class EventForm(forms.ModelForm):
 
 
 class StatusBadgeForm(forms.ModelForm):
+    description = forms.CharField(
+        required=False,
+        label="Description (DEPRECATED)",
+        widget=forms.Textarea(
+            attrs={"placeholder": "This field has no effect on UI/UX in current RGG version"}
+        ),
+    )
+    status_color = forms.CharField(
+        required=False,
+        label="Status color (DEPRECATED)",
+        widget=forms.Select(choices=BADGE_STATUS_COLORS)
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
