@@ -7,6 +7,12 @@ Versions follows PEP440 version scheme.
 [Unreleased]
 ************
 
+gamma-core 3.3.0 (22-02-24)
+---
+Features
+* feat: added Django console logging by Andrey Kryachko
+* chore: [RGG-782] improve fields description
+
 gamma-core 3.2.4 (2022-12-16)
 ---
 Fixes
