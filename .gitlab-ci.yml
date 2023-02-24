@@ -7,6 +7,12 @@ stages:
   - tag
   - cleanup
 
+variables:
+    TEST_IMAGE: $CI_REGISTRY_IMAGE/app-test
+
+services:
+  - docker:20.10.16-dind
+
 
 Build:
   stage: build
@@ -16,7 +22,8 @@ Build:
     - master
     - merge_requests
   script:
-    - docker build -t $CI_REGISTRY_IMAGE/app:$CI_COMMIT_SHORT_SHA .
+    - docker pull $TEST_IMAGE || true
+    - docker build -t $TEST_IMAGE --cache-from $TEST_IMAGE --push .
 
 Tests:
   variables:
@@ -28,6 +35,7 @@ Tests:
     - master
     - merge_requests
   script:
+    - docker pull $TEST_IMAGE || true
     - docker run -d --name mongo_$CI_COMMIT_SHORT_SHA mongo:4.2
     - docker run -d --name redis_$CI_COMMIT_SHORT_SHA redis:latest
     - docker run
@@ -37,11 +45,12 @@ Tests:
       -e DJANGO_SETTINGS_MODULE=gamma.settings.test
       --link mongo_$CI_COMMIT_SHORT_SHA:mongo
       --link redis_$CI_COMMIT_SHORT_SHA:redis
-      $CI_REGISTRY_IMAGE/app:$CI_COMMIT_SHORT_SHA
+      $TEST_IMAGE
       bash -c "pytest && coverage xml && diff-cover coverage.xml --fail-under=60"
   after_script:
     - docker rm -f mongo_$CI_COMMIT_SHORT_SHA || true
     - docker rm -f redis_$CI_COMMIT_SHORT_SHA || true
+    - docker rmi -f $TEST_IMAGE || true
 
 Tag:
   stage: tag
@@ -50,10 +59,11 @@ Tag:
   only:
     - master
   script:
-    - docker tag $CI_REGISTRY_IMAGE/app:$CI_COMMIT_SHORT_SHA $CI_REGISTRY_IMAGE/app
+    - docker pull $TEST_IMAGE || true
+    - docker tag $TEST_IMAGE $CI_REGISTRY_IMAGE/app
     - docker push $CI_REGISTRY_IMAGE/app
   after_script:
-    - docker rmi -f $CI_REGISTRY_IMAGE/app:$CI_COMMIT_SHORT_SHA || true
+    - docker rmi -f $TEST_IMAGE || true
 
 Cleanup:
   stage: cleanup
@@ -64,4 +74,4 @@ Cleanup:
     - merge_requests
   when: always
   script:
-    - docker rmi -f $CI_REGISTRY_IMAGE/app:$CI_COMMIT_SHORT_SHA || true
+    - docker rmi -f $TEST_IMAGE || true
