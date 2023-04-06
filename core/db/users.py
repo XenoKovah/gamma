@@ -57,15 +57,14 @@ def _update(user):
 
 
 def update_profile(user_uid, event):
-    update_progress(user_uid, event.points)
-    update_chart(user_uid, event.event_type, event.points, event.title)
+    update_progress(user_uid, event.points, event.signup_source)
+    update_chart(user_uid, event.event_type, event.points, event.title, event.signup_source)
     points = update_points(user_uid, event.points)
 
     return points
 
 
-
-def update_progress(user_uid, event_award):
+def update_progress(user_uid, event_award, signup_source):
     """
     Update user progress with points for a particular date.
     """
@@ -90,20 +89,26 @@ def update_progress(user_uid, event_award):
             filter={"user_uid": user_uid},
             update={
                 "$addToSet": {
-                    f"progress.{year}": daily_progress.to_native()
+                    f"progress.{year}": daily_progress.to_native(),
+                },
+                "$set": {
+                    "signup_source": signup_source
                 }
             }, upsert=True)
 
 
-def update_chart(user_uid, event_type, event_award, event_title):
+def update_chart(user_uid, event_type, event_award, event_title, signup_source):
     """
     Update user chart with points for a particular event type.
     """
     conn.db.users.update_one(
         filter={"user_uid": user_uid},
         update={
-            "$set": {f"chart.{event_type}.title": event_title},
-            "$inc": {f"chart.{event_type}.points": event_award}
+            "$set": {
+                f"chart.{event_type}.title": event_title,
+                "signup_source": signup_source
+            },
+            "$inc": {f"chart.{event_type}.points": event_award},
         },
         upsert=True)
 

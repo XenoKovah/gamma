@@ -16,12 +16,13 @@ def test_progress(current_date, award, rand_str):
     Test setting/getting progress documents.
     """
     user_uid = rand_str
-
+    signup_source = "test-site.com"
+    
     # We want to test that Progress works for repeated awards
     repeated_awards = randint(2, 10)
 
     for _ in range(repeated_awards):
-        db.users.update_progress(user_uid, award)
+        db.users.update_progress(user_uid, award, signup_source)
 
     user = db.users.read_one(user_uid)
     progress = user.progress[str(datetime.now().year)]
@@ -42,6 +43,7 @@ def test_random_award_progress(current_date, rand_str):
     Test setting/getting progress documents.
     """
     user_uid = rand_str
+    signup_source = "test-site.com"
 
     # We want to test that Progress works for repeated awards
     repeated_awards = randint(2, 10)
@@ -49,7 +51,7 @@ def test_random_award_progress(current_date, rand_str):
 
     for _ in range(repeated_awards):
         award = randint(1, 20)
-        db.users.update_progress(user_uid, award)
+        db.users.update_progress(user_uid, award, signup_source)
         total_award += award
 
     user = db.users.read_one(user_uid)
@@ -68,13 +70,13 @@ def test_charted(award, rand_str):
     """
     user_uid = event_title = rand_str
     event_type = "video"
-
+    signup_source = "test-site.com"
     Event.objects.create(event_type=event_type, title=event_type, award=award)
 
     charted_bf = db.users.read_one(user_uid).chart
     assert charted_bf == {}
 
-    db.users.update_chart(user_uid, "video", award, event_title)
+    db.users.update_chart(user_uid, "video", award, event_title, signup_source)
     charted = db.users.read_one(user_uid).chart
 
     assert isinstance(charted, dict)
@@ -88,8 +90,9 @@ def test_update_event_title_in_charts(award, rand_str):
     Testing the function update_event_title_in_charts.
     """
     user_uid = event_title = rand_str
+    signup_source = "test-site.com"
     event_type = "course"
-    db.users.update_chart(user_uid, event_type, award, event_title)
+    db.users.update_chart(user_uid, event_type, award, event_title, signup_source)
     new_event_title = f'new_{event_title}'
     db.users.update_event_title_in_charts(event_type, new_event_title)
 
@@ -103,10 +106,11 @@ def test_change_event_title(award, rand_str):
     Test changing the Event title will also change it in user charts.
     """
     user_uid = event_title = rand_str
+    signup_source = "test-site.com"
     event_type = "course"
 
     Event.objects.create(event_type=event_type, title=event_title, award=award)
-    db.users.update_chart(user_uid, event_type, award, event_title)
+    db.users.update_chart(user_uid, event_type, award, event_title, signup_source)
     assert (db.users.read_one(user_uid).chart[event_type] ==
            UserEventPoints({'title': event_title, "points": award}))
 

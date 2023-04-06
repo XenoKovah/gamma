@@ -32,6 +32,7 @@ class EventModel(Model):
     Incomming API request model.
     """
     uid = StringType(required=True)
+    signup_source = StringType(required=False)
     username = StringType(required=True, serialized_name='user_uid')
     event_type = StringType(required=True)
     org = StringType()
@@ -256,6 +257,7 @@ class User(Model):
     )
     user_uid = StringType(required=True)
     username = StringType(serialize_when_none=False)
+    signup_source = StringType(required=False)
     points = IntType(default=0)
     badges = DictType(ModelType(UserBadge), default={})
     system_badges = ListType(ModelType(Badge), default=[])

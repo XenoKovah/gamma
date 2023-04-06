@@ -6,6 +6,8 @@ Versions follows PEP440 version scheme.
 
 [Unreleased]
 ************
+## Added
+* feat: [RGG-805] Added filtering of game profiles for the leaderboard depending on the tenant
 * fix: [RGG-677] fixed badge achievement dropdowns overflow
 
 gamma-core 3.3.0 (22-02-24)

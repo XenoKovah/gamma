@@ -205,6 +205,9 @@ CACHES = {
 # Cache time to live is 2 hours.
 CACHE_TTL = environ.get('CACHE_TTL', 60 * 60 * 2)
 
+# Set up the name of the main site. By default, the main site is named "main".
+MAIN_SIGNUP_SOURCE = environ.get('MAIN_SIGNUP_SOURCE', 'main')
+
 # Ref.: https://github.com/owais/django-webpack-loader#default-configuration
 # Define 'STATS_FILE' for each environment in its settings file.
 WEBPACK_LOADER = {

@@ -244,6 +244,7 @@ def test_leaderboard_api(entry, live_server, app_client, mocker):
     users_points = entry["input"].get("users_points", {})
     # User whose username will be passed as a param
     user_uid = entry["input"].get("user_uid")
+    user_signup_source = entry["input"].get("signup_source")
     badges = entry["input"].get("badges")
     output_rank = entry["output"].get("rank")
     output_sorted_users = entry["output"].get("users_sorting_by_points")
@@ -257,6 +258,7 @@ def test_leaderboard_api(entry, live_server, app_client, mocker):
 
         with db.users.read_and_update(username) as user:
             user.username = username
+            user.signup_source = user_signup_source
             user.points = users_points.get(str(i), {}).get("points")
             user.badges = badges
 
@@ -271,7 +273,10 @@ def test_leaderboard_api(entry, live_server, app_client, mocker):
     }
     resp = requests.get(
         live_server + "/api/v0/leaderboard/",
-        params={'username': USERNAME_PATTERN.format(user_uid)},
+        params={
+            'username': USERNAME_PATTERN.format(user_uid),
+            'signup_source': user_signup_source
+        },
         headers=headers,
     )
 
@@ -334,6 +339,65 @@ def test_leaderboard_api(entry, live_server, app_client, mocker):
         raise NotImplementedError(
             "Tests for the cases with other status codes are not implemented."
         )
+
+
+@pytest.mark.parametrize(
+    "entry",
+    load_params_from_json('core/tests/resources/leaderboard_cases_with_microsite.json'),
+)
+def test_leaderboard_api_with_signup_source(entry, live_server, app_client):
+    """
+    Test Leaderboard API endpoint with signup source.
+
+    Notes:
+    - Although we sets points for users, but the sorting is not checked.
+    - We do not provide all users with badges and statuses for simplicity.
+
+    Cases:
+    1. An existing game profile whose signup_source is the main site.
+    2. An existing game profile whose signup_source is the microsite.
+    3. The user's game profile does not yet exist, but the leaderboard view is available.
+    4. The user's gaming profile does not yet exist and there are no users from this resource either.
+    5. The user's gaming profile does not exist and the user's signup_source field is None
+    """
+    _cleanup_badges()
+
+    current_user = entry["input"].get("current_user", {})
+    user_list = entry["input"].get("user_list", {})
+    output_status_code = entry["output"].get("status_code")
+    output_users_number = entry["output"].get("returned_users_number")
+    output_users = entry["output"].get("result_list", {})
+    
+    # Set up users
+    for user_info in user_list:
+
+        with db.users.read_and_update(user_info['user_uid']) as user:
+            user.signup_source = user_info.get('signup_source')
+            user.points = user_info['points']
+
+    headers = {
+        'Content-Type': 'application/json',
+        'App-key': app_client.key,
+        'App-secret': app_client.secret,
+    }
+    responce = requests.get(
+        live_server + "/api/v0/leaderboard/",
+        params={
+            'signup_source': current_user['signup_source']
+        },
+        headers=headers,
+    )
+
+    assert responce.status_code == output_status_code
+
+    resp_body = responce.json()
+    gameprofiles = resp_body.get("gameprofiles", {})
+    print(gameprofiles)
+
+    assert len(gameprofiles) == output_users_number
+    for gameprofile in gameprofiles:
+        # check each returned gameprofile for presence in the expected list
+        assert gameprofile in output_users
 
 
 def test_system_events_profile_field(live_server, app_client):

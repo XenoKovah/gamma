@@ -284,7 +284,14 @@ class LeaderBoardView(APIView):
                 {"Error": USER_NOT_FOUND},
                 status=status.HTTP_404_NOT_FOUND)
 
-        leaders = db.leaders.read()
+        if (user_signup_source := request.GET.get('signup_source')):
+            if user_signup_source == settings.MAIN_SIGNUP_SOURCE:
+                leaders = db.leaders.read_with_main_signup_source()
+            else:
+                leaders = db.leaders.read_with_signup_source(user_signup_source)
+        else:
+            leaders = db.leaders.read()
+
         system_statuses = db.statuses.read()
 
         try:
@@ -295,7 +302,6 @@ class LeaderBoardView(APIView):
             'gameprofiles': leaders.to_primitive('roster').get("roster"),
             'rank': rank,
             'system_statuses': [status.to_primitive('public') for status in system_statuses]
-
         }, status=status.HTTP_200_OK, content_type='application/json')
 
 
