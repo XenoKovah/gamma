@@ -25,6 +25,23 @@ Build:
     - docker pull $TEST_IMAGE || true
     - docker build -t $TEST_IMAGE --cache-from $TEST_IMAGE --push .
 
+ReactTests:
+  stage: test
+  image: node:12
+  tags:
+    - dind
+  only:
+    - master
+    - merge_requests
+  script:
+    - docker pull $TEST_IMAGE || true
+    - docker run
+      --rm
+      $TEST_IMAGE
+      bash -c "npm run test"
+  after_script:
+    - docker rmi -f $TEST_IMAGE || true
+
 Tests:
   variables:
     GIT_STRATEGY: none

@@ -5,7 +5,7 @@ export default class LeaderBoardTable extends React.Component {
 
     render() {
         return this.props.gameProfiles.length > 0 ? (
-            <div className="LeaderboardTable">
+            <div className="LeaderboardTable" data-testid="leaderboard-table">
                 <div className="LeaderboardTableHead">
                     <div className="LeaderboardTableHead-Item">{gettext('Students')}</div>
                     <div className="LeaderboardTableHead-Item">{gettext('Progress')}</div>
@@ -29,7 +29,7 @@ export default class LeaderBoardTable extends React.Component {
                                     </div>
                                     <div className="LeaderboardTableWrapper LeaderboardTableWrapper_center">
                                         <div className="LeaderboardProgress-Count">
-                                          {profile.points}/{profile.goal}
+                                            {profile.points}/{profile.goal}
                                         </div>
                                     </div>
                                     <div className="LeaderboardTableWrapper LeaderboardTableWrapper_center">

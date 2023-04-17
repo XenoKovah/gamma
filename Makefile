@@ -65,6 +65,9 @@ stop:
 rm:
 	docker-compose -f $(DOCKERCOMPOSE_PATH) rm
 
+jest:	# run react tests
+	npm test
+
 test:
 	docker-compose -f docker-compose-test.yml run --rm dashboard \
 			bash -c \
