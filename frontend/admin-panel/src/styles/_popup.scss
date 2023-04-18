@@ -279,6 +279,15 @@ div[class*="MuiDialog-paper"],
     max-height: 105px;
 }
 
+.Select .css-1lh8ee9 {
+    background: transparent;
+}
+
+.Select .css-1gyo4zw {
+    background: $selecd-list-background;
+    border-radius: 10px;
+}
+
 // popup title
 .Dialog-Title {
     padding: 30px 55px 15px !important;
