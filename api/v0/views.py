@@ -1,3 +1,4 @@
+import json
 import logging
 
 from django.conf import settings
@@ -20,6 +21,7 @@ from edx_integration.api.v2.exceptions import (
 )
 
 from core import db
+from core.db.engine import conn
 from core.authentication import KeySecretAuthentication
 from core.utils import AppClientUtils, clean_rules
 from core.data_models.models import EventModel, Rules
@@ -330,10 +332,10 @@ class StatusDependentBadgesView(APIView):
             dict: badge slug as a key and the list of its dependencies titles as a values.
             Example response:
                 {
-                     'slug_status_badge_1': ['dependency_1', 'dependency_2'],
-                     'slug_status_badge_2': ['dependency_3'],
-                     ....
-                     'slug_status_badge_n': ['dependency_x', ...],
+                    'slug_status_badge_1': ['dependency_1', 'dependency_2'],
+                    'slug_status_badge_2': ['dependency_3'],
+                    ....
+                    'slug_status_badge_n': ['dependency_x', ...],
                 }
 
         Returns:
@@ -351,3 +353,35 @@ class StatusDependentBadgesView(APIView):
             )
 
         return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class SignupSourceUpdateView(APIView):
+    """
+    API endpoint to update game profiles with signup source data.
+    """
+    def post(self, request):
+        """
+        Update game profiles with signup source data.
+
+        Args:
+            Request data should be in JSON format.
+
+        Returns:
+            Response with status 200 if update was successful,
+            Response with status 500 if an error occurred.
+        """
+        try:
+            count_users = 0
+            if users_data := json.loads(request.data):
+                if (user_uids := users_data.get('uids')) and (signup_source := users_data.get('tenant')):
+                    result = conn.db.users.update_many(
+                        filter={
+                            'user_uid': {'$in': user_uids}},
+                        update={
+                            '$set': {'signup_source': signup_source}}
+                    )
+                    count_users = result.modified_count
+
+            return Response({'count': count_users}, status=status.HTTP_200_OK)
+        except ValueError:
+            return Response({'count': False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -13,7 +13,8 @@ from .views import (
     AchievementsView,
     LeaderBoardView,
     BadgeDependentBadgesView,
-    StatusDependentBadgesView
+    StatusDependentBadgesView,
+    SignupSourceUpdateView
 )
 
 
@@ -30,4 +31,5 @@ urlpatterns = [
     path(r'leaderboard/', LeaderBoardView.as_view(), name='leaderboard'),
     path(r'badge-dependent-badges-list/', BadgeDependentBadgesView.as_view(), name='badge-dependent-badges-list'),
     path(r'status-dependent-badges-list/', StatusDependentBadgesView.as_view(), name='status-dependent-badges-list'),
+    path(r'update_profile_signup_source/', SignupSourceUpdateView.as_view(), name='update-profile-signup-source'),
 ]
