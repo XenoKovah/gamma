@@ -12,6 +12,9 @@ VERSION :=
 
 PRIVATE_ENV = ./envs/private.env
 
+CURRENT_DIR = $(shell pwd)
+REACT_APP_PATH = "${CURRENT_DIR}/frontend/admin-panel/src"
+
 ifeq ($(env),$(PROD_ENV))
 	DOCKERCOMPOSE_PATH := prod.yml
 else ifeq ($(env),$(STAGE_ENV))
@@ -66,7 +69,7 @@ rm:
 	docker-compose -f $(DOCKERCOMPOSE_PATH) rm
 
 jest:	# run react tests
-	npm test
+	npm run test ${REACT_APP_PATH}
 
 test:
 	docker-compose -f docker-compose-test.yml run --rm dashboard \

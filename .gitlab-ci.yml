@@ -9,6 +9,7 @@ stages:
 
 variables:
     TEST_IMAGE: $CI_REGISTRY_IMAGE/app-test
+    TEST_IMAGE_STATIC: $CI_REGISTRY_IMAGE/app-test-static
 
 services:
   - docker:20.10.16-dind
@@ -25,22 +26,34 @@ Build:
     - docker pull $TEST_IMAGE || true
     - docker build -t $TEST_IMAGE --cache-from $TEST_IMAGE --push .
 
-ReactTests:
-  stage: test
-  image: node:12
+BuildStatic:
+  stage: build
   tags:
     - dind
   only:
     - master
     - merge_requests
   script:
-    - docker pull $TEST_IMAGE || true
+    - docker pull $TEST_IMAGE_STATIC || true
+    - docker build --target=static -t $TEST_IMAGE_STATIC --cache-from $TEST_IMAGE_STATIC --push .
+
+ReactTests:
+  variables:
+    GIT_STRATEGY: none
+  stage: test
+  tags:
+    - dind
+  only:
+    - master
+    - merge_requests
+  script:
+    - docker pull $TEST_IMAGE_STATIC || true
     - docker run
       --rm
-      $TEST_IMAGE
-      bash -c "npm run test"
+      $TEST_IMAGE_STATIC
+      bash -c "npm run test ./frontend/admin-panel/src"
   after_script:
-    - docker rmi -f $TEST_IMAGE || true
+    - docker rmi -f $TEST_IMAGE_STATIC || true
 
 Tests:
   variables:
