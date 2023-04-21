@@ -6,6 +6,7 @@ Versions follows PEP440 version scheme.
 
 [Unreleased]
 ************
+* fix: [RGG-677] fixed badge achievement dropdowns overflow
 
 gamma-core 3.3.0 (22-02-24)
 ---
