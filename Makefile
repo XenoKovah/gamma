@@ -90,6 +90,11 @@ test-shell:
 loadtests:
 	locust --host=http://localhost:9000 -f loadtests/locustfile.py
 
+quality-py:
+	pycodestyle . --format=pylint
+	pydocstyle
+	pylint -f colorized gamma, api, achievements, core
+
 version:
 	echo "Tagged release $(VERSION)\n" > Changelog-$(VERSION).txt
 	git log --oneline --no-decorate --no-merges $(GIT_TAG)..HEAD >> Changelog-$(VERSION).txt

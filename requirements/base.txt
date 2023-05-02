@@ -40,3 +40,8 @@ onesignal-sdk==1.1.0
 
 # sentry
 sentry-sdk==0.15.1
+
+# quality:
+pycodestyle==2.8.0
+pydocstyle==6.1.1
+pylint==2.6.0
