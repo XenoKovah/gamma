@@ -2,11 +2,11 @@ from datetime import datetime
 
 from django.urls import reverse
 import requests
-import pytest
+import pytest  # pylint: disable=import-error
 from rest_framework import status
 
 from achievements.models import StatusBadge
-from core.data_models.models import User, UserEventPoints, Status, Badge
+from core.data_models.models import User, UserEventPoints, Status
 from core import db
 
 
@@ -188,7 +188,7 @@ def test_get_404(live_server, rand_str, app_client):
 
 
 @pytest.mark.django_db
-def test_get_403( live_server, rand_str):
+def test_get_403(live_server, rand_str):
     """
     Get request for non existent user should return 404.
     """
@@ -427,7 +427,7 @@ def test_statusview(live_server, rand_str, app_client, make_test_file):
     res = requests.get(
         live_server + GAMMA_PROFILE_API_URL,
         params={"username": rand_str},
-         headers={
+        headers={
             'App-key': app_client.key,
             'App-secret': app_client.secret
         }

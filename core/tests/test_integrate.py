@@ -7,14 +7,14 @@ import json
 from enum import Enum
 from copy import deepcopy
 
-import pytest
+import pytest   # pylint: disable=import-error
 import requests
 from rest_framework import status
 
 from achievements.models import Achievement, Event, StatusBadge
 from api.v0.views import USER_NOT_FOUND
 from core import db
-from core.data_models.models import UserBadge, SystemEvent, User
+from core.data_models.models import SystemEvent, User
 from core.tests.utils.helpers import get_authenticated_api_client
 
 GAMMA_PROFILE_API_URL = "/api/v0/gamma-profile/"
@@ -98,7 +98,7 @@ def test_badges_granting_rules(entry, live_server, rand_str, app_client, make_te
 @pytest.mark.parametrize(
     "entry",
     load_params_from_json('core/tests/resources/badges_rules_change.json'),
-)
+)  # pylint: disable=too-many-arguments, too-many-locals
 def test_badgesview_rules_change(entry, live_server, rand_str, app_client, make_test_file, mocker):
     """
     Integration tests for Achievements Rules Changes and consequences.
@@ -133,8 +133,8 @@ def test_badgesview_rules_change(entry, live_server, rand_str, app_client, make_
     notifications_count = entry["output"].get("notifications_count", 0)
 
     # Setup
-    achievements_slug = set([rule['slug'] for rule in initial_rules + changed_rules])
-    events = set([event["event_type"] for event in pre_change_events + post_change_events])
+    achievements_slug = set([rule['slug'] for rule in initial_rules + changed_rules])        # pylint: disable=consider-using-set-comprehension
+    events = set([event["event_type"] for event in pre_change_events + post_change_events])  # pylint: disable=consider-using-set-comprehension
     for slug in achievements_slug:
         achiev, _ = Achievement.objects.get_or_create(title=slug, slug=slug, badge_img=make_test_file())
         achiev.save()
@@ -211,7 +211,7 @@ def test_badge_deactivated(live_server, rand_str, app_client, make_test_file):
 @pytest.mark.parametrize(
     "entry",
     load_params_from_json('core/tests/resources/leaderboard_cases.json'),
-)
+)  # pylint: disable=too-many-locals, too-many-statements
 def test_leaderboard_api(entry, live_server, app_client, mocker):
     """
     Test Leaderboard API endpoint.
@@ -227,9 +227,11 @@ def test_leaderboard_api(entry, live_server, app_client, mocker):
     2. A tie for first place, all users with points.
     3. All users without points.
     4. Definite leader, other users don't have points.
-    5. The user of interest (whose username is in params) doesn't have points; still present in the leaderboard, rank is affected.
+    5. The user of interest (whose username is in params) doesn't have points; still present in the
+        leaderboard, rank is affected.
     6. The user of interest (whose username is in params) is not found. Other users' stats won't show up.
-    7. The user of interest (whose username is in params) isn't present in db when we make a request. We still get the leaderboard. Only users, created BEFORE the call, appear in the rating.
+    7. The user of interest (whose username is in params) isn't present in db when we make a request.
+        We still get the leaderboard. Only users, created BEFORE the call, appear in the rating.
     8. Username param is absent in a request. It's OK.
     """
 
@@ -303,7 +305,7 @@ def test_leaderboard_api(entry, live_server, app_client, mocker):
             assert gameprofiles[i]["username"] == USERNAME_PATTERN.format(output_sorted_users[i])
 
             # Test 'points' value.
-            for j, el in enumerate(gameprofiles):
+            for j, el in enumerate(gameprofiles):  # pylint: disable=unused-variable
                 if str(output_sorted_users[i]) in gameprofiles[j]["user_uid"]:
                     # Had to lookup particular user's points in expected values
                     assert gameprofiles[j]["points"] == users_points[str(output_sorted_users[i])]["points"]
@@ -367,7 +369,7 @@ def test_leaderboard_api_with_signup_source(entry, live_server, app_client):
     output_status_code = entry["output"].get("status_code")
     output_users_number = entry["output"].get("returned_users_number")
     output_users = entry["output"].get("result_list", {})
-    
+
     # Set up users
     for user_info in user_list:
 
@@ -417,7 +419,7 @@ def test_system_events_profile_field(live_server, app_client):
             "event_type": f"system-event-type-{i}",
             "title": f"System Event title {i}",
             "award": i,
-            "color": Color(i+1).name
+            "color": Color(i + 1).name
         }).to_primitive("public") for i in range(2)
     ]
 

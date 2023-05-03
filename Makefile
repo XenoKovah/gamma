@@ -92,8 +92,8 @@ loadtests:
 
 quality-py:
 	pycodestyle . --format=pylint
-	pydocstyle
-	pylint -f colorized gamma, api, achievements, core
+	pylint -f colorized -r y gamma/* api/* achievements/* core/* edx_integration/* loadtests/*
+	pydocstyle -v gamma/* api/* achievements/* core/* edx_integration/* loadtests/*
 
 version:
 	echo "Tagged release $(VERSION)\n" > Changelog-$(VERSION).txt

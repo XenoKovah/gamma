@@ -1,6 +1,6 @@
-from os import environ
+from os import environ  # pylint: disable=unused-import
 
-from .base import *
+from .base import *  # pylint: disable=wildcard-import
 
 
 DEBUG = True

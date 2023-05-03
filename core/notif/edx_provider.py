@@ -6,6 +6,7 @@ from django.conf import settings
 from edx_integration.api.v2.client import EdxNotificationClient
 from core.notif.models import EdxNotif
 
+
 class EdxService:
     """
     Edx Notification profider implemewntation.
@@ -44,6 +45,7 @@ class EdxService:
     result = edx_provider.send_notif(user, data)
     assert isinstance(result, dict)
     """
+
     def __init__(self, edx_client, format_func=None):
         self._client = edx_client
         self.__format_func = format_func
@@ -87,9 +89,9 @@ class EdxService:
 
         return notif
 
-    def send_notif(self, user, data):
+    def send_notif(self, user, data):  # pylint: disable=inconsistent-return-statements
         """
-        Sending notification by user_id (currently username) or by player_ids.
+        Send notification by user_id (currently username) or by player_ids.
         """
         if not settings.EDX_NOTIFICATION_ENABLED:
             return
@@ -103,6 +105,7 @@ class EdxServiceBuilder:
     """
     Edx Notification specific builder.
     """
+
     def __init__(self):
         self._instance = None
 

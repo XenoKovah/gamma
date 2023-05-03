@@ -1,4 +1,4 @@
-""" API v0 paths. """
+"""API v0 paths."""
 from django.urls import path
 
 from .views import (

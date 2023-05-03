@@ -50,7 +50,7 @@ def notify_badges_granted(user_uid, badges):
             # TODO: implement single action send based on configuration
             onesignal_provider.send_notif(user, data)
             edx_provider.send_notif(user, data)
-        except Exception as ex:
+        except Exception as ex:  # pylint: disable=broad-except
             log.debug(ex)
 
 
@@ -68,12 +68,12 @@ def notify_status_granted(user_uid, status_uid):
     try:
         onesignal_provider.send_notif(user, data)
         edx_provider.send_notif(user, data)
-    except Exception as ex:
+    except Exception as ex:  # pylint: disable=broad-except
         log.debug(ex)
 
 
 @app.task
-def update_users_badge_data(badge_slug, old_rules, new_rules, badge_url, badge_title, badge_description):
+def update_users_badge_data(badge_slug, old_rules, new_rules, badge_url, badge_title, badge_description):  # pylint: disable=too-many-arguments
     """
     Run on badge rules change, recalculate badges granted for users if needed.
     """
@@ -83,7 +83,7 @@ def update_users_badge_data(badge_slug, old_rules, new_rules, badge_url, badge_t
     if not is_badge_rules_simplified(new_rules, old_rules):
         return
 
-     # if no actions, users without data for the badge could be affected
+    # if no actions, users without data for the badge could be affected
     _filter = {
         f"badges.{badge_slug}.done": False if new_rules.get('actions') else {'$ne': True}
     }
@@ -92,6 +92,7 @@ def update_users_badge_data(badge_slug, old_rules, new_rules, badge_url, badge_t
 
         user_progress = user.badges.get(badge_slug, {}).get('progress', {})
         if is_badge_granted(user, new_rules, user_progress):
+            # pylint: disable=pointless-string-statement
             """
             Changing progress to
             {

@@ -1,19 +1,17 @@
 """
 Module holding push providers Notification data structure.
 """
-
-from bson import ObjectId
 from contextlib import contextmanager
+from bson import ObjectId
 
 from django.conf import settings
 from schematics.contrib.mongo import ObjectIdType
 from schematics.exceptions import ValidationError
 from schematics.models import Model
-from schematics.types import StringType, DictType, ListType, BooleanType, ModelType
+from schematics.types import StringType, DictType, ListType, BooleanType
 from schematics.transforms import blacklist
 
 from core.data_models.types import CustomURLType
-from core.data_models.models import User
 
 
 class BaseOneSignalNotif(Model):
@@ -22,6 +20,7 @@ class BaseOneSignalNotif(Model):
 
     _id is for saving the Notif in db.
     """
+
     _id = ObjectIdType(
         metadata={'readOnly': True},
         serialize_when_none=False, default=ObjectId
@@ -36,7 +35,7 @@ class BaseOneSignalNotif(Model):
             "public": blacklist("_id", "users"),
         }
 
-    def __eq__(self, other):
+    def __eq__(self, other):  # pylint: disable=signature-differs
         return all([
             self.contents == other.contents,
             self.headings == other.headings,
@@ -44,12 +43,14 @@ class BaseOneSignalNotif(Model):
             self.url == other.url,
         ])
 
+
 class OneSignalNotif(BaseOneSignalNotif):
     """
     Notification for player ids.
 
     https://documentation.onesignal.com/reference/create-notification#send-to-specific-devices
     """
+
     include_external_user_ids = ListType(StringType(), required=False, serialize_when_none=False)
     include_player_ids = ListType(StringType(), required=False, serialize_when_none=False)
 
@@ -107,6 +108,7 @@ class EdxNotif(Model):
     """
     Notification for Edx custom notification scheme.
     """
+
     _id = ObjectIdType(
         metadata={'readOnly': True},
         serialize_when_none=False, default=ObjectId

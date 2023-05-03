@@ -60,7 +60,8 @@ def make_test_file():
     def _make_test_file(name='image.gif',
                         image_string='R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'):
         """
-        convert base64 attachment string to django File
+        Convert base64 attachment string to django File.
+
         :return: django ContentFile
         """
         return ContentFile(base64.b64decode(image_string), name=name)

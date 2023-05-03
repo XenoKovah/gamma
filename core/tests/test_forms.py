@@ -1,4 +1,5 @@
 import json
+import requests
 
 from django.core.cache import cache
 from django.forms import modelform_factory
@@ -8,14 +9,13 @@ from achievements.models import Event, StatusBadge
 from core import db as db_mongo
 from edx_integration.api.v2.utils import EVENTS_CACHE_KEY
 
-import requests
-
 EventForm = modelform_factory(
     Event,
     BaseEventForm,
     # fields are got from achievments.admin.EventAdmin
     fields=('event_type', 'award', 'title', 'color', 'notification_message')
 )
+
 
 class MockResponse:
     def __init__(self, status_code):

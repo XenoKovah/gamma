@@ -11,6 +11,7 @@ class CustomURLType(URLType):
     """
     Current URLType doesn't validate http://localhost:9000 url.
     """
+
     if settings.DEBUG:
         # Rewrite URL_REGEX only for local development
         URL_REGEX = re.compile(r"""^(
@@ -26,15 +27,15 @@ class CustomURLType(URLType):
             (\# (?P<frag>   %(frag)s   )     )?)$
             """ % URI_PATTERNS, re.I + re.X)
 
-    RELATIVE_URL_REGEX = re.compile("^\/[\.a-zA-Z0-9\-_]+(\/[\.a-zA-Z0-9\-_]+)*\/?$")
+    RELATIVE_URL_REGEX = re.compile(r"^\/[\.a-zA-Z0-9\-_]+(\/[\.a-zA-Z0-9\-_]+)*\/?$")
 
     def __init__(self, relative=False, **kwargs):
         self.relative = relative
         super().__init__(**kwargs)
 
-    def _validate_absolute_url(self, value):
+    def _validate_absolute_url(self, value):  # pylint: disable=too-many-branches, too-many-return-statements
         """
-        Overrides validation method to support local hostnames with a port.
+        Override validation method to support local hostnames with a port.
         """
         match = self.URL_REGEX.match(value)
         if not match:
@@ -44,7 +45,7 @@ class CustomURLType(URLType):
         if url['scheme'].lower() not in self.schemes:
             return False
         if url['host6']:
-            if IPv6Type.valid_ip(url['host6']):
+            if IPv6Type.valid_ip(url['host6']):  # pylint: disable=no-else-return
                 return url
             else:
                 return False
@@ -74,8 +75,7 @@ class CustomURLType(URLType):
             if '-' in (label[0], label[-1]):
                 return False
         if self.fqdn:
-            if len(labels) == 1 \
-              or not self.TLD_REGEX.match(labels[-1]):
+            if len(labels) == 1 or not self.TLD_REGEX.match(labels[-1]):
                 return False
 
         url['hostn_enc'] = hostname

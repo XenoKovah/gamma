@@ -1,7 +1,7 @@
 import os
 import uuid
 
-from locust import TaskSet, task
+from locust import TaskSet, task  # pylint: disable=import-error
 
 
 class GameProfileTasks(TaskSet):
@@ -13,6 +13,7 @@ class GameProfileTasks(TaskSet):
       - read dashboard information 2 times
       - read leaderboard information 2 times
     """
+
     HEADERS = {"App-key": os.environ["APP_KEY"],
                "App-secret": os.environ["APP_SECRET"]}
     USER_UID = "locust"

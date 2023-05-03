@@ -1,11 +1,11 @@
-from locust import HttpLocust, TaskSet, task, between
+from locust import HttpLocust, TaskSet, between  # pylint: disable=import-error
 
 from game_profile import GameProfileTasks
 
 
 class MyTaskSet(TaskSet):
     """
-    game_profile.GmaProfileTasks: 100%
+    game_profile.GmaProfileTasks: 100%.
     """
 
     tasks = {

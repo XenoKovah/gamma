@@ -1,4 +1,4 @@
-import pytest
+import pytest  # pylint: disable=import-error
 
 from django.conf import settings
 from django.contrib.admin.sites import AdminSite

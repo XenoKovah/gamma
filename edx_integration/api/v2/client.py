@@ -19,7 +19,7 @@ from .exceptions import (
 )
 
 
-class EdxApiBaseClient(object):
+class EdxApiBaseClient(object):  # pylint: disable=useless-object-inheritance
     """
     Low level edX API client.
     """
@@ -53,7 +53,7 @@ class EdxApiBaseClient(object):
         try:
             resp = requests.get(url, headers=_headers, timeout=timeout)
 
-            if resp.status_code == http.client.OK:
+            if resp.status_code == http.client.OK:  # pylint: disable=no-else-return
                 return resp.json()
             elif resp.status_code == http.client.UNAUTHORIZED:
                 raise EdxApiUnauthorizedException
@@ -64,10 +64,10 @@ class EdxApiBaseClient(object):
             else:
                 raise OtherEdxApiException
         except requests.exceptions.ReadTimeout:
-            raise EdxApiResponseTimeoutException
+            raise EdxApiResponseTimeoutException  # pylint: disable=raise-missing-from
         except ValueError:
-            raise EdxApiResponseParsingException
-    
+            raise EdxApiResponseParsingException  # pylint: disable=raise-missing-from
+
     def post(self, url, data=None, headers=None, timeout=None):
         """
         Issue REST POST request to a given URL.
@@ -91,7 +91,7 @@ class EdxApiBaseClient(object):
         try:
             resp = requests.post(url, data=_data, headers=_headers, timeout=timeout)
 
-            if resp.status_code == http.client.OK:
+            if resp.status_code == http.client.OK:  # pylint: disable=no-else-return
                 return resp.json()
             elif resp.status_code == http.client.UNAUTHORIZED:
                 raise EdxApiUnauthorizedException
@@ -102,9 +102,9 @@ class EdxApiBaseClient(object):
             else:
                 raise OtherEdxApiException
         except requests.exceptions.ReadTimeout:
-            raise EdxApiResponseTimeoutException
+            raise EdxApiResponseTimeoutException  # pylint: disable=raise-missing-from
         except ValueError:
-            raise EdxApiResponseParsingException
+            raise EdxApiResponseParsingException  # pylint: disable=raise-missing-from
 
 
 class EdxApiV2Client(EdxApiBaseClient):
@@ -121,7 +121,7 @@ class EdxApiV2Client(EdxApiBaseClient):
             base_url (str): base URL of API calls.
         """
         self.base_url = base_url or urllib.parse.urljoin(settings.EDX_LMS_BASE_URL, settings.EDX_API_V2_SUFFIX)
-        super(EdxApiV2Client, self).__init__(api_key)
+        super(EdxApiV2Client, self).__init__(api_key)   # pylint: disable=super-with-arguments
 
     def get_courses(self):
         """
@@ -188,6 +188,7 @@ class EdxNotificationClient(EdxApiBaseClient):
     """
     EdX base notification client.
     """
+
     def __init__(self, api_key=None, base_url=None):
         """
         Initialize a high-level edX API v2 client.
@@ -196,7 +197,8 @@ class EdxNotificationClient(EdxApiBaseClient):
             api_key (str): edx API key required for authorization.
             base_url (str): base URL of API calls.
         """
-        self.base_url = base_url or urllib.parse.urljoin(settings.EDX_LMS_BASE_URL, settings.EDX_NOTIFICATION_API_SUFFIX)
+        url = urllib.parse.urljoin(settings.EDX_LMS_BASE_URL, settings.EDX_NOTIFICATION_API_SUFFIX)
+        self.base_url = base_url or url
         super().__init__(api_key)
 
     def send_notification(self, data, timeout=None):

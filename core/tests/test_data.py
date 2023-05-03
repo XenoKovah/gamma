@@ -1,4 +1,4 @@
-import pytest
+import pytest  # pylint: disable=import-error
 
 from achievements.models import Achievement, StatusBadge
 from core import db
@@ -27,7 +27,7 @@ def test_deactivated_badge_creation(make_test_file):
         badge.update_badge({'rules': rules})
     badge_mongo = db.badges.read_one(slug)
     # check rules are set before deactivation
-    assert badge_mongo.rules.to_primitive() == rules
+    assert badge_mongo.rules.to_primitive() == rules  # pylint: disable=no-value-for-parameter
 
     # Delete badge and than create badge with the same slug
     achiev.delete()

@@ -5,10 +5,12 @@ Goal is to simplify providers building and make if
 more readable for clients.
 """
 
+
 class ObjectFactory:
     """
     Helper Factory for push providers.
     """
+
     def __init__(self):
         self._builders = {}
 

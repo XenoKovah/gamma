@@ -15,7 +15,7 @@ def _create_ob(data) -> SystemEvent:
         system_event = SystemEvent(data, strict=False)
     except DataError as ex:
         system_event = None
-        LOG.error(f"Can't import SystemEvent data {ex}")
+        LOG.error(f"Can't import SystemEvent data {ex}")  # pylint: disable=logging-fstring-interpolation
     return system_event
 
 

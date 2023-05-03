@@ -18,16 +18,16 @@ def read_with_signup_source(user_signup_source):
     """
     return Leaders(
         {
-            "roster": conn.db.users.find({"signup_source": f"{user_signup_source}"}).
-                sort([("points", DESCENDING)]).limit(100)
+            "roster": conn.db.users.find(
+                {"signup_source": f"{user_signup_source}"}
+            ).sort([("points", DESCENDING)]).limit(100)
         }
     )
 
 
 def read_with_main_signup_source():
     """
-    Read the top 100 users of the main site and users 
-    without signup_source based on the score field.
+    Read the top 100 users of the main site and users without signup_source based on the score field.
     """
     return Leaders(
         {

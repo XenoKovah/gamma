@@ -1,7 +1,7 @@
 from core.notif.utils import ObjectFactory
 from core.notif.onesignal_provider import OneSignalServiceBuilder
 from core.notif.edx_provider import EdxServiceBuilder
-from core.notif.cfg import Config, Provider
+from core.notif.cfg import Provider
 
 
 class PushServiceProvider(ObjectFactory):

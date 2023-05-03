@@ -1,4 +1,4 @@
-import pytest
+import pytest  # pylint: disable=import-error
 from django.conf import settings
 
 from edx_integration.api.v2.client import EdxNotificationClient
@@ -10,6 +10,7 @@ def test_edx_notification_client_init():
 
     assert EdxNotificationClient().api_key == settings.EDX_API_KEY
     assert EdxNotificationClient(test_key).api_key == test_key
+
 
 @pytest.mark.unittests
 def test_edx_notification_client_send(mocker, notif_data):

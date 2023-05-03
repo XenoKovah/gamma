@@ -17,7 +17,7 @@ def _create_ob(data) -> Badge:
         badge = Badge(data, strict=False)
     except DataError as ex:
         badge = None
-        LOG.error(f"Can't import Badge data {ex} for badge: {data.get('badge_uid')}")
+        LOG.error(f"Can't import Badge data {ex} for badge: {data.get('badge_uid')}")  # pylint: disable=logging-fstring-interpolation
     return badge
 
 
@@ -70,10 +70,14 @@ def read_active():
     Read all active badges from db.
     """
     data = [_create_ob(badge) for badge
-            in conn.db.badges.find({"active": True,
-                     "$and": [{"rules": {"$exists": True}},
-                              {"rules": {"$ne": {}}},
-                              {"rules": {"$ne": None}}]})]
+            in conn.db.badges.find({
+                "active": True,
+                "$and": [
+                    {"rules": {"$exists": True}},
+                    {"rules": {"$ne": {}}},
+                    {"rules": {"$ne": None}}
+                ]
+            })]
 
     # temporarly workaround to exclude None objects
     return [badge for badge in data if badge]

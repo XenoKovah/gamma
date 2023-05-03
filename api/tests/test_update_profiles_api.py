@@ -1,10 +1,11 @@
 import json
 import requests
 
-from core import db
-from core.data_models.models import User
 from django.urls import reverse
 from rest_framework import status
+
+from core import db
+from core.data_models.models import User
 
 
 def test_update_profile_signup_source(live_server):

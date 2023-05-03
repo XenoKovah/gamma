@@ -47,6 +47,7 @@ class OneSignalService:
     result = onesignal_provider.send_notif(user, data)
     assert isinstance(result, dict)
     """
+
     def __init__(self, onesignal_client):
         self._client = onesignal_client
 
@@ -80,9 +81,9 @@ class OneSignalService:
 
         return notif
 
-    def send_notif(self, user, data):
+    def send_notif(self, user, data):  # pylint: disable=inconsistent-return-statements
         """
-        Sending notification by user_id (currently username) or by player_ids.
+        Send notification by user_id (currently username) or by player_ids.
         """
         # TODO: cover with units
         if not settings.ONESIGNAL_NOTIFICATION_ENABLED:
@@ -103,6 +104,7 @@ class OneSignalServiceBuilder:
     """
     OneSignal specific builder.
     """
+
     def __init__(self):
         self._instance = None
 

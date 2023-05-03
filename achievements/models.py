@@ -45,6 +45,7 @@ class BadgeAbsoluteUrl:
     """
     Provide a method to create an absolute url.
     """
+
     def get_absolute_url(self):
         """
         Add https://example.com to the badge url.
@@ -72,6 +73,7 @@ class Achievement(models.Model, BadgeAbsoluteUrl):
     We can export new Achievements from
     any new Badges service.
     """
+
     title = models.CharField(max_length=64)
     slug = models.SlugField(max_length=64, unique=True)
     badge_id = models.CharField(max_length=64, blank=True)
@@ -82,13 +84,13 @@ class Achievement(models.Model, BadgeAbsoluteUrl):
         return self.slug.__str__()
 
     @property
-    def badge_img_name(self):
+    def badge_img_name(self):  # pylint: disable=inconsistent-return-statements
         if self.badge_img:
             return self.badge_img.name.split('/')[-1]
-    
-    def save(self, *args, **kwargs):
+
+    def save(self, *args, **kwargs):  # pylint: disable=signature-differs
         creating = not self.id
-        super(Achievement, self).save(*args, **kwargs)
+        super(Achievement, self).save(*args, **kwargs)  # pylint: disable=signature-differs, super-with-arguments
         # TODO remove this
         badges_data = {
             "badge_uid": self.slug,
@@ -107,19 +109,20 @@ class Achievement(models.Model, BadgeAbsoluteUrl):
         else:
             db.badges.update_skeleton(Badge(badges_data))
 
-    def delete(self, *args, **kwargs):
+    def delete(self, *args, **kwargs):  # pylint: disable=signature-differs
         if dependent := db.badges.dependent_badges(self.slug):
             raise PermissionDenied(f'Deletion of current badge "{self.slug}" '
                                    f'is denied, it is dependency for {dependent}')
 
         db.badges.deactivate(self.slug)
-        super(Achievement, self).delete(*args, **kwargs)
+        super(Achievement, self).delete(*args, **kwargs)  # pylint: disable=super-with-arguments
 
 
 class StatusBadge(models.Model, BadgeAbsoluteUrl):
     """
     Models for Status badge.
     """
+
     title = models.CharField(max_length=64)
     slug = models.SlugField(max_length=64, unique=True)
     badge_id = models.CharField(max_length=64, blank=True)
@@ -133,8 +136,8 @@ class StatusBadge(models.Model, BadgeAbsoluteUrl):
     )
     badge_img = CustomImageField(upload_to="media")
 
-    def save(self, *args, **kwargs):
-        super(StatusBadge, self).save(*args, **kwargs)
+    def save(self, *args, **kwargs):  # pylint: disable=signature-differs
+        super(StatusBadge, self).save(*args, **kwargs)  # pylint: disable=super-with-arguments
 
         db.statuses.update(Status({
             "status_uid": self.slug,
@@ -147,13 +150,13 @@ class StatusBadge(models.Model, BadgeAbsoluteUrl):
             "url": self.badge_img.url if settings.STORE_RELATIVE_URLS else self.get_absolute_url()
         }))
 
-    def delete(self, *args, **kwargs):
+    def delete(self, *args, **kwargs):  # pylint: disable=signature-differs
         if dependent := db.statuses.dependent_badges(self.slug):
             raise PermissionDenied(f'Deletion of current status "{self.slug}" '
                                    f'is denied, it is dependency for: {dependent}')
 
         db.statuses.deactivate(self.slug)
-        super(StatusBadge, self).delete(*args, **kwargs)
+        super(StatusBadge, self).delete(*args, **kwargs)  # pylint: disable=super-with-arguments
 
     def __str__(self):
         return self.slug.__str__()
@@ -165,6 +168,7 @@ class Event(models.Model):
 
     Such as points to give for particular event.
     """
+
     event_type = models.CharField(max_length=64, unique=True)
     title = models.CharField(max_length=32, blank=True)
     award = models.PositiveSmallIntegerField(verbose_name='Points to award')
@@ -172,11 +176,12 @@ class Event(models.Model):
     notification_message = models.CharField(
         max_length=128,
         default='You have got {} point.',
-        help_text="You can use {} to insert awarded points into correct place. e.g. Congrats! You've earned {} points for watching videos"
+        help_text="""You can use {} to insert awarded points into correct place. e.g.
+                     Congrats! You've earned {} points for watching videos"""
     )
 
-    def save(self, *args, **kwargs):
-        super(Event, self).save(*args, **kwargs)
+    def save(self, *args, **kwargs):  # pylint: disable=signature-differs
+        super(Event, self).save(*args, **kwargs)  # pylint: disable=super-with-arguments
         db.events.update(SystemEvent({
             "event_type": self.event_type,
             "title": self.title,

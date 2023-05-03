@@ -1,7 +1,6 @@
 """
 Eventually data will be moved away from SQL to Mongo.
 
-
 This module is intended to be a data schema for all project
 entities.
 """
@@ -22,7 +21,7 @@ from schematics.types import (
     IntType,
     DictType,
 )
-from schematics.transforms import blacklist, whitelist
+from schematics.transforms import blacklist
 
 from core.data_models.types import CustomURLType
 
@@ -31,6 +30,7 @@ class EventModel(Model):
     """
     Incomming API request model.
     """
+
     uid = StringType(required=True)
     signup_source = StringType(required=False)
     username = StringType(required=True, serialized_name='user_uid')
@@ -52,6 +52,7 @@ class SystemEvent(Model):
     """
     Accepted Events.
     """
+
     _id = ObjectIdType(
         metadata={'readOnly': True},
         serialize_when_none=False, default=ObjectId
@@ -165,6 +166,7 @@ class DepBadge(Model):
     """
     Dependency badge.
     """
+
     badge_uid = StringType(required=True)
     badge_title = StringType(required=True)
     url = CustomURLType(required=True, relative=settings.STORE_RELATIVE_URLS)
@@ -210,7 +212,7 @@ class Rules(Model):
 
     def __bool__(self):
         """
-        Evaluates Rules to bool.
+        Evaluate Rules to bool.
 
         Returns True if any of the valid rules is
         presented.
@@ -251,6 +253,7 @@ class User(Model):
     """
     Game profile data model.
     """
+
     _id = ObjectIdType(
         metadata={'readOnly': True},
         serialize_when_none=False, default=ObjectId
@@ -286,7 +289,6 @@ class User(Model):
         """
         Filter Badges to return only achieved ones.
         """
-
         if not self.get('badges'):
             return
 
@@ -295,7 +297,7 @@ class User(Model):
             for badge in self.badges if self.badges[badge].done}
 
     def has_status(self, status_uid) -> bool:
-        return status_uid in [_.status_uid for _ in self.statuses]
+        return status_uid in [_.status_uid for _ in self.statuses]  # pylint: disable=not-an-iterable
 
 
 class Leaders(Model):
@@ -304,6 +306,7 @@ class Leaders(Model):
 
     List of User models.
     """
+
     roster = ListType(ModelType(User), default=[])
 
     class Options:
@@ -316,8 +319,7 @@ class Leaders(Model):
         """
         Adding filtering for User badges.
         """
-
-        for user in self.roster:
+        for user in self.roster:  # pylint: disable=not-an-iterable
             user.filter_done()
 
         return super().to_primitive(role=role, app_data=app_data, **kwargs)

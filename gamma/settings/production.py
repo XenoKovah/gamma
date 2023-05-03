@@ -4,7 +4,7 @@ import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.celery import CeleryIntegration
 
-from .base import *
+from .base import *  # pylint: disable=unused-import, wildcard-import
 
 
 sentry_sdk.init(

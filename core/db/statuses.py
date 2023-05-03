@@ -15,7 +15,7 @@ def _create_status(data) -> Status:
         status = Status(data, strict=False)
     except DataError as ex:
         status = None
-        LOG.error(f"Can't import Status data {ex}")
+        LOG.error(f"Can't import Status data {ex}")  # pylint: disable=logging-fstring-interpolation
     return status
 
 
@@ -24,7 +24,8 @@ def read():
     Read all system statuses.
     """
     data = [_create_status(status) for
-        status in conn.db.statuses.find({"active": True}).sort([("status_points", ASCENDING)])]
+            status in conn.db.statuses.find({"active": True}).sort([("status_points", ASCENDING)])
+            ]
 
     return [status for status in data if status]
 
@@ -53,6 +54,7 @@ def update(status):
         {"$set": data},
         upsert=True
     )
+
 
 def get_achieved(prev_points, new_points):
     """

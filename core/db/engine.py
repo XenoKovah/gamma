@@ -10,7 +10,7 @@ EVENT_HISTORY_DB_INDEXES = [("uid", pymongo.ASCENDING),
 USERS_INDEXES = [("user_uid", pymongo.ASCENDING)]
 
 
-class Singleton(object):
+class Singleton(object):  # pylint: disable=useless-object-inheritance
     _instance = None
 
     def __new__(cls, *args, **kwargs):
@@ -21,9 +21,9 @@ class Singleton(object):
 
 class MongoConnector(Singleton):
     """
-    Mongo connector as singleton object to utilize
-    mongo connection pool.
+    Mongo connector as singleton object to utilize mongo connection pool.
     """
+
     _db = None
 
     @property

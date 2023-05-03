@@ -4,8 +4,7 @@ from distutils.util import strtobool
 
 from django.utils.translation import ugettext_lazy as _
 
-from .edx_platform import *
-from .logging import LOGGING
+from .edx_platform import *  # pylint: disable=wildcard-import
 
 
 BASE_DIR = path.dirname(path.dirname(path.abspath(__file__)))
@@ -136,7 +135,6 @@ STATICFILES_FINDERS = (
 
 # IFrame setting for loading main dashboard in IFrame
 X_FRAME_OPTIONS = "SAMEORIGIN"
-
 
 
 DB_DATA = 'data'

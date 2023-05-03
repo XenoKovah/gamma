@@ -1,8 +1,9 @@
+from contextlib import contextmanager
+from datetime import datetime
+
 import logging
 from typing import List
 from bson import ObjectId
-from datetime import datetime
-from contextlib import contextmanager
 
 from pymongo import ReturnDocument
 from schematics.exceptions import DataError
@@ -24,7 +25,7 @@ def _create_status_ob(data) -> Status:
         status = Status(data, strict=False)
     except DataError as ex:
         status = None
-        LOG.error(f"Can't import Status data {ex}")
+        LOG.error(f"Can't import Status data {ex}")  # pylint: disable=logging-fstring-interpolation
     return status
 
 
@@ -33,7 +34,7 @@ def _create_ob(data) -> User:
         user = User(data, strict=False)
     except DataError as ex:
         user = None
-        LOG.error(f"Can't import User data {ex}")
+        LOG.error(f"Can't import User data {ex}")  # pylint: disable=logging-fstring-interpolation
 
     return user
 
@@ -165,7 +166,7 @@ def update_status(user_uid, points):
 
 def matched_statuses(points):
     """
-    Returns all status matched statuses.
+    Return all status matched statuses.
     """
     return [_create_status_ob(status) for
             status in conn.db.statuses.find(

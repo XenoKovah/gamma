@@ -1,6 +1,6 @@
 import logging
 from typing import Set
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from core.data_models.models import UserAction, UserBadge, Rules
 from core import db
@@ -33,6 +33,7 @@ def update_badges_by_badges(user_uid, badges_granted):
 
             progress = user.badges.get(badge.badge_uid, {}).get('progress', {})
             if badge.rules and is_badge_granted(user, badge.rules, progress):
+                # pylint: disable=pointless-string-statement
                 """
                 Changing progress to
                 {
@@ -106,6 +107,7 @@ def update_user_badges_by_event(user_uid, event, achieved_status_uid):
                         'last': event.date})
 
             if badge.rules and (badge_granted := is_badge_granted(user, badge.rules, progress)):
+                # pylint: disable=pointless-string-statement
                 """
                 Changing progress to
                 {
@@ -150,7 +152,8 @@ def filter_event(event, filters, progress):
     Return True if event does pass the filtering.
     Return False if event doesn't pass the filtering.
     """
-    if not filters: return True
+    if not filters:
+        return True
 
     if (filters.interval and
             filters.interval.start and
@@ -178,7 +181,8 @@ def check_frequency_fit(filters, progress, event):
     to 1 when new event of this type is received.
     Other events from rules won't be affected.
     """
-    if not filters: return True
+    if not filters:
+        return True
 
     if filters.frequency:
         delta = timedelta(filters.frequency)
@@ -194,7 +198,8 @@ def is_badge_granted(user, rules: Rules, progress):
     """
     Check for all badge rules to be passed.
     """
-    if not rules: return False
+    if not rules:
+        return False
 
     for action in rules.actions:
         if progress.get(action, {}).get('count', 0) < rules.actions[action]:
@@ -214,7 +219,8 @@ def is_badge_rules_simplified(new_rules: Rules, old_rules: Rules) -> bool:
     """
     Check where the changed rules simplify constraints.
     """
-    if not new_rules: return False
+    if not new_rules:
+        return False
 
     new_badges_set = set(new_rules.badges)
     old_badges_set = set(old_rules.badges)
@@ -227,7 +233,7 @@ def is_badge_rules_simplified(new_rules: Rules, old_rules: Rules) -> bool:
         return False
 
     for event, value in new_rules.actions.items():
-        if value > old_rules.actions[event]:
+        if value > old_rules.actions[event]:  # pylint: disable=no-else-return
             return False  # count of events to get badge is increased
         elif value < old_rules.actions[event]:
             actions_simplified = True
@@ -236,7 +242,7 @@ def is_badge_rules_simplified(new_rules: Rules, old_rules: Rules) -> bool:
         actions_simplified = len(new_rules.actions) < len(old_rules.actions)
 
     # Status badge simplification check
-    if (new_rules.status_badge and old_rules.status_badge and (new_rules.status_badge != old_rules.status_badge) and
+    if (new_rules.status_badge and old_rules.status_badge and (new_rules.status_badge != old_rules.status_badge) and  # pylint: disable=no-else-return
             not (status_badge_simplified := is_status_simplified(new_rules.status_badge, old_rules.status_badge))):
         return False
 
@@ -285,6 +291,7 @@ class AppClientUtils:
     """
     Misc utility method to work with AppClient.
     """
+
     _app_client = None
 
     def get_app_client(self, request):
@@ -300,7 +307,7 @@ class AppClientUtils:
 def clean_rules(data):
     cleaned_rules = {}
     for key, value in data.items():
-        if key in Rules._schema.fields:
+        if key in Rules._schema.fields:  # pylint: disable=protected-access
             cleaned_rules[key] = value
 
     return cleaned_rules

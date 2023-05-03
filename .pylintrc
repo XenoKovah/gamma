@@ -1,0 +1,17 @@
+# Pylint docs: https://docs.pylint.org/features.html
+
+[FORMAT]
+max-line-length=120
+ignore=migrations
+disable=unused-wildcard-import,     # W0614 - Unused import %s from wildcard import Used when an imported module or variable is not used from a ‘from X import *’ style import.
+        unused-argument,            # W0613 - Unused argument %r Used when a function or method argument is not used.
+        missing-class-docstring,    # Missing docstring
+        missing-function-docstring, # Missing docstring
+        missing-module-docstring,   # Missing docstring
+        too-few-public-methods,     # R0903 - Too few public methods (%s/%s) Used when class has too few public methods, so be sure it’s really worth it. 
+        no-self-use,                # R0201 - Method could be a function Used when a method doesn’t use its bound instance, and so could be written as a function.
+        duplicate-code,             # R0801 - Similar lines in %s files Indicates that a set of similar lines has been detected among multiple file. This usually means that the code should be refactored to avoid this duplication.
+        invalid-name,               # C0103 - Invalid %s name “%s”%s Used when the name doesn’t match the regular expression associated to its type (constant, variable, class...).
+        no-member,                  # E1101 - %s %r has no %r member Used when a variable is accessed for an unexistent member.
+        unsubscriptable-object,     # E1136 - Value ‘%s’ is unsubscriptable Emitted when a subscripted value doesn’t support subscription(i.e. doesn’t define __getitem__ method)
+        fixme                       # W0511 - Used when a warning note as FIXME or XXX is detected.

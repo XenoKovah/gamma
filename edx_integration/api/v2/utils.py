@@ -3,7 +3,7 @@ import logging
 from django.conf import settings
 from django.core.cache.backends.base import DEFAULT_TIMEOUT
 from django.core.cache import cache
-from requests.exceptions import ConnectionError
+from requests.exceptions import ConnectionError  # pylint: disable=redefined-builtin
 
 from .client import EdxApiV2Client
 from .exceptions import (
@@ -42,6 +42,6 @@ def get_gamma_events_list():
             OtherEdxApiException,
             ConnectionError,
         ) as e:
-            log.warning(f"Failed to get response from edx-integration: {e}")
+            log.warning(f"Failed to get response from edx-integration: {e}")  # pylint: disable=logging-fstring-interpolation
             events_list_response = []
     return events_list_response

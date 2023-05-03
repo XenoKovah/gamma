@@ -40,6 +40,7 @@ class GameProfileView(APIView, AppClientUtils):
     """
     GET or UPDATE user points.
     """
+
     authentication_classes = (KeySecretAuthentication,)
 
     def put(self, request, *args, **kwargs):
@@ -68,14 +69,14 @@ class GameProfileView(APIView, AppClientUtils):
         app_client = self.get_app_client(request)
         event_data.client = app_client.uid
 
-        if not (event := db.events.log(event_data)):
+        if not (event := db.events.log(event_data)):  # pylint: disable=superfluous-parens
             resp_msg = 'Repeated event occurs'
-            logger.debug(f'For user {event_data.username} msg: {resp_msg}: {event_data.event_type}::{event_data.uid}')
+            logger.debug(f'For user {event_data.username} msg: {resp_msg}: {event_data.event_type}::{event_data.uid}')  # pylint: disable=logging-fstring-interpolation
             return Response({"Error": resp_msg}, status=status.HTTP_406_NOT_ACCEPTABLE)
 
         points = db.users.update_profile(event.username, event)
 
-        logger.debug('For user {0} msg: {1}'.format(
+        logger.debug('For user {0} msg: {1}'.format(  # pylint: disable=logging-format-interpolation
             event.username,
             f'Event logged::{event.uid=}::{event.event_type=}::{event.points=}'))
 
@@ -106,6 +107,7 @@ class ActionsListView(APIView):
     and additional items 'badge' and 'status_badge'
     for 'badge-for-badge' granting.
     """
+
     def get(self, *args, **kwargs):
         """
         Get all Actions.
@@ -133,7 +135,7 @@ class BadgesView(APIView):
 
 class StatusBadgesView(APIView):
     """
-    Get all status badges
+    Get all status badges.
     """
 
     def get(self, *args, **kwargs):
@@ -145,6 +147,7 @@ class FiltersView(APIView):
     """
     Return all available Filters.
     """
+
     @staticmethod
     def get(*args, **kwargs):
         """
@@ -157,10 +160,12 @@ class FiltersView(APIView):
 
 
 class BadgeRulesView(APIView):
-    permission_classes = [IsAdminUser]
     """
     Return Badge rules.
     """
+
+    permission_classes = [IsAdminUser]
+
     def get(self, request, *args, **kwargs):
         """
         Get rules for badge by a slug.
@@ -189,7 +194,7 @@ class BadgeRulesView(APIView):
 
         if old_rules and new_rules:
             # don't try to open the badge for users if it's ruldataes are completely deleted
-            update_users_badge_data.delay(slug, old_rules.to_primitive(), new_rules.to_primitive(),
+            update_users_badge_data.delay(slug, old_rules.to_primitive(), new_rules.to_primitive(),  # pylint: disable=no-value-for-parameter
                                           badge_model.badge_img.url, badge_model.title, badge_model.description)
 
         return Response({}, status=status.HTTP_200_OK)
@@ -256,7 +261,7 @@ class AchievementsView(APIView):
             achievement = Achievement.objects.get(slug=slug)
             form = AchievementForm(request.POST, request.FILES, instance=achievement)
 
-            if form.is_valid():
+            if form.is_valid():  # pylint: disable=no-else-return
                 form.save()
 
                 return Response({}, status=status.HTTP_200_OK)
@@ -279,6 +284,7 @@ class LeaderBoardView(APIView):
     """
     Return leaderbord data.
     """
+
     def get(self, request):
         user_uid = request.GET.get('username')
         if user_uid and not (user := db.users.read_one(user_uid)):
@@ -286,7 +292,7 @@ class LeaderBoardView(APIView):
                 {"Error": USER_NOT_FOUND},
                 status=status.HTTP_404_NOT_FOUND)
 
-        if (user_signup_source := request.GET.get('signup_source')):
+        if (user_signup_source := request.GET.get('signup_source')):  # pylint: disable=superfluous-parens
             if user_signup_source == settings.MAIN_SIGNUP_SOURCE:
                 leaders = db.leaders.read_with_main_signup_source()
             else:
@@ -322,6 +328,7 @@ class StatusDependentBadgesView(APIView):
     """
     Status badges dependencies API view.
     """
+
     def get(self, request):
         """
         Get the status badge dependencies.
@@ -359,6 +366,7 @@ class SignupSourceUpdateView(APIView):
     """
     API endpoint to update game profiles with signup source data.
     """
+
     def post(self, request):
         """
         Update game profiles with signup source data.

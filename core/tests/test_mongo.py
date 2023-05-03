@@ -1,7 +1,7 @@
 from datetime import datetime
 from random import randint
 
-import pytest
+import pytest  # pylint: disable=import-error
 from schematics.exceptions import DataError
 
 from achievements.models import Event
@@ -17,7 +17,7 @@ def test_progress(current_date, award, rand_str):
     """
     user_uid = rand_str
     signup_source = "test-site.com"
-    
+
     # We want to test that Progress works for repeated awards
     repeated_awards = randint(2, 10)
 
@@ -80,7 +80,7 @@ def test_charted(award, rand_str):
     charted = db.users.read_one(user_uid).chart
 
     assert isinstance(charted, dict)
-    assert user_uid not in charted
+    assert user_uid not in charted  # pylint: disable=unsupported-membership-test
     assert charted[event_type] == UserEventPoints({'title': event_title, "points": award})
 
 
@@ -127,7 +127,7 @@ def test_key_gen():
     Test key/secret generator.
     """
     prev = key_secret_generator()
-    for i in range(100):
+    for i in range(100):  # pylint: disable=unused-variable
         secret = key_secret_generator()
         assert isinstance(secret, str)
         assert len(secret) >= 15
@@ -161,7 +161,7 @@ def test_rules(rand_str, award):
 
 
 @pytest.mark.xfail(raises=DataError)
-def test_rules(rand_str, award):
+def test_rules(rand_str, award):  # pylint: disable=function-redefined)
     """
     Set/get rules by achievement slug.
     """

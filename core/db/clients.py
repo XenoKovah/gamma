@@ -13,7 +13,7 @@ def _create_ob(data) -> AppClient:
     try:
         app_client = AppClient(data)
     except DataError as ex:
-        LOG.error(f"Can't import AppClient data {ex}")
+        LOG.error(f"Can't import AppClient data {ex}")  # pylint: disable=logging-fstring-interpolation
         app_client = None
     return app_client
 

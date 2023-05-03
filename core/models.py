@@ -29,12 +29,13 @@ class AppClient(models.Model):
     """
     Client application models to hold KEY and SECRET.
     """
+
     name = models.CharField(max_length=32, unique=True, validators=[mongo_compatible])
     key = models.CharField(max_length=32, unique=True, db_index=True, default=key_secret_generator)
     secret = models.CharField(max_length=32, unique=True, default=key_secret_generator)
 
-    def save(self, *args, **kwargs):
-        super(AppClient, self).save(*args, **kwargs)
+    def save(self, *args, **kwargs):  # pylint: disable=signature-differs
+        super(AppClient, self).save(*args, **kwargs)  # pylint: disable=super-with-arguments
         db.clients.update_one(AppClientModel({
             "uid": self.name,
             "key": self.key,

@@ -1,12 +1,11 @@
 import json
 
-import pytest
+import pytest  # pylint: disable=import-error
 from django.core.cache import cache
 
 from achievements.models import StatusBadge
 from edx_integration.api.v2.utils import get_gamma_events_list
 from core.utils import is_badge_rules_simplified
-from core import db
 from core.data_models.models import Rules
 
 

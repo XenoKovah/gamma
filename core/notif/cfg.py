@@ -10,6 +10,7 @@ class Config:
     """
     Auth data keys.
     """
+
     # OneSignal provider config
     ONE_SIGNAL_USER_AUTH_KEY: str = "one_signal_user_auth_key"
     ONE_SIGNAL_APP_AUTH_KEY:  str = "one_signal_app_auth_key"
@@ -26,6 +27,7 @@ class Provider:
     """
     Providers name.
     """
+
     ONESIGNAL: int = 1
     WEBPUSHR:  int = 2
     EDX:       int = 3

@@ -1,6 +1,6 @@
 from collections import namedtuple
 
-from pytest import fixture
+from pytest import fixture  # pylint: disable=import-error
 
 FileNameTransformation = namedtuple('FileNameTransformation', ['initial_value', 'transliterated_value'])
 

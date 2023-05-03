@@ -17,6 +17,7 @@ class DashboardView(View):
     """
     Provide base information for user.
     """
+
     def get(self, request):
         progress_data, charted_progress = None, None
         if request.user.is_authenticated:
