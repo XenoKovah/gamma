@@ -24,6 +24,7 @@ Build:
     - merge_requests
   script:
     - docker pull $TEST_IMAGE || true
+    - sed -i -e '$a!.git/' .dockerignore
     - docker build -t $TEST_IMAGE --cache-from $TEST_IMAGE --push .
 
 BuildStatic:
