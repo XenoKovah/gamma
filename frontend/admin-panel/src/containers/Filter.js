@@ -8,7 +8,7 @@ import Select from 'react-select';
 import { MuiPickersUtilsProvider, DatePicker } from 'material-ui-pickers';
 import DateFnsUtils from '@date-io/date-fns';
 
-import {AllowedFilters, isObjectEmpty} from '../Utils';
+import {AllowedFilters, isObjectEmpty, getOrgFromCourseKey } from '../Utils';
 
 import { COURSES, ORGANISATIONS } from '../api/Api';
 import { customStyles } from '../components/Select';
@@ -38,6 +38,8 @@ export default class Filter extends React.Component {
         this.avFieldsChanged = this.avFieldsChanged.bind(this);
         this.handleFocus = this.handleFocus.bind(this);
         this.getOrganisations = this.getOrganisations.bind(this);
+        this.getCurrentCourses = this.getCurrentCourses.bind(this);
+        this.getCurrentOrganisations = this.getCurrentOrganisations.bind(this);
     }
 
     state = {
@@ -51,7 +53,7 @@ export default class Filter extends React.Component {
             org: false,
             interval: false,
             frequency: false,
-            courses: false
+            course: false
         },
         filter: {
             selectedItem: null
@@ -157,6 +159,39 @@ export default class Filter extends React.Component {
         })
     }
 
+    getCurrentCourses(org='', courses, emptySelectValue) {
+        if (org && courses) {
+            // Select only those courses belonging to the selected organization
+            courses = courses.filter(
+                (course) => getOrgFromCourseKey(course) === org
+            )
+        }
+        courses = emptySelectValue.concat(
+            courses.map(el => {
+                return {value: el, label: el}
+            })
+        );
+        return courses
+    }
+
+    getCurrentOrganisations(course='', organisations, emptySelectValue) {
+        if (course && organisations) {
+            // Show only those org related to the selected course
+            const courseOrg = getOrgFromCourseKey(course);
+            organisations = emptySelectValue.concat(
+                {value: courseOrg, label: courseOrg}
+            )
+        } else {
+            // Show all organisations
+            organisations = emptySelectValue.concat(
+                organisations.map(el => {
+                    return {value: el, label: el}
+                })
+            );
+        }
+        return organisations
+    }
+
     handleChangeDateEnd(date) {
         let state = this.state;
         state.interval.end = date;
@@ -219,20 +254,15 @@ export default class Filter extends React.Component {
 
     render() {
         const { filter: { selectedItem: filterSelectedItem } } = this.state;
+        let { org, course, organisations, courses } = this.state;
 
         let start = this.state && this.state.interval && this.state.interval.start ? this.state.interval.start : null;
         let end = this.state && this.state.interval && this.state.interval.end ? this.state.interval.end : null;
         let emptySelectValue = [{value: null, label: "------"}];
-        let courses = emptySelectValue.concat(
-            this.state.courses.map(el => {
-                return {value: el, label: el}
-            })
-        );
-        let organisations = emptySelectValue.concat(
-            this.state.organisations.map(el => {
-                return {value: el, label: el}
-            })
-        );
+
+        courses = this.getCurrentCourses(org, courses, emptySelectValue);
+        organisations = this.getCurrentOrganisations(course, organisations, emptySelectValue);
+
         let emptyFields = this.getEmptyFields().map(el => {
             return {value: el, label: el};
         });

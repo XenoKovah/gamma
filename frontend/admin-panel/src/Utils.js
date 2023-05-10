@@ -52,4 +52,12 @@ function validateObjects(object) {
     return newObject;
 }
 
-export {AllowedFilters, getCookie, isObjectEmpty, validateObjects};
+// The function takes a course as a string in the format of "course-v1:edX+Demo_Course+2023"
+// Returns a string containing the org name or null if the course format does not match the pattern.
+function getOrgFromCourseKey(courseKey) {
+    const regex = /^course-v1:([^+]+)/;
+    const result = regex.exec(courseKey)
+    return result ? result[1] : null;
+}
+
+export {AllowedFilters, getCookie, isObjectEmpty, validateObjects, getOrgFromCourseKey};

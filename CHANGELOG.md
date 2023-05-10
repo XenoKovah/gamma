@@ -7,6 +7,7 @@ Versions follows PEP440 version scheme.
 [Unreleased]
 ************
 ## Added
+* feat: [RGG-870] Added the validation for using "courses" and "organization" filters simultaneously.
 * feat: [RGG-644] Create python linting configuration.
 * feat: [RGG-867] Added an API for updating the signup_source field for game profiles.
 * feat: [RGG-805] Added filtering of game profiles for the leaderboard depending on the tenant
