@@ -3,7 +3,6 @@ Integration tests.
 """
 import random
 import string
-import json
 from enum import Enum
 from copy import deepcopy
 
@@ -16,6 +15,7 @@ from api.v0.views import USER_NOT_FOUND
 from core import db
 from core.data_models.models import SystemEvent, User
 from core.tests.utils.helpers import get_authenticated_api_client
+from core.tests.utils.helpers import load_params_from_json
 
 GAMMA_PROFILE_API_URL = "/api/v0/gamma-profile/"
 
@@ -43,11 +43,6 @@ def test_dashboard_anonymous(live_server, client):
     assert 'Congrants, you are in top 100! You rank is' not in content
     assert 'header-nav-wrap' in content
     assert 'footer' in content
-
-
-def load_params_from_json(json_path):
-    with open(json_path) as f:
-        return json.load(f)
 
 
 @pytest.mark.parametrize(
@@ -394,7 +389,6 @@ def test_leaderboard_api_with_signup_source(entry, live_server, app_client):
 
     resp_body = responce.json()
     gameprofiles = resp_body.get("gameprofiles", {})
-    print(gameprofiles)
 
     assert len(gameprofiles) == output_users_number
     for gameprofile in gameprofiles:

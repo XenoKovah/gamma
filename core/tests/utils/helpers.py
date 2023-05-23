@@ -1,5 +1,6 @@
 import string
 import random
+import json
 
 from django.contrib.auth import get_user_model
 from rest_framework.test import APIClient
@@ -20,3 +21,8 @@ def get_authenticated_api_client(is_staff=False):
     api_client.force_authenticate(user=user)
 
     return api_client
+
+
+def load_params_from_json(json_path):
+    with open(json_path) as f:
+        return json.load(f)

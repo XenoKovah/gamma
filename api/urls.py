@@ -9,4 +9,5 @@ from django.urls import path, include
 
 urlpatterns = [
     path('v0/', include(('api.v0.urls', 'api'), namespace='v0')),
+    path('v1/', include(('api.v1.urls', 'api'), namespace='v1')),
 ]

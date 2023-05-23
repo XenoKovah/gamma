@@ -1,5 +1,3 @@
-import json
-
 import pytest  # pylint: disable=import-error
 from django.core.cache import cache
 
@@ -7,11 +5,7 @@ from achievements.models import StatusBadge
 from edx_integration.api.v2.utils import get_gamma_events_list
 from core.utils import is_badge_rules_simplified
 from core.data_models.models import Rules
-
-
-def load_params_from_json(json_path):
-    with open(json_path) as f:
-        return json.load(f)
+from core.tests.utils.helpers import load_params_from_json
 
 
 def test_get_gamma_events_list_from_cache(monkeypatch):
