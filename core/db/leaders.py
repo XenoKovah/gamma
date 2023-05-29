@@ -56,18 +56,37 @@ def get_tenant_filter(user_signup_source):
         return {"signup_source": f"{user_signup_source}"}
 
 
-def get_top10(additional_filter):
-    return Leaders({
-        "roster": conn.db.users.find(additional_filter)
-                .sort([("points", DESCENDING)])
-                .limit(10)
-    })
+def get_top10(current_user, rank, additional_filter):
+    if rank > 10:
+        return Leaders({
+            "roster": conn.db.users.find(additional_filter)
+                    .sort([("points", DESCENDING)])
+                    .limit(10)
+        })
+
+    head_top10 = list(conn.db.users
+                            .find({"points": {"$gt": current_user.points}, **additional_filter})
+                            .sort([("points", DESCENDING)]))
+    if len(head_top10) == 9:
+        return Leaders({"roster": head_top10 + [ current_user ]})
+
+    tail_top10 = list(conn.db.users
+                            .find({"points": {"$lte": current_user.points}, **additional_filter})
+                            .sort([("points", DESCENDING)]).limit(10))
+    tail_top10 = [user for user in tail_top10 if user["user_uid"] != current_user.user_uid]
+
+    return Leaders({"roster": (head_top10 + [ current_user ] + tail_top10)[:10]})
 
 
 def get_user_rank(user, additional_filter):
-    return conn.db.users.find({
-               "points": {"$gte": user.points}, **additional_filter
-           }).count() if user else None
+    """
+    Determining the current position of the user based on number of points.
+
+    In case of a tie in points with other users, the current user always ranks higher.
+    """
+    rank_before_current_user = conn.db.users.find({
+        "points": {"$gt": user.points}, **additional_filter}).count()
+    return rank_before_current_user + 1
 
 
 def get_tail_competitors(user, additional_filter):
@@ -107,7 +126,7 @@ def read_for_user(user_uid, user_signup_source=None):
     user = db.users.read_one(user_uid)
     additional_filter = get_tenant_filter(user_signup_source)
     rank = get_user_rank(user, additional_filter)
-    top10 = get_top10(additional_filter)
+    top10 = get_top10(user, rank, additional_filter)
 
     competitors = []
     if user.points == 0:
@@ -133,10 +152,6 @@ def read_for_user(user_uid, user_signup_source=None):
         head = get_head_competitors(user, head_limit, additional_filter)
         head.reverse()
         head = [user for user in head if user["user_uid"] != user_uid]
-
-        # Limit the number of users in the head to the predefined limit
-        if len(head) == head_limit:
-            head.pop(0)
 
         competitors = Leaders({"roster": head + [ user ] + tail})
 
