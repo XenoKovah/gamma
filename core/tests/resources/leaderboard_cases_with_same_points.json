@@ -1,0 +1,620 @@
+[
+    {
+        "description": "1. The same number of points for competitors and the current user. The current user is not in the `head` list. Return the top 10 and competitors surrounding the user (-4 +2) when the user ranks below 10 but above penultimate on the leaderboard.",
+        "all_users": [
+            { "user_uid": "user_uid_1", "points": 30 },
+            { "user_uid": "user_uid_2", "points": 29 },
+            { "user_uid": "user_uid_3", "points": 28 },
+            { "user_uid": "user_uid_4", "points": 27 },
+            { "user_uid": "user_uid_5", "points": 26 },
+            { "user_uid": "user_uid_6", "points": 25 },
+            { "user_uid": "user_uid_7", "points": 24 },
+            { "user_uid": "user_uid_8", "points": 23 },
+            { "user_uid": "user_uid_9", "points": 22 },
+            { "user_uid": "user_uid_10", "points": 21 },
+            { "user_uid": "user_uid_11", "points": 19 },
+            { "user_uid": "user_uid_12", "points": 19 },
+            { "user_uid": "user_uid_13", "points": 19 },
+            { "user_uid": "user_uid_14", "points": 19 },
+            { "user_uid": "user_uid_15", "points": 19 },
+            { "user_uid": "user_uid_16", "points": 19 },
+            { "user_uid": "user_uid_17", "points": 19 },
+            { "user_uid": "user_uid_18", "points": 19 },
+            { "user_uid": "user_uid_19", "points": 19 },
+            { "user_uid": "user_uid_20", "points": 19 },
+            { "user_uid": "user_uid_21", "points": 19 },
+            { "user_uid": "user_uid_22", "points": 19 },
+            { "user_uid": "user_uid_23", "points": 19 },
+            { "user_uid": "user_uid_24", "points": 19 },
+            { "user_uid": "user_uid_25", "points": 19 },
+            { "user_uid": "user_uid_26", "points": 19 },
+            { "user_uid": "user_uid_27", "points": 19 },
+            { "user_uid": "user_uid_28", "points": 19 },
+            { "user_uid": "user_uid_29", "points": 11 },
+            { "user_uid": "user_uid_30", "points": 10 }
+        ],
+        "tail": [
+            { "user_uid": "user_uid_29", "signup_source": "main", "points": 11, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_30", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] }
+        ],
+        "head": [
+            { "user_uid": "user_uid_28", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_27", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_26", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_25", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_24", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] }
+        ],
+        "user_uid": "user_uid_15",
+        "expected_rank": 28,
+        "signup_source": "main",
+        "expected_top10": [
+            { "user_uid": "user_uid_1", "signup_source": "main", "points": 30, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_2", "signup_source": "main", "points": 29, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_3", "signup_source": "main", "points": 28, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_4", "signup_source": "main", "points": 27, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_5", "signup_source": "main", "points": 26, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_6", "signup_source": "main", "points": 25, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_7", "signup_source": "main", "points": 24, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_8", "signup_source": "main", "points": 23, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_9", "signup_source": "main", "points": 22, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_10", "signup_source": "main", "points": 21, "badges": {}, "system_statuses": [], "system_events": [] }
+        ],
+        "expected_competitors": [
+            { "user_uid": "user_uid_25", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_26", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_27", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_28", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_15", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_29", "signup_source": "main", "points": 11, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_30", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] }
+        ]
+    },
+
+    {
+        "description": "2. The same number of points for competitors and the current user. The current user is in the `head` list. Return the top 10 and competitors surrounding the user (-4 +2) when the user ranks below 10 but above penultimate on the leaderboard.",
+        "all_users": [
+            { "user_uid": "user_uid_1", "points": 30 },
+            { "user_uid": "user_uid_2", "points": 29 },
+            { "user_uid": "user_uid_3", "points": 28 },
+            { "user_uid": "user_uid_4", "points": 27 },
+            { "user_uid": "user_uid_5", "points": 26 },
+            { "user_uid": "user_uid_6", "points": 25 },
+            { "user_uid": "user_uid_7", "points": 24 },
+            { "user_uid": "user_uid_8", "points": 23 },
+            { "user_uid": "user_uid_9", "points": 22 },
+            { "user_uid": "user_uid_10", "points": 21 },
+            { "user_uid": "user_uid_11", "points": 19 },
+            { "user_uid": "user_uid_12", "points": 19 },
+            { "user_uid": "user_uid_13", "points": 19 },
+            { "user_uid": "user_uid_14", "points": 19 },
+            { "user_uid": "user_uid_15", "points": 19 },
+            { "user_uid": "user_uid_16", "points": 19 },
+            { "user_uid": "user_uid_17", "points": 19 },
+            { "user_uid": "user_uid_18", "points": 19 },
+            { "user_uid": "user_uid_19", "points": 19 },
+            { "user_uid": "user_uid_20", "points": 19 },
+            { "user_uid": "user_uid_21", "points": 19 },
+            { "user_uid": "user_uid_22", "points": 19 },
+            { "user_uid": "user_uid_23", "points": 19 },
+            { "user_uid": "user_uid_24", "points": 19 },
+            { "user_uid": "user_uid_25", "points": 19 },
+            { "user_uid": "user_uid_26", "points": 19 },
+            { "user_uid": "user_uid_27", "points": 19 },
+            { "user_uid": "user_uid_28", "points": 19 },
+            { "user_uid": "user_uid_29", "points": 11 },
+            { "user_uid": "user_uid_30", "points": 10 }
+        ],
+        "tail": [
+            { "user_uid": "user_uid_29", "signup_source": "main", "points": 11, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_30", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] }
+        ],
+        "head": [
+            { "user_uid": "user_uid_28", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_27", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_26", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_25", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_24", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] }
+        ],
+        "user_uid": "user_uid_28",
+        "expected_rank": 28,
+        "signup_source": "main",
+        "expected_top10": [
+            { "user_uid": "user_uid_1", "signup_source": "main", "points": 30, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_2", "signup_source": "main", "points": 29, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_3", "signup_source": "main", "points": 28, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_4", "signup_source": "main", "points": 27, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_5", "signup_source": "main", "points": 26, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_6", "signup_source": "main", "points": 25, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_7", "signup_source": "main", "points": 24, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_8", "signup_source": "main", "points": 23, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_9", "signup_source": "main", "points": 22, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_10", "signup_source": "main", "points": 21, "badges": {}, "system_statuses": [], "system_events": [] }
+        ],
+        "expected_competitors": [
+            { "user_uid": "user_uid_24", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_25", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_26", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_27", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_28", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_29", "signup_source": "main", "points": 11, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_30", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] }
+        ]
+    },
+
+    {
+        "description": "3. The same number of points for competitors and the current user. The current user is in the `head` list. Return the top 10 and competitors surrounding the user (-5 +1) when the user ranks below 10 and is second to last on the leaderboard.",
+        "all_users": [
+            { "user_uid": "user_uid_1", "points": 30 },
+            { "user_uid": "user_uid_2", "points": 29 },
+            { "user_uid": "user_uid_3", "points": 28 },
+            { "user_uid": "user_uid_4", "points": 27 },
+            { "user_uid": "user_uid_5", "points": 26 },
+            { "user_uid": "user_uid_6", "points": 25 },
+            { "user_uid": "user_uid_7", "points": 24 },
+            { "user_uid": "user_uid_8", "points": 23 },
+            { "user_uid": "user_uid_9", "points": 22 },
+            { "user_uid": "user_uid_10", "points": 21 },
+            { "user_uid": "user_uid_11", "points": 19 },
+            { "user_uid": "user_uid_12", "points": 19 },
+            { "user_uid": "user_uid_13", "points": 19 },
+            { "user_uid": "user_uid_14", "points": 19 },
+            { "user_uid": "user_uid_15", "points": 19 },
+            { "user_uid": "user_uid_16", "points": 19 },
+            { "user_uid": "user_uid_17", "points": 19 },
+            { "user_uid": "user_uid_18", "points": 19 },
+            { "user_uid": "user_uid_19", "points": 19 },
+            { "user_uid": "user_uid_20", "points": 19 },
+            { "user_uid": "user_uid_21", "points": 19 },
+            { "user_uid": "user_uid_22", "points": 19 },
+            { "user_uid": "user_uid_23", "points": 19 },
+            { "user_uid": "user_uid_24", "points": 19 },
+            { "user_uid": "user_uid_25", "points": 19 },
+            { "user_uid": "user_uid_26", "points": 19 },
+            { "user_uid": "user_uid_27", "points": 19 },
+            { "user_uid": "user_uid_28", "points": 19 },
+            { "user_uid": "user_uid_29", "points": 19 },
+            { "user_uid": "user_uid_30", "points": 10 }
+        ],
+        "tail": [
+            { "user_uid": "user_uid_30", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] }
+        ],
+        "head": [
+            { "user_uid": "user_uid_29", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_28", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_27", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_26", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_25", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_24", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] }
+        ],
+        "user_uid": "user_uid_29",
+        "expected_rank": 29,
+        "signup_source": "main",
+        "expected_top10": [
+            { "user_uid": "user_uid_1", "signup_source": "main", "points": 30, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_2", "signup_source": "main", "points": 29, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_3", "signup_source": "main", "points": 28, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_4", "signup_source": "main", "points": 27, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_5", "signup_source": "main", "points": 26, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_6", "signup_source": "main", "points": 25, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_7", "signup_source": "main", "points": 24, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_8", "signup_source": "main", "points": 23, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_9", "signup_source": "main", "points": 22, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_10", "signup_source": "main", "points": 21, "badges": {}, "system_statuses": [], "system_events": [] }
+        ],
+        "expected_competitors": [
+            { "user_uid": "user_uid_24", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_25", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_26", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_27", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_28", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_29", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_30", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] }
+        ]
+    },
+
+    {
+        "description": "4. The same number of points for competitors and the current user. The current user is not in the `head` list. Return the top 10 and competitors surrounding the user (-5 +1) when the user ranks below 10 and is second to last on the leaderboard.",
+        "all_users": [
+            { "user_uid": "user_uid_1", "points": 30 },
+            { "user_uid": "user_uid_2", "points": 29 },
+            { "user_uid": "user_uid_3", "points": 28 },
+            { "user_uid": "user_uid_4", "points": 27 },
+            { "user_uid": "user_uid_5", "points": 26 },
+            { "user_uid": "user_uid_6", "points": 25 },
+            { "user_uid": "user_uid_7", "points": 24 },
+            { "user_uid": "user_uid_8", "points": 23 },
+            { "user_uid": "user_uid_9", "points": 22 },
+            { "user_uid": "user_uid_10", "points": 21 },
+            { "user_uid": "user_uid_11", "points": 19 },
+            { "user_uid": "user_uid_12", "points": 19 },
+            { "user_uid": "user_uid_13", "points": 19 },
+            { "user_uid": "user_uid_14", "points": 19 },
+            { "user_uid": "user_uid_15", "points": 19 },
+            { "user_uid": "user_uid_16", "points": 19 },
+            { "user_uid": "user_uid_17", "points": 19 },
+            { "user_uid": "user_uid_18", "points": 19 },
+            { "user_uid": "user_uid_19", "points": 19 },
+            { "user_uid": "user_uid_20", "points": 19 },
+            { "user_uid": "user_uid_21", "points": 19 },
+            { "user_uid": "user_uid_22", "points": 19 },
+            { "user_uid": "user_uid_23", "points": 19 },
+            { "user_uid": "user_uid_24", "points": 19 },
+            { "user_uid": "user_uid_25", "points": 19 },
+            { "user_uid": "user_uid_26", "points": 19 },
+            { "user_uid": "user_uid_27", "points": 19 },
+            { "user_uid": "user_uid_28", "points": 19 },
+            { "user_uid": "user_uid_29", "points": 19 },
+            { "user_uid": "user_uid_30", "points": 10 }
+        ],
+        "tail": [
+            { "user_uid": "user_uid_30", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] }
+        ],
+        "head": [
+            { "user_uid": "user_uid_29", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_28", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_27", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_26", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_25", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_24", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] }
+        ],
+        "user_uid": "user_uid_15",
+        "expected_rank": 29,
+        "signup_source": "main",
+        "expected_top10": [
+            { "user_uid": "user_uid_1", "signup_source": "main", "points": 30, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_2", "signup_source": "main", "points": 29, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_3", "signup_source": "main", "points": 28, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_4", "signup_source": "main", "points": 27, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_5", "signup_source": "main", "points": 26, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_6", "signup_source": "main", "points": 25, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_7", "signup_source": "main", "points": 24, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_8", "signup_source": "main", "points": 23, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_9", "signup_source": "main", "points": 22, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_10", "signup_source": "main", "points": 21, "badges": {}, "system_statuses": [], "system_events": [] }
+        ],
+        "expected_competitors": [
+            { "user_uid": "user_uid_25", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_26", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_27", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_28", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_29", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_15", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_30", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] }
+        ]
+    },
+
+    {
+        "description": "5. The same number of points for competitors and the current user. The current user is in the `head` list. Return the top 10 and competitors surrounding the user (-6 +0) when the user ranks below 10 and is last on the leaderboard.",
+        "all_users": [
+            { "user_uid": "user_uid_1", "points": 30 },
+            { "user_uid": "user_uid_2", "points": 29 },
+            { "user_uid": "user_uid_3", "points": 28 },
+            { "user_uid": "user_uid_4", "points": 27 },
+            { "user_uid": "user_uid_5", "points": 26 },
+            { "user_uid": "user_uid_6", "points": 25 },
+            { "user_uid": "user_uid_7", "points": 24 },
+            { "user_uid": "user_uid_8", "points": 23 },
+            { "user_uid": "user_uid_9", "points": 22 },
+            { "user_uid": "user_uid_10", "points": 21 },
+            { "user_uid": "user_uid_11", "points": 19 },
+            { "user_uid": "user_uid_12", "points": 19 },
+            { "user_uid": "user_uid_13", "points": 19 },
+            { "user_uid": "user_uid_14", "points": 19 },
+            { "user_uid": "user_uid_15", "points": 19 },
+            { "user_uid": "user_uid_16", "points": 19 },
+            { "user_uid": "user_uid_17", "points": 19 },
+            { "user_uid": "user_uid_18", "points": 19 },
+            { "user_uid": "user_uid_19", "points": 19 },
+            { "user_uid": "user_uid_20", "points": 19 },
+            { "user_uid": "user_uid_21", "points": 19 },
+            { "user_uid": "user_uid_22", "points": 19 },
+            { "user_uid": "user_uid_23", "points": 19 },
+            { "user_uid": "user_uid_24", "points": 19 },
+            { "user_uid": "user_uid_25", "points": 19 },
+            { "user_uid": "user_uid_26", "points": 19 },
+            { "user_uid": "user_uid_27", "points": 19 },
+            { "user_uid": "user_uid_28", "points": 19 },
+            { "user_uid": "user_uid_29", "points": 19 },
+            { "user_uid": "user_uid_30", "points": 19 }
+        ],
+        "tail": [],
+        "head": [
+            { "user_uid": "user_uid_30", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_29", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_28", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_27", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_26", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_25", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_24", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] }
+        ],
+        "user_uid": "user_uid_30",
+        "expected_rank": 30,
+        "signup_source": "main",
+        "expected_top10": [
+            { "user_uid": "user_uid_1", "signup_source": "main", "points": 30, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_2", "signup_source": "main", "points": 29, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_3", "signup_source": "main", "points": 28, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_4", "signup_source": "main", "points": 27, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_5", "signup_source": "main", "points": 26, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_6", "signup_source": "main", "points": 25, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_7", "signup_source": "main", "points": 24, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_8", "signup_source": "main", "points": 23, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_9", "signup_source": "main", "points": 22, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_10", "signup_source": "main", "points": 21, "badges": {}, "system_statuses": [], "system_events": [] }
+        ],
+        "expected_competitors": [
+            { "user_uid": "user_uid_24", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_25", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_26", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_27", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_28", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_29", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_30", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] }
+        ]
+    },
+
+    {
+        "description": "6. The same number of points for competitors and the current user. The current user is not in the `head` list. Return the top 10 and competitors surrounding the user (-6 +0) when the user ranks below 10 and is last on the leaderboard.",
+        "all_users": [
+            { "user_uid": "user_uid_1", "points": 30 },
+            { "user_uid": "user_uid_2", "points": 29 },
+            { "user_uid": "user_uid_3", "points": 28 },
+            { "user_uid": "user_uid_4", "points": 27 },
+            { "user_uid": "user_uid_5", "points": 26 },
+            { "user_uid": "user_uid_6", "points": 25 },
+            { "user_uid": "user_uid_7", "points": 24 },
+            { "user_uid": "user_uid_8", "points": 23 },
+            { "user_uid": "user_uid_9", "points": 22 },
+            { "user_uid": "user_uid_10", "points": 21 },
+            { "user_uid": "user_uid_11", "points": 19 },
+            { "user_uid": "user_uid_12", "points": 19 },
+            { "user_uid": "user_uid_13", "points": 19 },
+            { "user_uid": "user_uid_14", "points": 19 },
+            { "user_uid": "user_uid_15", "points": 19 },
+            { "user_uid": "user_uid_16", "points": 19 },
+            { "user_uid": "user_uid_17", "points": 19 },
+            { "user_uid": "user_uid_18", "points": 19 },
+            { "user_uid": "user_uid_19", "points": 19 },
+            { "user_uid": "user_uid_20", "points": 19 },
+            { "user_uid": "user_uid_21", "points": 19 },
+            { "user_uid": "user_uid_22", "points": 19 },
+            { "user_uid": "user_uid_23", "points": 19 },
+            { "user_uid": "user_uid_24", "points": 19 },
+            { "user_uid": "user_uid_25", "points": 19 },
+            { "user_uid": "user_uid_26", "points": 19 },
+            { "user_uid": "user_uid_27", "points": 19 },
+            { "user_uid": "user_uid_28", "points": 19 },
+            { "user_uid": "user_uid_29", "points": 19 },
+            { "user_uid": "user_uid_30", "points": 10 }
+        ],
+        "tail": [],
+        "head": [
+            { "user_uid": "user_uid_19", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_20", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_13", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_24", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_26", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_17", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_16", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] }
+        ],
+        "user_uid": "user_uid_11",
+        "expected_rank": 30,
+        "signup_source": "main",
+        "expected_top10": [
+            { "user_uid": "user_uid_1", "signup_source": "main", "points": 30, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_2", "signup_source": "main", "points": 29, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_3", "signup_source": "main", "points": 28, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_4", "signup_source": "main", "points": 27, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_5", "signup_source": "main", "points": 26, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_6", "signup_source": "main", "points": 25, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_7", "signup_source": "main", "points": 24, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_8", "signup_source": "main", "points": 23, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_9", "signup_source": "main", "points": 22, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_10", "signup_source": "main", "points": 21, "badges": {}, "system_statuses": [], "system_events": [] }
+        ],
+        "expected_competitors": [
+            { "user_uid": "user_uid_17", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_26", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_24", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_13", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_20", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_19", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_11", "signup_source": "main", "points": 19, "badges": {}, "system_statuses": [], "system_events": [] }
+        ]
+    },
+
+    {
+        "description": "7. The same number of points for competitors and the current user. Total users 11. The current user is in the `head` list. Return the top 10 and competitors surrounding the user (-6 +0).",
+        "all_users": [
+            { "user_uid": "user_uid_1", "points": 10 },
+            { "user_uid": "user_uid_2", "points": 10 },
+            { "user_uid": "user_uid_3", "points": 10 },
+            { "user_uid": "user_uid_4", "points": 10 },
+            { "user_uid": "user_uid_5", "points": 10 },
+            { "user_uid": "user_uid_6", "points": 10 },
+            { "user_uid": "user_uid_7", "points": 10 },
+            { "user_uid": "user_uid_8", "points": 10 },
+            { "user_uid": "user_uid_9", "points": 10 },
+            { "user_uid": "user_uid_10", "points": 10 },
+            { "user_uid": "user_uid_11", "points": 10 }
+
+        ],
+        "tail": [],
+        "head": [
+            { "user_uid": "user_uid_11", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_10", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_9", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_8", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_7", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_6", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_5", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] }
+        ],
+        "user_uid": "user_uid_11",
+        "expected_rank": 11,
+        "signup_source": "main",
+        "expected_top10": [
+            { "user_uid": "user_uid_1", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_2", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_3", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_4", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_5", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_6", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_7", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_8", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_9", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_10", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] }
+        ],
+        "expected_competitors": [
+            { "user_uid": "user_uid_5", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_6", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_7", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_8", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_9", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_10", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_11", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] }
+        ]
+    },
+
+    {
+        "description": "8. The same number of points for competitors and the current user. Total users 11. The current user is not in the `head` list. Return the top 10 and competitors surrounding the user (-6 +0).",
+        "all_users": [
+            { "user_uid": "user_uid_1", "points": 10 },
+            { "user_uid": "user_uid_2", "points": 10 },
+            { "user_uid": "user_uid_3", "points": 10 },
+            { "user_uid": "user_uid_4", "points": 10 },
+            { "user_uid": "user_uid_5", "points": 10 },
+            { "user_uid": "user_uid_6", "points": 10 },
+            { "user_uid": "user_uid_7", "points": 10 },
+            { "user_uid": "user_uid_8", "points": 10 },
+            { "user_uid": "user_uid_9", "points": 10 },
+            { "user_uid": "user_uid_10", "points": 10 },
+            { "user_uid": "user_uid_11", "points": 10 }
+
+        ],
+        "tail": [],
+        "head": [
+            { "user_uid": "user_uid_11", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_10", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_9", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_8", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_7", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_6", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_5", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] }
+        ],
+        "user_uid": "user_uid_4",
+        "expected_rank": 11,
+        "signup_source": "main",
+        "expected_top10": [
+            { "user_uid": "user_uid_1", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_2", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_3", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_4", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_5", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_6", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_7", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_8", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_9", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_10", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] }
+        ],
+        "expected_competitors": [
+            { "user_uid": "user_uid_6", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_7", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_8", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_9", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_10", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_11", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_4", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] }
+        ]
+    },
+
+    {
+        "description": "9. The same number of points for competitors and the current user. Total users 10. Return top 10 (current user is last).",
+        "all_users": [
+            { "user_uid": "user_uid_1", "points": 10 },
+            { "user_uid": "user_uid_2", "points": 10 },
+            { "user_uid": "user_uid_3", "points": 10 },
+            { "user_uid": "user_uid_4", "points": 10 },
+            { "user_uid": "user_uid_5", "points": 10 },
+            { "user_uid": "user_uid_6", "points": 10 },
+            { "user_uid": "user_uid_7", "points": 10 },
+            { "user_uid": "user_uid_8", "points": 10 },
+            { "user_uid": "user_uid_9", "points": 10 },
+            { "user_uid": "user_uid_10", "points": 10 }
+
+        ],
+        "tail": [],
+        "head": [],
+        "user_uid": "user_uid_4",
+        "expected_rank": 10,
+        "signup_source": "main",
+        "expected_top10": [
+            { "user_uid": "user_uid_1", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_2", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_3", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_5", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_6", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_7", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_8", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_9", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_10", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_4", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] }
+        ],
+        "expected_competitors": []
+    },
+
+    {
+        "description": "10. The same number of points for competitors and the current user. There are less than 10 users in total. Return the top 10 (the top 10 is incomplete and the current user is the last one).",
+        "all_users": [
+            { "user_uid": "user_uid_1", "points": 10 },
+            { "user_uid": "user_uid_2", "points": 10 },
+            { "user_uid": "user_uid_3", "points": 10 },
+            { "user_uid": "user_uid_4", "points": 10 },
+            { "user_uid": "user_uid_5", "points": 10 },
+            { "user_uid": "user_uid_6", "points": 10 },
+            { "user_uid": "user_uid_7", "points": 10 }
+
+        ],
+        "tail": [],
+        "head": [],
+        "user_uid": "user_uid_1",
+        "expected_rank": 7,
+        "signup_source": "main",
+        "expected_top10": [
+            { "user_uid": "user_uid_2", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_3", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_5", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_6", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_7", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_1", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] }
+        ],
+        "expected_competitors": []
+    },
+
+    {
+        "description": "11. Users have the same number of points. Total users less than 10. Returns an incomplete list of the top 10 without the current user.",
+        "all_users": [
+            { "user_uid": "user_uid_1", "points": 10 },
+            { "user_uid": "user_uid_2", "points": 10 },
+            { "user_uid": "user_uid_3", "points": 10 },
+            { "user_uid": "user_uid_4", "points": 10 },
+            { "user_uid": "user_uid_5", "points": 10 },
+            { "user_uid": "user_uid_6", "points": 10 },
+            { "user_uid": "user_uid_7", "points": 10 }
+
+        ],
+        "tail": [],
+        "head": [],
+        "user_uid": "user_uid_1000",
+        "expected_rank": null,
+        "signup_source": "main",
+        "expected_top10": [
+            { "user_uid": "user_uid_1", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_2", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_3", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_5", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_6", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] },
+            { "user_uid": "user_uid_7", "signup_source": "main", "points": 10, "badges": {}, "system_statuses": [], "system_events": [] }
+        ],
+        "expected_competitors": []
+    }
+]

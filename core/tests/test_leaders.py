@@ -69,3 +69,50 @@ def test_read_for_user_according_to_signup_source(entry):
     assert expected_rank == rank
     assert expected_top10 == top10
     assert expected_competitors == competitors
+
+
+@pytest.mark.parametrize(
+    "entry",
+    load_params_from_json("core/tests/resources/leaderboard_cases_with_same_points.json")
+)
+def test_read_for_user_with_same_points(entry, mocker):
+    """
+    A test for all cases where users have the same points.
+    """
+    all_users = entry["all_users"]
+    user_uid = entry["user_uid"]
+    signup_source = entry["signup_source"]
+    tail = entry["tail"]
+    head = entry["head"]
+    expected_top10 = entry["expected_top10"]
+    expected_competitors = entry["expected_competitors"]
+    expected_rank = entry["expected_rank"]
+
+    db.engine.conn.db.users.drop()
+
+    for item in all_users:
+        with db.users.read_and_update(item["user_uid"]) as user:
+            user.signup_source = signup_source
+            user.points = item["points"]
+
+    mocked_get = mocker.patch('core.db.leaders.get_tenant_filter')
+    mocked_get.return_value = { "signup_source": f"{signup_source}" }
+
+    mocked_get = mocker.patch('core.db.leaders.get_user_rank')
+    mocked_get.return_value = expected_rank
+
+    mocked_get = mocker.patch('core.db.leaders.get_top10')
+    mocked_get.return_value = expected_top10
+
+    mocked_get = mocker.patch('core.db.leaders.get_tail_competitors')
+    mocked_get.return_value = tail
+
+    mocked_get = mocker.patch('core.db.leaders.get_head_competitors')
+    mocked_get.return_value = head
+
+    top10, competitors, rank = db.leaders.read_for_user(user_uid, signup_source)
+    competitors = competitors.to_primitive("roster").get("roster") if competitors else []
+
+    assert expected_rank == rank
+    assert expected_top10 == top10
+    assert expected_competitors == competitors

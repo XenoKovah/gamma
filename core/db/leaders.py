@@ -42,6 +42,7 @@ def read_with_main_signup_source():
         }
     )
 
+
 def get_tenant_filter(user_signup_source):
     if user_signup_source in ("main", None):
         return {
@@ -53,7 +54,39 @@ def get_tenant_filter(user_signup_source):
         }
     else:
         return {"signup_source": f"{user_signup_source}"}
-    
+
+
+def get_top10(additional_filter):
+    return Leaders({
+        "roster": conn.db.users.find(additional_filter)
+                .sort([("points", DESCENDING)])
+                .limit(10)
+    })
+
+
+def get_user_rank(user, additional_filter):
+    return conn.db.users.find({
+               "points": {"$gte": user.points}, **additional_filter
+           }).count() if user else None
+
+
+def get_tail_competitors(user, additional_filter):
+    return list(
+        conn.db.users
+        .find(
+            {"points": {"$lt": user.points}, **additional_filter})
+        .sort([("points", DESCENDING)])
+        .limit(2)
+    )
+
+
+def get_head_competitors(user, head_limit, additional_filter):
+    return list(
+        conn.db.users
+                    .find({"points": {"$gte": user.points}, **additional_filter})
+                    .sort([("points", ASCENDING)]).limit(head_limit)
+    )
+
 
 def read_for_user(user_uid, user_signup_source=None):
     """
@@ -72,19 +105,10 @@ def read_for_user(user_uid, user_signup_source=None):
         rank: Current user rank.
     """
     user = db.users.read_one(user_uid)
-    _additional_filter = get_tenant_filter(user_signup_source)
+    additional_filter = get_tenant_filter(user_signup_source)
+    rank = get_user_rank(user, additional_filter)
+    top10 = get_top10(additional_filter)
 
-    rank = conn.db.users.find({
-            "points": {"$gte": user.points}, **_additional_filter
-        }).count() if user else None
-
-    top10 = Leaders(
-        {
-            "roster": conn.db.users.find(_additional_filter)
-                .sort([("points", DESCENDING)])
-                .limit(10)
-        }
-    )
     competitors = []
     if user.points == 0:
         rank = None
@@ -94,28 +118,26 @@ def read_for_user(user_uid, user_signup_source=None):
         # Do not filter it in DB ({"user_uid": {"$ne": user_uid}}) due
         # to performance degradation up to 150ms for each request on
         # 100_000 users.
-        tail = list(
-            conn.db.users
-            .find(
-                {"points": {"$lt": user.points}, **_additional_filter})
-            .sort([("points", DESCENDING)])
-            .limit(2))
-        
+        tail = get_tail_competitors(user, additional_filter)
+
         if tail == []:
-            # the user is last in the ranking but has points
+            # The user is last in the ranking but has points
             head_limit = 7
         elif len(tail) == 1:
-            # the user is the penultimate in the rating
+            # The user is the penultimate in the rating
             head_limit = 6
         else:
-            # there are 4 competitors in front of the user, there are 2 competitors behind the user
+            # Set a limit on the database query to retrieve 5 users, including the current user
             head_limit = 5
 
-        head = list(conn.db.users
-                                .find({"points": {"$gte": user.points}, **_additional_filter})
-                                .sort([("points", ASCENDING)]).limit(head_limit))
+        head = get_head_competitors(user, head_limit, additional_filter)
         head.reverse()
         head = [user for user in head if user["user_uid"] != user_uid]
+
+        # Limit the number of users in the head to the predefined limit
+        if len(head) == head_limit:
+            head.pop(0)
+
         competitors = Leaders({"roster": head + [ user ] + tail})
 
     return top10, competitors, rank
