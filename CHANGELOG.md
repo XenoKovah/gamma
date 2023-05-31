@@ -6,6 +6,9 @@ Versions follows PEP440 version scheme.
 
 [Unreleased]
 ************
+## Fixed
+* fix: [RGG-915] Hotfix for leaderboard when the current user is duplicated in the top10
+
 ## Added
 * feat: [RGG-870] Added the validation for using "courses" and "organization" filters simultaneously.
 * feat: [RGG-644] Create python linting configuration.

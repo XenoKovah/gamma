@@ -59,20 +59,39 @@ def get_tenant_filter(user_signup_source):
 def get_top10(current_user, rank, additional_filter):
     if rank > 10:
         return Leaders({
-            "roster": conn.db.users.find(additional_filter)
-                    .sort([("points", DESCENDING)])
-                    .limit(10)
+            "roster": conn.db.users
+                                .find(additional_filter)
+                                .sort([("points", DESCENDING)])
+                                .limit(10)
         })
 
-    head_top10 = list(conn.db.users
-                            .find({"points": {"$gt": current_user.points}, **additional_filter})
-                            .sort([("points", DESCENDING)]))
-    if len(head_top10) == 9:
+    head_top10 = list(
+        conn.db.users.find({
+            "points": {"$gt": current_user.points},
+            **additional_filter
+        })
+        .sort([("points", DESCENDING)])
+        .limit(10)
+    )
+
+    if current_user.points == 0:
+        return Leaders({"roster": head_top10})
+
+    head_top10_length = len(head_top10)
+    if head_top10_length == 9:
         return Leaders({"roster": head_top10 + [ current_user ]})
 
-    tail_top10 = list(conn.db.users
-                            .find({"points": {"$lte": current_user.points}, **additional_filter})
-                            .sort([("points", DESCENDING)]).limit(10))
+    tail_top10 = list(
+        conn.db.users.find({
+            "points": {"$lte": current_user.points},
+            **additional_filter
+        })
+        .sort([("points", DESCENDING)])
+        .limit(10 - head_top10_length)
+    )
+    # TODO this cycle can be removed in the future by
+    # adding -> "user_uid": {"$ne": current_user.user_uid} to the query (find block)
+    # but preliminary it is necessary to conduct an investigation with big data
     tail_top10 = [user for user in tail_top10 if user["user_uid"] != current_user.user_uid]
 
     return Leaders({"roster": (head_top10 + [ current_user ] + tail_top10)[:10]})
@@ -89,21 +108,25 @@ def get_user_rank(user, additional_filter):
     return rank_before_current_user + 1
 
 
-def get_tail_competitors(user, additional_filter):
-    return list(
-        conn.db.users
-        .find(
-            {"points": {"$lt": user.points}, **additional_filter})
+def get_tail_competitors(current_user, additional_filter):
+    tail = list(
+        conn.db.users.find({
+            "points": {"$lte": current_user.points},
+            **additional_filter
+        })
         .sort([("points", DESCENDING)])
-        .limit(2)
+        .limit(3)
     )
+    # TODO same as in get_top10 -> "user_uid": {"$ne": current_user.user_uid}
+    return [user for user in tail if user["user_uid"] != current_user.user_uid][:2]
 
 
-def get_head_competitors(user, head_limit, additional_filter):
+def get_head_competitors(current_user, head_limit, additional_filter):
     return list(
         conn.db.users
-                    .find({"points": {"$gte": user.points}, **additional_filter})
-                    .sort([("points", ASCENDING)]).limit(head_limit)
+            .find({"points": {"$gt": current_user.points}, **additional_filter})
+            .sort([("points", ASCENDING)])
+            .limit(head_limit)
     )
 
 
@@ -139,20 +162,11 @@ def read_for_user(user_uid, user_signup_source=None):
         # 100_000 users.
         tail = get_tail_competitors(user, additional_filter)
 
-        if tail == []:
-            # The user is last in the ranking but has points
-            head_limit = 7
-        elif len(tail) == 1:
-            # The user is the penultimate in the rating
-            head_limit = 6
-        else:
-            # Set a limit on the database query to retrieve 5 users, including the current user
-            head_limit = 5
+        # Set a limit on the database query to retrieve users, higher in rating than the current user
+        head_limit = 6 - len(tail)
 
         head = get_head_competitors(user, head_limit, additional_filter)
         head.reverse()
-        head = [user for user in head if user["user_uid"] != user_uid]
-
         competitors = Leaders({"roster": head + [ user ] + tail})
 
     return top10, competitors, rank

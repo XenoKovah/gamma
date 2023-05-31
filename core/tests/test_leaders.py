@@ -1,6 +1,7 @@
 import pytest  # pylint: disable=import-error
 
 from core import db
+from core.db.leaders import get_top10, get_tail_competitors
 from core.tests.utils.helpers import load_params_from_json
 
 
@@ -116,3 +117,87 @@ def test_read_for_user_with_same_points(entry, mocker):
     assert expected_rank == rank
     assert expected_top10 == top10
     assert expected_competitors == competitors
+
+
+def test_get_incomplete_top10_when_current_user_has_no_points():
+    """
+    Test, when there are less than 10 total users with points and the current user, has no points.
+    """
+    db.engine.conn.db.users.drop()
+
+    for item in range(1, 3):
+        with db.users.read_and_update(f"user_uid_{item}") as user:
+            user.points = 3 - item
+
+    current_user = db.users.read_one("current_user")
+    rank = 3
+    additional_filter = {}
+
+    expected_top10 = get_top10(current_user, rank, additional_filter)
+
+    assert len(expected_top10.to_primitive('roster').get('roster')) == 2
+    assert expected_top10.to_primitive('roster').get('roster')[0]["user_uid"] == "user_uid_1"
+    assert expected_top10.to_primitive('roster').get('roster')[1]["user_uid"] == "user_uid_2"
+
+
+def test_get_top10_when_current_user_has_rank_10():
+    """
+    Test when the total number of users with scores is 9 and the current user has a rank of 10.
+    """
+    db.engine.conn.db.users.drop()
+
+    for item in range(1, 10):
+        with db.users.read_and_update(f"user_uid_{item}") as user:
+            user.points = 11 - item 
+
+    current_user = db.users.read_one("current_user")
+    current_user.points = 1
+    rank = 10
+    additional_filter = {}
+
+    expected_top10 = get_top10(current_user, rank, additional_filter)
+
+    assert len(expected_top10.to_primitive('roster').get('roster')) == 10
+    assert expected_top10.to_primitive('roster').get('roster')[9]["user_uid"] == "current_user"
+
+
+def test_get_empty_top10():
+    """
+    Test when there are no users with points.
+    """
+    db.engine.conn.db.users.drop()
+
+    current_user = db.users.read_one("current_user")
+    current_user.points = 0
+    rank = 1
+    additional_filter = {}
+
+    expected_top10 = get_top10(current_user, rank, additional_filter)
+
+    assert len(expected_top10.to_primitive('roster').get('roster')) == 0
+
+
+@pytest.mark.parametrize(
+    "entry",
+    load_params_from_json("core/tests/resources/cases_tail_competitors.json")
+)
+def test_get_tail_competitors(entry):
+    """
+    Test, the get_tail_competitors function returns the correct number of users.
+    """
+    points = entry["points"]
+    expected_length = entry["expected_length"]
+
+    db.engine.conn.db.users.drop()
+
+    for item in range(30):
+        with db.users.read_and_update(f"user_uid_{item}") as user:
+            user.points = 31 - item 
+
+    current_user = db.users.read_one("current_user")
+    current_user.points = points
+    additional_filter = {}
+
+    tail = get_tail_competitors(current_user, additional_filter)
+
+    assert len(tail) == expected_length
