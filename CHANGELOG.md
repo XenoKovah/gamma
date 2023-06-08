@@ -6,17 +6,20 @@ Versions follows PEP440 version scheme.
 
 [Unreleased]
 ************
+
+gamma-core 3.4.0 (2023-06-08)
+---
 ## Fixed
 * fix: [RGG-915] Hotfix for leaderboard when the current user is duplicated in the top10
-
-## Added
-* feat: [RGG-870] Added the validation for using "courses" and "organization" filters simultaneously.
-* feat: [RGG-644] Create python linting configuration.
-* feat: [RGG-867] Added an API for updating the signup_source field for game profiles.
-* feat: [RGG-805] Added filtering of game profiles for the leaderboard depending on the tenant
 * fix: [RGG-677] fixed badge achievement dropdowns overflow
 
-gamma-core 3.3.0 (22-02-24)
+## Added
+* feat: [RGG-870] Added validation for using "courses" and "organization" filters simultaneously
+* feat: [RGG-644] Create python linting configuration
+* feat: [RGG-867] Added an API for updating the signup_source field for game profiles
+* feat: [RGG-805] Added filtering of game profiles for the leaderboard depending on the tenant
+
+gamma-core 3.3.0 (2023-02-24)
 ---
 Features
 * feat: added Django console logging by Andrey Kryachko
