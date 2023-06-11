@@ -107,8 +107,7 @@
         margin: 0 2px;
     }
 
-    .css-d8oujb,
-    .css-16pqwjk-indicatorContainer {
+    [class*="-indicatorContainer"] {
         position: absolute;
         top: 50%;
         left: 50%;
@@ -124,12 +123,12 @@
         padding: 0;
 
         & + div {
-            display: none !important;
+            display: none;
         }
     }
 
-    .css-16pqwjk-indicatorContainer {
-        display: none !important;
+    [class*="-indicatorSeparator"] {
+        display: none;
     }
 
     .css-1hwfws3 {

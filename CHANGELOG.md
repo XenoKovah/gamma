@@ -7,6 +7,9 @@ Versions follows PEP440 version scheme.
 [Unreleased]
 ************
 
+## Fixed
+* fix: [RGG-908] Fix for custom selects in active state
+
 gamma-core 3.4.0 (2023-06-08)
 ---
 ## Fixed
