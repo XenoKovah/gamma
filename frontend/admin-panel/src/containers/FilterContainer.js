@@ -18,9 +18,13 @@ export default class FilterContainer extends React.Component {
           case "start":
           case "end":
             let interval = filters.interval || {};
-
-            if ( value === null ) {
-              delete filters.interval[key]; 
+            if (value === null) {
+              if (filters.interval) {
+                delete filters.interval[key];
+              }
+              else {
+                delete filters.interval;
+              }
             } else {
               interval[key] = value;
             }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { toBeInTheDocument } from '@testing-library/jest-dom';
 import Filter from '../Filter';
 
@@ -74,6 +74,14 @@ describe('Filter component renders correctly with different props', () => {
         expect(getByText('RG')).toBeInTheDocument();
         expect(getByText('course-v1:RG+course-1+2022')).toBeInTheDocument();
         expect(getByText('Add fields')).toBeInTheDocument();
+    });
+
+    it('should not be an error when clicking on the "ADD" button when the "Add fields" field is empty', () => {
+        const { getByText, queryByText } = render(<Filter />);
+        const addButton = getByText('Add');
+        fireEvent.click(addButton)
+
+        expect(queryByText('Filters')).toBeInTheDocument();
     });
 });
 

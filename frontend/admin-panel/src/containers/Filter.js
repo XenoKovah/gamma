@@ -93,19 +93,21 @@ export default class Filter extends React.Component {
             manuallyAdded
         } = this.state;
 
-        if (selectedItem.value == 'frequency') {
-            this.setState({frequency: 1});
-            this.props.onChange('frequency', 1);
-        }
-
-        manuallyAdded[selectedItem.value] = true;
-
-        this.setState({
-            manuallyAdded: manuallyAdded,
-            filter: {
-                selectedItem: null
+        if (selectedItem) {
+            if (selectedItem.value == 'frequency') {
+                this.setState({frequency: 1});
+                this.props.onChange('frequency', 1);
             }
-        });
+
+            manuallyAdded[selectedItem.value] = true;
+
+            this.setState({
+                manuallyAdded: manuallyAdded,
+                filter: {
+                    selectedItem: null
+                }
+            });
+        }
     }
 
     getEmptyFields() {
@@ -271,7 +273,7 @@ export default class Filter extends React.Component {
         return (
             <div>
                 <h3>{gettext('Filters')}</h3>
-                <div className="FilterItem">
+                <div className="FilterItem" data-testid="FilterItem">
                     {
                         this.state.course || this.state.manuallyAdded.course ? (
                             <div className="FormGroup">
