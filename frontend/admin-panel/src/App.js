@@ -143,7 +143,12 @@ class App extends Component {
         rules.badges = badges;
       }
       rules.filters = this.state.filters;
-      if (rules.filters && rules.filters.interval) {
+      if (
+        rules.filters &&
+        rules.filters.interval &&
+        rules.filters.interval.start &&
+        rules.filters.interval.end
+        ) {
           // Remove user timezone and send interval in UTC time,
           // set time for the start of the interval to be start of of the day
           // and end of the interval to be end of of the day.
@@ -153,7 +158,10 @@ class App extends Component {
           end.setHours(23, 59 - end.getTimezoneOffset(), 59, 999);
           rules.filters.interval.start = start.toISOString();
           rules.filters.interval.end = end.toISOString();
-      }
+        } else {
+          // Interval is not valid, remove it
+          delete rules.filters.interval;
+        }
 
       if ( rules.filters ) {
         (!rules.filters.frequency || rules.filters.frequency == '0') && delete rules.filters.frequency

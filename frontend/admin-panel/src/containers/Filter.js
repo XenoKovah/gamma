@@ -135,20 +135,29 @@ export default class Filter extends React.Component {
         })
     }
 
-    handleChangeDateStart(date) {
+    handleChangeDate(date, type) {
         let state = this.state;
-        state.interval.start = date;
+        state.interval[type] = date;
         state.stateUpdated = false;
+
         this.setState(state, () => {
-            if (!date && !state.interval.end) {
+            if (!state.interval[type] && !date) {
                 state.manuallyAdded.interval = false;
-                delete state['interval'];
+                delete state.interval;
                 this.setState(state);
                 this.props.onChange("interval", {});
             } else {
-                this.props.onChange("start", date);
+                this.props.onChange(type, date);
             }
-        })
+        });
+    }
+
+    handleChangeDateEnd(date) {
+        this.handleChangeDate(date, "end");
+    }
+
+    handleChangeDateStart(date) {
+        this.handleChangeDate(date, "start");
     }
 
     getOrganisations() {
@@ -192,22 +201,6 @@ export default class Filter extends React.Component {
             );
         }
         return organisations
-    }
-
-    handleChangeDateEnd(date) {
-        let state = this.state;
-        state.interval.end = date;
-        state.stateUpdated = false;
-        this.setState(state, () => {
-            if (!this.state.interval.start && !date) {
-                state.manuallyAdded.interval = false;
-                delete state['interval'];
-                this.setState(state);
-                this.props.onChange("interval", {});
-            } else {
-                this.props.onChange("end", date);
-            }
-        })
     }
 
     handleChangeInput (event, meta) {
@@ -256,10 +249,10 @@ export default class Filter extends React.Component {
 
     render() {
         const { filter: { selectedItem: filterSelectedItem } } = this.state;
-        let { org, course, organisations, courses } = this.state;
-
-        let start = this.state && this.state.interval && this.state.interval.start ? this.state.interval.start : null;
-        let end = this.state && this.state.interval && this.state.interval.end ? this.state.interval.end : null;
+        const { org, course, interval } = this.state;
+        let { courses, organisations } = this.state;
+        const start = interval && interval.start ? interval.start : null;
+        const end = interval && interval.end ? interval.end : null;
         let emptySelectValue = [{value: null, label: "------"}];
 
         courses = this.getCurrentCourses(org, courses, emptySelectValue);
@@ -322,13 +315,15 @@ export default class Filter extends React.Component {
                     {
                         !isObjectEmpty(this.state.interval) || this.state.manuallyAdded.interval ? (
                             <div>
-                                <div className="FormGroup">
+                                <div className="FormGroup isDatePicker">
 
                                     <MuiPickersUtilsProvider utils={DateFnsUtils}>
                                         <DatePicker
                                             margin="normal"
                                             label="Start interval"
                                             value={start}
+                                            maxDate={end || undefined}
+                                            maxDateMessage={gettext("End interval should be greater then Start interval")}
                                             onChange={this.handleChangeDateStart}
                                             className="DatePicker-Group"
                                         />
@@ -336,13 +331,15 @@ export default class Filter extends React.Component {
                                     </MuiPickersUtilsProvider>
                                     <button className="Btn Btn_danger" onClick={this.clearStart}>{gettext('Clear')}</button>
                                 </div>
-                                <div className="FormGroup">
+                                <div className="FormGroup isDatePicker">
 
                                     <MuiPickersUtilsProvider utils={DateFnsUtils}>
                                         <DatePicker
                                             margin="normal"
                                             label="End interval"
                                             value={end}
+                                            minDate={start || undefined}
+                                            minDateMessage={gettext("Start interval should be less then End interval")}
                                             onChange={this.handleChangeDateEnd}
                                             className="DatePicker-Group"
                                         />

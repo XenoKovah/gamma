@@ -220,6 +220,16 @@
     margin: 0 !important;
     align-items: flex-end;
     vertical-align: bottom !important;
+    position: static !important;
+
+    p {
+        position: absolute;
+        bottom: -20px;
+        font-size: 9px;
+        width: 100%;
+        right: 0;
+        text-align: right;
+    }
 
     label {
         font-size: 12px !important;
@@ -357,6 +367,10 @@ div[class*="MuiDialog-paper"],
 // form group
 .FormGroup {
     margin-right: 10px;
+
+    &.isDatePicker {
+        position: relative;
+    }
 }
 
 // general actions wrapper
