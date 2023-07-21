@@ -116,6 +116,38 @@ class App extends Component {
     });
   }
 
+  /**
+   * 
+   * @param {*} filters 
+   * 
+   * Validate filters before sending them to the server.
+   * Clear a filter if it is not valid.
+   */
+  validateFilters(filters) {
+    // Validate interval filter
+    if (
+      !isObjectEmpty(filters.interval) &&
+      filters.interval.start &&
+      filters.interval.end
+      ) {
+        // Remove user timezone and send interval in UTC time,
+        // set time for the start of the interval to be start of of the day
+        // and end of the interval to be end of of the day.
+        let start = filters.interval.start;
+        let end = filters.interval.end;
+        start.setHours(0, -1 * start.getTimezoneOffset(), 0, 0);
+        end.setHours(23, 59 - end.getTimezoneOffset(), 59, 999);
+        filters.interval.start = start.toISOString();
+        filters.interval.end = end.toISOString();
+      } else {
+        // Interval is not valid, remove it
+        delete filters.interval;
+      }
+
+      // Validate frequency filter
+      (!filters.frequency || filters.frequency == '0') && delete filters.frequency
+  }
+
   putRules() {
     const rules = {};
     if (!isObjectEmpty(this.state.actions) || !isObjectEmpty(this.state.filters)) {
@@ -124,7 +156,6 @@ class App extends Component {
       });
       const actions = {};
       const badges = [];
-      const status_badge = null;
 
       for (let el of validActions){
         if(el.action === 'badge'){
@@ -143,28 +174,8 @@ class App extends Component {
         rules.badges = badges;
       }
       rules.filters = this.state.filters;
-      if (
-        rules.filters &&
-        rules.filters.interval &&
-        rules.filters.interval.start &&
-        rules.filters.interval.end
-        ) {
-          // Remove user timezone and send interval in UTC time,
-          // set time for the start of the interval to be start of of the day
-          // and end of the interval to be end of of the day.
-          let start = rules.filters.interval.start;
-          let end = rules.filters.interval.end;
-          start.setHours(0, -1 * start.getTimezoneOffset(), 0, 0);
-          end.setHours(23, 59 - end.getTimezoneOffset(), 59, 999);
-          rules.filters.interval.start = start.toISOString();
-          rules.filters.interval.end = end.toISOString();
-        } else {
-          // Interval is not valid, remove it
-          delete rules.filters.interval;
-        }
-
-      if ( rules.filters ) {
-        (!rules.filters.frequency || rules.filters.frequency == '0') && delete rules.filters.frequency
+      if ( !isObjectEmpty(rules.filters) ) {
+        this.validateFilters(rules.filters);
       }
 
       fetch(process.env.REACT_APP_LOCALHOST + BADGE_RULES, {
