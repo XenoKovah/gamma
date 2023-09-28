@@ -9,4 +9,3 @@ pycodestyle==2.8.0
 pydocstyle==6.1.1
 pylint==2.6.0
 diff-cover==2.4.1
-locust

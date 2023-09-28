@@ -18,6 +18,7 @@ services:
     container_name: gamma_dashboard
     build:
       context: .
+      target: production
       args:
         - node_env=prod
     env_file:
@@ -69,7 +70,7 @@ services:
     container_name: gamma_celery
     build:
       context: .
-      dockerfile: Dockerfile-celery
+      target: base
     command: celery worker -A gamma --loglevel=INFO -B
     env_file:
       - ./envs/base.env
