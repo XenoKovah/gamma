@@ -3,8 +3,10 @@
 **/bower_components
 **/webpack_bundles
 webpack-stats-*.json
-!.conf
 .*
+!.conf
+!.pylintrc
+!.coveragerc
 envs/private.env
 Dockerfile*
 prod.yml
