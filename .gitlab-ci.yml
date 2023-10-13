@@ -14,74 +14,80 @@ variables:
 services:
   - docker:20.10.16-dind
 
-
-Build:
+.build:
   stage: build
   tags:
-    - dind
+    - k8s-kaniko
+  variables:
+    KUBERNETES_CPU_REQUEST: "1200m"
+    KUBERNETES_CPU_LIMIT: "2500m"
+    KUBERNETES_MEMORY_REQUEST: "2Gi"
+    KUBERNETES_MEMORY_LIMIT: "3Gi"
   only:
     - master
     - merge_requests
+  before_script: []
   script:
-    - docker pull $TEST_IMAGE || true
-    - sed -i -e '$a!.git/' .dockerignore
-    - docker build -t $TEST_IMAGE --cache-from $TEST_IMAGE --push .
+    # Build docker image
+    -  sed -i -e '$a!.git/' .dockerignore
+    -  mkdir -p /kaniko/.docker
+    -  echo "{\"credsStore\":\"ecr-login\"}" > /kaniko/.docker/config.json
+    - /kaniko/executor
+      --build-arg CI_JOB_TOKEN=$CI_JOB_TOKEN
+      --build-arg node_env=$node_env
+      --context "${CI_PROJECT_DIR}"
+      --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
+      --destination "${BASE_IMAGE}"
+      --cache=true
+      --use-new-run
+      --target ${DOCKER_TARGET}
+
+BuildTest:
+  extends: .build
+  variables:
+    BASE_IMAGE: $TEST_IMAGE
+    DOCKER_TARGET: development
+    node_env: dev
 
 BuildStatic:
-  stage: build
-  tags:
-    - dind
-  only:
-    - master
-    - merge_requests
-  script:
-    - docker pull $TEST_IMAGE_STATIC || true
-    - docker build --target=static -t $TEST_IMAGE_STATIC --cache-from $TEST_IMAGE_STATIC --push .
+  extends: .build
+  variables:
+    BASE_IMAGE: $TEST_IMAGE_STATIC
+    DOCKER_TARGET: static
+    node_env: dev
 
 ReactTests:
-  variables:
-    GIT_STRATEGY: none
   stage: test
   tags:
-    - dind
+    - k8s-runner
+  image: $TEST_IMAGE_STATIC
   only:
     - master
     - merge_requests
+  before_script: []
   script:
-    - docker pull $TEST_IMAGE_STATIC || true
-    - docker run
-      --rm
-      $TEST_IMAGE_STATIC
-      bash -c "npm run test ./frontend/admin-panel/src"
-  after_script:
-    - docker rmi -f $TEST_IMAGE_STATIC || true
+    - npm run --prefix /app test ./frontend/admin-panel/src
 
 Tests:
-  variables:
-    GIT_STRATEGY: none
   stage: test
   tags:
-    - dind
+    - k8s-runner
+  image: $TEST_IMAGE
   only:
     - master
     - merge_requests
+  variables:
+    MONGO_URL: mongodb://mongodb:27017/
+    MONGO_DATABASE: gamma_data_test
+    DJANGO_SETTINGS_MODULE: gamma.settings.test
+  services:
+    - name: mongo:4.4
+      alias: mongodb
+    - name: redis:latest
+      alias: redis
+  before_script: []
   script:
-    - docker pull $TEST_IMAGE || true
-    - docker run -d --name mongo_$CI_COMMIT_SHORT_SHA mongo:4.2
-    - docker run -d --name redis_$CI_COMMIT_SHORT_SHA redis:latest
-    - docker run
-      --rm
-      -e MONGO_URL=mongodb://mongo:27017/
-      -e MONGO_DATABASE=gamma_data_test
-      -e DJANGO_SETTINGS_MODULE=gamma.settings.test
-      --link mongo_$CI_COMMIT_SHORT_SHA:mongo
-      --link redis_$CI_COMMIT_SHORT_SHA:redis
-      $TEST_IMAGE
-      bash -c "pytest && coverage xml && diff-cover coverage.xml --fail-under=60"
-  after_script:
-    - docker rm -f mongo_$CI_COMMIT_SHORT_SHA || true
-    - docker rm -f redis_$CI_COMMIT_SHORT_SHA || true
-    - docker rmi -f $TEST_IMAGE || true
+    - pytest && coverage xml && diff-cover coverage.xml --fail-under=60
 
 Tag:
   stage: tag
