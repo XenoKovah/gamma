@@ -31,16 +31,16 @@ endif
 
 
 shell: ${PRIVATE_ENV}
-	docker-compose -f $(DOCKERCOMPOSE_PATH) run --rm dashboard bash
+	docker compose -f $(DOCKERCOMPOSE_PATH) run --rm dashboard bash
 
 dev.up: ${PRIVATE_ENV} .static
-	docker-compose -f $(DOCKERCOMPOSE_PATH) up -d
+	docker compose -f $(DOCKERCOMPOSE_PATH) up -d
 
 start: ${PRIVATE_ENV}
-	docker-compose -f $(DOCKERCOMPOSE_PATH) start
+	docker compose -f $(DOCKERCOMPOSE_PATH) start
 
 debug: ${PRIVATE_ENV}
-	docker-compose -f $(DOCKERCOMPOSE_PATH) run --rm --service-ports dashboard \
+	docker compose -f $(DOCKERCOMPOSE_PATH) run --rm --service-ports dashboard \
 		bash -c \
 		" \
 		PYTHONBREAKPOINT=ipdb.set_trace python manage.py runserver 0.0.0.0:9000 \
@@ -52,27 +52,27 @@ ifneq ($(filter $(env),$(STAGE_ENV) $(PROD_ENV)),)
 endif
 
 .build:
-	docker-compose -f $(DOCKERCOMPOSE_PATH) build
+	docker compose -f $(DOCKERCOMPOSE_PATH) build
 
 .migrate:
-	docker-compose -f $(DOCKERCOMPOSE_PATH) run --rm dashboard \
+	docker compose -f $(DOCKERCOMPOSE_PATH) run --rm dashboard \
 			python manage.py migrate
 
 .static:
-	docker-compose -f $(DOCKERCOMPOSE_PATH) run --rm dashboard \
+	docker compose -f $(DOCKERCOMPOSE_PATH) run --rm dashboard \
 			python manage.py collectstatic --noinput
 
 stop:
-	docker-compose -f $(DOCKERCOMPOSE_PATH) stop
+	docker compose -f $(DOCKERCOMPOSE_PATH) stop
 
 rm:
-	docker-compose -f $(DOCKERCOMPOSE_PATH) rm
+	docker compose -f $(DOCKERCOMPOSE_PATH) rm
 
 jest:	# run react tests
 	npm run test ${REACT_APP_PATH}
 
 test:
-	docker-compose -f docker-compose-test.yml run --rm dashboard \
+	docker compose -f docker-compose-test.yml run --rm dashboard \
 			bash -c \
 			" \
 			find . | grep -E \"(__pycache__|\.pyc|\.pyo$\)\" | xargs rm -rf && \
@@ -85,7 +85,7 @@ test:
 			"
 
 test-shell:
-	docker-compose -f docker-compose-test.yml run --rm dashboard bash
+	docker compose -f docker-compose-test.yml run --rm dashboard bash
 
 loadtests:
 	locust --host=http://localhost:9000 -f loadtests/locustfile.py
