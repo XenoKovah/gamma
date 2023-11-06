@@ -7,10 +7,22 @@ Versions follows PEP440 version scheme.
 [Unreleased]
 ************
 
+gamma-core 3.5.0 (2023-11-02)
+---
+
+## Maintenance
+* chore: Update to Django 3.2
+* chore: update to Nodejs 14
+* build: optimize docker build process
+* !build: move to native docker compose
+  * Doesn't work on pre-Palm deployments
+
+
 ## Fixed
 * fix: [RGG-935] it's possible to set "End interval" date earlier than "Start interval"
 * fix: [RGG-936] Interval filter breaks after clicking "CLEAR" on empty field
 * fix: [RGG-908] Fix for custom selects in active state
+* fix: dockerignore doesn't include .conf/ directory
 
 gamma-core 3.4.0 (2023-06-08)
 ---
