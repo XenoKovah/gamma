@@ -15,6 +15,9 @@ PRIVATE_ENV = ./envs/private.env
 CURRENT_DIR = $(shell pwd)
 REACT_APP_PATH = "${CURRENT_DIR}/frontend/admin-panel/src"
 
+# Determine the Docker Compose command
+DOCKER_COMPOSE := $(shell command -v docker-compose || echo docker compose)
+
 ifeq ($(env),$(PROD_ENV))
 	DOCKERCOMPOSE_PATH := prod.yml
 else ifeq ($(env),$(STAGE_ENV))
@@ -31,16 +34,16 @@ endif
 
 
 shell: ${PRIVATE_ENV}
-	docker compose -f $(DOCKERCOMPOSE_PATH) run --rm dashboard bash
+	@$(DOCKER_COMPOSE) -f $(DOCKERCOMPOSE_PATH) run --rm dashboard bash
 
 dev.up: ${PRIVATE_ENV} .static
-	docker compose -f $(DOCKERCOMPOSE_PATH) up -d
+	@$(DOCKER_COMPOSE) -f $(DOCKERCOMPOSE_PATH) up -d
 
 start: ${PRIVATE_ENV}
-	docker compose -f $(DOCKERCOMPOSE_PATH) start
+	@$(DOCKER_COMPOSE) -f $(DOCKERCOMPOSE_PATH) start
 
 debug: ${PRIVATE_ENV}
-	docker compose -f $(DOCKERCOMPOSE_PATH) run --rm --service-ports dashboard \
+	@$(DOCKER_COMPOSE) -f $(DOCKERCOMPOSE_PATH) run --rm --service-ports dashboard \
 		bash -c \
 		" \
 		PYTHONBREAKPOINT=ipdb.set_trace python manage.py runserver 0.0.0.0:9000 \
@@ -52,27 +55,27 @@ ifneq ($(filter $(env),$(STAGE_ENV) $(PROD_ENV)),)
 endif
 
 .build:
-	docker compose -f $(DOCKERCOMPOSE_PATH) build
+	@$(DOCKER_COMPOSE) -f $(DOCKERCOMPOSE_PATH) build
 
 .migrate:
-	docker compose -f $(DOCKERCOMPOSE_PATH) run --rm dashboard \
+	@$(DOCKER_COMPOSE) -f $(DOCKERCOMPOSE_PATH) run --rm dashboard \
 			python manage.py migrate
 
 .static:
-	docker compose -f $(DOCKERCOMPOSE_PATH) run --rm dashboard \
+	@$(DOCKER_COMPOSE) -f $(DOCKERCOMPOSE_PATH) run --rm dashboard \
 			python manage.py collectstatic --noinput
 
 stop:
-	docker compose -f $(DOCKERCOMPOSE_PATH) stop
+	@$(DOCKER_COMPOSE) -f $(DOCKERCOMPOSE_PATH) stop
 
 rm:
-	docker compose -f $(DOCKERCOMPOSE_PATH) rm
+	@$(DOCKER_COMPOSE) -f $(DOCKERCOMPOSE_PATH) rm
 
 jest:	# run react tests
 	npm run test ${REACT_APP_PATH}
 
 test:
-	docker compose -f docker-compose-test.yml run --rm dashboard \
+	@$(DOCKER_COMPOSE) -f docker-compose-test.yml run --rm dashboard \
 			bash -c \
 			" \
 			find . | grep -E \"(__pycache__|\.pyc|\.pyo$\)\" | xargs rm -rf && \
@@ -85,7 +88,7 @@ test:
 			"
 
 test-shell:
-	docker compose -f docker-compose-test.yml run --rm dashboard bash
+	@$(DOCKER_COMPOSE) -f docker-compose-test.yml run --rm dashboard bash
 
 loadtests:
 	locust --host=http://localhost:9000 -f loadtests/locustfile.py
