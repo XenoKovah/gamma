@@ -4,6 +4,12 @@ Changelog
 Versions follows PEP440 version scheme.
 ---
 
+gamma-core 3.5.1 (2023-11-09)
+---
+
+## Maintenance
+* build: add compose backward compatibility
+
 [Unreleased]
 ************
 
