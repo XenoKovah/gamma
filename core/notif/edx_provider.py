@@ -14,7 +14,7 @@ class EdxService:
     Usage:
     ---
     from core.notif import push
-    from core.notif.cfg import Config, Provider
+    from core.notif.cfg import Config, Provider, MESSAGE
 
     from core import db
 
@@ -34,11 +34,12 @@ class EdxService:
     content = "Hello username"
 
     data = {
-        "head": heading,             # required
-        "body": content,             # required
-        "lang": "en",                # required
-        "icon": badge.url,           # not required
-        "url":  "http://localhost"   # not required
+        "head": heading,               # required
+        "body": content,               # required
+        "kind": MESSAGE.BADGE_AWARDED, # not required
+        "lang": "en",                  # required
+        "icon": badge.url,             # not required
+        "url":  "http://localhost"     # not required
     }
 
 
@@ -84,6 +85,7 @@ class EdxService:
             "recipients": [user.user_uid],
             "message": self._format_message(data),
             "icon_url": data.get("icon"),
+            "kind": data.get("kind"),
             "url": data.get("url"),
         })
 

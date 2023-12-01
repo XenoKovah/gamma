@@ -12,6 +12,7 @@ from schematics.types import StringType, DictType, ListType, BooleanType
 from schematics.transforms import blacklist
 
 from core.data_models.types import CustomURLType
+from core.notif.cfg import MESSAGE
 
 
 class BaseOneSignalNotif(Model):
@@ -118,6 +119,7 @@ class EdxNotif(Model):
     url = CustomURLType(required=False, serialize_when_none=False)
     icon_url = CustomURLType(required=False, serialize_when_none=False, relative=settings.STORE_RELATIVE_URLS)
     save_notification = BooleanType(required=False, default=True)
+    kind = StringType(required=False, default=MESSAGE.INFO_MSG)
     # defining via class variable is not trivial so doing hardcode
     # to redefine inherite and redefine the field for now
     source = StringType(required=False, default="gamma")

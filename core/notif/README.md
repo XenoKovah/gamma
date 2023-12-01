@@ -43,7 +43,7 @@ Edx Provider
 ---
 ```python
 from core.notif import push
-from core.notif.cfg import Config, Provider
+from core.notif.cfg import Config, Provider, MESSAGE
 
 from core import db
 
@@ -54,7 +54,7 @@ cfg = {
 }
 
 
-edx_provider       = push.factory.get(Provider.EDX, **cfg)
+edx_provider = push.factory.get(Provider.EDX, **cfg)
 
 user = db.users.read_one("username1")
 badge = db.badges.read_one("badge_uid")
@@ -63,11 +63,12 @@ heading = "Message heading"
 content = "Hello username"
 
 data = {
-    "head": heading,             # required
-    "body": content,             # required
-    "lang": "en",                # not required
-    "icon": badge.url,           # not required
-    "url":  "http://localhost"   # not required
+    "head": heading,               # required
+    "body": content,               # required
+    "kind": MESSAGE.BADGE_AWARDED, # not required
+    "lang": "en",                  # not required
+    "icon": badge.url,             # not required
+    "url":  "http://localhost"     # not required
 }
 
 

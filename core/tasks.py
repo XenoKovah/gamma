@@ -9,6 +9,7 @@ from core.utils import (
     is_badge_granted
 )
 from core import db
+from core.notif.cfg import MESSAGE
 from core import onesignal_provider, edx_provider
 from core.data_models.models import UserAction, UserBadge, Rules, EventModel
 
@@ -42,6 +43,7 @@ def notify_badges_granted(user_uid, badges):
         data = {
             "head": "New Achievement!",
             "body": badge.title,
+            "kind": MESSAGE.BADGE_AWARDED,
             "lang": "en",
             "icon": badge.url,
             "url":  f"{settings.EDX_LMS_BASE_URL}/dashboard/gamification/"
@@ -61,6 +63,7 @@ def notify_status_granted(user_uid, status_uid):
     data = {
         "head": "New Status!",
         "body": status.title,
+        "kind": MESSAGE.STATUS_AWARDED,
         "lang": "en",
         "icon": status.url,
         "url": f"{settings.EDX_LMS_BASE_URL}/dashboard/gamification/"

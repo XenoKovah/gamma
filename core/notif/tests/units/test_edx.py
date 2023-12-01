@@ -4,7 +4,7 @@ Unittests for push notification providers.
 import pytest
 from django.test import override_settings
 
-from core.notif.cfg import Config, Provider
+from core.notif.cfg import Config, Provider, MESSAGE
 
 
 cfg = {
@@ -67,6 +67,30 @@ def test__create_base_notif(push_factory, user, notif_data):
     assert notif.url == notif_data['url']
     assert notif.message is not None
     assert notif.source == "gamma"
+    assert notif.kind == None
+    assert notif.save_notification
+
+
+@pytest.mark.unittests
+@pytest.mark.parametrize(
+    "kind", [
+        MESSAGE.BADGE_AWARDED,
+        MESSAGE.STATUS_AWARDED,
+        MESSAGE.INFO_MSG
+    ]
+)
+def test__create_base_notif__kinds(push_factory, user, notif_data, kind):
+    notif_data['kind'] = kind
+
+    edx_provider = push_factory.get(Provider.EDX, **cfg)
+    notif = edx_provider._create_base_notif(user, notif_data)
+
+    assert notif.recipients == [user.user_uid]
+    assert notif.icon_url == notif_data['icon']
+    assert notif.url == notif_data['url']
+    assert notif.message is not None
+    assert notif.source == "gamma"
+    assert notif.kind == kind
     assert notif.save_notification
 
 

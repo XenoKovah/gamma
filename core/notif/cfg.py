@@ -31,3 +31,12 @@ class Provider:
     ONESIGNAL: int = 1
     WEBPUSHR:  int = 2
     EDX:       int = 3
+
+@dataclass
+class MESSAGE:
+    """
+    Message kind.
+    """
+    BADGE_AWARDED:  str = "badge_awarded"
+    STATUS_AWARDED: str = "status_awarded"
+    INFO_MSG:       str = "info_msg"
