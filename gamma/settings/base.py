@@ -220,3 +220,5 @@ WEBPACK_LOADER = {
 
 STORE_RELATIVE_URLS            = strtobool(environ.get('STORE_RELATIVE_URLS', 'True'))
 ONESIGNAL_NOTIFICATION_ENABLED = strtobool(environ.get('ONESIGNAL_NOTIFICATION_ENABLED', 'False'))
+
+EDX_NOTIF_FORMAT_FUNC = environ.get('EDX_NOTIF_FORMAT_FUNC', 'core.notif.formatters.json_formatter')

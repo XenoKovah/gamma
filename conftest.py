@@ -13,7 +13,8 @@ from core.models import AppClient
 from core.data_models.models import User
 from core.notif import push
 from core.notif.onesignal_provider import OneSignalServiceBuilder
-from core.notif.cfg import Provider
+from core.notif.cfg import Provider, Config
+from core.notif.utils import get_format_func
 
 from achievements.models import Event
 
@@ -103,6 +104,17 @@ def notif_data():
     }
 
     return _data
+
+@pytest.fixture(scope="function")
+def notif_cfg():
+    return {
+        Config.ONE_SIGNAL_APP_AUTH_KEY: Config.ONE_SIGNAL_APP_AUTH_KEY,
+        Config.ONE_SIGNAL_APP_ID: Config.ONE_SIGNAL_APP_ID,
+        Config.WEBPUSHR_KEY: Config.WEBPUSHR_KEY,
+        Config.WEBPUSHR_SECRET: Config.WEBPUSHR_SECRET,
+        Config.EDX_API_KEY: Config.EDX_API_KEY,
+        Config.EDX_NOTIF_FORMAT_FUNC: get_format_func(),
+    }
 
 
 @pytest.fixture(scope="function")

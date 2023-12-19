@@ -111,14 +111,14 @@ class EdxServiceBuilder:
     def __init__(self):
         self._instance = None
 
-    def __call__(self, edx_api_key, **_ignored):
+    def __call__(self, edx_api_key, edx_notif_format_func=None, **_ignored):
         """
         Create Edx client and return it.
         """
         if not self._instance:
             edx_client = self.authorize(edx_api_key)
 
-            self._instance = EdxService(edx_client)
+            self._instance = EdxService(edx_client, format_func=edx_notif_format_func)
 
         return self._instance
 

@@ -4,7 +4,12 @@ Here we place the simple object factory class.
 Goal is to simplify providers building and make if
 more readable for clients.
 """
+from importlib import import_module
+import logging
 
+from django.conf import settings
+
+log = logging.getLogger(__name__)
 
 class ObjectFactory:
     """
@@ -39,3 +44,17 @@ class ObjectFactory:
             raise ValueError(key)
 
         return builder(**kwargs)
+
+
+def get_format_func():
+    """
+    Get format function from settings.
+    """
+    if not settings.EDX_NOTIF_FORMAT_FUNC:
+        log.warning("No format function specified in settings.")
+        return None
+
+    module, func = settings.EDX_NOTIF_FORMAT_FUNC.rsplit('.', 1)
+
+    # The import can fail if the module or function name is incorrect.
+    return getattr(import_module(module), func)

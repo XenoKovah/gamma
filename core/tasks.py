@@ -41,8 +41,8 @@ def notify_badges_granted(user_uid, badges):
     for badge_slug in badges:
         badge = db.badges.read_one(badge_slug)
         data = {
-            "head": "New Achievement!",
-            "body": badge.title,
+            "head": badge.title,
+            "body": badge.description,
             "kind": MESSAGE.BADGE_AWARDED,
             "lang": "en",
             "icon": badge.url,

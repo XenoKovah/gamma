@@ -20,6 +20,8 @@ class Config:
     WEBPUSHR_SECRET:          str = "webpushr_secret"
     # EDX custom notifications
     EDX_API_KEY:              str = "edx_api_key"
+    # Formatting
+    EDX_NOTIF_FORMAT_FUNC:    str = "edx_notif_format_func"
 
 
 @dataclass
