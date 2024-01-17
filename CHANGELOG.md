@@ -4,6 +4,13 @@ Changelog
 Versions follows PEP440 version scheme.
 ---
 
+gamma-core 3.6.0 (2023-11-09)
+---
+
+## Added
+* feat!: [RGG-984] implement json_formating for RGG Notifications
+* feat: add kind Notif atrribute
+
 gamma-core 3.5.1 (2023-11-09)
 ---
 
