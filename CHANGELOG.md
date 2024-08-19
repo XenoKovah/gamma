@@ -8,6 +8,7 @@ Versions follows PEP440 version scheme.
 
 ## Maintenance
 * fix: pin the pip version to 24.0
+* chore: update pytest and pytest plugins
 
 
 gamma-core 3.6.0 (2023-11-09)
