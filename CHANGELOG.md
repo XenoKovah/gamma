@@ -2,7 +2,13 @@ Changelog
 =========
 
 Versions follows PEP440 version scheme.
----
+
+[Unreleased]
+************
+
+## Maintenance
+* fix: pin the pip version to 24.0
+
 
 gamma-core 3.6.0 (2023-11-09)
 ---
@@ -17,8 +23,6 @@ gamma-core 3.5.1 (2023-11-09)
 ## Maintenance
 * build: add compose backward compatibility
 
-[Unreleased]
-************
 
 gamma-core 3.5.0 (2023-11-02)
 ---

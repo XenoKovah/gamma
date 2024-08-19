@@ -22,7 +22,7 @@ RUN mkdir /requirements
 COPY ./requirements/* /requirements/
 
 WORKDIR /requirements
-RUN pip install --upgrade pip
+RUN pip install --upgrade pip==24.0
 RUN pip install -r base.txt
 
 RUN apt-get purge -y --auto-remove gcc zlib1g-dev libjpeg-dev
@@ -47,7 +47,7 @@ FROM base as development
 ARG node_env=dev
 
 WORKDIR /requirements
-RUN pip install --upgrade pip
+RUN pip install --upgrade pip==24.0
 RUN pip install -r test.txt
 
 WORKDIR /app
