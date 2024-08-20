@@ -6,6 +6,9 @@ Versions follows PEP440 version scheme.
 [Unreleased]
 ************
 
+gamma-core 3.6.1 (2023-08-20)
+---
+
 ## Maintenance
 * fix: pin the pip version to 24.0
 * chore: update pytest and pytest plugins
