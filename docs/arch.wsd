@@ -1,0 +1,49 @@
+@startuml
+
+!include <c4/C4_Component.puml>
+
+title RG Gamification Service
+
+' EdxPlatform and subcomponents
+Boundary(EdxPlatform, "Edx Platform") {
+    Boundary(EdxGammaDashboard, "Edx Gamma Dashboard") {
+        Container(EventProcessor, "EventProcessor")
+    }
+
+    Boundary(EdxGammaBridge, "Edx Gamma Bridge") {
+        Container(GamificationDashboard, "Gamification Dashboard", "plugin")
+        Container(GamificationLeaderboard, "Gamification Leaderboard", "plugin")
+    }
+}
+
+' Core scaling group
+Boundary(ScalingGroup, "Compute Instance Scaling Group") {
+    Container(GammaCore, "Gamma Core")
+}
+
+' Supporting services
+ContainerDb(PostgresDB, "PostgreSQL DB")
+Container(MongoCluster, "Mongo Cluster")
+Container(CachingService, "Caching Service")
+
+' Task processing components
+Container(Celery, "Celery")
+Container(MQ, "Message Queue (MQ)")
+
+' Bidirectional relationships
+BiRel(ScalingGroup, PostgresDB, "")
+BiRel(ScalingGroup, CachingService, "")
+
+' MongoCluster relationships
+BiRel(ScalingGroup, MongoCluster, "Writes to NoSQL DB")
+
+' EdxPlatform connections
+Rel(EdxPlatform, ScalingGroup, "API Requests \n Data: User Profile")
+Rel(ScalingGroup, EdxPlatform, "API Responses \n Data:\n- Orgs\n- Courses\n- Cohorts\n- Microsites")
+
+' Message processing flow
+Rel(EdxGammaBridge, MQ, "Student Events")
+Rel(MQ, Celery, "Distributes tasks")
+Rel(Celery, ScalingGroup, "API Requests\n- Post events\n- Data: events source")
+
+@enduml

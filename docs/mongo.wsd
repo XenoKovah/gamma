@@ -1,0 +1,50 @@
+@startuml
+!define Table(name) class name << (T,#FFAAAA) >>
+!define FK(name) <u>name</u>
+
+' Define schemas
+Table(app_clients) {
+  + _id
+  key
+  secret
+  uid
+}
+Table(badges) {
+  + _id
+  badge_uid
+  slug
+  title
+  description
+  url
+  rules
+  active
+}
+Table(event_history) {
+  + _id
+  uid
+  user_uid
+  client
+}
+Table(events) {
+  +_id
+  event_type
+  color
+  title
+}
+Table(statuses) {
+  +_id
+  status_uid
+  active
+  color
+  description
+  slug
+  status_points
+  title
+  url
+}
+Table(users) {
+  +_id
+  user_uid_1
+}
+
+@enduml
