@@ -24,11 +24,20 @@ from core import db
 from core.db.engine import conn
 from core.authentication import KeySecretAuthentication
 from core.utils import AppClientUtils, clean_rules
-from core.data_models.models import EventModel, Rules
+from core.data_models.models import Rules
 from core.tasks import update_user_position, update_users_badge_data
 
-from achievements.models import Achievement
-from achievements.forms import AchievementForm
+from events.exceptions import (
+    EventDataIsNotCorrectError,
+    EventTypeIsNotRecognizableError,
+    DuplicatedEventOccursError,
+)
+from events.usecases import ProcessIncomingEventUseCase, GetEventsUseCase
+from events.repository import EventRepository
+from schematics.exceptions import DataError
+
+# from achievements.models import Achievement
+# from achievements.forms import AchievementForm
 
 
 CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
@@ -57,22 +66,18 @@ class GameProfileView(APIView, AppClientUtils):
         where :username - username for User to update points
               :type - can be `video`, `unit` or `course`
         """
-        event_data = EventModel(request.data, strict=False)
+        data = self.update_data_with_client_uid()
 
-        if not (system_event := db.events.read_one(event_data.event_type)):
-            return Response(
-                {"Error": "Event type is not recognizable"},
-                status=status.HTTP_406_NOT_ACCEPTABLE)
-        event_data.points = system_event.award
-        event_data.title = system_event.title
+        try:
+            repository = EventRepository(conn.db)
+            event = ProcessIncomingEventUseCase(repository).execute(data)
+        except (
+            EventDataIsNotCorrectError,
+            EventTypeIsNotRecognizableError,
+            DuplicatedEventOccursError,
+            DataError) as err:
+            return Response({"Error": str(err)}, status=status.HTTP_406_NOT_ACCEPTABLE)
 
-        app_client = self.get_app_client(request)
-        event_data.client = app_client.uid
-
-        if not (event := db.events.log(event_data)):  # pylint: disable=superfluous-parens
-            resp_msg = 'Repeated event occurs'
-            logger.debug(f'For user {event_data.username} msg: {resp_msg}: {event_data.event_type}::{event_data.uid}')  # pylint: disable=logging-fstring-interpolation
-            return Response({"Error": resp_msg}, status=status.HTTP_406_NOT_ACCEPTABLE)
 
         points = db.users.update_profile(event.username, event)
 
@@ -94,9 +99,17 @@ class GameProfileView(APIView, AppClientUtils):
         user = db.users.read_one(user_uid)
         user.system_statuses = db.statuses.read()
         user.system_badges = db.badges.read_active()
-        user.system_events = db.events.read()
+
+        repository = EventRepository(conn.db)
+        user.system_events = GetEventsUseCase(repository).execute()
 
         return Response(user.to_primitive('public'))
+    
+    def update_data_with_client_uid(self):
+        app_client = self.get_app_client(self.request)
+        data = self.request.data.copy()
+        data.update({"client": app_client.uid})
+        return data
 
 
 class ActionsListView(APIView):
@@ -112,7 +125,9 @@ class ActionsListView(APIView):
         """
         Get all Actions.
         """
-        events = [event.to_primitive('public') for event in db.events.read()]
+        repository = EventRepository(conn.db)
+        events = GetEventsUseCase(repository).execute(public=True)
+
         data = [
             {"event_type": "badge"},
             {"event_type": "status_badge"},

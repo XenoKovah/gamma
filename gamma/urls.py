@@ -41,5 +41,9 @@ urlpatterns = [
     # API
     path('api/', include(('api.urls', 'api'), namespace='api')),
 
-    path('badges/', TemplateView.as_view(template_name='badges.html'))
+    path('badges/', TemplateView.as_view(template_name='badges.html')),
+
+    path('api/', include('badges.urls')),
+    path('api/', include('events.urls')),
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

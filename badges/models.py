@@ -1,0 +1,26 @@
+from django.db import models
+from django.utils.text import slugify
+
+
+class Badge(models.Model):
+    """
+
+    """
+
+    title = models.CharField(max_length=255, null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
+    image = models.ImageField(upload_to='uploads/')
+    active = models.BooleanField(default=True)
+
+    slug = models.SlugField(max_length=255, null=True, blank=True)
+    rules = models.ManyToManyField('rules.Rule')
+
+    def save(self, *args, **kwargs):
+        if not self.slug and self.title:
+            self.slug = slugify(self.title)
+
+        super().save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = "Badge"
+        verbose_name_plural = "Badges"

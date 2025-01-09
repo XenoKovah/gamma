@@ -72,7 +72,7 @@ def test_uid_required(live_server, rand_str, app_client):
     )
     assert res.status_code == 406
     data = res.json()
-    assert data['Error'] == 'Event type is not recognizable'
+    assert data['Error'] == 'Event data is not correct'
 
 
 @pytest.mark.django_db

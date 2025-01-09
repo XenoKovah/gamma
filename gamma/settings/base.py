@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'rest_framework',
 
     # Local apps
+    'users',
     'core',
     'achievements',
     'api',
@@ -38,7 +39,19 @@ INSTALLED_APPS = [
     'corsheaders',
 
     'webpack_loader',
+    'events',
+    'rules',
+
+    'badges',
 ]
+
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+GAMIFICATION_BACKENDS = [
+    'badges.backend.BadgeBackend'
+]
+
 
 SITE_ID = 1
 

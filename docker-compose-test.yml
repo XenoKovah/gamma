@@ -24,7 +24,7 @@ services:
     container_name: gamma_celery
     build:
       context: .
-      dockerfile: Dockerfile-celery
+      target: base
     command: celery worker -A gamma --loglevel=INFO -B
     env_file:
       - ./envs/test.env

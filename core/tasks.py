@@ -9,9 +9,14 @@ from core.utils import (
     is_badge_granted
 )
 from core import db
+from core.db.engine import conn
+
 from core.notif.cfg import MESSAGE
 from core import onesignal_provider, edx_provider
-from core.data_models.models import UserAction, UserBadge, Rules, EventModel
+from core.data_models.models import UserAction, UserBadge, Rules
+
+from events.usecases import GetExternalEventUseCase
+from events.repository import EventRepository
 
 log = logging.getLogger(__name__)
 
@@ -20,7 +25,9 @@ log = logging.getLogger(__name__)
 def update_user_position(user_uid, points, event_data):
     # update_user_status should be run before updating user badges
     db.users.update_status(user_uid, points)
-    event = EventModel(event_data)
+
+    repository = EventRepository(conn.db)
+    event = GetExternalEventUseCase(repository).execute(event_data)
 
     prev_points = points - event.points
     if achieved_status_uid := db.statuses.get_achieved(prev_points, points):

@@ -75,8 +75,10 @@ def update_progress(user_uid, event_award, signup_source):
     })
     year = daily_progress.date.year
 
-    if conn.db.users.find_one({"user_uid": user_uid,
-                              f"progress.{year}.date": daily_progress.date}, {"_id": 1}):
+    if conn.db.users.find_one({
+        "user_uid": user_uid,
+        f"progress.{year}.date": daily_progress.date}, {"_id": 1}
+    ):
         conn.db.users.update_one(
             filter={"user_uid": user_uid, f"progress.{year}.date": daily_progress.date},
             update={

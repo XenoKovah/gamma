@@ -24,48 +24,7 @@ from schematics.types import (
 from schematics.transforms import blacklist
 
 from core.data_models.types import CustomURLType
-
-
-class EventModel(Model):
-    """
-    Incomming API request model.
-    """
-
-    uid = StringType(required=True)
-    signup_source = StringType(required=False)
-    username = StringType(required=True, serialized_name='user_uid')
-    event_type = StringType(required=True)
-    org = StringType()
-    course_id = StringType()
-    title = StringType(required=False)
-    points = IntType()
-    date = UTCDateTimeType(metadata={'readOnly': True}, default=datetime.now)
-    client = StringType()
-
-    class Options:
-        roles = {
-            'public': blacklist(''),
-        }
-
-
-class SystemEvent(Model):
-    """
-    Accepted Events.
-    """
-
-    _id = ObjectIdType(
-        metadata={'readOnly': True},
-        serialize_when_none=False, default=ObjectId
-    )
-    event_type = StringType(required=True)
-    title = StringType(required=True)
-    award = IntType()
-    color = StringType(required=True)
-
-    class Options:
-        roles = {
-            'public': blacklist('_id'),
-        }
+from events.entity import SystemEvent
 
 
 class UserAction(Model):
@@ -247,6 +206,8 @@ class Badge(Model):
     @property
     def required_badges(self) -> List:
         return self.rules.badges if self.rules else []
+
+
 
 
 class User(Model):
