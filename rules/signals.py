@@ -8,8 +8,8 @@ from users.models import GammaUser
 
 from core.utils import get_gamification_backends
 
-
-@receiver(post_save, sender=Event)
+# TODO: Should be refactored as part of #NAU-142 Rules refactoring.
+# @receiver(post_save, sender=Event)
 def process_event_creation(sender, instance, created, **kwargs):
     """
     This signal is triggered when an Event is created.

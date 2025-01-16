@@ -304,6 +304,12 @@ class AppClientUtils:
 
         return self._app_client
 
+    def update_data_with_client_uid(self):
+        app_client = self.get_app_client(self.request)
+        data = self.request.data.copy()
+        data.update({"client": app_client.uid})
+        return data
+
 
 def clean_rules(data):
     cleaned_rules = {}

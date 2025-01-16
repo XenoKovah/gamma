@@ -104,12 +104,6 @@ class GameProfileView(APIView, AppClientUtils):
         user.system_events = GetEventsUseCase(repository).execute()
 
         return Response(user.to_primitive('public'))
-    
-    def update_data_with_client_uid(self):
-        app_client = self.get_app_client(self.request)
-        data = self.request.data.copy()
-        data.update({"client": app_client.uid})
-        return data
 
 
 class ActionsListView(APIView):

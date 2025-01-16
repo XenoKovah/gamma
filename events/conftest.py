@@ -1,0 +1,24 @@
+import pytest
+from pytest_factoryboy import register
+
+from events.factories import (
+    EventFactory,
+    EventTypeFactory,
+    EventRequestDataFactory,
+    EventConfigurationFactory,
+)
+
+register(EventFactory)
+register(EventTypeFactory)
+register(EventRequestDataFactory)
+register(EventConfigurationFactory)
+
+
+@pytest.fixture
+def allowed_event_configurations(event_configuration_factory):
+    return event_configuration_factory.create_batch(3)
+
+
+@pytest.fixture
+def event_request_data(allowed_event_configurations, event_request_data_factory):
+    return event_request_data_factory(allowed_event_configurations=allowed_event_configurations)

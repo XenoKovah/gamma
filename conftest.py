@@ -5,18 +5,18 @@ import string
 from datetime import datetime
 
 import pytest
+from django.core.files.base import ContentFile
+from rest_framework.test import APIClient
 from webpack_loader.loader import WebpackLoader
 
-from django.core.files.base import ContentFile
-
+from core import db
+from core.data_models.models import AppClient as AppClientDataModel
 from core.models import AppClient
 from core.data_models.models import User
 from core.notif import push
 from core.notif.onesignal_provider import OneSignalServiceBuilder
 from core.notif.cfg import Provider, Config
 from core.notif.utils import get_format_func
-
-from achievements.models import Event
 
 
 @pytest.fixture(scope='function')
@@ -35,6 +35,17 @@ def app_client(rand_str):
     app_cl = AppClient(name=rand_str)
     app_cl.save()
     return app_cl
+
+
+@pytest.fixture
+def auth_client(app_client):
+    client = APIClient()
+    client.credentials(
+        HTTP_APP_KEY=app_client.key,
+        HTTP_APP_SECRET=app_client.secret,
+        HTTP_CONTENT_TYPE='application/json'
+    )
+    return client
 
 
 @pytest.fixture(scope='function')
@@ -104,6 +115,7 @@ def notif_data():
     }
 
     return _data
+
 
 @pytest.fixture(scope="function")
 def notif_cfg():
