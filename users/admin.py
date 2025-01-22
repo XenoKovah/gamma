@@ -4,4 +4,8 @@ from users.models import GammaUser
 
 @admin.register(GammaUser)
 class CustomUserAdmin(admin.ModelAdmin):
-    pass
+    """
+    Admin configuration for the Gamma User model.
+    """
+
+    list_display = ('username', 'user_uid', 'points')

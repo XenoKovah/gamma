@@ -156,3 +156,28 @@ make loadtests
 4. Open url http://localhost:8089
 
 5. Start tests
+
+
+Run Python tests for Local Development
+---
+
+It is possible to run Python tests in `rgg` container. This is quite convenient for local development.
+
+1. Enter `rgg` container bash:
+```
+tutor dev exec rgg bash
+```
+2. Make sure all test `requirements` are installed:
+```
+pip install -r requirements/test.txt
+```
+3. Setup test `DJANGO_SETTINGS_MODULE`:
+```
+export DJANGO_SETTINGS_MODULE=gamma.settings.test
+```
+4. Now you can run tests:
+```
+pytest .
+pytest <application name>
+pytest users/tests/test_models.py
+```

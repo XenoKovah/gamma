@@ -5,6 +5,7 @@ import string
 from datetime import datetime
 
 import pytest
+from pytest_factoryboy import register
 from django.core.files.base import ContentFile
 from rest_framework.test import APIClient
 from webpack_loader.loader import WebpackLoader
@@ -17,6 +18,10 @@ from core.notif import push
 from core.notif.onesignal_provider import OneSignalServiceBuilder
 from core.notif.cfg import Provider, Config
 from core.notif.utils import get_format_func
+from events.factories import EventFactory
+
+
+register(EventFactory)
 
 
 @pytest.fixture(scope='function')
