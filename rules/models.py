@@ -2,10 +2,21 @@ from django.db import models
 
 
 class Rule(models.Model):
-    # Maybe we need to add FK to event config and filter than based on event type?
-    event_type = models.ForeignKey('events.EventType', on_delete=models.CASCADE)
+    event_configuration = models.ForeignKey(
+        'events.EventConfiguration',
+        on_delete=models.CASCADE,
+        related_name='rules',
+        null=True,
+    )
     action = models.JSONField(default=dict)
     filters = models.JSONField(default=dict)
 
     def __str__(self):
-        return f"{self.event_type} - {self.action} - {self.filters}"
+        return f'Rule for {self.action!r}'
+
+    @property
+    def is_event_type_relevant(self) -> bool:
+        """
+        Check if the rule applies to the given event based on event type.
+        """
+        return self.event_configuration.event_name in self.action

@@ -5,7 +5,7 @@ env :=
 # The gamma already had failed tests due to importing and refactoring.
 # So I commented out the other apps and left only the event.
 # In the future, all others should be commented out as well.
-path := events/api/v0/tests users/tests # core/tests core/notif/tests edx_integration/tests achievements/tests
+path := achievements/tests events/api/v0/tests rules/tests users/tests  # core/tests core/notif/tests edx_integration/tests
 
 DEV_ENV := dev
 STAGE_ENV := stage

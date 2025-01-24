@@ -35,6 +35,18 @@ class EventConfigurationAdmin(admin.ModelAdmin):
     list_display = ('event_type', 'title', 'award')
     search_fields = ('event_type__name', 'title')
 
+    def get_form(self, request, obj=None, **kwargs):
+        """
+        Customize the form creation to exclude already used event types and set initial if exists.
+        """
+        form = super().get_form(request, obj, **kwargs)
+        if not obj:
+            form.base_fields['event_type'].queryset = EventType.objects.filter(configuration__isnull=True)
+        else:
+            form.base_fields['event_type'].initial = EventType.objects.get(id=obj.event_type.id)
+
+        return form
+
 
 @admin.register(EventType)
 class EventTypeAdmin(admin.ModelAdmin):

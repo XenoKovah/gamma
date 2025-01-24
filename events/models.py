@@ -43,6 +43,10 @@ class EventConfiguration(models.Model):
     @property
     def event_name(self):
         return self.event_type.name
+    
+    @classmethod
+    def available_event_names(cls):
+        return list(cls.objects.values_list('event_type__name', flat=True))
 
 
 class Event(models.Model):
@@ -73,3 +77,10 @@ class Event(models.Model):
     def __str__(self):
         event_name = getattr(self.configuration, 'event_name', 'Unknown event')
         return f'Event {event_name!r} for course {self.course_id!r} by {self.username!r}'
+
+    @property
+    def event_name(self):
+        event_name = getattr(self.configuration, 'event_name', None)
+        if not event_name:
+            raise ValueError('The event configuration is missing.')
+        return event_name

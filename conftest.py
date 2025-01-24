@@ -10,18 +10,23 @@ from django.core.files.base import ContentFile
 from rest_framework.test import APIClient
 from webpack_loader.loader import WebpackLoader
 
-from core import db
-from core.data_models.models import AppClient as AppClientDataModel
+from badges.factories import BadgeFactory
 from core.models import AppClient
 from core.data_models.models import User
 from core.notif import push
 from core.notif.onesignal_provider import OneSignalServiceBuilder
 from core.notif.cfg import Provider, Config
 from core.notif.utils import get_format_func
-from events.factories import EventFactory
+from events.factories import EventFactory, EventConfigurationFactory
+from rules.factories import RuleFactory
+from users.factories import GammaUserFactory
 
 
+register(BadgeFactory)
 register(EventFactory)
+register(EventConfigurationFactory)
+register(GammaUserFactory)
+register(RuleFactory)
 
 
 @pytest.fixture(scope='function')

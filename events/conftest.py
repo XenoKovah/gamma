@@ -4,12 +4,10 @@ from pytest_factoryboy import register
 from events.factories import (
     EventTypeFactory,
     EventRequestDataFactory,
-    EventConfigurationFactory,
 )
 
 register(EventTypeFactory)
 register(EventRequestDataFactory)
-register(EventConfigurationFactory)
 
 
 @pytest.fixture
