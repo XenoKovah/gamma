@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'achievements',
     'api',
     'googlecharts',
+    'avatar',
 
     'corsheaders',
 

@@ -1,0 +1,14 @@
+{% extends 'avatar-app/avatar_base.html' %}
+{% load static %}
+
+{% block css %}
+    <link href="{% static 'webpack_bundles/avatar-app/css/main.css' %}" rel="stylesheet" type="text/css"/>
+{% endblock %}
+
+{% block js %}
+    <script src="{% static 'webpack_bundles/avatar-app/js/main.min.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+    <div id="avatar-app-root"></div>
+{% endblock %}

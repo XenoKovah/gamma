@@ -46,4 +46,7 @@ urlpatterns = [
     path('api/', include('badges.urls')),
     path('api/', include('events.urls')),
 
+    # Avatar App
+    path('gamma/', include('avatar.urls'), name='avatar'),
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
