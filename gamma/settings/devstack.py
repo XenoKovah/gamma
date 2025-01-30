@@ -22,5 +22,5 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 WEBPACK_LOADER['DEFAULT'].update({
     'CACHE': not DEBUG,
-    'STATS_FILE': path.join(ROOT_DIR, 'webpack-stats-dev.json')
+    'STATS_FILE': path.join(ROOT_DIR, 'frontend', 'gamma', 'webpack-stats-dev.json')
 })

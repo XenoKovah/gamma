@@ -1,7 +1,6 @@
 **/node_modules
 **/build
 **/bower_components
-**/webpack_bundles
 webpack-stats-*.json
 .*
 !.conf

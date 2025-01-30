@@ -1,0 +1,36 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta content="width=device-width, initial-scale=1" name="viewport"/>
+        {% block css %}
+        {% endblock %}
+        {% block base_style %}
+            <link href="{% static 'gamma/dist/temporary_static/all.css' %}" rel="stylesheet" type="text/css"/>
+            <link href="{% static 'gamma/dist/temporary_static/styles.css' %}" rel="stylesheet" type="text/css"/>
+        {% endblock %}
+
+        <link href="https://fonts.googleapis.com" rel="preconnect">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"/>
+        <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+        <title>Gamma App</title>
+    </head>
+
+    <body>
+        {% block content %}
+        {% endblock %}
+
+        {% block js %}
+        {% endblock %}
+
+        <script src="{% static 'gamma/dist/temporary_static/jquery/jquery-3.7.1.min.js' %}"></script>
+        <script src="{% static 'gamma/dist/temporary_static/select2.min.js' %}"></script>
+        <script src="{% static 'gamma/dist/temporary_static/main.js' %}"></script>
+
+        <script src="{% static 'gamma/dist/temporary_static/student_dashboard.js' %}"></script>
+    </body>
+</html>

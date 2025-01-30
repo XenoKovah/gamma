@@ -1,0 +1,10 @@
+{% extends 'gamma-app/gamma_base.html' %}
+{% load static %}
+
+{% block js %}
+    <script src="{% static 'gamma/dist/bundle.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+    <div id="app"></div>
+{% endblock %}

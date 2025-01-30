@@ -20,5 +20,5 @@ TEMPLATE_DEBUG = DEBUG
 
 WEBPACK_LOADER['DEFAULT'].update({
     'CACHE': not DEBUG,
-    'STATS_FILE': path.join(ROOT_DIR, 'webpack-stats-prod.json')
+    'STATS_FILE': path.join(ROOT_DIR, 'frontend', 'gamma', 'webpack-stats-prod.json')
 })

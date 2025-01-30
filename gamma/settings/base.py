@@ -224,7 +224,7 @@ MAIN_SIGNUP_SOURCE = environ.get('MAIN_SIGNUP_SOURCE', 'main')
 # Define 'STATS_FILE' for each environment in its settings file.
 WEBPACK_LOADER = {
     'DEFAULT': {
-        'BUNDLE_DIR_NAME': 'webpack_bundles/',  # Use a relative path; must end with slash
+        'BUNDLE_DIR_NAME': 'frontend/gamma/dist/',
         # NOTE: Stats file is not polled when in production (DEBUG=False).
         'POLL_INTERVAL': 0.1,
         'TIMEOUT': None,

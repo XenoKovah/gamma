@@ -17,7 +17,7 @@ VERSION :=
 PRIVATE_ENV = ./envs/private.env
 
 CURRENT_DIR = $(shell pwd)
-REACT_APP_PATH = "${CURRENT_DIR}/frontend/admin-panel/src"
+REACT_APP_PATH = "${CURRENT_DIR}/frontend/gamma"
 
 # Determine the Docker Compose command
 DOCKER_COMPOSE := $(shell command -v docker-compose || echo docker compose)
