@@ -1,6 +1,12 @@
 import { useIntl } from 'react-intl';
 
-import en from './en';
+/**
+ * Dynamically requires all translations files from the `modules` directory.
+ *
+ * @constant {__WebpackModuleApi.RequireContext} requireModule
+ * - Webpack's require.context function that loads all translation files.
+ */
+const requireTranslations = require.context('../modules', true, /i18n\/\w+\.js$/);
 
 /**
  * Prepares messages by extracting `defaultMessage` values from the provided locale messages.
@@ -14,12 +20,34 @@ const prepareMessages = (localeMessages) => Object.keys(localeMessages).reduce((
 }, {});
 
 /**
+ * Loads and prepares translation messages from multiple files based on locale.
+ *
+ * @returns The `loadTranslations` function returns an object containing
+ * translations for different locales. Each locale key in the object corresponds to
+ * an object containing messages for that locale.
+ */
+const loadTranslations = () => {
+  const translations = {};
+
+  requireTranslations.keys().forEach((filePath) => {
+    const [, locale] = filePath.match(/i18n\/(\w+)\.js$/) || [];
+    if (locale) {
+      const moduleMessages = requireTranslations(filePath).default;
+      translations[locale] = {
+        ...translations[locale],
+        ...prepareMessages(moduleMessages),
+      };
+    }
+  });
+
+  return translations;
+};
+
+/**
  * A dictionary of prepared messages for supported locales.
  * Each locale maps to its corresponding default messages.
  */
-const messages = {
-  en: prepareMessages(en),
-};
+const messages = loadTranslations();
 
 /**
  * Retrieves the messages for a specified locale.
@@ -38,7 +66,7 @@ export const getMessages = (locale) => messages[locale] || messages.en;
  */
 export const useTranslate = (id, values = {}) => {
   const intl = useIntl();
-  const defaultMessage = en[id]?.defaultMessage || '';
+  const defaultMessage = messages.en[id]?.defaultMessage || '';
   return intl.formatMessage(
     { id, defaultMessage },
     values,

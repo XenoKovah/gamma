@@ -22,6 +22,7 @@ from django.views.i18n import JavaScriptCatalog
 from django.contrib import admin
 
 from core.views import DashboardView, logout_view
+from gamma.views import GammaView
 
 
 urlpatterns = [
@@ -46,7 +47,7 @@ urlpatterns = [
     path('api/', include('badges.urls')),
     path('api/', include('events.urls')),
 
-    # Avatar App
-    path('gamma/', include('avatar.urls'), name='avatar'),
+    # Gamma React routes
+    path('gamma/<path:subpath>/', GammaView.as_view(), name='gamma_react_app'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

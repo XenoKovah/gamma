@@ -56,6 +56,19 @@ BuildStatic:
     DOCKER_TARGET: static
     node_env: dev
 
+ReactLinting:
+  stage: test
+  tags:
+    - k8s-runner
+  image: $TEST_IMAGE_STATIC
+  only:
+    - master
+    - merge_requests
+  before_script: []
+  script:
+    - npm run --prefix /app/frontend/gamma lint-js
+    - npm run --prefix /app/frontend/gamma lint-styles
+
 ReactTests:
   stage: test
   tags:
