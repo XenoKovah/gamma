@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 
 import AppRoutes from './routes/AppRoutes';
 
-import './index.scss';
+import './assets/scss/index.scss';
 
 ReactDOM.render(
   <AppRoutes />,

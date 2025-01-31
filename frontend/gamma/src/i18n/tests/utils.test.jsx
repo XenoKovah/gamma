@@ -23,6 +23,7 @@ describe('Translation Utilities', () => {
     jest.resetModules();
     useIntl.mockClear();
   });
+
   it('getMessages returns correct messages for locale', () => {
     expect(getMessages('en')).toEqual({ hello: 'Hello' });
     expect(getMessages('fr')).toEqual({ hello: 'Bonjour' });
