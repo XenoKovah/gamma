@@ -6,7 +6,8 @@ import { useIntl } from 'react-intl';
  * @constant {__WebpackModuleApi.RequireContext} requireModule
  * - Webpack's require.context function that loads all translation files.
  */
-const requireTranslations = require.context('../modules', true, /i18n\/\w+\.js$/);
+const modulesTranslations = require.context('../modules', true, /i18n\/\w+\.js$/);
+const coreTranslations = require('./en').default;
 
 /**
  * Prepares messages by extracting `defaultMessage` values from the provided locale messages.
@@ -29,10 +30,10 @@ const prepareMessages = (localeMessages) => Object.keys(localeMessages).reduce((
 const loadTranslations = () => {
   const translations = {};
 
-  requireTranslations.keys().forEach((filePath) => {
+  modulesTranslations.keys().forEach((filePath) => {
     const [, locale] = filePath.match(/i18n\/(\w+)\.js$/) || [];
     if (locale) {
-      const moduleMessages = requireTranslations(filePath).default;
+      const moduleMessages = modulesTranslations(filePath).default;
       translations[locale] = {
         ...translations[locale],
         ...prepareMessages(moduleMessages),
@@ -53,9 +54,9 @@ const messages = loadTranslations();
  * Retrieves the messages for a specified locale.
  *
  * @param {string} locale - The locale for which messages are requested.
- * @returns {Object} The messages for the given locale or default messages if the locale is unsupported.
+ * @returns {Object} The messages for the given locale or fallback messages from `en.js`.
  */
-export const getMessages = (locale) => messages[locale] || messages.en;
+export const getMessages = (locale) => messages[locale] || coreTranslations;
 
 /**
  * A React Hook for translating messages using the `react-intl` library.
@@ -66,7 +67,7 @@ export const getMessages = (locale) => messages[locale] || messages.en;
  */
 export const useTranslate = (id, values = {}) => {
   const intl = useIntl();
-  const defaultMessage = messages.en[id]?.defaultMessage || '';
+  const defaultMessage = messages.en?.[id]?.defaultMessage || coreTranslations[id]?.defaultMessage || '';
   return intl.formatMessage(
     { id, defaultMessage },
     values,
