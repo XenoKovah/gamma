@@ -84,7 +84,7 @@ ReactTests:
     - merge_requests
   before_script: []
   script:
-    - npm run --prefix /app/frontend/gamma test ./frontend/gamma
+    - npm run --prefix /app/frontend/gamma test ./frontend/gamma  
 
 Tests:
   stage: test
