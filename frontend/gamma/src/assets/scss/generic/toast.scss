@@ -1,0 +1,10 @@
+.toast-container {
+  z-index: $zindex-tooltip;
+  right: 1.25rem;
+  left: auto;
+
+  .toast-component.toast-danger,
+  .toast-header {
+    background-color: $danger;
+  }
+}

@@ -5,7 +5,7 @@ import { cleanup } from '@testing-library/react';
 
 import { renderWithProviders } from '../../setupTests';
 import messages from '../../i18n/en';
-import Loader from './Loader';
+import Loader from '.';
 
 afterEach(cleanup);
 
