@@ -52,6 +52,10 @@ module.exports = (env, argv) => {
             from: path.resolve(__dirname, 'src/modules/avatar/temporary_static'),
             to: path.resolve(__dirname, 'dist/temporary_static'),
           },
+          {
+            from: path.resolve(__dirname, 'src/assets/images/favicon.ico'),
+            to: path.resolve(__dirname, 'dist/favicon.ico'),
+          },
         ],
       }),
     ],

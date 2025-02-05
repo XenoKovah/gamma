@@ -6,13 +6,13 @@ import { Info as InfoIcon } from '@openedx/paragon/icons';
 import { useTranslate } from '../../i18n/utils';
 
 const AlertComponent = ({
-  variant, title, description, onClose,
+  variant, title, description, onClose, isDismissible,
 }) => (
   <Alert
     className="mb-4"
     variant={variant}
     icon={InfoIcon}
-    dismissible
+    dismissible={isDismissible}
     closeLabel={useTranslate('generic.alert.button.close.title')}
     onClose={onClose}
   >
@@ -26,6 +26,12 @@ AlertComponent.propTypes = {
   title: PropTypes.string.isRequired,
   description: PropTypes.string.isRequired,
   onClose: PropTypes.func,
+  isDismissible: PropTypes.bool,
+};
+
+AlertComponent.defaultProps = {
+  onClose: () => {},
+  isDismissible: false,
 };
 
 export default AlertComponent;

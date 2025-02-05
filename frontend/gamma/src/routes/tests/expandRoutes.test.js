@@ -1,6 +1,6 @@
-import allRoutes from '../expandRoutes';
+import allRoutes from '../utils';
 
-jest.mock('../expandRoutes', () => {
+jest.mock('../utils', () => {
   const mockRequireContext = () => ({
     keys: jest.fn(() => ['module/avatar/routes.jsx', 'module/badges/routes.jsx']),
     resolve: jest.fn(),
@@ -38,12 +38,12 @@ describe('allRoutes', () => {
   });
 
   it('should return an empty array if no routes exist', async () => {
-    jest.doMock('../expandRoutes', () => ({
+    jest.doMock('../utils', () => ({
       __esModule: true,
       default: [],
     }));
 
-    const { default: emptyRoutes } = await import('../expandRoutes');
+    const { default: emptyRoutes } = await import('../utils');
     expect(emptyRoutes).toEqual([]);
   });
 });

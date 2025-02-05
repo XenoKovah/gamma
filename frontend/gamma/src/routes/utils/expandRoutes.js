@@ -4,7 +4,7 @@
  * @constant {__WebpackModuleApi.RequireContext} requireModule
  * - Webpack's require.context function that loads all `routes.jsx` files.
  */
-const requireModule = require.context('../modules', true, /routes\.jsx$/);
+const requireModule = require.context('../../modules', true, /routes\.jsx$/);
 
 /**
  * Extracts and flattens the default exports from all matched route files.

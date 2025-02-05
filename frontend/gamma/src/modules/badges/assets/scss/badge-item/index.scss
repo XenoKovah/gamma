@@ -1,0 +1,12 @@
+.badge-item {
+  max-height: $badge-item-dimension;
+
+  @media (max-width: map-get($grid-breakpoints, "sm")) {
+    max-height: max-content;
+  }
+
+  .badge-item-img.pgn__card-wrapper-image-cap.horizontal {
+    max-width: $badge-item-dimension;
+    min-width: $badge-item-dimension;
+  }
+}
