@@ -1,5 +1,6 @@
 import React from 'react';
-import { cleanup } from '@testing-library/react';
+import { cleanup, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 
 import { renderWithProviders } from '../../../../setupTests';
@@ -19,6 +20,7 @@ describe('SubHeader', () => {
     'modules.badges.total-badges.counter.text':
       messages['modules.badges.total-badges.counter.text'].defaultMessage,
     'modules.badges.button.add-badge': messages['modules.badges.button.add-badge'].defaultMessage,
+    'modules.badges.modal.add-badge.title': messages['modules.badges.modal.add-badge.title'].defaultMessage,
   };
 
   beforeEach(() => {
@@ -30,7 +32,9 @@ describe('SubHeader', () => {
   const renderSubHeader = (props = {}) => renderWithProviders(<SubHeader {...props} />);
 
   it('renders heading, "Add badge" button, and total badges count (default 0)', () => {
-    const { getByRole, getByText } = renderSubHeader({ isError: false, badgesCount: 0 });
+    const { getByRole, getByText } = renderSubHeader({
+      isError: false, badgesCount: 0, openBadgeModalDialog: jest.fn(),
+    });
 
     expect(getByRole('heading', { level: 1 }))
       .toHaveTextContent(translations['modules.badges.heading.text']);
@@ -42,7 +46,9 @@ describe('SubHeader', () => {
   });
 
   it('renders correct badge count when badgesCount is greater than zero', () => {
-    const { getByText } = renderSubHeader({ isError: false, badgesCount: 5 });
+    const { getByText } = renderSubHeader({
+      isError: false, badgesCount: 5, openBadgeModalDialog: jest.fn(),
+    });
 
     expect(getByText(
       translations['modules.badges.total-badges.counter.text'].replace('{badgesCount}', 5),
@@ -50,7 +56,9 @@ describe('SubHeader', () => {
   });
 
   it('renders correct badge count when badgesCount is a large number', () => {
-    const { getByText } = renderSubHeader({ isError: false, badgesCount: 999 });
+    const { getByText } = renderSubHeader({
+      isError: false, badgesCount: 999, openBadgeModalDialog: jest.fn(),
+    });
 
     expect(getByText(
       translations['modules.badges.total-badges.counter.text'].replace('{badgesCount}', 999),
@@ -60,7 +68,7 @@ describe('SubHeader', () => {
   it('does not render "Add badge" button and total badges count when isError is true', () => {
     const {
       queryByText, queryByRole, getByRole,
-    } = renderSubHeader({ isError: true, badgesCount: 10 });
+    } = renderSubHeader({ isError: true, badgesCount: 10, openBadgeModalDialog: jest.fn() });
 
     expect(getByRole('heading', { level: 1 }))
       .toHaveTextContent(translations['modules.badges.heading.text']);
@@ -69,5 +77,23 @@ describe('SubHeader', () => {
     )).not.toBeInTheDocument();
     expect(queryByRole('button', { name: translations['modules.badges.button.add-badge'] }))
       .not.toBeInTheDocument();
+  });
+
+  it('calls openBadgeModalDialog when "Add badge" button is clicked', () => {
+    const mockOpenBadgeModalDialog = jest.fn();
+    const { getByRole } = renderSubHeader({
+      isError: false,
+      badgesCount: 5,
+      openBadgeModalDialog: mockOpenBadgeModalDialog,
+    });
+
+    const addButton = getByRole('button', { name: translations['modules.badges.button.add-badge'] });
+    userEvent.click(addButton);
+
+    expect(mockOpenBadgeModalDialog).toHaveBeenCalledTimes(1);
+    waitFor(() => {
+      const badgeModal = getByRole('dialog');
+      expect(within(badgeModal).getByText(translations['modules.badges.modal.add-badge.title'])).toBeInTheDocument();
+    });
   });
 });

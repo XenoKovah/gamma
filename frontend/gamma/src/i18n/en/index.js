@@ -34,6 +34,26 @@ const en = {
     defaultMessage: 'An error occurred while processing your request.',
     description: 'Text for the error Toast component.',
   },
+  'generic.modal.dialog.button.cancel.text': {
+    id: 'generic.modal.dialog.button.cancel.text',
+    defaultMessage: 'Cancel',
+    description: 'Text for the cancel button inside the modal dialog.',
+  },
+  'generic.modal.dialog.button.submit.text': {
+    id: 'generic.modal.dialog.button.submit.text',
+    defaultMessage: 'Submit',
+    description: 'Text for the submit button inside the modal dialog.',
+  },
+  'generic.modal.alert.button.cancel.text': {
+    id: 'generic.modal.alert.button.cancel.text',
+    defaultMessage: 'Cancel',
+    description: 'Text for the cancel button inside the modal alert.',
+  },
+  'generic.modal.alert.button.delete.text': {
+    id: 'generic.modal.alert.button.delete.text',
+    defaultMessage: 'Delete',
+    description: 'Text for the delete button inside the modal alert.',
+  },
 };
 
 export default en;

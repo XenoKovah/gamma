@@ -6,7 +6,9 @@ import {
 
 import { useTranslate } from '../../../../../i18n/utils';
 
-const BadgeItem = ({ title, description, image }) => {
+const BadgeItem = ({
+  title, description, image, openConfirmDeletionAlert,
+}) => {
   const isExtraSmall = useMediaQuery({ maxWidth: breakpoints.extraSmall.maxWidth });
 
   const messages = {
@@ -34,7 +36,7 @@ const BadgeItem = ({ title, description, image }) => {
         <Button>
           {messages.actionBtns.edit}
         </Button>
-        <Button variant="danger">
+        <Button variant="danger" onClick={openConfirmDeletionAlert}>
           {messages.actionBtns.delete}
         </Button>
       </Card.Footer>
@@ -46,6 +48,7 @@ BadgeItem.propTypes = {
   title: PropTypes.string,
   description: PropTypes.string,
   image: PropTypes.string,
+  openConfirmDeletionAlert: PropTypes.func.isRequired,
 };
 
 export default BadgeItem;

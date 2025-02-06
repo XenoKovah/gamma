@@ -5,7 +5,7 @@ import { useTranslate } from '../../../../i18n/utils';
 import { AlertComponent } from '../../../../generic';
 import BadgeItem from './badge-item';
 
-const BadgesList = ({ badgesData }) => {
+const BadgesList = ({ badgesData, openConfirmDeletionAlert }) => {
   const messages = {
     alertEmptyBadgesList: {
       title: useTranslate('modules.badges.alert.empty-badges-list.title'),
@@ -23,6 +23,7 @@ const BadgesList = ({ badgesData }) => {
               description={badge.description}
               image={badge.image}
               slug={badge.slug}
+              openConfirmDeletionAlert={openConfirmDeletionAlert}
             />
           </li>
         ))
@@ -49,6 +50,7 @@ BadgesList.propTypes = {
       slug: PropTypes.string,
     }),
   ).isRequired,
+  openConfirmDeletionAlert: PropTypes.func.isRequired,
 };
 
 export default BadgesList;

@@ -28,6 +28,7 @@ describe('Badges Component', () => {
     'generic.alert.danger.title': appMessages['generic.alert.danger.title'].defaultMessage,
     'generic.alert.danger.description': appMessages['generic.alert.danger.description'].defaultMessage,
     'generic.alert.button.close.title': appMessages['generic.alert.button.close.title'].defaultMessage,
+    'modules.badges.modal.add-badge.title': moduleMessages['modules.badges.modal.add-badge.title'].defaultMessage,
   };
 
   afterEach(cleanup);
@@ -94,6 +95,20 @@ describe('Badges Component', () => {
       expect(
         within(errorAlert).getByText(translations['generic.alert.danger.description']),
       ).toBeInTheDocument();
+    });
+  });
+
+  it('opens the badge modal when the "Add Badge" button is clicked', async () => {
+    useBadgesData.mockReturnValue({ data: badgesMocks, isLoading: false, isError: false });
+
+    const { getByRole, getByTestId } = renderWithProviders(<Badges />);
+
+    const addBadgeBtn = getByTestId('add-badge-button');
+
+    userEvent.click(addBadgeBtn);
+    waitFor(() => {
+      const badgeModal = getByRole('dialog');
+      expect(within(badgeModal).getByText(translations['modules.badges.modal.add-badge.title'])).toBeInTheDocument();
     });
   });
 });

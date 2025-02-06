@@ -6,7 +6,7 @@ import {
 
 import { useTranslate } from '../../../../i18n/utils';
 
-const SubHeader = ({ isError, badgesCount }) => {
+const SubHeader = ({ isError, badgesCount, openBadgeModalDialog }) => {
   const isExtraSmall = useMediaQuery({ maxWidth: breakpoints.extraSmall.maxWidth });
 
   const messages = {
@@ -20,13 +20,15 @@ const SubHeader = ({ isError, badgesCount }) => {
   return (
     <header className="mt-4 mb-4">
       <Stack className="justify-content-between" direction={isExtraSmall ? 'vertical' : 'horizontal'}>
-        <h1>{messages.headingText}</h1>
+        <h1 className="mb-0">{messages.headingText}</h1>
         {!isError && (
           <Stack direction={isExtraSmall ? 'vertical' : 'horizontal'} gap={3}>
             <p className="m-0">
               {messages.totalBadges.counterText}
             </p>
-            <Button>{messages.addBadgeBtnTitle}</Button>
+            <Button onClick={openBadgeModalDialog}>
+              {messages.addBadgeBtnTitle}
+            </Button>
           </Stack>
         )}
       </Stack>
@@ -37,6 +39,7 @@ const SubHeader = ({ isError, badgesCount }) => {
 SubHeader.propTypes = {
   isError: PropTypes.bool.isRequired,
   badgesCount: PropTypes.number.isRequired,
+  openBadgeModalDialog: PropTypes.func.isRequired,
 };
 
 export default SubHeader;
