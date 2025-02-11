@@ -20,3 +20,10 @@ class Rule(models.Model):
         Check if the rule applies to the given event based on event type.
         """
         return self.event_configuration.event_name in self.action
+
+    @property
+    def achievement_content_type(self) -> str:
+        """
+        Return the content type (related to the dependent badges) of the event configuration.
+        """
+        return self.event_configuration.content_type

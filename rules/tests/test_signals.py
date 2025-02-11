@@ -19,9 +19,9 @@ def test_process_event_creation_with_backends(
 
     mock_rules_filter.filter_rules.return_value = [rule]
 
-    event = event_factory(configuration=rule.event_configuration, username=user.username)
+    event = event_factory(configuration=rule.event_configuration, username=user.user_uid)
 
-    mock_gamification_backends.create_draft_achievement.assert_called_once_with(rule, event)
+    mock_gamification_backends.process_achievement.assert_called_once_with(rule, event, user, False)
 
 
 @pytest.mark.enable_signals
@@ -36,4 +36,4 @@ def test_process_event_creation_with_no_relevant_rules(
 
     event_factory(username=user.username)
 
-    mock_gamification_backends.create_draft_achievement.assert_not_called()
+    mock_gamification_backends.process_achievement.assert_not_called()

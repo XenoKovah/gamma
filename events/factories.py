@@ -26,6 +26,8 @@ class EventConfigurationFactory(factory.django.DjangoModelFactory):
     award = factory.Faker('random_int', min=1, max=100)
     color = factory.Faker('random_element', elements=[1, 2, 3])
     notification_message = factory.LazyAttribute(lambda o: f'You have got {o.award} points.')
+    is_depends_on_achievement = False
+    content_type = None
 
 
 class EventFactory(factory.django.DjangoModelFactory):

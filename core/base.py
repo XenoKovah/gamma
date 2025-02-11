@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 
 from events.models import Event
 from rules.models import Rule
+from users.models import GammaUser
 
 
 class AchievementBackend(ABC):
@@ -11,9 +12,9 @@ class AchievementBackend(ABC):
     NAME = None
 
     @abstractmethod
-    def create_draft_achievement(self, rule: Rule, event: Event) -> None:
+    def process_achievement(self, rule: Rule, event: Event, user: GammaUser, is_achievement_exists: bool) -> None:
         """
-        Creates a draft achievement for a given rule and event based on current backend.
+        Check whether create or update draft achievements for a given rule and event based on current backend.
 
         Iterates over chosen backend by affected rules and creates achievement with related rules.
         """

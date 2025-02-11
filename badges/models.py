@@ -22,5 +22,9 @@ class Badge(models.Model):
         super().save(*args, **kwargs)
 
     class Meta:
-        verbose_name = "Badge"
-        verbose_name_plural = "Badges"
+        verbose_name = 'Badge'
+        verbose_name_plural = 'Badges'
+
+    def __str__(self):
+        rules = ', '.join(str(rule.action) for rule in self.rules.all()) if self.rules.exists() else 'No rules'
+        return f'Badge {self.title!r} with rules {rules}'

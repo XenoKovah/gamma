@@ -1,12 +1,17 @@
+import logging
+
 from django.contrib.auth import get_user_model
 from django.db import transaction
 
 from achievements.models import Achievement
 from badges.models import Badge
 from core.base import AchievementBackend
-
+from events.models import Event
+from rules.models import Rule
+from users.models import GammaUser
 
 User = get_user_model()
+logger = logging.getLogger(__name__)
 
 
 class BadgeBackend(AchievementBackend):
@@ -18,16 +23,28 @@ class BadgeBackend(AchievementBackend):
 
     NAME = 'badge'
 
-    def create_draft_achievement(self, rule, event):
+    def process_achievement(self, rule: Rule, event: Event, user: GammaUser, is_achievement_exists: bool):
         badges = Badge.objects.filter(rules=rule).prefetch_related('rules')
-        user = User.objects.get(username=event.username)
 
+        if not badges.exists():
+            return
+
+        action = self.update_achievement if is_achievement_exists else self.create_achievement
         for badge in badges:
-            self.draft_achievement_from_badge(badge, user, event)
+            action(badge, user, event)
 
     @transaction.atomic
-    def draft_achievement_from_badge(self, badge, user, event) -> None:
+    def create_achievement(self, badge, user, event) -> None:
         """
-        Creates a draft achievement for a specific badge and assigns it to a user.
+        Create a draft achievement for a specific badge and assigns it to a user.
         """
-        Achievement.objects.create_draft_achievement(user, event, badge)
+        achievement = Achievement.objects.create_achievement(user, event, badge)
+        logger.info('Created draft: <%s>', achievement)
+
+    @transaction.atomic
+    def update_achievement(self, badge, user, event) -> None:
+        """
+        Update a draft achievement for a specific badge and assigns it to a user.
+        """
+        achievement = Achievement.objects.update_achievement(user, event, badge)
+        logger.info('Updated draft: <%s>', achievement)

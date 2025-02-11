@@ -4,6 +4,7 @@ from django.dispatch import receiver
 from achievements.models import AchievementRule
 from events.models import Event
 from core.utils import get_gamification_backends
+from users.models import GammaUser
 
 from .filters import RulesFilter
 from .models import Rule
@@ -17,16 +18,17 @@ def process_event_creation(sender, instance, created, **kwargs):
     The handler processes the event according to the rules defined.
     """
 
+    if not created:
+        return
+
     event = instance
     configuration = event.configuration
-
-    # Commented for testing locally
-    # if not created:
-    #     return
+    user, _ = GammaUser.objects.get_or_create(user_uid=event.username)
 
     affected_rules_by_event = Rule.objects.filter(
         event_configuration=configuration
     ).exclude(
+        rule_achievements__achievement__user=user,
         rule_achievements__status=AchievementRule.Statuses.COMPLETED
     ).prefetch_related('rule_achievements')
 
@@ -34,15 +36,10 @@ def process_event_creation(sender, instance, created, **kwargs):
     affected_rules = rule_filter.filter_rules(affected_rules_by_event)
 
     for rule in affected_rules:
-        achievements_to_update = rule.rule_achievements.all()
+        achievements_to_update = rule.rule_achievements.filter(achievement__user=user).all()
+        is_achievement_exists = achievements_to_update.exists()
 
-        if not achievements_to_update:
-            for backend in get_gamification_backends():
-                backend.create_draft_achievement(rule, event)
+        for backend in get_gamification_backends():
+            backend.process_achievement(rule, event, user, is_achievement_exists)
 
-        # acievents_to_update = rule.rule_achievements.all()
-        # acievents_to_update.update(status=AchievementRule.STATUS_COMPLETED)
-
-    # GammaUser.update_user_progress(event.username, event.points)
-    # GammaUser.update_user_chart(event.username, event)
-    # GammaUser.update_user_points(event.username, event.points)
+    user.run_update_user_pipeline(configuration)

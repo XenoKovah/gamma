@@ -1,83 +1,118 @@
-from typing import Union, Dict, Tuple
+from datetime import datetime
+from typing import Union
 
-from django.db import models
 from django.contrib.contenttypes.models import ContentType
+from django.db import models
 
 from badges.models import Badge
-from core.utils import get_gamification_backends
-from events.models import Event, EventConfiguration
+from events.models import Event
 from users.models import GammaUser
 
-from .data_classes import UserAction
+from .services import RuleDependencyService
 
 
 class AchievementManager(models.Manager):
     """
     Custom manager for the Achievement model, containing logic related to achievements.
+    
+    There are methods to handle achievements:
+    - create_achievement
+    - update_achievement
     """
 
-    def create_draft_achievement(self, user: GammaUser, event: Event, instance: Union[Badge]) -> None:
+    def create_achievement(self, user: GammaUser, event: Event, instance: Union[Badge]) -> None:
         """
         Create a draft achievement for the given params with related rules.
+        
+        It links the achievement to the correct ContentType and associates it with the relevant rules.
+        Additionally, prepares the achievement's related rules and determines if any of them are ready for completion.
         """
-        from .models import AchievementRule
-
         content_type = ContentType.objects.get_for_model(type(instance))
-
         achievement = self.create(
-            # TODO: user should be taken from params.
-            user=GammaUser.objects.last(),
+            user=user,
             content_type=content_type,
             object_id=instance.id,
             title=instance.title,
             description=instance.description,
         )
 
-        achievements_rules = self._create_draft_achievement_rules(instance, event, achievement)
+        self._create_achievement_rules(instance, event, achievement)
 
-        if achievements_rules:
-            AchievementRule.objects.bulk_create(achievements_rules)
-
-    def _create_draft_achievement_rules(self, instance: Union[Badge], event: Event, achievement):
+    def _create_achievement_rules(self, instance: Union[Badge], event: Event, achievement):
         """
         Prepare achievement rules based on the instance's rules.
         """
         from .models import AchievementRule
+        
+        achievements_rules = [
+            self._create_single_achievement_rule(rule, event, achievement)
+            for rule in instance.rules.all()
+        ]
 
-        achievements_rules = []
-
-        for rule in instance.rules.all():
-            events, dependencies = self._parse_rule_actions(rule.action)
-
-            achievements_rules.append(
-                AchievementRule(
-                    achievement=achievement,
-                    rule=rule,
-                    status=AchievementRule.Statuses.ACTIVE,
-                    points=event.configuration.award,
-                    actual_count=events,
-                    dependencies=dependencies,
-                )
-            )
+        if achievements_rules:
+            AchievementRule.objects.bulk_create(achievements_rules)
 
         return achievements_rules
-
-    @staticmethod
-    def _parse_rule_actions(actions: dict) -> Tuple[Dict[str, UserAction], Dict[str, str]]:
+    
+    
+    def _create_single_achievement_rule(self, rule, event: Event, achievement) -> 'AchievementRule':
         """
-        Parse rule actions into structured ActionDetail objects.
+        Create a single achievement rule and check if it should be marked as completed.
         """
-        events = {}
-        dependencies = {}
-        available_achievements_backend_names = [backend.NAME for backend in get_gamification_backends()]
+        from .models import AchievementRule
 
-        for action_type, value in actions.items():
-            if action_type in EventConfiguration.available_event_names():
-                events[action_type] = UserAction(
-                    count=1,
-                    goal=value,
-                ).to_dict()
-            elif action_type in available_achievements_backend_names:
-                dependencies[action_type] = value
+        dependencies_creator = RuleDependencyService(rule, event.created_at)
+        dependencies = dependencies_creator.create_or_update(rule.action)
 
-        return events, dependencies
+        achievement_rule = AchievementRule(
+            achievement=achievement,
+            rule=rule,
+            status=AchievementRule.Statuses.ACTIVE,
+            points=event.configuration.award,
+            dependencies=dependencies,
+        )
+
+        if achievement_rule.is_ready_to_complete(achievement.user):
+            achievement_rule.status = AchievementRule.Statuses.COMPLETED
+
+        return achievement_rule
+
+
+    def update_achievement(self, user: GammaUser, event: Event, instance: Union[Badge]) -> None:
+        """
+        Update a draft achievement for the given params with related rules.
+        
+        It retrieves the achievement based on the provided parameters and updates the associated rules dependencies.
+        It also checks whether the rules are ready for completion and updates their status accordingly.
+        """
+        content_type = ContentType.objects.get_for_model(type(instance))
+        achievement = self.get(
+            user=user,
+            content_type=content_type,
+            object_id=instance.id,
+            title=instance.title,
+            description=instance.description,
+        )
+
+        self._update_achievement_rules(instance, achievement, event.created_at)
+
+    def _update_achievement_rules(self, instance: Union[Badge], achievement, event_created_at: datetime) -> None:
+        """
+        Update dependencies of the rules of an existing achievement based on changes.
+        """
+        from .models import AchievementRule
+
+        achievement_rules = AchievementRule.objects.filter(
+            achievement=achievement,
+            rule__in=instance.rules.all(),
+            status=AchievementRule.Statuses.ACTIVE,
+        )
+
+        ready_to_complete_rules = []
+        for achievement_rule in achievement_rules:
+            achievement_rule.update_dependencies(achievement_rule.rule.action, event_created_at)
+
+            if achievement_rule.is_ready_to_complete(achievement.user):
+                ready_to_complete_rules.append(achievement_rule)
+
+        AchievementRule.bulk_complete(ready_to_complete_rules)

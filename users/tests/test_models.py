@@ -13,7 +13,7 @@ def test_update_user_progress(gamma_user_factory: GammaUserFactory) -> None:
     gamma_user = gamma_user_factory()
     event_points = 10
 
-    gamma_user.update_user_progress(username=gamma_user.username, event_points=event_points)
+    gamma_user.update_user_progress(event_points=event_points)
 
     gamma_user.refresh_from_db()
 
@@ -28,25 +28,25 @@ def test_update_user_progress(gamma_user_factory: GammaUserFactory) -> None:
 
 
 @pytest.mark.django_db
-def test_update_user_chart(gamma_user_factory: GammaUserFactory, event_factory: EventFactory) -> None:
+def test_update_user_chart(gamma_user_factory: GammaUserFactory, event_configuration_factory: EventFactory) -> None:
     """
     Test the `update_user_chart` class method.
     """
     gamma_user = gamma_user_factory()
-    event = event_factory()
+    configuration = event_configuration_factory()
 
-    gamma_user.update_user_chart(username=gamma_user.username, event=event)
+    gamma_user.update_user_chart(configuration)
 
     gamma_user.refresh_from_db()
 
-    event_chart_key = f'chart.{event.configuration.event_type.name}'
+    event_chart_key = f'chart.{configuration.event_type.name}'
 
-    assert gamma_user.chart[event_chart_key]['points'] == event.configuration.award
-    assert gamma_user.chart[event_chart_key]['title'] == event.configuration.title
+    assert gamma_user.chart[event_chart_key]['points'] == configuration.award
+    assert gamma_user.chart[event_chart_key]['title'] == configuration.title
 
 
 @pytest.mark.django_db
-def test_update_user_points(gamma_user_factory: GammaUserFactory) -> None:
+def test_update_user_points(gamma_user_factory) -> None:
     """
     Test the `update_user_points` class method.
     """
@@ -55,7 +55,7 @@ def test_update_user_points(gamma_user_factory: GammaUserFactory) -> None:
     points_to_add = 50
     total_points = gamma_user_points + points_to_add
 
-    gamma_user.update_user_points(username=gamma_user.username, points=points_to_add)
+    gamma_user.update_user_points(points=points_to_add)
 
     gamma_user.refresh_from_db()
 

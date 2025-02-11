@@ -30,7 +30,6 @@ class AchievementRuleFactory(factory.django.DjangoModelFactory):
     achievement = factory.SubFactory(AchievementFactory)
     rule = factory.SubFactory('rules.factories.RuleFactory')
     created_at = factory.LazyFunction(now)
-    actual_count = factory.Dict({'stop_video': factory.Faker('pyint')})
     dependencies = factory.LazyAttribute(lambda _: {'badge': 'dependency_id'})
 
     class Meta:

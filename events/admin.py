@@ -15,7 +15,7 @@ class EventAdmin(admin.ModelAdmin):
         'username',
         'course_id',
         'client',
-        'created_at'
+        'created_at',
     )
     list_filter = ('client', 'org', 'signup_source', 'created_at')
     search_fields = ('uid', 'username', 'course_id', 'client', 'org')
@@ -32,7 +32,7 @@ class EventConfigurationAdmin(admin.ModelAdmin):
     """
 
     # TODO: the previous implementation used 'EventConfigurationForm' to create a new instance.
-    list_display = ('event_type', 'title', 'award')
+    list_display = ('event_type', 'title', 'award', 'is_depends_on_achievement')
     search_fields = ('event_type__name', 'title')
 
     def get_form(self, request, obj=None, **kwargs):
