@@ -5,6 +5,10 @@ Versions follows PEP440 version scheme.
 
 [Unreleased]
 ************
+
+gamma-core 3.7.0 (2025-02-13)
+---
+
 * feat: [RGOeX-26916] add s3 requirements
 
 gamma-core 3.6.1 (2023-08-20)
