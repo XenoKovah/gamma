@@ -60,6 +60,11 @@ ReactTests:
   stage: test
   tags:
     - k8s-runner
+  variables:
+    KUBERNETES_CPU_REQUEST: "500m"
+    KUBERNETES_CPU_LIMIT: "1000m"
+    KUBERNETES_MEMORY_REQUEST: "2Gi"
+    KUBERNETES_MEMORY_LIMIT: "3Gi"
   image: $TEST_IMAGE_STATIC
   only:
     - master

@@ -9,6 +9,7 @@ Versions follows PEP440 version scheme.
 gamma-core 3.7.0 (2025-02-13)
 ---
 
+* build: fix ReactTests pipeline OOMKilled error
 * feat: [RGOeX-26916] add s3 requirements
 
 gamma-core 3.6.1 (2023-08-20)
