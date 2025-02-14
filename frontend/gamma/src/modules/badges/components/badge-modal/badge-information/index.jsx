@@ -15,7 +15,7 @@ const BadgeInformation = () => {
       titleLabel: useTranslate('modules.badges.modal.badge.information.label.badge.title'),
       slugLabel: useTranslate('modules.badges.modal.badge.information.label.badge.slug'),
       descriptionLabel: useTranslate('modules.badges.modal.badge.information.label.badge.description'),
-      active: useTranslate('modules.badges.modal.badge.active.text'),
+      isActive: useTranslate('modules.badges.modal.badge.is-active.text'),
     },
   };
 
@@ -28,8 +28,8 @@ const BadgeInformation = () => {
       </Form.Row>
       <FormInputController label={messages.badge.descriptionLabel} name="description" as="textarea" hasCol={false} />
       <Form.Group className="mb-4" controlId="formBadgeActive">
-        <Form.Checkbox className="badge-modal-active" name="active" onChange={handleChange}>
-          {messages.badge.active}
+        <Form.Checkbox className="badge-modal-active" name="isActive" onChange={handleChange}>
+          {messages.badge.isActive}
         </Form.Checkbox>
       </Form.Group>
     </div>

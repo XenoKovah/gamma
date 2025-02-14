@@ -13,7 +13,7 @@ class BadgeFactory(factory.django.DjangoModelFactory):
     title = factory.Faker('sentence', nb_words=3)
     description = factory.Faker('paragraph', nb_sentences=2)
     image = factory.django.ImageField(color='blue')
-    active = factory.Faker('boolean', chance_of_getting_true=80)
+    is_active = factory.Faker('boolean', chance_of_getting_true=80)
     slug = factory.LazyAttribute(lambda obj: slugify(obj.title))
 
     @factory.post_generation

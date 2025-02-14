@@ -1,20 +1,22 @@
 import pytest
 from django.urls import reverse_lazy
+from rest_framework import status
 
 from core.utils import AppClientUtils
 from events.models import Event
 
+pytestmark = pytest.mark.django_db
 
-@pytest.mark.django_db
-class TestCreateEvent:
+
+class TestEventsAPI:
     """
     Test suite for creating an event via the 'EventsAPIView' view.
     """
 
-    endpoint = 'events'
+    endpoint = reverse_lazy('events')
 
     def test_create_event_valid(self, auth_client, event_request_data):
-        response = auth_client.post(reverse_lazy(self.endpoint), event_request_data)
+        response = auth_client.post(self.endpoint, event_request_data)
 
         response_json = response.json()
 
@@ -37,7 +39,7 @@ class TestCreateEvent:
         field_name = 'event_type'
         event_request_data[field_name] = 'invalid_event_type'
 
-        response = auth_client.post(reverse_lazy('events'), event_request_data)
+        response = auth_client.post(self.endpoint, event_request_data)
 
         response_json = response.json()
 
@@ -55,9 +57,53 @@ class TestCreateEvent:
         event_request_data['client'] = event.client
         event_request_data['username'] = event.username
 
-        response = auth_client.post(reverse_lazy('events'), event_request_data)
+        response = auth_client.post(self.endpoint, event_request_data)
 
         response_json = response.json()
 
         assert response.status_code == 400
         assert 'The fields uid, client, username must make a unique set.' in response_json.get('non_field_errors')
+
+
+class TestAvailableActionsAPI:
+    """
+    Test suite for get list of available actions to setup rules.
+    """
+
+    endpoint = reverse_lazy('available-actions')
+
+    @pytest.mark.parametrize(
+        'event_name, is_depends_on_achievement, title',
+        [
+            ('rgg_badge_achieved', False, 'Dependent award for course enroll'),
+            ('stop_video', True, 'Award for stopping video'),
+        ],
+        ids=[
+            'Passed: Dependent event',
+            'Passed: Common external event',
+        ]
+    )
+    def test_get_available_actions(
+        self,
+        client,
+        event_configuration_factory,
+        event_name,
+        is_depends_on_achievement,
+        title
+    ):
+        event_configuration = event_configuration_factory(
+            event_type__name=event_name,
+            is_depends_on_achievement=is_depends_on_achievement,
+            title=title,
+        )
+
+        response = client.get(self.endpoint)
+
+        assert response.status_code == status.HTTP_200_OK
+        assert len(response.json()) == 1
+        assert response.json() == [{
+            'event_name': event_configuration.event_name,
+            'id': event_configuration.id,
+            'is_depends_on_achievement': event_configuration.is_depends_on_achievement,
+            'title': event_configuration.title,
+        }]

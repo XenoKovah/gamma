@@ -40,7 +40,7 @@ const BadgeModal = ({ isOpenModalDialog, closeModalDialog }) => {
   return (
     <Formik
       initialValues={{
-        title: '', slug: '', description: '', active: false, image: null,
+        title: '', slug: '', description: '', is_active: false, image: null,
       }}
       validationSchema={() => getValidationSchema(messages.validation)}
       onSubmit={({ resetForm }) => handleReset(resetForm)}

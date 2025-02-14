@@ -4,7 +4,7 @@ import pytest
 from django.utils.timezone import now
 
 from rules.constants import DATE_FORMAT, DATETIME_FORMAT
-from rules.filters import RulesFilter
+from rules.services import RulesFilterService
 
 pytestmark = pytest.mark.django_db
 mock_org = 'edx'
@@ -118,7 +118,7 @@ def test_one_rule_based_on_filters_criteria(
     event = event_factory(configuration=event_configuration, org=mock_org, course_id=mock_course_id)
     rule = rule_factory(event_configuration=event_configuration, filters=filters, action={mock_event_name: 3})
 
-    filtered_rules = RulesFilter(event).filter_rules([rule])
+    filtered_rules = RulesFilterService(event).filter_rules([rule])
 
     assert bool(filtered_rules) == expected_valid
 
@@ -159,6 +159,6 @@ def test_one_rule_based_on_action_criteria(
     event = event_factory(configuration=event_configuration)
     rule = rule_factory(filters={}, action=action, event_configuration=event_configuration)
 
-    filtered_rules = RulesFilter(event).filter_rules([rule])
+    filtered_rules = RulesFilterService(event).filter_rules([rule])
 
     assert bool(filtered_rules) == expected_valid

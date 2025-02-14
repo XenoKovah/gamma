@@ -12,7 +12,7 @@ from .constants import DATETIME_FORMAT
 logger = logging.getLogger('rules.filters')
 
 
-class RulesFilter:
+class RulesFilterService:
     """
     A class to filter rules based on whether they meet the event's filter requirements.
     """

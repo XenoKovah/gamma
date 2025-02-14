@@ -69,8 +69,8 @@ const en = {
     defaultMessage: 'Badge description',
     description: 'The label for the badge description in the modal.',
   },
-  'modules.badges.modal.badge.active.text': {
-    id: 'modules.badges.modal.badge.active.text',
+  'modules.badges.modal.badge.is-active.text': {
+    id: 'modules.badges.modal.badge.is-active.text',
     defaultMessage: 'Active',
     description: 'The text displayed for the active badge status.',
   },

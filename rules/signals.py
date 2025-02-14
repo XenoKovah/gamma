@@ -6,7 +6,7 @@ from events.models import Event
 from core.utils import get_gamification_backends
 from users.models import GammaUser
 
-from .filters import RulesFilter
+from .services import RulesFilterService
 from .models import Rule
 
 
@@ -32,7 +32,7 @@ def process_event_creation(sender, instance, created, **kwargs):
         rule_achievements__status=AchievementRule.Statuses.COMPLETED
     ).prefetch_related('rule_achievements')
 
-    rule_filter = RulesFilter(event)
+    rule_filter = RulesFilterService(event)
     affected_rules = rule_filter.filter_rules(affected_rules_by_event)
 
     for rule in affected_rules:

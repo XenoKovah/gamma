@@ -12,6 +12,6 @@ def mock_gamification_backends(mocker):
 
 @pytest.fixture
 def mock_rules_filter(mocker):
-    mock_filter = mocker.patch('rules.signals.RulesFilter')
+    mock_filter = mocker.patch('rules.signals.RulesFilterService')
     mock_instance = mock_filter.return_value
     yield mock_instance

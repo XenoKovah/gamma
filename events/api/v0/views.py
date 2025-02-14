@@ -1,17 +1,19 @@
-from rest_framework import status
+from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from core.authentication import KeySecretAuthentication
 from core.utils import AppClientUtils
 
-from events.api.v0.serializers import EventSerializer
+from events.models import EventConfiguration
+
+from .serializers import AvailableActionsSerializer, EventSerializer
 
 
 class EventsAPIView(APIView, AppClientUtils):
     """
     API endpoint to handle event creation.
-    
+
     Body params:
         - event_type (string): The type of incoming event. Must exists as valid event type.
         - username (string): The unique identifier of the user associated with the event.
@@ -22,7 +24,7 @@ class EventsAPIView(APIView, AppClientUtils):
         - event (dict): Detailed event data for course.
         - context (dict): Metadata about the event request.
         - full_event (dict): Detailed event data including session, IP address, user agent.
-    
+
     Example Response:
         {
             "uid": "ea78013dc424f12c796570640bd431d25d1007eq",
@@ -57,3 +59,13 @@ class EventsAPIView(APIView, AppClientUtils):
         serializer.save()
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class AvailableActionsAPIView(generics.ListAPIView):
+    """
+    API endpoint to show all configured event types.
+    """
+
+    model = EventConfiguration
+    serializer_class = AvailableActionsSerializer
+    queryset = EventConfiguration.objects.all()

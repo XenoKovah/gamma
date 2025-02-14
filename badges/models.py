@@ -4,13 +4,13 @@ from django.utils.text import slugify
 
 class Badge(models.Model):
     """
-
+    Reward given to users for achieving specific conditions defined by rules.
     """
 
     title = models.CharField(max_length=255, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
-    image = models.ImageField(upload_to='uploads/')
-    active = models.BooleanField(default=True)
+    image = models.ImageField(upload_to='uploads/badges/')
+    is_active = models.BooleanField(default=True)
 
     slug = models.SlugField(max_length=255, null=True, blank=True)
     rules = models.ManyToManyField('rules.Rule')

@@ -48,6 +48,13 @@ def app_client(rand_str):
 
 
 @pytest.fixture
+def client():
+    client = APIClient()
+    client.credentials(HTTP_CONTENT_TYPE='application/json')
+    return client
+
+
+@pytest.fixture
 def auth_client(app_client):
     client = APIClient()
     client.credentials(
