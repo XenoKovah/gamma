@@ -1,36 +1,28 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
+from rest_framework import viewsets
+from rest_framework.permissions import IsAdminUser
 
-from avatar.api.v0.serializers import AvatarColorSerializer, AvatarItemSerializer
+from avatar.api.v0.serializers import AvatarSetSerializer, AvatarSerializer
 from avatar.models import (
-    AvatarBase,
-    AvatarColor,
-    AvatarItem,
+    Avatar,
     AvatarSet,
-    AvatarSetItem,
-    SkinType,
     UserAvatarConfig,
 )
 
 
-class AvatarItemsAPIView(APIView):
+class AvatarSetViewSet(viewsets.ModelViewSet):
     """
-    Temporary API endpoint to get avatar items.
+    View set provides CRUD operations for managing Avatar Set.
     """
 
-    def get(self, request, *args, **kwargs):
-        colors = AvatarColor.objects.all()
-        glasses = AvatarItem.objects.filter(skin_type__name='glasses')
-        headdress = AvatarItem.objects.filter(skin_type__name='headdress')
-        outerwear = AvatarItem.objects.filter(skin_type__name='outerwear')
-        emotion = AvatarItem.objects.filter(skin_type__name='emotion')
+    queryset = AvatarSet.objects.all()
+    serializer_class = AvatarSetSerializer
 
-        data = {
-            'colors': AvatarColorSerializer(colors, many=True).data,
-            'glasses': AvatarItemSerializer(glasses, many=True).data,
-            'headdress': AvatarItemSerializer(headdress, many=True).data,
-            'outerwear': AvatarItemSerializer(outerwear, many=True).data,
-            'emotion': AvatarItemSerializer(emotion, many=True).data,
-        }
-
-        return Response(data)
+    def get_permissions(self):
+        """
+        Check user permission.
+        """
+        if self.action in ('create', 'update', 'partial_update', 'destroy'):
+            permission_classes = [IsAdminUser]
+        else:
+            permission_classes = []
+        return [permission() for permission in permission_classes]

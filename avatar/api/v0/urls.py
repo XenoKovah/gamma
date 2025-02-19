@@ -1,8 +1,12 @@
-from django.urls import path
+from django.urls import include, path
+from rest_framework.routers import DefaultRouter
 
-from avatar.api.v0.views import AvatarItemsAPIView
+from avatar.api.v0.views import AvatarSetViewSet
 
+
+router = DefaultRouter()
+router.register('', AvatarSetViewSet)
 
 urlpatterns = [
-    path('v0/get_avatar_items/', AvatarItemsAPIView.as_view(), name='get_avatar_items'),
+    path('avatar_set/', include(router.urls)),
 ]

@@ -11,3 +11,4 @@ pylint==2.6.0
 diff-cover==2.4.1
 factory_boy==3.3.1
 pytest-factoryboy==2.7.0
+drf-extra-fields==3.7.0
