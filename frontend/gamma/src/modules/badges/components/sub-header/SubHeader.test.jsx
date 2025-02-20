@@ -33,7 +33,7 @@ describe('SubHeader', () => {
 
   it('renders heading, "Add badge" button, and total badges count (default 0)', () => {
     const { getByRole, getByText } = renderSubHeader({
-      isError: false, badgesCount: 0, openBadgeModalDialog: jest.fn(),
+      isError: false, badgesCount: 0, openManageEntityModal: jest.fn(),
     });
 
     expect(getByRole('heading', { level: 1 }))
@@ -47,7 +47,7 @@ describe('SubHeader', () => {
 
   it('renders correct badge count when badgesCount is greater than zero', () => {
     const { getByText } = renderSubHeader({
-      isError: false, badgesCount: 5, openBadgeModalDialog: jest.fn(),
+      isError: false, badgesCount: 5, openManageEntityModal: jest.fn(),
     });
 
     expect(getByText(
@@ -57,7 +57,7 @@ describe('SubHeader', () => {
 
   it('renders correct badge count when badgesCount is a large number', () => {
     const { getByText } = renderSubHeader({
-      isError: false, badgesCount: 999, openBadgeModalDialog: jest.fn(),
+      isError: false, badgesCount: 999, openManageEntityModal: jest.fn(),
     });
 
     expect(getByText(
@@ -68,7 +68,7 @@ describe('SubHeader', () => {
   it('does not render "Add badge" button and total badges count when isError is true', () => {
     const {
       queryByText, queryByRole, getByRole,
-    } = renderSubHeader({ isError: true, badgesCount: 10, openBadgeModalDialog: jest.fn() });
+    } = renderSubHeader({ isError: true, badgesCount: 10, openManageEntityModal: jest.fn() });
 
     expect(getByRole('heading', { level: 1 }))
       .toHaveTextContent(translations['modules.badges.heading.text']);
@@ -79,21 +79,21 @@ describe('SubHeader', () => {
       .not.toBeInTheDocument();
   });
 
-  it('calls openBadgeModalDialog when "Add badge" button is clicked', () => {
-    const mockOpenBadgeModalDialog = jest.fn();
+  it('calls openManageEntityModalDialog when "Add badge" button is clicked', () => {
+    const mockOpenManageEntityModal = jest.fn();
     const { getByRole } = renderSubHeader({
       isError: false,
       badgesCount: 5,
-      openBadgeModalDialog: mockOpenBadgeModalDialog,
+      openManageEntityModal: mockOpenManageEntityModal,
     });
 
     const addButton = getByRole('button', { name: translations['modules.badges.button.add-badge'] });
     userEvent.click(addButton);
 
-    expect(mockOpenBadgeModalDialog).toHaveBeenCalledTimes(1);
+    expect(mockOpenManageEntityModal).toHaveBeenCalledTimes(1);
     waitFor(() => {
-      const badgeModal = getByRole('dialog');
-      expect(within(badgeModal).getByText(translations['modules.badges.modal.add-badge.title'])).toBeInTheDocument();
+      const ManageEntityModal = getByRole('dialog');
+      expect(within(ManageEntityModal).getByText(translations['modules.badges.modal.add-badge.title'])).toBeInTheDocument();
     });
   });
 });

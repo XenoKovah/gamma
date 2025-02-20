@@ -1,3 +1,14 @@
-export { fetchBadgesData } from './api';
-export { useBadgesData } from './hooks';
+export {
+  fetchBadgesData,
+  fetchCoursesData,
+  fetchOrganizationsData,
+  createBadge,
+  deleteBadge,
+} from './api';
+export {
+  useBadgesData,
+  useCoursesData,
+  useOrganizationsData,
+  useActionsData,
+} from './hooks';
 export { API_ROUTES } from './constants';

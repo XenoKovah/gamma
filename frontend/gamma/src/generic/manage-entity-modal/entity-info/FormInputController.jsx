@@ -6,7 +6,7 @@ import {
 } from '@openedx/paragon';
 
 const FormInputController = ({
-  label, name, type, as, hasCol,
+  label, name, type, as, hasCol, autoResize,
 }) => {
   const {
     values, errors, touched, handleChange, handleBlur,
@@ -24,9 +24,10 @@ const FormInputController = ({
         onChange={handleChange}
         onBlur={handleBlur}
         isInvalid={touched[name] && !!errors[name]}
+        autoResize={autoResize}
       />
       {touched[name] && errors[name] && (
-        <Form.Control.Feedback className="badge-modal-feedback" type="invalid">
+        <Form.Control.Feedback className="manage-entity-modal-feedback" type="invalid">
           {errors[name]}
         </Form.Control.Feedback>
       )}
@@ -34,11 +35,11 @@ const FormInputController = ({
   );
 
   return hasCol ? (
-    <Form.Group as={Col} controlId={`formBadge${name}`} size={isExtraSmall ? null : 'sm'}>
+    <Form.Group as={Col} controlId={`formEntity${name}`} size={isExtraSmall ? null : 'sm'}>
       {InputComponent}
     </Form.Group>
   ) : (
-    <Form.Group controlId={`formBadge${name}`} size={isExtraSmall ? null : 'sm'}>
+    <Form.Group controlId={`formEntity${name}`} size={isExtraSmall ? null : 'sm'}>
       {InputComponent}
     </Form.Group>
   );
@@ -50,12 +51,14 @@ FormInputController.propTypes = {
   type: PropTypes.string,
   as: PropTypes.string,
   hasCol: PropTypes.bool,
+  autoResize: PropTypes.bool,
 };
 
 FormInputController.defaultProps = {
   type: 'text',
   as: 'input',
   hasCol: true,
+  autoResize: false,
 };
 
 export default FormInputController;

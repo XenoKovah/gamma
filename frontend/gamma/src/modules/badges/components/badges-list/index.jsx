@@ -5,7 +5,7 @@ import { useTranslate } from '../../../../i18n/utils';
 import { AlertComponent } from '../../../../generic';
 import BadgeItem from './badge-item';
 
-const BadgesList = ({ badgesData, openConfirmDeletionAlert }) => {
+const BadgesList = ({ badgesData, openConfirmDeletionAlert, firstBadgeRef }) => {
   const messages = {
     alertEmptyBadgesList: {
       title: useTranslate('modules.badges.alert.empty-badges-list.title'),
@@ -16,14 +16,14 @@ const BadgesList = ({ badgesData, openConfirmDeletionAlert }) => {
   return (
     <ul className="list-unstyled p-0">
       {badgesData.length ? (
-        badgesData.map((badge) => (
-          <li key={badge.id}>
+        badgesData.map((badge, index) => (
+          <li key={badge.id} ref={index === 0 ? firstBadgeRef : null}>
             <BadgeItem
               title={badge.title}
               description={badge.description}
               image={badge.image}
               slug={badge.slug}
-              openConfirmDeletionAlert={openConfirmDeletionAlert}
+              openConfirmDeletionAlert={() => openConfirmDeletionAlert(badge.id)}
             />
           </li>
         ))
@@ -51,6 +51,7 @@ BadgesList.propTypes = {
     }),
   ).isRequired,
   openConfirmDeletionAlert: PropTypes.func.isRequired,
+  firstBadgeRef: PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
 };
 
 export default BadgesList;

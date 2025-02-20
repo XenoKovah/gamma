@@ -1,11 +1,12 @@
 import React from 'react';
-import { cleanup } from '@testing-library/react';
+import { cleanup, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
 
 import { renderWithProviders } from '../../setupTests';
 import { useTranslate } from '../../i18n/utils';
 import messages from '../../i18n/en';
+import { submitBtnStatuses } from '../status-button';
 import Modal from '.';
 
 jest.mock('../../i18n/utils', () => ({
@@ -30,6 +31,8 @@ describe('Modal and ModalFooter Components', () => {
 
   const translations = {
     'generic.modal.dialog.button.cancel.text': messages['generic.modal.dialog.button.cancel.text'].defaultMessage,
+    'generic.modal.dialog.button.submit.text': messages['generic.modal.dialog.button.submit.text'].defaultMessage,
+    'generic.modal.dialog.button.stateful.error.text': messages['generic.modal.dialog.button.stateful.error.text'].defaultMessage,
   };
 
   beforeEach(() => {
@@ -81,5 +84,49 @@ describe('Modal and ModalFooter Components', () => {
     const { queryByText } = renderComponent({ isOpen: false });
 
     expect(queryByText(defaultProps.title)).not.toBeInTheDocument();
+  });
+
+  it('renders StatusButton when isStatefulButton is true', () => {
+    const { getByTestId } = renderComponent({
+      submitBtnOptions: {
+        title: translations['generic.modal.dialog.button.submit.text'],
+        submitFn: mockSubmitFn,
+        disabled: false,
+        isStatefulButton: true,
+        submitStatus: submitBtnStatuses.PENDING,
+      },
+    });
+
+    expect(getByTestId('status-button')).toBeInTheDocument();
+  });
+
+  it('passes correct props to StatusButton', () => {
+    const { getByTestId } = renderComponent({
+      submitBtnOptions: {
+        submitFn: mockSubmitFn,
+        disabled: false,
+        isStatefulButton: true,
+        submitStatus: submitBtnStatuses.ERROR,
+      },
+    });
+
+    const statusButton = getByTestId('status-button');
+    expect(statusButton).toHaveClass('btn-danger');
+    expect(statusButton).toHaveTextContent(translations['generic.modal.dialog.button.stateful.error.text']);
+  });
+
+  it('StatusButton is disabled when submitBtnOptions.disabled is true', () => {
+    const { getByTestId } = renderComponent({
+      submitBtnOptions: {
+        submitFn: mockSubmitFn,
+        disabled: true,
+        isStatefulButton: true,
+        submitStatus: submitBtnStatuses.DEFAULT,
+      },
+    });
+
+    waitFor(() => {
+      expect(getByTestId('status-button')).toBeDisabled();
+    });
   });
 });

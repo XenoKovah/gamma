@@ -2,6 +2,7 @@ import React from 'react';
 import { IntlProvider } from 'react-intl';
 import { render } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import { BrowserRouter } from 'react-router-dom';
 
 import { getMessages } from './i18n/utils';
 
@@ -17,9 +18,11 @@ export const renderWithProviders = (children) => {
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <IntlProvider locale="en" messages={messages}>
-        {children}
-      </IntlProvider>
+      <BrowserRouter>
+        <IntlProvider locale="en" messages={messages}>
+          {children}
+        </IntlProvider>
+      </BrowserRouter>
     </QueryClientProvider>,
   );
 };

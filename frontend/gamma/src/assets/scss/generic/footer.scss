@@ -1,0 +1,14 @@
+.page-footer {
+  @include pgn-box-shadow(1, "up");
+
+  border-top: 1px solid $light-400;
+  margin-top: auto;
+
+  .page-footer-logo {
+    max-height: 2.813rem;
+  }
+
+  .page-footer-copy {
+    font-size: 0.875rem;
+  }
+}

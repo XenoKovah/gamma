@@ -1,0 +1,170 @@
+import * as yup from 'yup';
+
+import { capitalizeFirstLetter } from '../../utils';
+
+/**
+ * Returns a Yup validation schema for entity creation.
+ *
+ * @param {Object} messages - The validation messages for localization.
+ * @param {Object} messages.title - Title validation messages.
+ * @param {string} messages.title.required - Error message when the title is missing.
+ * @param {string} messages.title.maxLength - Error message when the title exceeds the character limit.
+ * @param {Object} messages.slug - Slug validation messages.
+ * @param {string} messages.slug.required - Error message when the slug is missing.
+ * @param {string} messages.slug.invalid - Error message when the slug format is incorrect.
+ * @param {string} messages.slug.maxLength - Error message when the slug exceeds the character limit.
+ * @param {Object} messages.description - Description validation messages.
+ * @param {string} messages.description.required - Error message when the description is missing.
+ * @param {string} messages.description.maxLength - Error message when the description exceeds the character limit.
+ * @param {Object} messages.image - Image validation messages.
+ * @param {string} messages.image.required - Error message when an image is not uploaded.
+ * @param {string} messages.image.size - Error message when an uploaded image exceeds the file size limit.
+ * @param {Object} messages.rules - Rules validation messages.
+ * @param {Object} messages.rules.action - Action validation messages.
+ * @param {Object} messages.rules.action.eventType - Event type validation messages.
+ * @param {string} messages.rules.action.eventType.required - Error message when the event type is missing.
+ * @param {Object} messages.rules.action.count - Count validation messages.
+ * @param {string} messages.rules.action.count.required - Error message when the count is missing.
+ * @param {string} messages.rules.action.count.positive - Error message when the count is not positive.
+ * @param {string} messages.rules.action.count.integer - Error message when the count is not an integer.
+ * @returns {yup.ObjectSchema} The Yup validation schema for the form.
+ */
+export const getValidationSchema = (messages) => yup.object().shape({
+  title: yup
+    .string()
+    .required(messages.titleRequired)
+    .max(100, messages.titleMaxLength),
+  slug: yup
+    .string()
+    .matches(/^[a-zA-Z0-9_-]+$/, messages.slug.slugInvalid)
+    .required(messages.slug.slugRequired)
+    .max(30, messages.slug.slugMaxLength),
+  description: yup
+    .string()
+    .required(messages.descriptionRequired)
+    .max(300, messages.descriptionMaxLength),
+  image: yup
+    .mixed()
+    .required(messages.image.imageRequired)
+    .test('fileSize', messages.image.imageSize, (value) => value && value.size <= 2 * 1024 * 1024),
+  rules: yup
+    .array()
+    .of(
+      yup.object().shape({
+        action: yup.object().shape({
+          eventType: yup.string().required(messages.eventTypeRequired),
+          count: yup
+            .number()
+            .required(messages.count.countRequired)
+            .positive(messages.count.countPositive)
+            .integer(messages.count.countInt),
+        }),
+      }),
+    )
+    .min(1),
+});
+
+/**
+ * Validates filter rules and returns an object with errors.
+ *
+ * @param {Object} values - The object containing form values.
+ * @param {Array} values.rules - An array of rule objects.
+ * @param {Object} messages - An object containing validation messages.
+ * @param {Object} messages.interval - Messages for interval validation.
+ * @param {string} messages.interval.startDateRequired - Error message when the start date is missing.
+ * @param {string} messages.interval.endDateRequired - Error message when the end date is missing.
+ * @param {Object} messages.frequency - Messages for frequency validation.
+ * @param {string} messages.frequency.frequencyInt - Error message when the frequency is not an integer.
+ * @param {string} messages.frequency.frequencyPositiveInt - Error message when the frequency is not a positive integer.
+ * @param {string} messages.filterKeyRequired - Error message when a required filter key is missing.
+ * @returns {Object} An object containing validation errors,
+ * structured as `{ rules: [...] }`, or an empty object if no errors.
+ */
+export const validateFilters = (values, messages) => {
+  const errors = {};
+
+  if (Array.isArray(values.rules)) {
+    values.rules.forEach((rule, index) => {
+      if (rule.filters && typeof rule.filters === 'object') {
+        Object.entries(rule.filters).forEach(([filterKey, filterValue]) => {
+          if (filterKey === 'interval' && typeof filterValue === 'object') {
+            if (!filterValue.start) {
+              if (!errors.rules) {
+                errors.rules = [];
+              }
+              if (!errors.rules[index]) {
+                errors.rules[index] = {
+                  filters: {},
+                };
+              }
+              if (!errors.rules[index].filters.interval) {
+                errors.rules[index].filters.interval = {};
+              }
+              errors.rules[index].filters.interval.start = messages.interval.startDateRequired;
+            }
+
+            if (!filterValue.end) {
+              if (!errors.rules) {
+                errors.rules = [];
+              }
+              if (!errors.rules[index]) {
+                errors.rules[index] = {
+                  filters: {},
+                };
+              }
+              if (!errors.rules[index].filters.interval) {
+                errors.rules[index].filters.interval = {};
+              }
+              errors.rules[index].filters.interval.end = messages.interval.endDateRequired;
+            }
+          } else if (filterKey === 'frequency') {
+            const parsedValue = Number(filterValue);
+            if (Number.isNaN(parsedValue)) {
+              if (!errors.rules) {
+                errors.rules = [];
+              }
+              if (!errors.rules[index]) {
+                errors.rules[index] = {
+                  filters: {},
+                };
+              }
+              errors.rules[index].filters.frequency = messages.frequency.frequencyInt;
+            } else if (parsedValue <= 0) {
+              if (!errors.rules) {
+                errors.rules = [];
+              }
+              if (!errors.rules[index]) {
+                errors.rules[index] = {
+                  filters: {},
+                };
+              }
+              errors.rules[index].filters.frequency = messages.frequency.frequencyPositiveInt;
+            } else if (!Number.isInteger(parsedValue)) {
+              if (!errors.rules) {
+                errors.rules = [];
+              }
+              if (!errors.rules[index]) {
+                errors.rules[index] = {
+                  filters: {},
+                };
+              }
+              errors.rules[index].filters.frequency = messages.frequency.frequencyInt;
+            }
+          } else if (filterValue === undefined || filterValue === '') {
+            if (!errors.rules) {
+              errors.rules = [];
+            }
+            if (!errors.rules[index]) {
+              errors.rules[index] = {
+                filters: {},
+              };
+            }
+            errors.rules[index].filters[filterKey] = `${capitalizeFirstLetter(filterKey)} ${messages.filterKeyRequired}`;
+          }
+        });
+      }
+    });
+  }
+
+  return errors;
+};

@@ -1,6 +1,4 @@
 .badge-item {
-  max-height: $badge-item-dimension;
-
   @media (max-width: map-get($grid-breakpoints, "sm")) {
     max-height: max-content;
   }

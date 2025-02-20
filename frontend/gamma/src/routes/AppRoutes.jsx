@@ -5,12 +5,13 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 
 import { getMessages } from '../i18n/utils';
 import NotFound from '../modules/not-found';
+import { getCookieByName } from '../utils';
 import { allRoutes, allProviders } from './utils';
 
 const queryClient = new QueryClient();
 
 const AppRoutes = () => {
-  const locale = 'en';
+  const locale = getCookieByName('openedx-language-preference') || 'en';
   const messages = getMessages(locale);
 
   // Wraps the application routes with all dynamically imported context providers.

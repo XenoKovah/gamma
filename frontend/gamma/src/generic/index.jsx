@@ -4,3 +4,8 @@ export { default as ToastComponent } from './toast';
 export { default as SEOHelmet } from './seo-helmet';
 export { default as Modal } from './modal';
 export { default as AlertModal } from './alert-modal';
+export { default as Header } from './header';
+export { default as Footer } from './footer';
+export { default as ManageEntityModal } from './manage-entity-modal';
+export { default as StatusButton } from './status-button/StatusButton';
+export { submitBtnStatuses } from './status-button';

@@ -1,23 +1,47 @@
-import React, { useState } from 'react';
-import { Container, Button, useToggle } from '@openedx/paragon';
+import React from 'react';
+import { Container, Button } from '@openedx/paragon';
 
 import {
-  AlertComponent, Loader, SEOHelmet, AlertModal,
+  AlertComponent, Loader, SEOHelmet, ManageEntityModal,
+  AlertModal, Header, Footer, ToastComponent,
 } from '../../generic';
 import { useTranslate } from '../../i18n/utils';
-import { useBadgesData } from './data';
-import { BadgesList, BadgeModal, SubHeader } from './components';
+import { useCoursesData, useOrganizationsData } from './data';
+import { BadgesList, SubHeader } from './components';
+import { useBadges } from './hooks/useBadges';
 
 import './assets/scss/index.scss';
 
 export const Badges = () => {
-  const { data: badgesData, isLoading, isError } = useBadgesData();
-  const [showErrorAlert, setShowErrorAlert] = useState(false);
-  const [isOpenModalDialog, openModalDialog, closeModalDialog] = useToggle(false);
-  const [isOpen, open, close] = useToggle(false);
+  const {
+    isError,
+    isLoading,
+    badgesData,
+    actionsData,
+    coursesData,
+    firstBadgeRef,
+    submitStatus,
+    showErrorAlert,
+    showErrorToast,
+    deletionStatus,
+    setSubmitStatus,
+    setShowErrorToast,
+    setShowErrorAlert,
+    organizationsData,
+    handleCreateNewBadge,
+    openManageEntityModal,
+    showBadgeCreatedAlert,
+    handleDeleteBadgeById,
+    closeManageEntityModal,
+    isManageEntityModalOpen,
+    openConfirmDeletionAlert,
+    closeDeletionManageEntityModal,
+    isDeletionManageEntityModalOpen,
+  } = useBadges();
 
   const messages = {
     pageTitle: useTranslate('modules.badges.heading.text'),
+    addManageEntityModalTitle: useTranslate('modules.badges.modal.add-badge.title'),
     pageDescription: useTranslate('modules.badges.page.description'),
     addBadgeBtnText: useTranslate('modules.badges.button.add-badge'),
     alert: {
@@ -29,6 +53,13 @@ export const Badges = () => {
         title: useTranslate('modules.badges.alert.modal.confirm.deletion.title'),
         description: useTranslate('modules.badges.alert.modal.confirm.deletion.description'),
       },
+      badgeCreated: {
+        title: useTranslate('modules.badges.alert.badge-created.title'),
+        description: useTranslate('modules.badges.alert.badge-created.description'),
+      },
+    },
+    toast: {
+      error: useTranslate('modules.badges.toast.error.text'),
     },
   };
 
@@ -36,47 +67,86 @@ export const Badges = () => {
     return <Loader />;
   }
 
+  const successAlert = showBadgeCreatedAlert && {
+    title: messages.alert.badgeCreated.title,
+    description: messages.alert.badgeCreated.description,
+    variant: 'success',
+  };
+
+  const errorAlert = (isError || showErrorAlert) && {
+    title: messages.alert.error.title,
+    description: messages.alert.error.description,
+    variant: 'danger',
+    onClose: () => setShowErrorAlert(!showErrorAlert),
+    isDismissible: true,
+  };
+
+  const alertProps = successAlert || errorAlert || null;
+
   return (
-    <main className="mt-4 mb-4">
-      <AlertModal
-        title={messages.alert.confirmDeletionModal.title}
-        isOpen={isOpen}
-        onClose={close}
-        onDelete={() => {}}
-        description={messages.alert.confirmDeletionModal.description}
-      />
-      <BadgeModal
-        isOpenModalDialog={isOpenModalDialog}
-        closeModalDialog={closeModalDialog}
-      />
-      <SEOHelmet
-        title={messages.pageTitle}
-        description={messages.pageDescription}
-      />
-      <Container size="lg">
-        <SubHeader
-          isError={isError}
-          badgesCount={badgesData?.length}
-          openBadgeModalDialog={openModalDialog}
+    <>
+      <Header />
+      <main className="my-4 flex-grow-1">
+        <AlertModal
+          title={messages.alert.confirmDeletionModal.title}
+          isOpen={isDeletionManageEntityModalOpen}
+          onClose={closeDeletionManageEntityModal}
+          onDelete={handleDeleteBadgeById}
+          description={messages.alert.confirmDeletionModal.description}
+          isStatefulButton
+          submitStatus={deletionStatus}
         />
-        {isError && !showErrorAlert && (
-          <AlertComponent
-            title={messages.alert.error.title}
-            description={messages.alert.error.description}
-            variant="danger"
-            onClose={() => setShowErrorAlert(!showErrorAlert)}
-            isDismissible
+        <ManageEntityModal
+          isManageEntityModalOpen={isManageEntityModalOpen}
+          useCoursesData={useCoursesData}
+          title={messages.addManageEntityModalTitle}
+          useOrganizationsData={useOrganizationsData}
+          data={{
+            courses: coursesData?.courses || [],
+            organizations: organizationsData?.organisations || [],
+            actions: actionsData || [],
+          }}
+          submitForm={handleCreateNewBadge}
+          submitStatus={submitStatus}
+          setSubmitStatus={setSubmitStatus}
+          onReset={closeManageEntityModal}
+        />
+        <SEOHelmet
+          title={messages.pageTitle}
+          description={messages.pageDescription}
+        />
+        <Container size="lg">
+          <SubHeader
+            isError={isError}
+            badgesCount={badgesData?.length}
+            openManageEntityModal={openManageEntityModal}
           />
-        )}
-        {!isError && (
-          <>
-            <BadgesList badgesData={badgesData} openConfirmDeletionAlert={open} />
-            <Button block data-testid="add-badge-button" onClick={openModalDialog}>
-              {messages.addBadgeBtnText}
-            </Button>
-          </>
-        )}
-      </Container>
-    </main>
+          {alertProps && <AlertComponent {...alertProps} />}
+          {showErrorToast && (
+            <ToastComponent
+              text={messages.toast.error}
+              onClose={() => setShowErrorToast(!showErrorToast)}
+            />
+          )}
+          {!isError && (
+            <>
+              <BadgesList
+                badgesData={badgesData}
+                openConfirmDeletionAlert={openConfirmDeletionAlert}
+                firstBadgeRef={firstBadgeRef}
+              />
+              <Button
+                block
+                data-testid="add-badge-button"
+                onClick={openManageEntityModal}
+              >
+                {messages.addBadgeBtnText}
+              </Button>
+            </>
+          )}
+        </Container>
+      </main>
+      <Footer />
+    </>
   );
 };

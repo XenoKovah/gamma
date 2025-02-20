@@ -6,7 +6,7 @@ import {
 
 import { useTranslate } from '../../../../i18n/utils';
 
-const SubHeader = ({ isError, badgesCount, openBadgeModalDialog }) => {
+const SubHeader = ({ isError, badgesCount, openManageEntityModal }) => {
   const isExtraSmall = useMediaQuery({ maxWidth: breakpoints.extraSmall.maxWidth });
 
   const messages = {
@@ -26,7 +26,7 @@ const SubHeader = ({ isError, badgesCount, openBadgeModalDialog }) => {
             <p className="m-0">
               {messages.totalBadges.counterText}
             </p>
-            <Button onClick={openBadgeModalDialog}>
+            <Button onClick={openManageEntityModal}>
               {messages.addBadgeBtnTitle}
             </Button>
           </Stack>
@@ -39,7 +39,7 @@ const SubHeader = ({ isError, badgesCount, openBadgeModalDialog }) => {
 SubHeader.propTypes = {
   isError: PropTypes.bool.isRequired,
   badgesCount: PropTypes.number.isRequired,
-  openBadgeModalDialog: PropTypes.func.isRequired,
+  openManageEntityModal: PropTypes.func.isRequired,
 };
 
 export default SubHeader;

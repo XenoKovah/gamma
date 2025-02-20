@@ -1,0 +1,24 @@
+.page-header {
+  @include pgn-box-shadow(1, "down");
+
+  border-bottom: 1px solid $light-400;
+
+  .page-header-logo {
+    max-height: 2.813rem;
+  }
+
+  .navbar-light .navbar-nav .page-header-nav-link.nav-link,
+  .page-header-nav-logout-link {
+    color: $gray-700;
+
+    &:hover {
+      color: $gray-900;
+    }
+  }
+
+  .page-header-nav-link {
+    font-size: $font-size-sm;
+    line-height: 1.4286;
+    font-weight: $font-weight-normal;
+  }
+}
