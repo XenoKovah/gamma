@@ -1,4 +1,5 @@
 import React from 'react';
+import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import {
   AlertModal as ParagonAlertModal,
@@ -6,29 +7,20 @@ import {
   Button,
 } from '@openedx/paragon';
 
-import { useTranslate } from '../../i18n/utils';
+import messages from '../../i18n';
 import { StatusButton, submitBtnStatuses } from '../status-button';
 
 const AlertModal = ({
   title, isOpen, onClose, onDelete,
   description, isStatefulButton, submitStatus,
 }) => {
-  const messages = {
-    cancelButtonText: useTranslate('generic.modal.alert.button.cancel.text'),
-    deleteButtonText: useTranslate('generic.modal.alert.button.delete.text'),
-    statefulButtonLabels: {
-      default: useTranslate('generic.modal.alert.button.stateful.default.text'),
-      pending: useTranslate('generic.modal.alert.button.stateful.pending.text'),
-      complete: useTranslate('generic.modal.alert.button.stateful.complete.text'),
-      error: useTranslate('generic.modal.alert.button.stateful.error.text'),
-    },
-  };
+  const intl = useIntl();
 
   const statefulButtonLabels = {
-    default: messages.statefulButtonLabels.default,
-    pending: messages.statefulButtonLabels.pending,
-    complete: messages.statefulButtonLabels.complete,
-    error: messages.statefulButtonLabels.error,
+    default: intl.formatMessage(messages.btnStatefulDefaultText),
+    pending: intl.formatMessage(messages.btnStatefulPendingText),
+    complete: intl.formatMessage(messages.btnStatefulCompleteText),
+    error: intl.formatMessage(messages.btnStatefulErrorText),
   };
 
   return (
@@ -39,7 +31,7 @@ const AlertModal = ({
       footerNode={(
         <ActionRow>
           <Button className="mx-2" variant="tertiary" onClick={onClose}>
-            {messages.cancelButtonText}
+            {intl.formatMessage(messages.alertBtnCancelText)}
           </Button>
           {isStatefulButton ? (
             <StatusButton
@@ -52,7 +44,7 @@ const AlertModal = ({
             />
           ) : (
             <Button variant="danger" onClick={onDelete}>
-              {messages.deleteButtonText}
+              {intl.formatMessage(messages.alertBtnDeleteText)}
             </Button>
           )}
         </ActionRow>

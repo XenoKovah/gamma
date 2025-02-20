@@ -1,25 +1,30 @@
 import React from 'react';
+import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { Alert } from '@openedx/paragon';
 import { Info as InfoIcon } from '@openedx/paragon/icons';
 
-import { useTranslate } from '../../i18n/utils';
+import messages from '../../i18n';
 
 const AlertComponent = ({
   variant, title, description, onClose, isDismissible,
-}) => (
-  <Alert
-    className="mb-4"
-    variant={variant}
-    icon={InfoIcon}
-    dismissible={isDismissible}
-    closeLabel={useTranslate('generic.alert.button.close.title')}
-    onClose={onClose}
-  >
-    <Alert.Heading>{title}</Alert.Heading>
-    <p>{description}</p>
-  </Alert>
-);
+}) => {
+  const intl = useIntl();
+
+  return (
+    <Alert
+      className="mb-4"
+      variant={variant}
+      icon={InfoIcon}
+      dismissible={isDismissible}
+      closeLabel={intl.formatMessage(messages.alertBtnCloseTitle)}
+      onClose={onClose}
+    >
+      <Alert.Heading>{title}</Alert.Heading>
+      <p>{description}</p>
+    </Alert>
+  );
+};
 
 AlertComponent.propTypes = {
   variant: PropTypes.string.isRequired,

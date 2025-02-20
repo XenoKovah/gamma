@@ -4,12 +4,8 @@ import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event';
 
 import { renderWithProviders } from '../../../../../setupTests';
-import { useTranslate } from '../../../../../i18n/utils';
+import messages from '../../../../../i18n';
 import ActionField from '../ActionField';
-
-jest.mock('../../../../../i18n/utils', () => ({
-  useTranslate: jest.fn(),
-}));
 
 describe('ActionField Component', () => {
   const mockSetFieldValue = jest.fn();
@@ -30,7 +26,6 @@ describe('ActionField Component', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    useTranslate.mockImplementation((key, { eventType }) => `${key} - ${eventType}`);
   });
 
   afterEach(cleanup);
@@ -59,7 +54,10 @@ describe('ActionField Component', () => {
     const select = getByRole('combobox');
     expect(select).toBeInTheDocument();
 
-    expect(getByText('generic.modal.entity.action.event.name.label - action name')).toBeInTheDocument();
+    expect(getByText(
+      messages.modalEntityActionEventNameLabelText.defaultMessage
+        .replace('{eventType}', defaultProps.label.toLowerCase()),
+    )).toBeInTheDocument();
     defaultProps.options.forEach((option) => expect(getByText(option)).toBeInTheDocument());
   });
 

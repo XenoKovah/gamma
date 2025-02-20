@@ -4,42 +4,33 @@ import { act, cleanup, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Formik } from 'formik';
 
-import { useTranslate } from '../../../i18n/utils';
 import { getValidationSchema } from '../validation';
 import { renderWithProviders } from '../../../setupTests';
-import messages from '../../../i18n/en';
+import messages from '../../../i18n';
 import EntityInfo from '.';
-
-jest.mock('../../../i18n/utils', () => ({
-  useTranslate: jest.fn(),
-}));
 
 describe('EntityInfo', () => {
   const translations = {
-    titleRequired: messages['generic.modal.entity.validation.title.required'].defaultMessage,
-    descriptionRequired: messages['generic.modal.entity.validation.description.required'].defaultMessage,
-    'generic.modal.entity.information.heading': messages['generic.modal.entity.information.heading'].defaultMessage,
-    'generic.modal.entity.information.label.entity.title': messages['generic.modal.entity.information.label.entity.title'].defaultMessage,
-    'generic.modal.entity.information.label.entity.slug': messages['generic.modal.entity.information.label.entity.slug'].defaultMessage,
-    'generic.modal.entity.information.label.entity.description': messages['generic.modal.entity.information.label.entity.description'].defaultMessage,
+    titleRequired: messages.modalEntityValidationTitleRequiredText.defaultMessage,
+    titleMaxLength: messages.modalEntityValidationTitleMaxLengthText.defaultMessage,
     slug: {
-      'generic.modal.entity.validation.slug.required': messages['generic.modal.entity.validation.slug.required'].defaultMessage,
-      'generic.modal.entity.validation.slug.invalid': messages['generic.modal.entity.validation.slug.invalid'].defaultMessage,
+      slugRequired: messages.modalEntityValidationSlugRequiredText.defaultMessage,
+      slugInvalid: messages.modalEntityValidationSlugInvalidText.defaultMessage,
+      slugMaxLength: messages.modalEntityValidationSlugMaxLengthText.defaultMessage,
     },
     image: {
-      'generic.modal.entity.validation.image.required': messages['generic.modal.entity.validation.image.required'].defaultMessage,
-      'generic.modal.entity.validation.image.size': messages['generic.modal.entity.validation.image.size'].defaultMessage,
+      imageRequired: messages.modalEntityValidationImageRequiredText.defaultMessage,
+      imageSize: messages.modalEntityValidationImageSizeText.defaultMessage,
     },
     count: {
-      'generic.modal.entity.action.count.validation.required.text': messages['generic.modal.entity.action.count.validation.required.text'].defaultMessage,
-      'generic.modal.entity.action.count.validation.positive-number.text': messages['generic.modal.entity.action.count.validation.positive-number.text'].defaultMessage,
-      'generic.modal.entity.action.count.validation.int.text': messages['generic.modal.entity.action.count.validation.int.text'].defaultMessage,
+      countRequired: messages.modalEntityValidationActionCountRequiredText.defaultMessage,
+      countPositive: messages.modalEntityValidationActionCountPositiveNumberText.defaultMessage,
+      countInt: messages.modalEntityValidationActionCountNumberText.defaultMessage,
     },
+    descriptionRequired: messages.modalEntityValidationDescriptionRequiredText.defaultMessage,
+    descriptionMaxLength: messages.modalEntityValidationDescriptionMaxLengthText.defaultMessage,
+    eventTypeRequired: messages.modalEntityValidationActionEventNameRequiredText.defaultMessage,
   };
-
-  beforeEach(() => {
-    useTranslate.mockImplementation((key) => translations[key] || key);
-  });
 
   afterEach(cleanup);
 
@@ -61,18 +52,19 @@ describe('EntityInfo', () => {
   it('renders EntityInfo with correct labels', () => {
     const { getByRole, getByLabelText } = renderComponent();
 
-    expect(getByRole('heading', { level: 2 })).toHaveTextContent(translations['generic.modal.entity.information.heading']);
-    expect(getByLabelText(translations['generic.modal.entity.information.label.entity.title'])).toBeInTheDocument();
-    expect(getByLabelText(translations['generic.modal.entity.information.label.entity.slug'])).toBeInTheDocument();
-    expect(getByLabelText(translations['generic.modal.entity.information.label.entity.description'])).toBeInTheDocument();
+    expect(getByRole('heading', { level: 2 }))
+      .toHaveTextContent(messages.modalEntityInfoHeadingText.defaultMessage);
+    expect(getByLabelText(messages.modalEntityInfoLabelEntityTitle.defaultMessage)).toBeInTheDocument();
+    expect(getByLabelText(messages.modalEntityInfoLabelEntitySlugText.defaultMessage)).toBeInTheDocument();
+    expect(getByLabelText(messages.modalEntityInfoLabelEntityDescriptionText.defaultMessage)).toBeInTheDocument();
   });
 
   it('updates input values when user types', async () => {
     const { findByDisplayValue, getByLabelText } = renderComponent();
 
-    const titleInput = getByLabelText(translations['generic.modal.entity.information.label.entity.title']);
-    const slugInput = getByLabelText(translations['generic.modal.entity.information.label.entity.slug']);
-    const descriptionInput = getByLabelText(translations['generic.modal.entity.information.label.entity.description']);
+    const titleInput = getByLabelText(messages.modalEntityInfoLabelEntityTitle.defaultMessage);
+    const slugInput = getByLabelText(messages.modalEntityInfoLabelEntitySlugText.defaultMessage);
+    const descriptionInput = getByLabelText(messages.modalEntityInfoLabelEntityDescriptionText.defaultMessage);
 
     userEvent.clear(titleInput);
 
@@ -99,9 +91,9 @@ describe('EntityInfo', () => {
       validateOnChange: false,
     });
 
-    const titleInput = getByLabelText(translations['generic.modal.entity.information.label.entity.title']);
-    const slugInput = getByLabelText(translations['generic.modal.entity.information.label.entity.slug']);
-    const descriptionInput = getByLabelText(translations['generic.modal.entity.information.label.entity.description']);
+    const titleInput = getByLabelText(messages.modalEntityInfoLabelEntityTitle.defaultMessage);
+    const slugInput = getByLabelText(messages.modalEntityInfoLabelEntitySlugText.defaultMessage);
+    const descriptionInput = getByLabelText(messages.modalEntityInfoLabelEntityDescriptionText.defaultMessage);
 
     await act(async () => {
       userEvent.click(titleInput);

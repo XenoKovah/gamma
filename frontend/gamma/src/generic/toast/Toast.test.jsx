@@ -3,15 +3,16 @@ import { cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
 
+import messages from '../../i18n';
 import { renderWithProviders } from '../../setupTests';
-import messages from '../../i18n/en';
 import ToastComponent from '.';
 
 describe('ToastComponent', () => {
   afterEach(cleanup);
+  const errorText = messages.alertDangerDescription.defaultMessage;
 
   const defaultProps = {
-    text: messages['generic.toast.error.text'].defaultMessage,
+    text: errorText,
     variant: 'danger',
     isShow: true,
     onClose: jest.fn(),
@@ -21,7 +22,7 @@ describe('ToastComponent', () => {
 
   it('renders the toast with the correct text', () => {
     const { getByText } = renderComponent();
-    expect(getByText(messages['generic.toast.error.text'].defaultMessage)).toBeInTheDocument();
+    expect(getByText(errorText)).toBeInTheDocument();
   });
 
   it('renders the toast with the correct variant class', () => {

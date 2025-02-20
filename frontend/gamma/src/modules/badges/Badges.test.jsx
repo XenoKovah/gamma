@@ -3,13 +3,12 @@ import axios from 'axios';
 import '@testing-library/jest-dom';
 import { cleanup } from '@testing-library/react';
 
-import { useTranslate } from '../../i18n/utils';
 import { renderWithProviders } from '../../setupTests';
-import appMessages from '../../i18n/en';
+import genericMessages from '../../i18n';
 import { submitBtnStatuses } from '../../generic/status-button';
 import { useBadges } from './hooks/useBadges';
 import { convertKeysToSnakeCase } from './data/utils';
-import moduleMessages from './i18n/en';
+import moduleMessages from './i18n';
 import { fetchBadgesData, API_ROUTES } from './data';
 import { Badges } from '.';
 
@@ -20,55 +19,14 @@ jest.mock('./data/hooks', () => ({
   useBadges: jest.fn(),
 }));
 
-jest.mock('../../i18n/utils', () => ({
-  useTranslate: jest.fn(),
-}));
-
 jest.mock('./hooks/useBadges', () => ({
   useBadges: jest.fn(),
 }));
 
 describe('Badges Component', () => {
-  const translations = {
-    'generic.header.button.sing.out.text': appMessages['generic.header.button.sing.out.text'].defaultMessage,
-    'modules.badges.button.add-badge': moduleMessages['modules.badges.button.add-badge'].defaultMessage,
-    'generic.alert.danger.title': appMessages['generic.alert.danger.title'].defaultMessage,
-    'generic.alert.danger.description': appMessages['generic.alert.danger.description'].defaultMessage,
-    'generic.alert.button.close.title': appMessages['generic.alert.button.close.title'].defaultMessage,
-    'modules.badges.modal.add-badge.title': moduleMessages['modules.badges.modal.add-badge.title'].defaultMessage,
-    'modules.badges.heading.text': moduleMessages['modules.badges.heading.text'].defaultMessage,
-    'modules.badges.alert.empty-badges-list.title': moduleMessages['modules.badges.alert.empty-badges-list.title'].defaultMessage,
-    'generic.loader.screenReader.text': appMessages['generic.loader.screenReader.text'].defaultMessage,
-    'modules.badges.alert.modal.confirm.deletion.title': moduleMessages['modules.badges.alert.modal.confirm.deletion.title'].defaultMessage,
-    'modules.badges.alert.modal.confirm.deletion.description': moduleMessages['modules.badges.alert.modal.confirm.deletion.description'].defaultMessage,
-    'generic.modal.alert.button.stateful.default.text': appMessages['generic.modal.alert.button.stateful.default.text'].defaultMessage,
-    'generic.modal.alert.button.cancel.text': appMessages['generic.modal.alert.button.cancel.text'].defaultMessage,
-    'modules.badges.alert.empty-badges-list.description': moduleMessages['modules.badges.alert.empty-badges-list.description'].defaultMessage,
-    'modules.badges.total-badges.counter.text': moduleMessages['modules.badges.total-badges.counter.text'].defaultMessage,
-    'modules.badges.badge-item.button.edit.title': moduleMessages['modules.badges.badge-item.button.edit.title'].defaultMessage,
-    'modules.badges.badge-item.button.delete.title': moduleMessages['modules.badges.badge-item.button.delete.title'].defaultMessage,
-    'generic.modal.dialog.button.stateful.default.text': appMessages['generic.modal.dialog.button.stateful.default.text'].defaultMessage,
-    'generic.modal.dialog.button.cancel.text': appMessages['generic.modal.dialog.button.cancel.text'].defaultMessage,
-    'generic.modal.entity.rules.button.add-new-rule.text': appMessages['generic.modal.entity.rules.button.add-new-rule.text'].defaultMessage,
-    'generic.modal.entity.rules.alert.no-rules.description': appMessages['generic.modal.entity.rules.alert.no-rules.description'].defaultMessage,
-    'generic.modal.entity.rules.alert.no-rules.heading': appMessages['generic.modal.entity.rules.alert.no-rules.heading'].defaultMessage,
-    'generic.modal.entity.rules.heading': appMessages['generic.modal.entity.rules.heading'].defaultMessage,
-    'generic.modal.entity.image.button.upload': appMessages['generic.modal.entity.image.button.upload'].defaultMessage,
-    'generic.modal.entity.image.heading': appMessages['generic.modal.entity.image.heading'].defaultMessage,
-    'generic.modal.entity.is-active.text': appMessages['generic.modal.entity.is-active.text'].defaultMessage,
-    'generic.modal.entity.information.label.entity.description': appMessages['generic.modal.entity.information.label.entity.description'].defaultMessage,
-    'generic.modal.entity.information.label.entity.slug': appMessages['generic.modal.entity.information.label.entity.slug'].defaultMessage,
-    'generic.modal.entity.information.label.entity.title': appMessages['generic.modal.entity.information.label.entity.title'].defaultMessage,
-    'generic.modal.entity.information.heading': appMessages['generic.modal.entity.information.heading'].defaultMessage,
-  };
-
   afterEach(cleanup);
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    useTranslate.mockImplementation((key, values) => (key === 'modules.badges.total-badges.counter.text'
-      ? translations[key].replace('{badgesCount}', values?.badgesCount || 0)
-      : translations[key] || key));
     useBadges.mockReturnValue({
       isError: false,
       isLoading: false,
@@ -110,7 +68,7 @@ describe('Badges Component', () => {
     const { getByRole } = renderWithProviders(<Badges />);
 
     const heading = getByRole('heading', {
-      level: 1, name: translations['modules.badges.heading.text'],
+      level: 1, name: moduleMessages.pageTitle.defaultMessage,
     });
     expect(heading).toBeInTheDocument();
   });
@@ -127,9 +85,9 @@ describe('Badges Component', () => {
     useBadges.mockReturnValue({ badgesData: badgesMocks, isLoading: false, isError: true });
     const { getByText, getByRole } = renderWithProviders(<Badges />);
 
-    const errorHeading = getByText(translations['generic.alert.danger.title']);
+    const errorHeading = getByText(genericMessages.alertDangerTitle.defaultMessage);
     expect(errorHeading).toBeInTheDocument();
-    const errorMessage = getByText(translations['generic.alert.danger.description']);
+    const errorMessage = getByText(genericMessages.alertDangerDescription.defaultMessage);
     expect(errorMessage).toBeInTheDocument();
     const dismissButton = getByRole('button', { name: 'Dismiss' });
     expect(dismissButton).toBeInTheDocument();
@@ -139,8 +97,8 @@ describe('Badges Component', () => {
     useBadges.mockReturnValue({ badgesData: [], isLoading: false, isError: false });
     const { getByText } = renderWithProviders(<Badges />);
 
-    expect(getByText(translations['modules.badges.alert.empty-badges-list.title'])).toBeInTheDocument();
-    expect(getByText(translations['modules.badges.alert.empty-badges-list.description'])).toBeInTheDocument();
+    expect(getByText(moduleMessages.alertEmptyBadgesListTitle.defaultMessage)).toBeInTheDocument();
+    expect(getByText(moduleMessages.alertEmptyBadgesListDescription.defaultMessage)).toBeInTheDocument();
   });
 
   it('shows the correct number of edit and delete buttons for each badge', async () => {
@@ -154,10 +112,10 @@ describe('Badges Component', () => {
     });
 
     const editButtons = getAllByRole('button', {
-      name: translations['modules.badges.badge-item.button.edit.title'],
+      name: moduleMessages.badgeEditBtnTitle.defaultMessage,
     });
     const deleteButtons = getAllByRole('button', {
-      name: translations['modules.badges.badge-item.button.delete.title'],
+      name: moduleMessages.badgeDeleteBtnTitle.defaultMessage,
     });
 
     expect(editButtons).toHaveLength(badgesMocks.length);
@@ -170,7 +128,7 @@ describe('Badges Component', () => {
     const { getByText } = renderWithProviders(<Badges />);
 
     expect(getByText(
-      translations['modules.badges.total-badges.counter.text'].replace('{badgesCount}', badgesMocks.length),
+      moduleMessages.totalBadgesCount.defaultMessage.replace('{badgesCount}', badgesMocks.length),
     )).toBeInTheDocument();
   });
 });

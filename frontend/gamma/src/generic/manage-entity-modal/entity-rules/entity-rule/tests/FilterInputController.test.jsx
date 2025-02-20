@@ -5,13 +5,8 @@ import { useFormikContext } from 'formik';
 import userEvent from '@testing-library/user-event';
 
 import { renderWithProviders } from '../../../../../setupTests';
-import { useTranslate } from '../../../../../i18n/utils';
-import messages from '../../../../../i18n/en';
+import messages from '../../../../../i18n';
 import FilterInputController from '../FilterInputController';
-
-jest.mock('../../../../../i18n/utils', () => ({
-  useTranslate: jest.fn(),
-}));
 
 jest.mock('formik', () => ({
   useFormikContext: jest.fn(),
@@ -20,10 +15,6 @@ jest.mock('formik', () => ({
 describe('FilterInputController', () => {
   const mockSetFieldValue = jest.fn();
   const mockSetTouched = jest.fn();
-
-  const translations = {
-    'generic.modal.entity.rules.filter.select.title': messages['generic.modal.entity.rules.filter.select.title'].defaultMessage,
-  };
 
   const defaultProps = {
     ruleIndex: 0,
@@ -49,8 +40,6 @@ describe('FilterInputController', () => {
       touched: { rules: [{ filters: {} }] },
       errors: { rules: [{ filters: {} }] },
     });
-
-    useTranslate.mockImplementation((key) => translations[key] || key);
   });
 
   afterEach(cleanup);
@@ -80,7 +69,11 @@ describe('FilterInputController', () => {
     const select = getByRole('combobox');
     expect(select).toBeInTheDocument();
 
-    expect(getByText(translations['generic.modal.entity.rules.filter.select.title'])).toBeInTheDocument();
+    expect(
+      getByText(
+        messages.modalEntityRulesFilterSelectTitle.defaultMessage.replace('{filterName}', defaultProps.placeholder),
+      ),
+    ).toBeInTheDocument();
     expect(getByText('Option 1')).toBeInTheDocument();
     expect(getByText('Option 2')).toBeInTheDocument();
   });

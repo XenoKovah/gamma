@@ -1,10 +1,11 @@
 import React, { useRef, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
+import { useIntl } from 'react-intl';
 import { Form, Button, Collapsible } from '@openedx/paragon';
 import { useFormikContext } from 'formik';
 import classNames from 'classnames';
 
-import { useTranslate } from '../../../../i18n/utils';
+import messages from '../../../../i18n';
 import { DATE_TYPES } from '../../constants';
 import IntervalDatePicker from './interval-date-picker';
 import FilterInputController from './FilterInputController';
@@ -18,6 +19,7 @@ const EntityRule = ({
   ruleIndex,
   removeRule,
 }) => {
+  const intl = useIntl();
   const {
     values, touched, handleBlur, errors, setFieldValue,
   } = useFormikContext();
@@ -26,28 +28,26 @@ const EntityRule = ({
   const startDateRef = useRef(null);
   const endDateRef = useRef(null);
 
-  const messages = {
-    ruleHeading: useTranslate('generic.modal.entity.rules.rule.heading', { id: ruleIndex + 1 }),
-    action: useTranslate('generic.modal.entity.rules.action.heading.text'),
-    filter: useTranslate('generic.modal.entity.rules.filters.heading.text'),
-    organizationTitle: useTranslate('generic.modal.entity.organization.filter.title'),
-
-    eventType: useTranslate('generic.modal.entity.rules.rule.event-type.label'),
-    count: useTranslate('generic.modal.entity.rules.rule.count.label'),
-    course: useTranslate('generic.modal.entity.rules.rule.course.label'),
+  const translations = {
+    action: intl.formatMessage(messages.modalEntityRulesActionHeadingTitle),
+    filter: intl.formatMessage(messages.modalEntityRulesFiltersHeadingTitle),
+    organizationTitle: intl.formatMessage(messages.modalEntityOrganizationFilterTitle),
+    eventType: intl.formatMessage(messages.modalEntityRulesRuleEventTypeLabel),
+    count: intl.formatMessage(messages.modalEntityRulesRuleCountLabel),
+    course: intl.formatMessage(messages.modalEntityRulesRuleCourseLabel),
     button: {
-      deleteRule: useTranslate('generic.modal.entity.rules.button.delete.text'),
-      removeFilter: useTranslate('generic.modal.entity.rules.button.remove-filter.text'),
+      deleteRule: intl.formatMessage(messages.modalEntityRulesBtnDeleteText),
+      removeFilter: intl.formatMessage(messages.modalEntityRulesBtnRemoveFilterText),
     },
     interval: {
-      start: useTranslate('generic.modal.entity.rules.interval.start.label.text'),
-      end: useTranslate('generic.modal.entity.rules.interval.end.label.text'),
+      start: intl.formatMessage(messages.modalEntityRulesIntervalStartLabelText),
+      end: intl.formatMessage(messages.modalEntityRulesIntervalEndLabelText),
     },
   };
 
   const memoizedActionConfig = useMemo(() => getActionConfig(data.actions), []);
 
-  const memoizedFilterConfig = useMemo(() => getFilterConfig(data.courses, data.organizations, messages), [
+  const memoizedFilterConfig = useMemo(() => getFilterConfig(data.courses, data.organizations, translations), [
     data.courses,
     data.organizations,
   ]);
@@ -63,12 +63,14 @@ const EntityRule = ({
   return (
     <Collapsible
       key={ruleIndex}
-      title={messages.ruleHeading}
+      title={intl.formatMessage(messages.modalEntityRulesRuleTitle, { id: ruleIndex + 1 })}
       styling="card"
       className="entity-rule mb-3"
       defaultOpen
     >
-      <h2 className="entity-rule-title h4 mb-3">{messages.action}</h2>
+      <h2 className="entity-rule-title h4 mb-3">
+        {intl.formatMessage(messages.modalEntityRulesActionHeadingTitle)}
+      </h2>
 
       {Object.entries(memoizedActionConfig).map(([key, config]) => (
         <ActionField
@@ -81,12 +83,14 @@ const EntityRule = ({
           errors={errors}
           setFieldValue={setFieldValue}
           handleBlur={handleBlur}
-          label={messages[config.labelKey]}
+          label={translations[config.labelKey]}
           options={config.options || []}
         />
       ))}
 
-      <h2 className="entity-rule-title h4 mb-3">{messages.filter}</h2>
+      <h2 className="entity-rule-title h4 mb-3">
+        {intl.formatMessage(messages.modalEntityRulesFiltersHeadingTitle)}
+      </h2>
 
       <Form.Group controlId={`rules.${ruleIndex}.filters`} size="sm">
         {Object.keys(rule.filters).map((filterKey) => {
@@ -117,7 +121,7 @@ const EntityRule = ({
                       dateType={dateType}
                       rule={rule}
                       ruleIndex={ruleIndex}
-                      placeholder={messages.interval[dateType]}
+                      placeholder={translations.interval[dateType]}
                       isDateTouched={touched.rules?.[ruleIndex]?.filters?.interval?.[dateType]}
                       validationErrorText={errors.rules?.[ruleIndex]?.filters?.interval?.[dateType]}
                     />
@@ -130,7 +134,7 @@ const EntityRule = ({
                 onClick={() => handleRemoveFilter(filterKey, rule)}
                 className="entity-rule-remove-filter-btn ml-2"
               >
-                {messages.button.removeFilter}
+                {intl.formatMessage(messages.modalEntityRulesBtnRemoveFilterText)}
               </Button>
             </div>
           );
@@ -148,7 +152,7 @@ const EntityRule = ({
       )}
 
       <Button variant="danger" size="sm" block onClick={() => removeRule(ruleIndex)}>
-        {messages.button.deleteRule}
+        {intl.formatMessage(messages.modalEntityRulesBtnDeleteText)}
       </Button>
     </Collapsible>
   );

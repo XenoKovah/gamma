@@ -1,4 +1,5 @@
 import React from 'react';
+import { useIntl } from 'react-intl';
 import { Link } from 'react-router-dom';
 import classNames from 'classnames';
 import {
@@ -7,32 +8,24 @@ import {
 } from '@openedx/paragon';
 import { ArrowBack as ArrowBackIcon } from '@openedx/paragon/icons';
 
-import { useTranslate } from '../../i18n/utils';
-import { ROUTES } from './routes';
+import messages from '../../i18n';
+import { ROUTES } from '../../routes';
 
 import Logo from '../../assets/images/logo.svg';
 
 const Header = () => {
+  const intl = useIntl();
   const isLargeScreen = useMediaQuery({ maxWidth: breakpoints.large.minWidth });
   const BASE_URL = window.location.origin;
-
-  const messages = {
-    singOutBtnText: useTranslate('generic.header.button.sing.out.text'),
-    logoAltText: useTranslate('generic.header.logo.alt.text'),
-    routes: {
-      badges: useTranslate('generic.header.nav.badges'),
-      avatar: useTranslate('generic.header.nav.avatar'),
-    },
-  };
 
   const routes = [
     {
       path: ROUTES.BADGES,
-      label: messages.routes.badges,
+      label: intl.formatMessage(messages.headerBadgesLinkText),
     },
     {
       path: ROUTES.AVATAR,
-      label: messages.routes.avatar,
+      label: intl.formatMessage(messages.headerAvatarLinkText),
     },
   ];
 
@@ -42,7 +35,11 @@ const Header = () => {
         <Container size="lg">
           <Navbar.Brand className="p-0 mr-4">
             <Link to={ROUTES.BADGES}>
-              <Image className="page-header-logo" src={Logo} alt={messages.logoAltText} />
+              <Image
+                className="page-header-logo"
+                src={Logo}
+                alt={intl.formatMessage(messages.headerLogoAltText)}
+              />
             </Link>
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
@@ -67,7 +64,7 @@ const Header = () => {
               size="sm"
               variant="tertiary"
             >
-              {messages.singOutBtnText}
+              {intl.formatMessage(messages.headerBtnSingOutText)}
             </Button>
           </Navbar.Collapse>
         </Container>

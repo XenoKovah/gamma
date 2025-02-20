@@ -7,6 +7,7 @@ import { getMessages } from '../i18n/utils';
 import NotFound from '../modules/not-found';
 import { getCookieByName } from '../utils';
 import { allRoutes, allProviders } from './utils';
+import { ROUTES } from '.';
 
 const queryClient = new QueryClient();
 
@@ -18,7 +19,7 @@ const AppRoutes = () => {
   // Each provider from `allProviders` is applied in a nested manner.
   const WrappedProviders = allProviders.reduce(
     (children, Provider) => <Provider>{children}</Provider>,
-    <Router basename="/gamma">
+    <Router basename={ROUTES.APP_BASE_NAME}>
       <Routes>
         {allRoutes.map(({ path, element }) => (
           <Route key={path} path={path} element={element} />

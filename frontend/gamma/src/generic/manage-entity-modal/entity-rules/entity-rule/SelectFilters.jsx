@@ -1,10 +1,11 @@
 import React, { useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
+import { useIntl } from 'react-intl';
 import { Form } from '@openedx/paragon';
 import { useFormikContext } from 'formik';
 
 import { capitalizeFirstLetter } from '../../../../utils';
-import { useTranslate } from '../../../../i18n/utils';
+import messages from '../../../../i18n';
 
 const SelectFilters = ({
   rule,
@@ -13,12 +14,8 @@ const SelectFilters = ({
   startDateRef,
   AVAILABLE_FILTERS,
 }) => {
+  const intl = useIntl();
   const { setFieldValue, validateForm } = useFormikContext();
-
-  const messages = {
-    selectFilter: useTranslate('generic.modal.entity.rules.filters.select.title'),
-    organizationTitle: useTranslate('generic.modal.entity.organization.filter.title'),
-  };
 
   const addFilter = useCallback(
     (filterName) => {
@@ -56,10 +53,12 @@ const SelectFilters = ({
         className="mr-0"
         onChange={(e) => addFilter(e.target.value)}
       >
-        <option value="">{messages.selectFilter}</option>
+        <option value="">{intl.formatMessage(messages.modalEntityRulesFiltersSelectTitle)}</option>
         {availableFilters.map((filter) => (
           <option key={filter} value={filter}>
-            {filter === 'org' ? messages.organizationTitle : capitalizeFirstLetter(filter)}
+            {filter === 'org'
+              ? intl.formatMessage(messages.modalEntityOrganizationFilterTitle)
+              : capitalizeFirstLetter(filter)}
           </option>
         ))}
       </Form.Control>

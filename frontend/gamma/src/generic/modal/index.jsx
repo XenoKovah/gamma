@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { useIntl } from 'react-intl';
 import { ModalDialog } from '@openedx/paragon';
 
-import { useTranslate } from '../../i18n/utils';
+import messages from '../../i18n';
 import { MODAL_SIZES, ZINDEX_MODAL } from './constants';
 import ModalFooter from './ModalFooter';
 
@@ -22,10 +23,9 @@ const Modal = ({
   isFullscreenScroll,
   isFullscreenOnMobile,
 }) => {
-  const messages = {
-    cancelButtonText: useTranslate('generic.modal.dialog.button.cancel.text'),
-  };
-  const resolvedCloseBtnTitle = closeBtnTitle || messages.cancelButtonText;
+  const intl = useIntl();
+
+  const resolvedCloseBtnTitle = closeBtnTitle || intl.formatMessage(messages.modalDialogBtnCancelText);
 
   return (
     <ModalDialog

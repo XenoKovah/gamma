@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { ROUTES } from '../../routes';
 import { Badges as BadgesPage } from '.';
 
 /**
@@ -14,7 +15,7 @@ import { Badges as BadgesPage } from '.';
  */
 const routes = [
   {
-    path: '/badges',
+    path: ROUTES.BADGES,
     element: <BadgesPage />,
   },
 ];

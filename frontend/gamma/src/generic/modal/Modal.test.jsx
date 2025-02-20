@@ -4,14 +4,9 @@ import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
 
 import { renderWithProviders } from '../../setupTests';
-import { useTranslate } from '../../i18n/utils';
-import messages from '../../i18n/en';
+import messages from '../../i18n';
 import { submitBtnStatuses } from '../status-button';
 import Modal from '.';
-
-jest.mock('../../i18n/utils', () => ({
-  useTranslate: jest.fn(),
-}));
 
 describe('Modal and ModalFooter Components', () => {
   const mockHandleClose = jest.fn();
@@ -29,15 +24,8 @@ describe('Modal and ModalFooter Components', () => {
     },
   };
 
-  const translations = {
-    'generic.modal.dialog.button.cancel.text': messages['generic.modal.dialog.button.cancel.text'].defaultMessage,
-    'generic.modal.dialog.button.submit.text': messages['generic.modal.dialog.button.submit.text'].defaultMessage,
-    'generic.modal.dialog.button.stateful.error.text': messages['generic.modal.dialog.button.stateful.error.text'].defaultMessage,
-  };
-
   beforeEach(() => {
     jest.clearAllMocks();
-    useTranslate.mockImplementation((key) => translations[key] || key);
   });
 
   afterEach(() => {
@@ -57,7 +45,7 @@ describe('Modal and ModalFooter Components', () => {
   it('calls handleClose when close button is clicked', () => {
     const { getByRole } = renderComponent({ hasCloseButton: true });
 
-    const closeButton = getByRole('button', { name: translations['generic.modal.dialog.button.cancel.text'] });
+    const closeButton = getByRole('button', { name: messages.modalDialogBtnCancelText.defaultMessage });
     userEvent.click(closeButton);
 
     expect(mockHandleClose).toHaveBeenCalledTimes(1);
@@ -89,7 +77,7 @@ describe('Modal and ModalFooter Components', () => {
   it('renders StatusButton when isStatefulButton is true', () => {
     const { getByTestId } = renderComponent({
       submitBtnOptions: {
-        title: translations['generic.modal.dialog.button.submit.text'],
+        title: messages.modalDialogBtnSubmitText.defaultMessage,
         submitFn: mockSubmitFn,
         disabled: false,
         isStatefulButton: true,
@@ -112,7 +100,7 @@ describe('Modal and ModalFooter Components', () => {
 
     const statusButton = getByTestId('status-button');
     expect(statusButton).toHaveClass('btn-danger');
-    expect(statusButton).toHaveTextContent(translations['generic.modal.dialog.button.stateful.error.text']);
+    expect(statusButton).toHaveTextContent(messages.modalDialogBtnStatefulErrorText.defaultMessage);
   });
 
   it('StatusButton is disabled when submitBtnOptions.disabled is true', () => {

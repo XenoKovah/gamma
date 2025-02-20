@@ -1,8 +1,9 @@
 import React from 'react';
+import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { Form } from '@openedx/paragon';
 
-import { useTranslate } from '../../../../i18n/utils';
+import messages from '../../../../i18n';
 
 const ActionField = ({
   name,
@@ -16,12 +17,9 @@ const ActionField = ({
   handleBlur,
   setFieldValue,
 }) => {
+  const intl = useIntl();
   const fieldName = `rules.${ruleIndex}.action.${name}`;
   const fieldValue = values.rules?.[ruleIndex]?.action?.[name] ?? '';
-
-  const messages = {
-    eventTypeLabel: useTranslate('generic.modal.entity.action.event.name.label', { eventType: label.toLowerCase() }),
-  };
 
   const hasError = touched.rules?.[ruleIndex]?.action?.[name] && !!errors.rules?.[ruleIndex]?.action?.[name];
 
@@ -40,7 +38,12 @@ const ActionField = ({
       >
         {type === 'select' ? (
           <>
-            <option value="">{messages.eventTypeLabel}</option>
+            <option value="">
+              {intl.formatMessage(
+                messages.modalEntityActionEventNameLabelText,
+                { eventType: label.toLowerCase() },
+              )}
+            </option>
             {options.map((option) => (
               <option key={option} value={option}>
                 {option}

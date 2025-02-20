@@ -4,26 +4,12 @@ import { cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { renderWithProviders } from '../../setupTests';
-import { useTranslate } from '../../i18n/utils';
-import messages from '../../i18n/en';
+import messages from '../../i18n';
 import AlertModal from '.';
-
-jest.mock('../../i18n/utils', () => ({
-  useTranslate: jest.fn(),
-}));
 
 describe('AlertModal', () => {
   const mockOnClose = jest.fn();
   const mockOnDelete = jest.fn();
-
-  const translations = {
-    'generic.modal.alert.button.cancel.text': messages['generic.modal.alert.button.cancel.text'].defaultMessage,
-    'generic.modal.alert.button.delete.text': messages['generic.modal.alert.button.delete.text'].defaultMessage,
-  };
-
-  beforeEach(() => {
-    useTranslate.mockImplementation((key) => translations[key] || key);
-  });
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -50,7 +36,7 @@ describe('AlertModal', () => {
   it('calls onClose when Cancel button is clicked', () => {
     const { getByRole } = renderComponent();
 
-    const cancelButton = getByRole('button', { name: translations['generic.modal.alert.button.cancel.text'] });
+    const cancelButton = getByRole('button', { name: messages.alertBtnCancelText.defaultMessage });
     userEvent.click(cancelButton);
 
     expect(mockOnClose).toHaveBeenCalledTimes(1);
@@ -59,7 +45,7 @@ describe('AlertModal', () => {
   it('calls onDelete when Delete button is clicked', () => {
     const { getByRole } = renderComponent();
 
-    const deleteButton = getByRole('button', { name: translations['generic.modal.alert.button.delete.text'] });
+    const deleteButton = getByRole('button', { name: messages.alertBtnDeleteText.defaultMessage });
     userEvent.click(deleteButton);
 
     expect(mockOnDelete).toHaveBeenCalledTimes(1);

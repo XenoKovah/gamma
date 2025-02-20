@@ -1,31 +1,24 @@
 import React from 'react';
+import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { Button, ModalDialog } from '@openedx/paragon';
 
-import { useTranslate } from '../../i18n/utils';
+import messages from '../../i18n';
 import { StatusButton, submitBtnStatuses } from '../status-button';
 
 const ModalFooter = ({
   closeBtnTitle, submitBtnOptions, handleClose,
 }) => {
-  const messages = {
-    submitButtonText: useTranslate('generic.modal.dialog.button.submit.text'),
-    statefulButtonLabels: {
-      default: useTranslate('generic.modal.dialog.button.stateful.default.text'),
-      pending: useTranslate('generic.modal.dialog.button.stateful.pending.text'),
-      complete: useTranslate('generic.modal.dialog.button.stateful.complete.text'),
-      error: useTranslate('generic.modal.dialog.button.stateful.error.text'),
-    },
-  };
+  const intl = useIntl();
 
   const statefulButtonLabels = {
-    default: messages.statefulButtonLabels.default,
-    pending: messages.statefulButtonLabels.pending,
-    complete: messages.statefulButtonLabels.complete,
-    error: messages.statefulButtonLabels.error,
+    default: intl.formatMessage(messages.modalDialogBtnStatefulDefaultText),
+    pending: intl.formatMessage(messages.modalDialogBtnStatefulPendingText),
+    complete: intl.formatMessage(messages.modalDialogBtnStatefulCompleteText),
+    error: intl.formatMessage(messages.modalDialogBtnStatefulErrorText),
   };
 
-  const resolvedSubmitBtnTitle = submitBtnOptions.title || messages.submitButtonText;
+  const resolvedSubmitBtnTitle = submitBtnOptions.title || intl.formatMessage(messages.modalDialogBtnSubmitText);
   const statefulButtonVariant = submitBtnOptions.submitStatus === submitBtnStatuses.ERROR.toLocaleLowerCase()
     ? 'danger' : 'primary';
 

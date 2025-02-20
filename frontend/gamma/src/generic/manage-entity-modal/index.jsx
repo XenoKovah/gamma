@@ -1,8 +1,9 @@
 import React, { useState, useRef, useCallback } from 'react';
+import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { Formik, Form as FormikForm } from 'formik';
 
-import { useTranslate } from '../../i18n/utils';
+import messages from '../../i18n';
 import Modal from '../modal';
 import { submitBtnStatuses } from '../status-button';
 import EntityImage from './entity-image';
@@ -20,41 +21,42 @@ const ManageEntityModal = ({
   setSubmitStatus,
   isManageEntityModalOpen,
 }) => {
+  const intl = useIntl();
   const [imagePreview, setImagePreview] = useState(null);
 
   const rulesContainerRef = useRef(null);
   const lastRuleRef = useRef(null);
 
-  const messages = {
+  const translations = {
     validation: {
-      titleRequired: useTranslate('generic.modal.entity.validation.title.required'),
-      titleMaxLength: useTranslate('generic.modal.entity.validation.title.max-length'),
+      titleRequired: intl.formatMessage(messages.modalEntityValidationTitleRequiredText),
+      titleMaxLength: intl.formatMessage(messages.modalEntityValidationTitleMaxLengthText),
       slug: {
-        slugRequired: useTranslate('generic.modal.entity.validation.slug.required'),
-        slugInvalid: useTranslate('generic.modal.entity.validation.slug.invalid'),
-        slugMaxLength: useTranslate('generic.modal.entity.validation.slug.max-length'),
+        slugRequired: intl.formatMessage(messages.modalEntityValidationSlugRequiredText),
+        slugInvalid: intl.formatMessage(messages.modalEntityValidationSlugInvalidText),
+        slugMaxLength: intl.formatMessage(messages.modalEntityValidationSlugMaxLengthText),
       },
       image: {
-        imageRequired: useTranslate('generic.modal.entity.validation.image.required'),
-        imageSize: useTranslate('generic.modal.entity.validation.image.size'),
+        imageRequired: intl.formatMessage(messages.modalEntityValidationImageRequiredText),
+        imageSize: intl.formatMessage(messages.modalEntityValidationImageSizeText),
       },
       count: {
-        countRequired: useTranslate('generic.modal.entity.action.count.validation.required.text'),
-        countPositive: useTranslate('generic.modal.entity.action.count.validation.positive-number.text'),
-        countInt: useTranslate('generic.modal.entity.action.count.validation.int.text'),
+        countRequired: intl.formatMessage(messages.modalEntityValidationActionCountRequiredText),
+        countPositive: intl.formatMessage(messages.modalEntityValidationActionCountPositiveNumberText),
+        countInt: intl.formatMessage(messages.modalEntityValidationActionCountNumberText),
       },
-      descriptionRequired: useTranslate('generic.modal.entity.validation.description.required'),
-      descriptionMaxLength: useTranslate('generic.modal.entity.validation.description.max-length'),
-      eventTypeRequired: useTranslate('generic.modal.entity.action.event.name.validation.text'),
+      descriptionRequired: intl.formatMessage(messages.modalEntityValidationDescriptionRequiredText),
+      descriptionMaxLength: intl.formatMessage(messages.modalEntityValidationDescriptionMaxLengthText),
+      eventTypeRequired: intl.formatMessage(messages.modalEntityValidationActionEventNameRequiredText),
       interval: {
-        startDateRequired: useTranslate('generic.modal.entity.interval.validation.start-date.required.text'),
-        endDateRequired: useTranslate('generic.modal.entity.interval.validation.end-date.required.text'),
+        startDateRequired: intl.formatMessage(messages.modalEntityValidationStartDateRequiredText),
+        endDateRequired: intl.formatMessage(messages.modalEntityValidationEndDateRequiredText),
       },
       frequency: {
-        frequencyInt: useTranslate('generic.modal.entity.frequency.validation.int.text'),
-        frequencyPositiveInt: useTranslate('generic.modal.entity.frequency.validation.positive-int.text'),
+        frequencyInt: intl.formatMessage(messages.modalEntityValidationFrequencyNumberText),
+        frequencyPositiveInt: intl.formatMessage(messages.modalEntityValidationFrequencyPositiveNumberText),
       },
-      filterKeyRequired: useTranslate('generic.modal.entity.filters.validation.text'),
+      filterKeyRequired: intl.formatMessage(messages.modalEntityValidationFiltersText),
     },
   };
 
@@ -81,8 +83,8 @@ const ManageEntityModal = ({
   return (
     <Formik
       initialValues={DEFAULT_FORM_VALUES}
-      validationSchema={() => getValidationSchema(messages.validation)}
-      validate={(values) => validateFilters(values, messages.validation)}
+      validationSchema={() => getValidationSchema(translations.validation)}
+      validate={(values) => validateFilters(values, translations.validation)}
       onSubmit={(values, { resetForm }) => {
         submitForm(values, resetForm, handleReset);
       }}

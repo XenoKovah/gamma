@@ -1,26 +1,20 @@
 import React, { useState, useRef } from 'react';
+import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import {
   Form, Button, Figure, useMediaQuery, breakpoints,
 } from '@openedx/paragon';
 import { useFormikContext } from 'formik';
 
-import { useTranslate } from '../../../i18n/utils';
+import messages from '../../../i18n';
 
 const EntityImage = ({ imagePreview, handleImageUpload }) => {
+  const intl = useIntl();
   const { errors } = useFormikContext();
   const [isValidationTriggered, setIsValidationTriggered] = useState(false);
   const isExtraSmall = useMediaQuery({ maxWidth: breakpoints.extraSmall.maxWidth });
 
   const fileInputRef = useRef(null);
-
-  const messages = {
-    heading: useTranslate('generic.modal.entity.image.heading'),
-    uploadBtnTitle: useTranslate('generic.modal.entity.image.button.upload'),
-    entityPreviewScreenReaderText: useTranslate('generic.modal.entity.image.preview.screenReader.text'),
-    imageRequiredText: useTranslate('generic.modal.entity.validation.image.required'),
-    imageSize: useTranslate('generic.modal.entity.validation.image.size'),
-  };
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -53,7 +47,7 @@ const EntityImage = ({ imagePreview, handleImageUpload }) => {
 
   return (
     <div className="manage-entity-modal-image mb-4">
-      <h2 className="h3 mb-3">{messages.heading}</h2>
+      <h2 className="h3 mb-3">{intl.formatMessage(messages.modalEntityImageHeadingText)}</h2>
       <Form.Group className="mb-4" controlId="formEntityImage" size={isExtraSmall ? null : 'sm'}>
         <Form.Control
           ref={fileInputRef}
@@ -72,11 +66,11 @@ const EntityImage = ({ imagePreview, handleImageUpload }) => {
             onClick={handleUploadImageClick}
             onKeyDown={handleKeyDown}
           >
-            {messages.uploadBtnTitle}
+            {intl.formatMessage(messages.modalEntityImageBtnUploadText)}
           </Button>
         </Form.Label>
 
-        {errors.image === messages.imageSize && (
+        {errors.image === intl.formatMessage(messages.modalEntityValidationImageSizeText) && (
           <Form.Control.Feedback type="invalid" className="manage-entity-modal-feedback mt-1">
             {errors.image}
           </Form.Control.Feedback>
@@ -84,7 +78,7 @@ const EntityImage = ({ imagePreview, handleImageUpload }) => {
 
         {isValidationTriggered && !imagePreview && (
           <Form.Control.Feedback type="invalid" className="manage-entity-modal-feedback mt-1">
-            {messages.imageRequiredText}
+            {intl.formatMessage(messages.modalEntityValidationImageRequiredText)}
           </Form.Control.Feedback>
         )}
 
@@ -92,7 +86,7 @@ const EntityImage = ({ imagePreview, handleImageUpload }) => {
           <Figure className="mt-3 mb-0 d-block">
             <Figure.Image
               className="entity-image-preview mb-0"
-              alt={messages.entityPreviewScreenReaderText}
+              alt={intl.formatMessage(messages.modalEntityImagePreviewText)}
               src={imagePreview}
             />
           </Figure>

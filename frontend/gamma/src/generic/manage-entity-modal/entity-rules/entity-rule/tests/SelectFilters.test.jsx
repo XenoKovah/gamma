@@ -4,14 +4,9 @@ import '@testing-library/jest-dom/extend-expect';
 import { useFormikContext } from 'formik';
 import userEvent from '@testing-library/user-event';
 
-import SelectFilters from '../SelectFilters';
-import { useTranslate } from '../../../../../i18n/utils';
 import { renderWithProviders } from '../../../../../setupTests';
-import messages from '../../../../../i18n/en';
-
-jest.mock('../../../../../i18n/utils', () => ({
-  useTranslate: jest.fn(),
-}));
+import messages from '../../../../../i18n';
+import SelectFilters from '../SelectFilters';
 
 jest.mock('formik', () => ({
   useFormikContext: jest.fn(),
@@ -22,11 +17,6 @@ describe('SelectFilters Component', () => {
   const mockValidateForm = jest.fn();
   const filterRefs = { current: {} };
   const startDateRef = { current: { input: { focus: jest.fn() } } };
-
-  const translations = {
-    'generic.modal.entity.rules.filters.select.title': messages['generic.modal.entity.rules.filters.select.title'].defaultMessage,
-    'generic.modal.entity.organization.filter.title': messages['generic.modal.entity.organization.filter.title'].defaultMessage,
-  };
 
   const defaultProps = {
     rule: {
@@ -46,8 +36,6 @@ describe('SelectFilters Component', () => {
       setFieldValue: mockSetFieldValue,
       validateForm: mockValidateForm,
     });
-
-    useTranslate.mockImplementation((key) => translations[key] || key);
   });
 
   afterEach(cleanup);
@@ -60,8 +48,8 @@ describe('SelectFilters Component', () => {
     const select = getByRole('combobox');
     expect(select).toBeInTheDocument();
 
-    expect(getByText(translations['generic.modal.entity.rules.filters.select.title'])).toBeInTheDocument();
-    expect(getByText(translations['generic.modal.entity.organization.filter.title'])).toBeInTheDocument();
+    expect(getByText(messages.modalEntityRulesFiltersSelectTitle.defaultMessage)).toBeInTheDocument();
+    expect(getByText(messages.modalEntityOrganizationFilterTitle.defaultMessage)).toBeInTheDocument();
   });
 
   it('does not show already selected filters', () => {

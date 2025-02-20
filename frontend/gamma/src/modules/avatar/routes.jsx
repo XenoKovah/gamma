@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { ROUTES } from '../../routes';
 import { Avatar as AvatarPage } from '.';
 
 /**
@@ -14,7 +15,7 @@ import { Avatar as AvatarPage } from '.';
  */
 const routes = [
   {
-    path: '/avatar',
+    path: ROUTES.AVATAR,
     element: <AvatarPage />,
   },
 ];

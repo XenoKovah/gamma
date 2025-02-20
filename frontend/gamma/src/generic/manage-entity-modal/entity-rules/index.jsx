@@ -1,11 +1,12 @@
 import React, { useCallback } from 'react';
+import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { Button } from '@openedx/paragon';
 import { useFormikContext } from 'formik';
 import { v4 as uuidv4 } from 'uuid';
 
 import AlertComponent from '../../alert';
-import { useTranslate } from '../../../i18n/utils';
+import messages from '../../../i18n';
 import EntityRule from './entity-rule';
 
 const EntityRules = ({
@@ -13,14 +14,8 @@ const EntityRules = ({
   lastRuleRef,
   rulesContainerRef,
 }) => {
+  const intl = useIntl();
   const { values, setFieldValue } = useFormikContext();
-
-  const messages = {
-    heading: useTranslate('generic.modal.entity.rules.heading'),
-    addNewRuleBtn: useTranslate('generic.modal.entity.rules.button.add-new-rule.text'),
-    noRulesTitle: useTranslate('generic.modal.entity.rules.alert.no-rules.heading'),
-    noRulesDescription: useTranslate('generic.modal.entity.rules.alert.no-rules.description'),
-  };
 
   const handleAddNewRule = useCallback(() => {
     setFieldValue('rules', [...values.rules, { tempId: uuidv4(), action: {}, filters: {} }]);
@@ -37,7 +32,7 @@ const EntityRules = ({
 
   return (
     <>
-      <h2 className="h3 mb-3">{messages.heading}</h2>
+      <h2 className="h3 mb-3">{intl.formatMessage(messages.modalEntityRulesTitle)}</h2>
       <ul className="list-unstyled" ref={rulesContainerRef}>
         {values.rules.length ? (
           values.rules.map((rule, index) => (
@@ -53,15 +48,15 @@ const EntityRules = ({
         ) : (
           <li>
             <AlertComponent
-              title={messages.noRulesTitle}
-              description={messages.noRulesDescription}
+              title={intl.formatMessage(messages.modalEntityRulesAlertNoRulesTitle)}
+              description={intl.formatMessage(messages.modalEntityRulesAlertNoRulesDescription)}
               variant="info"
             />
           </li>
         )}
       </ul>
       <Button size="sm" block onClick={handleAddNewRule}>
-        {messages.addNewRuleBtn}
+        {intl.formatMessage(messages.modalEntityRulesAddNewRuleBtnText)}
       </Button>
     </>
   );

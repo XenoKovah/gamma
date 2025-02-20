@@ -1,9 +1,10 @@
 import React, { forwardRef, useCallback, useMemo } from 'react';
+import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { useFormikContext } from 'formik';
 import { Form, useMediaQuery, breakpoints } from '@openedx/paragon';
 
-import { useTranslate } from '../../../../i18n/utils';
+import messages from '../../../../i18n';
 
 const CHARACTER_WIDTH_RATIO = 30;
 
@@ -18,14 +19,11 @@ const FilterInputController = forwardRef(({
   placeholder,
   options = [],
 }, ref) => {
+  const intl = useIntl();
   const {
     touched, setFieldValue, setTouched, errors,
   } = useFormikContext();
   const isExtraSmall = useMediaQuery({ maxWidth: breakpoints.extraSmall.maxWidth });
-
-  const messages = {
-    filterTitle: useTranslate('generic.modal.entity.rules.filter.select.title', { filterName: placeholder }),
-  };
 
   const fieldName = `rules.${ruleIndex}.filters.${filterKey}`;
   const fieldValue = rule.filters[filterKey] ?? '';
@@ -72,7 +70,9 @@ const FilterInputController = forwardRef(({
       >
         {as === 'select' ? (
           <>
-            <option value="">{messages.filterTitle}</option>
+            <option value="">
+              {intl.formatMessage(messages.modalEntityRulesFilterSelectTitle, { filterName: placeholder })}
+            </option>
             {options.map((option) => {
               const truncatedOption = isExtraSmall && option.length > maxLength
                 ? `${option.slice(0, maxLength)}…`
@@ -110,7 +110,7 @@ FilterInputController.propTypes = {
     ).isRequired,
   }).isRequired,
   ruleIndex: PropTypes.number.isRequired,
-  placeholder: PropTypes.string.isRequired,
+  placeholder: PropTypes.string,
   options: PropTypes.arrayOf(PropTypes.string),
 };
 
@@ -119,6 +119,7 @@ FilterInputController.defaultProps = {
   type: undefined,
   label: undefined,
   as: undefined,
+  placeholder: undefined,
   options: [],
 };
 

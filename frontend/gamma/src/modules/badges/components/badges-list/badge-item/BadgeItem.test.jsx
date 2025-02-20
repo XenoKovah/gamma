@@ -4,14 +4,9 @@ import { cleanup, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { renderWithProviders } from '../../../../../setupTests';
-import { useTranslate } from '../../../../../i18n/utils';
 import { badgesMocks } from '../../../__mocks__';
-import messages from '../../../i18n/en';
+import messages from '../../../i18n';
 import BadgeItem from '.';
-
-jest.mock('../../../../../i18n/utils', () => ({
-  useTranslate: jest.fn(),
-}));
 
 describe('BadgeItem', () => {
   afterEach(cleanup);
@@ -25,20 +20,6 @@ describe('BadgeItem', () => {
     openConfirmDeletionAlert: mockOpenConfirmDeletionAlert,
   };
 
-  const translations = {
-    'modules.badges.badge-item.default.title': messages['modules.badges.badge-item.default.title'].defaultMessage,
-    'modules.badges.badge-item.default.description': messages['modules.badges.badge-item.default.description'].defaultMessage,
-    'modules.badges.badge-item.button.edit.title': messages['modules.badges.badge-item.button.edit.title'].defaultMessage,
-    'modules.badges.badge-item.button.delete.title': messages['modules.badges.badge-item.button.delete.title'].defaultMessage,
-    'modules.badges.alert.modal.confirm.deletion.title': messages['modules.badges.alert.modal.confirm.deletion.title'].defaultMessage,
-    'modules.badges.alert.modal.confirm.deletion.description': messages['modules.badges.alert.modal.confirm.deletion.description'].defaultMessage,
-  };
-
-  beforeEach(() => {
-    jest.clearAllMocks();
-    useTranslate.mockImplementation((key) => translations[key] || key);
-  });
-
   const renderComponent = (props = {}) => renderWithProviders(<BadgeItem {...defaultProps} {...props} />);
 
   it('renders with provided props', () => {
@@ -47,8 +28,8 @@ describe('BadgeItem', () => {
     expect(getByRole('img', { name: defaultProps.title })).toBeInTheDocument();
     expect(getByText(defaultProps.title)).toBeInTheDocument();
     expect(getByText(defaultProps.description)).toBeInTheDocument();
-    expect(getByRole('button', { name: translations['modules.badges.badge-item.button.edit.title'] })).toBeInTheDocument();
-    expect(getByRole('button', { name: translations['modules.badges.badge-item.button.delete.title'] })).toBeInTheDocument();
+    expect(getByRole('button', { name: messages.badgeEditBtnTitle.defaultMessage })).toBeInTheDocument();
+    expect(getByRole('button', { name: messages.badgeDeleteBtnTitle.defaultMessage })).toBeInTheDocument();
   });
 
   it('renders with default translations when props are missing', () => {
@@ -59,28 +40,28 @@ describe('BadgeItem', () => {
     });
 
     expect(queryByRole('img')).not.toBeInTheDocument();
-    expect(getByText(translations['modules.badges.badge-item.default.title'])).toBeInTheDocument();
-    expect(getByText(translations['modules.badges.badge-item.default.description'])).toBeInTheDocument();
+    expect(getByText(messages.badgeDefaultTitle.defaultMessage)).toBeInTheDocument();
+    expect(getByText(messages.badgeDefaultDescription.defaultMessage)).toBeInTheDocument();
   });
 
   it('calls openConfirmDeletionAlert when delete button is clicked', () => {
     const { getByRole } = renderComponent();
 
-    const deleteButton = getByRole('button', { name: translations['modules.badges.badge-item.button.delete.title'] });
+    const deleteButton = getByRole('button', { name: messages.badgeDeleteBtnTitle.defaultMessage });
     userEvent.click(deleteButton);
     expect(mockOpenConfirmDeletionAlert).toHaveBeenCalledTimes(1);
 
     waitFor(() => {
       const modal = getByRole('dialog');
-      expect(within(modal).getByText(translations['modules.badges.alert.modal.confirm.deletion.description'])).toBeInTheDocument();
-      expect(within(modal).getByText(translations['modules.badges.alert.modal.confirm.deletion.title'])).toBeInTheDocument();
+      expect(within(modal).getByText(messages.confirmDeletionModalDescription.defaultMessage)).toBeInTheDocument();
+      expect(within(modal).getByText(messages.confirmDeletionModalTitle.defaultMessage)).toBeInTheDocument();
     });
   });
 
   it('triggers actions when edit button is clicked', () => {
     const { getByRole } = renderComponent();
 
-    const editButton = getByRole('button', { name: translations['modules.badges.badge-item.button.edit.title'] });
+    const editButton = getByRole('button', { name: messages.badgeEditBtnTitle.defaultMessage });
     userEvent.click(editButton);
     expect(editButton).toBeEnabled();
   });

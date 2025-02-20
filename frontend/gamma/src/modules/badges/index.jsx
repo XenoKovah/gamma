@@ -1,14 +1,16 @@
 import React from 'react';
 import { Container, Button } from '@openedx/paragon';
+import { useIntl } from 'react-intl';
 
 import {
   AlertComponent, Loader, SEOHelmet, ManageEntityModal,
   AlertModal, Header, Footer, ToastComponent,
 } from '../../generic';
-import { useTranslate } from '../../i18n/utils';
+import genericMessages from '../../i18n';
 import { useCoursesData, useOrganizationsData } from './data';
 import { BadgesList, SubHeader } from './components';
 import { useBadges } from './hooks/useBadges';
+import moduleMessages from './i18n';
 
 import './assets/scss/index.scss';
 
@@ -38,44 +40,21 @@ export const Badges = () => {
     closeDeletionManageEntityModal,
     isDeletionManageEntityModalOpen,
   } = useBadges();
-
-  const messages = {
-    pageTitle: useTranslate('modules.badges.heading.text'),
-    addManageEntityModalTitle: useTranslate('modules.badges.modal.add-badge.title'),
-    pageDescription: useTranslate('modules.badges.page.description'),
-    addBadgeBtnText: useTranslate('modules.badges.button.add-badge'),
-    alert: {
-      error: {
-        title: useTranslate('generic.alert.danger.title'),
-        description: useTranslate('generic.alert.danger.description'),
-      },
-      confirmDeletionModal: {
-        title: useTranslate('modules.badges.alert.modal.confirm.deletion.title'),
-        description: useTranslate('modules.badges.alert.modal.confirm.deletion.description'),
-      },
-      badgeCreated: {
-        title: useTranslate('modules.badges.alert.badge-created.title'),
-        description: useTranslate('modules.badges.alert.badge-created.description'),
-      },
-    },
-    toast: {
-      error: useTranslate('modules.badges.toast.error.text'),
-    },
-  };
+  const intl = useIntl();
 
   if (isLoading) {
     return <Loader />;
   }
 
   const successAlert = showBadgeCreatedAlert && {
-    title: messages.alert.badgeCreated.title,
-    description: messages.alert.badgeCreated.description,
+    title: intl.formatMessage(moduleMessages.badgeCreatedTitle),
+    description: intl.formatMessage(moduleMessages.badgeCreatedDescription),
     variant: 'success',
   };
 
   const errorAlert = (isError || showErrorAlert) && {
-    title: messages.alert.error.title,
-    description: messages.alert.error.description,
+    title: intl.formatMessage(genericMessages.alertDangerTitle),
+    description: intl.formatMessage(genericMessages.alertDangerDescription),
     variant: 'danger',
     onClose: () => setShowErrorAlert(!showErrorAlert),
     isDismissible: true,
@@ -88,18 +67,18 @@ export const Badges = () => {
       <Header />
       <main className="my-4 flex-grow-1">
         <AlertModal
-          title={messages.alert.confirmDeletionModal.title}
+          title={intl.formatMessage(moduleMessages.confirmDeletionModalTitle)}
           isOpen={isDeletionManageEntityModalOpen}
           onClose={closeDeletionManageEntityModal}
           onDelete={handleDeleteBadgeById}
-          description={messages.alert.confirmDeletionModal.description}
+          description={intl.formatMessage(moduleMessages.confirmDeletionModalDescription)}
           isStatefulButton
           submitStatus={deletionStatus}
         />
         <ManageEntityModal
           isManageEntityModalOpen={isManageEntityModalOpen}
           useCoursesData={useCoursesData}
-          title={messages.addManageEntityModalTitle}
+          title={intl.formatMessage(moduleMessages.addManageEntityModalTitle)}
           useOrganizationsData={useOrganizationsData}
           data={{
             courses: coursesData?.courses || [],
@@ -112,8 +91,8 @@ export const Badges = () => {
           onReset={closeManageEntityModal}
         />
         <SEOHelmet
-          title={messages.pageTitle}
-          description={messages.pageDescription}
+          title={intl.formatMessage(moduleMessages.pageTitle)}
+          description={intl.formatMessage(moduleMessages.pageDescription)}
         />
         <Container size="lg">
           <SubHeader
@@ -124,7 +103,7 @@ export const Badges = () => {
           {alertProps && <AlertComponent {...alertProps} />}
           {showErrorToast && (
             <ToastComponent
-              text={messages.toast.error}
+              text={intl.formatMessage(moduleMessages.toastErrorTitle)}
               onClose={() => setShowErrorToast(!showErrorToast)}
             />
           )}
@@ -140,7 +119,7 @@ export const Badges = () => {
                 data-testid="add-badge-button"
                 onClick={openManageEntityModal}
               >
-                {messages.addBadgeBtnText}
+                {intl.formatMessage(moduleMessages.addBadgeBtnText)}
               </Button>
             </>
           )}
