@@ -3,25 +3,23 @@ import PropTypes from 'prop-types';
 import {
   Button, Stack, useMediaQuery, breakpoints,
 } from '@openedx/paragon';
-import { useIntl } from 'react-intl';
 
-import messages from '../../i18n';
-
-const SubHeader = ({ isError, badgesCount, openManageEntityModal }) => {
+const SubHeader = ({
+  title, btnTitle, description, isError, onClick,
+}) => {
   const isExtraSmall = useMediaQuery({ maxWidth: breakpoints.extraSmall.maxWidth });
-  const intl = useIntl();
 
   return (
     <header className="mt-4 mb-4">
       <Stack className="justify-content-between" direction={isExtraSmall ? 'vertical' : 'horizontal'}>
-        <h1 className="mb-0">{intl.formatMessage(messages.pageTitle)}</h1>
+        <h1 className="mb-0">{title}</h1>
         {!isError && (
           <Stack direction={isExtraSmall ? 'vertical' : 'horizontal'} gap={3}>
             <p className="m-0">
-              {intl.formatMessage(messages.totalBadgesCount, { badgesCount })}
+              {description}
             </p>
-            <Button onClick={openManageEntityModal}>
-              {intl.formatMessage(messages.addBadgeBtnText)}
+            <Button onClick={onClick}>
+              {btnTitle}
             </Button>
           </Stack>
         )}
@@ -31,9 +29,11 @@ const SubHeader = ({ isError, badgesCount, openManageEntityModal }) => {
 };
 
 SubHeader.propTypes = {
+  title: PropTypes.string.isRequired,
   isError: PropTypes.bool.isRequired,
-  badgesCount: PropTypes.number.isRequired,
-  openManageEntityModal: PropTypes.func.isRequired,
+  btnTitle: PropTypes.string.isRequired,
+  description: PropTypes.string.isRequired,
+  onClick: PropTypes.func.isRequired,
 };
 
 export default SubHeader;

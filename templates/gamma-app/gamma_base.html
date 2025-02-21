@@ -1,27 +1,17 @@
 {% load static %}
+{% load i18n %}
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ LANGUAGE_CODE|default:'en' }}">
     <head>
         <meta charset="UTF-8">
         <meta content="width=device-width, initial-scale=1" name="viewport"/>
-        <link rel="icon" type="image/png" href="{% static 'gamma/dist/favicon.ico' %}">
+        <link rel="icon" href="{% static 'gamma/dist/favicon.ico' %}" type="image/x-icon">
+
+        <title>{% block title %}{% trans "Gamma App" %}{% endblock %}</title>
+
         {% block css %}
         {% endblock %}
-        {% if request.path == "/gamma/avatar/" %}
-            {% block base_style %}
-                {# TODO: Temporary styles for the Avatar page. These will be removed after the application's refactoring. #}
-                <link href="{% static 'gamma/dist/temporary_static/all.css' %}" rel="stylesheet" type="text/css"/>
-                <link href="{% static 'gamma/dist/temporary_static/styles.css' %}" rel="stylesheet" type="text/css"/>
-            {% endblock %}
-        {% endif %}
-
-        <link href="https://fonts.googleapis.com" rel="preconnect">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"/>
-        <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
-        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/react-datepicker@latest/dist/react-datepicker.min.css"/>
-        <title>Gamma App</title>
     </head>
 
     <body>
@@ -30,13 +20,5 @@
 
         {% block js %}
         {% endblock %}
-
-        {% if request.path == "/gamma/avatar/" %}
-            {# TODO: Temporary scripts for the Avatar page. These will be removed after the application's refactoring. #}
-            <script src="{% static 'gamma/dist/temporary_static/jquery/jquery-3.7.1.min.js' %}"></script>
-            <script src="{% static 'gamma/dist/temporary_static/select2.min.js' %}"></script>
-            <script src="{% static 'gamma/dist/temporary_static/main.js' %}"></script>
-            <script src="{% static 'gamma/dist/temporary_static/student_dashboard.js' %}"></script>
-        {% endif %}
     </body>
 </html>

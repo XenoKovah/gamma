@@ -3,13 +3,13 @@ import { defineMessages } from 'react-intl';
 const messages = defineMessages({
   pageTitle: {
     id: 'modules.badges.heading.text',
-    defaultMessage: 'Сторінка значків',
-    description: 'Текст, що відображається у заголовку сторінки значків.',
+    defaultMessage: 'Налаштування значків',
+    description: 'Текст, що відображається у заголовку сторінки налаштування значків.',
   },
   pageDescription: {
     id: 'modules.badges.page.description',
     defaultMessage: 'Ця сторінка відображає значки та дозволяє користувачам створювати і редагувати їх.',
-    description: 'Опис сторінки значків.',
+    description: 'Опис сторінки налаштування значків.',
   },
   addBadgeBtnText: {
     id: 'modules.badges.button.add-badge',

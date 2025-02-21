@@ -8,4 +8,5 @@ export { default as Header } from './header';
 export { default as Footer } from './footer';
 export { default as ManageEntityModal } from './manage-entity-modal';
 export { default as StatusButton } from './status-button/StatusButton';
+export { default as SubHeader } from './sub-header';
 export { submitBtnStatuses } from './status-button';

@@ -3,13 +3,13 @@ import { defineMessages } from 'react-intl';
 const messages = defineMessages({
   pageTitle: {
     id: 'modules.badges.heading.text',
-    defaultMessage: 'Badges page',
-    description: 'The text displayed in the heading of the badges page.',
+    defaultMessage: 'Badges settings',
+    description: 'The text displayed in the heading of the badges settings page.',
   },
   pageDescription: {
     id: 'modules.badges.page.description',
     defaultMessage: 'This page displays badges and allows users to create and edit them.',
-    description: 'The description for the badges page.',
+    description: 'The description for the badges settings page.',
   },
   addBadgeBtnText: {
     id: 'modules.badges.button.add-badge',

@@ -4,11 +4,11 @@ import { useIntl } from 'react-intl';
 
 import {
   AlertComponent, Loader, SEOHelmet, ManageEntityModal,
-  AlertModal, Header, Footer, ToastComponent,
+  AlertModal, Header, Footer, ToastComponent, SubHeader,
 } from '../../generic';
 import genericMessages from '../../i18n';
 import { useCoursesData, useOrganizationsData } from './data';
-import { BadgesList, SubHeader } from './components';
+import { BadgesList } from './components';
 import { useBadges } from './hooks/useBadges';
 import moduleMessages from './i18n';
 
@@ -97,8 +97,10 @@ export const Badges = () => {
         <Container size="lg">
           <SubHeader
             isError={isError}
-            badgesCount={badgesData?.length}
-            openManageEntityModal={openManageEntityModal}
+            title={intl.formatMessage(moduleMessages.pageTitle)}
+            btnTitle={intl.formatMessage(moduleMessages.addBadgeBtnText)}
+            description={intl.formatMessage(moduleMessages.totalBadgesCount, { badgesCount: badgesData?.length || 0 })}
+            onClick={openManageEntityModal}
           />
           {alertProps && <AlertComponent {...alertProps} />}
           {showErrorToast && (

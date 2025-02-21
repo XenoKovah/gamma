@@ -1,0 +1,46 @@
+import { defineMessages } from 'react-intl';
+
+const messages = defineMessages({
+  pageTitle: {
+    id: 'modules.avatars.heading.text',
+    defaultMessage: 'Avatars settings',
+    description: 'The text displayed in the heading of the avatars settings page.',
+  },
+  pageDescription: {
+    id: 'modules.avatars.page.description',
+    defaultMessage: 'This page displays badges and allows users to create and edit them.',
+    description: 'The description for the avatars settings page.',
+  },
+  totalAvatarsCount: {
+    id: 'modules.avatars.total-avatars.counter.text',
+    defaultMessage: 'Total avatars: {avatarsCount}',
+    description: 'The text displayed for the total number of avatars.',
+  },
+  addAvatarBtnText: {
+    id: 'modules.avatars.button.add-avatar',
+    defaultMessage: 'Add avatar',
+    description: 'The text displayed on the button to add a avatar.',
+  },
+  alertEmptyAvatarsListTitle: {
+    id: 'modules.avatars.alert.empty-avatars-list.title',
+    defaultMessage: 'No avatars available',
+    description: 'The title for the alert when there are no avatars to display.',
+  },
+  alertEmptyAvatarsListDescription: {
+    id: 'modules.avatars.alert.empty-avatars-list.description',
+    defaultMessage: 'There are currently no avatars to display.',
+    description: 'The description for the alert when there are no avatars to display.',
+  },
+  avatarEditBtnTitle: {
+    id: 'modules.avatars.avatar-item.button.edit.title',
+    defaultMessage: 'Edit',
+    description: 'The text displayed on the button to edit a avatar.',
+  },
+  avatarDeleteBtnTitle: {
+    id: 'modules.avatar.avatar-item.button.delete.title',
+    defaultMessage: 'Delete',
+    description: 'The text displayed on the button to delete a avatar.',
+  },
+});
+
+export default messages;

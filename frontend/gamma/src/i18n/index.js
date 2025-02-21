@@ -321,10 +321,10 @@ const messages = defineMessages({
     defaultMessage: 'Badges',
     description: 'The text displayed for the Badges link in the header.',
   },
-  headerAvatarLinkText: {
-    id: 'generic.header.nav.avatar',
-    defaultMessage: 'Avatar',
-    description: 'The text displayed for the Avatar link in the header.',
+  headerAvatarsLinkText: {
+    id: 'generic.header.nav.avatars',
+    defaultMessage: 'Avatars',
+    description: 'The text displayed for the Avatars link in the header.',
   },
 });
 

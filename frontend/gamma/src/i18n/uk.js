@@ -321,8 +321,8 @@ const messages = defineMessages({
     defaultMessage: 'Значки',
     description: 'Текст для посилання на значки в заголовку.',
   },
-  headerAvatarLinkText: {
-    id: 'generic.header.nav.avatar',
+  headerAvatarsLinkText: {
+    id: 'generic.header.nav.avatars',
     defaultMessage: 'Аватар',
     description: 'Текст для посилання на аватар у заголовку.',
   },

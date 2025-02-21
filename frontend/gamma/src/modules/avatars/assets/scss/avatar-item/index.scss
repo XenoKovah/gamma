@@ -1,0 +1,8 @@
+.avatar-item.pgn__card .avatar-item-image.pgn__card-wrapper-image-cap.vertical {
+  max-height: $avatar-item-image-height;
+  height: $avatar-item-image-height;
+
+  .pgn__card-image-cap {
+    height: 100%;
+  }
+}

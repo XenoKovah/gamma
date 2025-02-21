@@ -24,8 +24,8 @@ const Header = () => {
       label: intl.formatMessage(messages.headerBadgesLinkText),
     },
     {
-      path: ROUTES.AVATAR,
-      label: intl.formatMessage(messages.headerAvatarLinkText),
+      path: ROUTES.AVATARS,
+      label: intl.formatMessage(messages.headerAvatarsLinkText),
     },
   ];
 
