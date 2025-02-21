@@ -1,12 +1,9 @@
 import pytest
 from pytest_factoryboy import register
 
-from events.factories import (
-    EventTypeFactory,
-    EventRequestDataFactory,
-)
+from events.factories import EventRequestDataFactory
 
-register(EventTypeFactory)
+
 register(EventRequestDataFactory)
 
 

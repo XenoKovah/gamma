@@ -15,6 +15,7 @@ from avatar.constants import (
 )
 from avatar.factories import AvatarFactory, AvatarSetFactory
 from avatar.models import Avatar, AvatarSet
+from events.factories import EventFactory, EventTypeFactory
 
 
 @pytest.mark.django_db
@@ -53,6 +54,99 @@ class TestAvatarSerializer:
         assert Avatar.objects.count() == 1
         assert Avatar.objects.first().title == 'Test Avatar'
         assert Avatar.objects.first().description == 'Test Description'
+
+    def test_valid_avatar_only_update_rules(
+        self,
+        avatar_factory: AvatarFactory,
+        event_configuration_factory: EventFactory,
+        event_type_factory: EventTypeFactory
+    ):
+        avatar = avatar_factory()
+        event_configuration_factory(event_type=event_type_factory(name='problem_check'))
+        event_configuration_factory(event_type=event_type_factory(name='problem_graded'))
+        data = {
+            'title': 'single Avatar Title',
+            'rules': [
+                {
+                    'action': {
+                        'problem_check': 2
+                    },
+                    'filters': {
+                        'interval': {
+                            'start': '2012-12-20T12:20:12',
+                            'end': '2020-12-20T12:20:12'
+                        }
+                    }
+                },
+                {
+                    'action': {
+                        'problem_graded': 4
+                    },
+                    'filters': {
+                        'frequency': 2
+                    }
+                }
+            ]
+        }
+
+        serializer = AvatarSerializer(instance=avatar, data=data, partial=True)
+        assert serializer.is_valid(), serializer.errors
+        serializer.save()
+
+        assert avatar.title == data['title']
+        assert avatar.rules.count() == 2
+
+        for i, rule in enumerate(avatar.rules.all()):
+            assert rule.action == data['rules'][i]['action']
+            assert rule.filters == data['rules'][i]['filters']
+
+    def test_valid_avatar_update_all_fields(
+            self,
+            avatar_factory: AvatarFactory,
+            event_configuration_factory: EventFactory,
+            event_type_factory: EventTypeFactory
+    ):
+        avatar = avatar_factory()
+        event_configuration_factory(event_type=event_type_factory(name='problem_check'))
+        event_configuration_factory(event_type=event_type_factory(name='problem_graded'))
+        data = {
+            'title': 'single Avatar Title',
+            'description': 'single Avatar Description',
+            'image': BASE64_CORRECT_FILE,
+            'rules': [
+                {
+                    'action': {
+                        'problem_check': 2
+                    },
+                    'filters': {
+                        'interval': {
+                            'start': '2012-12-20T12:20:12',
+                            'end': '2020-12-20T12:20:12'
+                        }
+                    }
+                },
+                {
+                    'action': {
+                        'problem_graded': 4
+                    },
+                    'filters': {
+                        'frequency': 2
+                    }
+                }
+            ]
+        }
+
+        serializer = AvatarSerializer(instance=avatar, data=data, partial=True)
+        assert serializer.is_valid(), serializer.errors
+        serializer.save()
+
+        assert avatar.title == data['title']
+        assert avatar.description == data['description']
+        assert avatar.rules.count() == 2
+
+        for i, rule in enumerate(avatar.rules.all()):
+            assert rule.action == data['rules'][i]['action']
+            assert rule.filters == data['rules'][i]['filters']
 
     def test_missing_title(self):
         data = {

@@ -11,6 +11,8 @@ from avatar.constants import (
     SVG_EXTENSION
 )
 from avatar.models import Avatar, AvatarSet
+from rules.models import Rule
+from rules.serializers import RuleSerializer
 
 
 class Base64SVGField(Base64FileField):
@@ -51,10 +53,29 @@ class AvatarSerializer(serializers.ModelSerializer):
     # So, I added `existent_id` optional field.
     existent_id = serializers.IntegerField(required=False)
     image = Base64SVGField()
+    rules = RuleSerializer(many=True, required=False)
 
     class Meta:
         model = Avatar
         fields = ('id', 'title', 'description', 'image', 'rules', 'existent_id')
+
+    def update(self, instance, validated_data):
+        """
+        Handle updates to a single Avatar, including updating rules.
+        """
+        rules_data = validated_data.pop('rules', None)
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        if rules_data is not None:
+            instance.rules.clear()
+            for rule_data in rules_data:
+                rule, __ = Rule.objects.get_or_create(**rule_data)
+                instance.rules.add(rule)
+
+        return instance
 
     def validate(self, data):
         """

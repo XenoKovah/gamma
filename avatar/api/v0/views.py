@@ -1,5 +1,4 @@
 from rest_framework import viewsets
-from rest_framework.permissions import IsAdminUser
 
 from avatar.api.v0.serializers import AvatarSetSerializer, AvatarSerializer
 from avatar.models import (
@@ -7,9 +6,10 @@ from avatar.models import (
     AvatarSet,
     UserAvatarConfig,
 )
+from core.mixins import AdminUserPermissionMixin
 
 
-class AvatarSetViewSet(viewsets.ModelViewSet):
+class AvatarSetViewSet(AdminUserPermissionMixin, viewsets.ModelViewSet):
     """
     View set provides CRUD operations for managing Avatar Set.
     """
@@ -17,12 +17,11 @@ class AvatarSetViewSet(viewsets.ModelViewSet):
     queryset = AvatarSet.objects.all()
     serializer_class = AvatarSetSerializer
 
-    def get_permissions(self):
-        """
-        Check user permission.
-        """
-        if self.action in ('create', 'update', 'partial_update', 'destroy'):
-            permission_classes = [IsAdminUser]
-        else:
-            permission_classes = []
-        return [permission() for permission in permission_classes]
+
+class AvatarViewSet(AdminUserPermissionMixin, viewsets.ModelViewSet):
+    """
+    View set provides CRUD operations for managing single Avatar.
+    """
+
+    queryset = Avatar.objects.all()
+    serializer_class = AvatarSerializer

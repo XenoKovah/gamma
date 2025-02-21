@@ -1,12 +1,14 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from avatar.api.v0.views import AvatarSetViewSet
+from avatar.api.v0.views import AvatarViewSet, AvatarSetViewSet
 
 
 router = DefaultRouter()
-router.register('', AvatarSetViewSet)
+router.register('avatar_set', AvatarSetViewSet, basename='avatar_set')
+router.register('avatar', AvatarViewSet, basename='avatar')
+
 
 urlpatterns = [
-    path('avatar_set/', include(router.urls)),
+    path('', include(router.urls)),
 ]

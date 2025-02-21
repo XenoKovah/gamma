@@ -17,13 +17,14 @@ from core.notif import push
 from core.notif.onesignal_provider import OneSignalServiceBuilder
 from core.notif.cfg import Provider, Config
 from core.notif.utils import get_format_func
-from events.factories import EventFactory, EventConfigurationFactory
+from events.factories import EventFactory, EventConfigurationFactory, EventTypeFactory
 from rules.factories import RuleFactory
 from users.factories import GammaUserFactory
 
 
 register(BadgeFactory)
 register(EventFactory)
+register(EventTypeFactory)
 register(EventConfigurationFactory)
 register(GammaUserFactory)
 register(RuleFactory)
