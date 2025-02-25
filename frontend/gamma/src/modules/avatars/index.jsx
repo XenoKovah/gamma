@@ -1,17 +1,55 @@
+import { Button, Container } from '@openedx/paragon';
 import React from 'react';
-import { Container, Button } from '@openedx/paragon';
 import { useIntl } from 'react-intl';
 
 import {
-  SEOHelmet, Header, Footer, SubHeader,
+  AlertComponent,
+  AlertModal,
+  Footer,
+  Header,
+  Loader,
+  SEOHelmet,
+  SubHeader,
+  ToastComponent,
 } from '../../generic';
-import { AvatarList } from './components';
+import { useAvatarSets } from './hooks/useAvatarSets';
+import genericMessages from '../../i18n';
+import { AvatarsList } from './components';
 import moduleMessages from './i18n';
 
 import './assets/scss/index.scss';
 
 export const Avatars = () => {
   const intl = useIntl();
+
+  const {
+    deletionStatus,
+    showErrorToast,
+    showErrorAlert,
+    avatarSetsData,
+    setShowErrorToast,
+    setShowErrorAlert,
+    isAvatarSetsDataError,
+    isAvatarSetsDataLoading,
+    openConfirmDeletionModal,
+    handleDeleteAvatarSetById,
+    closeDeletionAvatarSetModal,
+    isDeletionAvatarSetModalOpen,
+  } = useAvatarSets();
+
+  if (isAvatarSetsDataLoading) {
+    return <Loader />;
+  }
+
+  const errorAlert = (isAvatarSetsDataError || showErrorAlert) && {
+    title: intl.formatMessage(genericMessages.alertDangerTitle),
+    description: intl.formatMessage(genericMessages.alertDangerDescription),
+    variant: 'danger',
+    onClose: () => setShowErrorAlert(!showErrorAlert),
+    isDismissible: true,
+  };
+
+  const alertProps = errorAlert || null;
 
   return (
     <>
@@ -21,21 +59,46 @@ export const Avatars = () => {
           title={intl.formatMessage(moduleMessages.pageTitle)}
           description={intl.formatMessage(moduleMessages.pageDescription)}
         />
+        <AlertModal
+          title={intl.formatMessage(moduleMessages.confirmDeletionModalTitle)}
+          isOpen={isDeletionAvatarSetModalOpen}
+          onClose={closeDeletionAvatarSetModal}
+          onDelete={handleDeleteAvatarSetById}
+          description={intl.formatMessage(moduleMessages.confirmDeletionModalDescription)}
+          isStatefulButton
+          submitStatus={deletionStatus}
+        />
         <Container size="lg">
           <SubHeader
-            isError={false}
+            isError={isAvatarSetsDataError}
             title={intl.formatMessage(moduleMessages.pageTitle)}
             btnTitle={intl.formatMessage(moduleMessages.addAvatarBtnText)}
-            description={intl.formatMessage(moduleMessages.totalAvatarsCount, { avatarsCount: 0 })}
+            description={
+              intl.formatMessage(moduleMessages.totalAvatarSetsCount, { avatarSetsCount: avatarSetsData?.length || 0 })
+            }
             onClick={() => {}}
           />
-          <AvatarList />
-          <Button
-            block
-            data-testid="add-avatar-button"
-          >
-            {intl.formatMessage(moduleMessages.addAvatarBtnText)}
-          </Button>
+          {alertProps && <AlertComponent {...alertProps} />}
+          {showErrorToast && (
+            <ToastComponent
+              text={intl.formatMessage(moduleMessages.toastErrorTitle)}
+              onClose={() => setShowErrorToast(!showErrorToast)}
+            />
+          )}
+          {!isAvatarSetsDataError && (
+            <>
+              <AvatarsList
+                avatarSetsData={avatarSetsData}
+                openConfirmDeletionModal={openConfirmDeletionModal}
+              />
+              <Button
+                block
+                data-testid="add-avatar-button"
+              >
+                {intl.formatMessage(moduleMessages.addAvatarBtnText)}
+              </Button>
+            </>
+          )}
         </Container>
       </main>
       <Footer />

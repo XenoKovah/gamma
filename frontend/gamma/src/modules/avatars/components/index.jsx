@@ -1,1 +1,1 @@
-export { default as AvatarList } from './avatars-list';
+export { default as AvatarsList } from './avatars-list';

@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { IntlProvider } from 'react-intl';
 import { render } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
@@ -12,17 +13,23 @@ global.matchMedia = global.matchMedia || (() => ({
   removeListener() {},
 }));
 
-export const renderWithProviders = (children) => {
+export const renderWithProviders = (ui) => {
   const messages = getMessages('en');
   const queryClient = new QueryClient();
 
-  return render(
+  const Wrapper = ({ children }) => (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <IntlProvider locale="en" messages={messages}>
           {children}
         </IntlProvider>
       </BrowserRouter>
-    </QueryClientProvider>,
+    </QueryClientProvider>
   );
+
+  Wrapper.propTypes = {
+    children: PropTypes.node.isRequired,
+  };
+
+  return render(ui, { wrapper: Wrapper });
 };

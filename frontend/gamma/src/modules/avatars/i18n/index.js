@@ -11,10 +11,10 @@ const messages = defineMessages({
     defaultMessage: 'This page displays badges and allows users to create and edit them.',
     description: 'The description for the avatars settings page.',
   },
-  totalAvatarsCount: {
-    id: 'modules.avatars.total-avatars.counter.text',
-    defaultMessage: 'Total avatars: {avatarsCount}',
-    description: 'The text displayed for the total number of avatars.',
+  totalAvatarSetsCount: {
+    id: 'modules.avatars.total-avatars-sets.counter.text',
+    defaultMessage: 'Total avatar sets: {avatarSetsCount}',
+    description: 'The text displayed for the total number of avatar sets.',
   },
   addAvatarBtnText: {
     id: 'modules.avatars.button.add-avatar',
@@ -37,9 +37,24 @@ const messages = defineMessages({
     description: 'The text displayed on the button to edit a avatar.',
   },
   avatarDeleteBtnTitle: {
-    id: 'modules.avatar.avatar-item.button.delete.title',
+    id: 'modules.avatars.avatar-item.button.delete.title',
     defaultMessage: 'Delete',
     description: 'The text displayed on the button to delete a avatar.',
+  },
+  toastErrorTitle: {
+    id: 'modules.avatars.toast.error.text',
+    defaultMessage: 'Some error occurred.',
+    description: 'The text displayed in the error toast message.',
+  },
+  confirmDeletionModalTitle: {
+    id: 'modules.avatars.alert.modal.confirm.deletion.title',
+    defaultMessage: 'Confirm deletion',
+    description: 'The title for the confirmation modal when deleting a avatar set.',
+  },
+  confirmDeletionModalDescription: {
+    id: 'modules.avatars.alert.modal.confirm.deletion.description',
+    defaultMessage: 'Are you sure you want to delete this avatar set? This action cannot be undone.',
+    description: 'The description for the confirmation modal when deleting a avatar set.',
   },
 });
 

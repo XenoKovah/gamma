@@ -3,6 +3,7 @@ import '@testing-library/jest-dom';
 import { cleanup } from '@testing-library/react';
 
 import { renderWithProviders } from '../../../../../setupTests';
+import { avatarSetsMocks } from '../../../__mocks__';
 import messages from '../../../i18n';
 import AvatarItem from '.';
 
@@ -10,8 +11,10 @@ describe('AvatarItem', () => {
   afterEach(cleanup);
 
   const defaultProps = {
+    id: 1,
     title: 'Default Avatar',
-    imageSrc: 'https://example.com/avatar.jpg',
+    openConfirmDeletionModal: jest.fn(),
+    avatars: avatarSetsMocks[1].avatar,
   };
 
   const renderComponent = (props = {}) => renderWithProviders(<AvatarItem {...defaultProps} {...props} />);
@@ -25,12 +28,13 @@ describe('AvatarItem', () => {
     expect(getByRole('button', { name: messages.avatarDeleteBtnTitle.defaultMessage })).toBeInTheDocument();
   });
 
-  it('renders with default translations when props are missing', () => {
-    const { queryByRole } = renderComponent({
+  it('renders with default translations and avatar img when props are missing', () => {
+    const { getByRole } = renderComponent({
       title: undefined,
-      imageSrc: undefined,
+      avatars: [],
     });
 
-    expect(queryByRole('img')).not.toBeInTheDocument();
+    // Image placeholder
+    expect(getByRole('img')).toBeInTheDocument();
   });
 });

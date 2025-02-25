@@ -1,41 +1,55 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import { CardGrid } from '@openedx/paragon';
 
 import { AlertComponent } from '../../../../generic';
 import messages from '../../i18n';
 import AvatarItem from './avatar-item';
+import { avatarsPropTypes } from './propTypes';
 
-import avatar from '../../assets/images/avatar.png';
-
-const AvatarsList = () => {
+const AvatarsList = ({ avatarSetsData, openConfirmDeletionModal }) => {
   const intl = useIntl();
 
-  return (
-    <>
+  if (!avatarSetsData.length) {
+    return (
       <AlertComponent
         title={intl.formatMessage(messages.alertEmptyAvatarsListTitle)}
         description={intl.formatMessage(messages.alertEmptyAvatarsListDescription)}
         variant="info"
       />
-      <CardGrid
-        columnSizes={{
-          xs: 12,
-          lg: 6,
-          xl: 4,
-        }}
-        hasEqualColumnHeights
-      >
-        {[...Array(6)].map((_, index) => (
-          <AvatarItem
-            key={index} // eslint-disable-line react/no-array-index-key
-            title="Avatar title"
-            imageSrc={avatar}
-          />
-        ))}
-      </CardGrid>
-    </>
+    );
+  }
+
+  return (
+    <CardGrid
+      columnSizes={{ xs: 12, lg: 6, xl: 4 }}
+      hasEqualColumnHeights
+    >
+      {avatarSetsData.map(({ id, title, avatar }) => (
+        <AvatarItem
+          key={id}
+          id={id}
+          title={title}
+          avatars={avatar}
+          openConfirmDeletionModal={openConfirmDeletionModal}
+        />
+      ))}
+    </CardGrid>
   );
+};
+
+AvatarsList.propTypes = {
+  avatarSetsData: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      title: PropTypes.string.isRequired,
+      avatar: PropTypes.arrayOf(avatarsPropTypes).isRequired,
+      useInCourses: PropTypes.arrayOf(PropTypes.string).isRequired,
+      isDraft: PropTypes.bool.isRequired,
+    }),
+  ).isRequired,
+  openConfirmDeletionModal: PropTypes.func.isRequired,
 };
 
 export default AvatarsList;

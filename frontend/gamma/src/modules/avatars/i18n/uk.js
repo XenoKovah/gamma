@@ -11,9 +11,9 @@ const messages = defineMessages({
     defaultMessage: 'Ця сторінка відображає аватари та дозволяє користувачам створювати і редагувати їх.',
     description: 'Опис сторінки налаштувань аватарів.',
   },
-  totalAvatarsCount: {
+  totalAvatarSetsCount: {
     id: 'modules.avatars.total-avatars.counter.text',
-    defaultMessage: 'Загальна кількість аватарів: {avatarsCount}',
+    defaultMessage: 'Загальна кількість аватарів: {avatarSetsCount}',
     description: 'Текст, що відображає загальну кількість аватарів.',
   },
   addAvatarBtnText: {
@@ -37,9 +37,24 @@ const messages = defineMessages({
     description: 'Текст, що відображається на кнопці редагування аватара.',
   },
   avatarDeleteBtnTitle: {
-    id: 'modules.avatar.avatar-item.button.delete.title',
+    id: 'modules.avatars.avatar-item.button.delete.title',
     defaultMessage: 'Видалити',
     description: 'Текст, що відображається на кнопці видалення аватара.',
+  },
+  toastErrorTitle: {
+    id: 'modules.avatars.toast.error.text',
+    defaultMessage: 'Сталася помилка.',
+    description: 'Текст, що відображається в сповіщенні про помилку.',
+  },
+  confirmDeletionModalTitle: {
+    id: 'modules.avatars.alert.modal.confirm.deletion.title',
+    defaultMessage: 'Підтвердження видалення',
+    description: 'Заголовок модального вікна підтвердження видалення аватар сету.',
+  },
+  confirmDeletionModalDescription: {
+    id: 'modules.avatars.alert.modal.confirm.deletion.description',
+    defaultMessage: 'Ви впевнені, що хочете видалити цей аватар сет? Цю дію неможливо скасувати.',
+    description: 'Опис у модальному вікні підтвердження видалення аватар сету.',
   },
 });
 
