@@ -1,7 +1,7 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from avatar.api.v0.views import AvatarViewSet, AvatarSetViewSet
+from avatars.api.v0.views import AvatarViewSet, AvatarSetViewSet
 
 
 router = DefaultRouter()

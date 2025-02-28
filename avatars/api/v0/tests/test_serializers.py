@@ -3,9 +3,9 @@ import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework.exceptions import ErrorDetail, ValidationError
 
-from avatar.api.v0.serializers import AvatarSerializer, AvatarSetSerializer, Base64SVGField
-from avatar.api.v0.tests.constants import BASE64_CORRECT_FILE, BASE64_INVALID_FILE
-from avatar.constants import (
+from avatars.api.v0.serializers import AvatarSerializer, AvatarSetSerializer, Base64SVGField
+from avatars.api.v0.tests.constants import BASE64_CORRECT_FILE, BASE64_INVALID_FILE
+from avatars.constants import (
     AVATAR_SET_DUPLICATE_TITLE_ERROR,
     AVATAR_SET_TITLE_ERROR,
     AVATAR_STAGES_ERROR,
@@ -13,8 +13,8 @@ from avatar.constants import (
     INVALID_FILE_FORMAT,
     SVG_EXTENSION
 )
-from avatar.factories import AvatarFactory, AvatarSetFactory
-from avatar.models import Avatar, AvatarSet
+from avatars.factories import AvatarFactory, AvatarSetFactory
+from avatars.models import Avatar, AvatarSet
 from events.factories import EventFactory, EventTypeFactory
 
 
@@ -177,7 +177,7 @@ class TestAvatarSetSerializer:
     def test_update_avatar_set_with_avatars(self, avatar_set_factory: AvatarFactory):
         avatar_set = avatar_set_factory(title='Test Avatar Set')
         data = {
-            'avatar': [
+            'avatars': [
                 {
                     'title': 'Avatar 1',
                     'description': 'Avatar 1 description',
@@ -197,15 +197,15 @@ class TestAvatarSetSerializer:
         assert serializer.is_valid(), serializer.errors
         serializer.save()
         assert avatar_set.title == 'Test Avatar Set'
-        assert avatar_set.avatar.count() == 2
-        assert avatar_set.avatar.first().title == 'Avatar 1'
-        assert avatar_set.avatar.last().title == 'Avatar 2'
+        assert avatar_set.avatars.count() == 2
+        assert avatar_set.avatars.first().title == 'Avatar 1'
+        assert avatar_set.avatars.last().title == 'Avatar 2'
 
     def test_update_avatar_set_requires_two_avatars(self, avatar_set_factory: AvatarSetFactory):
         avatar_set = avatar_set_factory()
         data = {
             'title': 'Test Avatar Set',
-            'avatar': [
+            'avatars': [
                 {
                     'title': 'Only One Avatar',
                     'description': 'Not enough avatars',

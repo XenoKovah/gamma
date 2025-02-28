@@ -35,7 +35,7 @@ INSTALLED_APPS = [
     'achievements',
     'api',
     'googlecharts',
-    'avatar',
+    'avatars',
 
     'corsheaders',
 
@@ -50,6 +50,7 @@ INSTALLED_APPS = [
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 GAMIFICATION_BACKENDS = [
+    'avatars.backend.AvatarBackend',
     'badges.backend.BadgeBackend'
 ]
 

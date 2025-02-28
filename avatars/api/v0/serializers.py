@@ -2,7 +2,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from drf_extra_fields.fields import Base64FileField
 from rest_framework import serializers
 
-from avatar.constants import (
+from avatars.constants import (
     AVATAR_SET_DUPLICATE_TITLE_ERROR,
     AVATAR_SET_TITLE_ERROR,
     AVATAR_STAGES_ERROR,
@@ -10,7 +10,7 @@ from avatar.constants import (
     INVALID_FILE_FORMAT,
     SVG_EXTENSION
 )
-from avatar.models import Avatar, AvatarSet
+from avatars.models import Avatar, AvatarSet
 from rules.models import Rule
 from rules.serializers import RuleSerializer
 
@@ -91,11 +91,11 @@ class AvatarSetSerializer(serializers.ModelSerializer):
     AvatarSet serializer.
     """
 
-    avatar = AvatarSerializer(many=True, required=False)
+    avatars = AvatarSerializer(many=True, required=False)
 
     class Meta:
         model = AvatarSet
-        fields = ('id', 'title', 'avatar', 'use_in_courses', 'is_draft')
+        fields = ('id', 'title', 'avatars', 'use_in_courses', 'is_draft')
 
     def create(self, validated_data):
         """
@@ -108,17 +108,17 @@ class AvatarSetSerializer(serializers.ModelSerializer):
         """
         Ensures at least two Avatar objects exist in the AvatarSet before updating.
         """
-        avatar_data = validated_data.pop('avatar', None)
+        avatars_data = validated_data.pop('avatars', None)
 
-        if avatar_data is not None:
-            if len(avatar_data) < 2:
+        if avatars_data is not None:
+            if len(avatars_data) < 2:
                 raise serializers.ValidationError(AVATAR_STAGES_ERROR)
 
-            avatar_serializer = AvatarSerializer(data=avatar_data, many=True)
+            avatar_serializer = AvatarSerializer(data=avatars_data, many=True)
             avatar_serializer.is_valid(raise_exception=True)
 
             avatar_instances = []
-            for av in avatar_data:
+            for av in avatars_data:
                 avatar_instance, __ = Avatar.objects.update_or_create(
                     id=av.get('existent_id'),
                     defaults={
@@ -128,7 +128,7 @@ class AvatarSetSerializer(serializers.ModelSerializer):
                     }
                 )
                 avatar_instances.append(avatar_instance)
-            instance.avatar.set([avatar.id for avatar in avatar_instances])
+            instance.avatars.set(avatar.id for avatar in avatar_instances)
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)

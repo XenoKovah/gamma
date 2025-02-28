@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 
-from avatar.api.v0.serializers import AvatarSetSerializer, AvatarSerializer
-from avatar.models import (
+from avatars.api.v0.serializers import AvatarSetSerializer, AvatarSerializer
+from avatars.models import (
     Avatar,
     AvatarSet,
     UserAvatarConfig,

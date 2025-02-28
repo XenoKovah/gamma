@@ -1,7 +1,7 @@
 import factory
 from django.core.files.uploadedfile import SimpleUploadedFile
 
-from avatar.models import Avatar, AvatarSet
+from avatars.models import Avatar, AvatarSet
 
 
 class AvatarFactory(factory.django.DjangoModelFactory):
@@ -14,6 +14,20 @@ class AvatarFactory(factory.django.DjangoModelFactory):
     image = factory.LazyAttribute(
         lambda _: SimpleUploadedFile('test_avatar.svg', b'<svg></svg>', content_type='image/svg+xml')
     )
+
+    @factory.post_generation
+    def set_rules(self, create, extracted, **kwargs):
+        """
+        Add related Rule objects after avatar creation.
+        """
+        if not create or not extracted:
+            return
+
+        if extracted:
+            if isinstance(extracted, tuple) and len(extracted):
+                self.rules.set(extracted)
+            else:
+                self.rules.add(extracted)
 
     class Meta:
         model = Avatar
@@ -29,7 +43,7 @@ class AvatarSetFactory(factory.django.DjangoModelFactory):
     use_in_courses = factory.LazyFunction(lambda: ['course_1', 'course_2'])
 
     @factory.post_generation
-    def avatar(self, create, extracted, **kwargs):
+    def avatars(self, create, extracted, **kwargs):
         """
         If avatars are provided, add them to the set. Otherwise, create two default avatars.
         """
@@ -37,9 +51,9 @@ class AvatarSetFactory(factory.django.DjangoModelFactory):
             return
 
         if extracted:
-            self.avatar.set(extracted)
+            self.avatars.set(extracted)
         else:
-            self.avatar.set(AvatarFactory.create_batch(2))
+            self.avatars.set(AvatarFactory.create_batch(2))
 
     class Meta:
         model = AvatarSet

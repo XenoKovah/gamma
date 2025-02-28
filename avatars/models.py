@@ -19,7 +19,8 @@ class Avatar(models.Model):
     rules = models.ManyToManyField('rules.Rule', blank=True)
 
     def __str__(self):
-        return self.title
+        rules = ', '.join(self.rules.values_list('action', flat=True)) or 'No rules'
+        return f'Avatar {self.title!r} with rules {rules}'
 
     class Meta:
         verbose_name = _('Avatar')
@@ -36,7 +37,7 @@ class AvatarSet(models.Model):
     """
 
     title = models.CharField(max_length=255, null=True, blank=True, verbose_name=_('Avatar Set Title'))
-    avatar = models.ManyToManyField(Avatar, blank=True, verbose_name=_('Avatar'))
+    avatars = models.ManyToManyField(Avatar, blank=True, verbose_name=_('Avatars'))
     use_in_courses = models.JSONField(default=list)
     is_draft = models.BooleanField(default=True)
 
