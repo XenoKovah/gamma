@@ -7,8 +7,15 @@
     font-size: $font-size-sm;
   }
 
-  .toast-component.toast-danger,
-  .toast-header {
-    background-color: $danger;
+  .toast.toast-component {
+    &.toast-danger,
+    &.toast-danger .toast-header {
+      background-color: $danger;
+    }
+
+    &.toast-success,
+    &.toast-success .toast-header {
+      background-color: $success;
+    }
   }
 }

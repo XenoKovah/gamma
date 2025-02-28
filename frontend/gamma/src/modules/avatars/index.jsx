@@ -1,6 +1,6 @@
-import { Button, Container } from '@openedx/paragon';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useIntl } from 'react-intl';
+import { Button, Container } from '@openedx/paragon';
 
 import {
   AlertComponent,
@@ -12,9 +12,10 @@ import {
   SubHeader,
   ToastComponent,
 } from '../../generic';
+
 import { useAvatarSets } from './hooks/useAvatarSets';
 import genericMessages from '../../i18n';
-import { AvatarsList } from './components';
+import { AvatarsList, AvatarStepper } from './components';
 import moduleMessages from './i18n';
 
 import './assets/scss/index.scss';
@@ -23,19 +24,30 @@ export const Avatars = () => {
   const intl = useIntl();
 
   const {
+    activeToast,
+    submitStatus,
     deletionStatus,
-    showErrorToast,
     showErrorAlert,
     avatarSetsData,
-    setShowErrorToast,
     setShowErrorAlert,
     isAvatarSetsDataError,
     isAvatarSetsDataLoading,
     openConfirmDeletionModal,
+    handleCreateNewAvatarSet,
+    openManageAvatarSetModal,
     handleDeleteAvatarSetById,
+    closeManageAvatarSetModal,
+    isManageAvatarSetModalOpen,
     closeDeletionAvatarSetModal,
     isDeletionAvatarSetModalOpen,
+    showAvatarSetCreatedSuccessfully,
   } = useAvatarSets();
+
+  useEffect(() => {
+    if (showErrorAlert || isAvatarSetsDataError) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [showErrorAlert, isAvatarSetsDataError]);
 
   if (isAvatarSetsDataLoading) {
     return <Loader />;
@@ -54,10 +66,18 @@ export const Avatars = () => {
   return (
     <>
       <Header />
-      <main className="mt-4 mb-4 flex-grow-1">
+      <main className="avatars-settings mt-4 mb-4 flex-grow-1">
         <SEOHelmet
           title={intl.formatMessage(moduleMessages.pageTitle)}
           description={intl.formatMessage(moduleMessages.pageDescription)}
+        />
+        <AvatarStepper
+          isManageAvatarSetModalOpen={isManageAvatarSetModalOpen}
+          closeManageAvatarSetModal={closeManageAvatarSetModal}
+          handleCreateNewAvatarSet={handleCreateNewAvatarSet}
+          submitStatus={submitStatus}
+          showAvatarSetCreatedSuccessfully={showAvatarSetCreatedSuccessfully}
+          avatarSetsData={avatarSetsData}
         />
         <AlertModal
           title={intl.formatMessage(moduleMessages.confirmDeletionModalTitle)}
@@ -76,13 +96,17 @@ export const Avatars = () => {
             description={
               intl.formatMessage(moduleMessages.totalAvatarSetsCount, { avatarSetsCount: avatarSetsData?.length || 0 })
             }
-            onClick={() => {}}
+            onClick={openManageAvatarSetModal}
           />
           {alertProps && <AlertComponent {...alertProps} />}
-          {showErrorToast && (
+          {activeToast && (
             <ToastComponent
-              text={intl.formatMessage(moduleMessages.toastErrorTitle)}
-              onClose={() => setShowErrorToast(!showErrorToast)}
+              className={isManageAvatarSetModalOpen ? 'avatars-settings-toast' : ''}
+              variant={activeToast.variant}
+              text={activeToast.text}
+              isShow
+              onClose={activeToast.onClose}
+              delay={1000}
             />
           )}
           {!isAvatarSetsDataError && (
@@ -94,6 +118,7 @@ export const Avatars = () => {
               <Button
                 block
                 data-testid="add-avatar-button"
+                onClick={openManageAvatarSetModal}
               >
                 {intl.formatMessage(moduleMessages.addAvatarBtnText)}
               </Button>

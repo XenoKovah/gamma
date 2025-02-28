@@ -13,6 +13,8 @@ global.matchMedia = global.matchMedia || (() => ({
   removeListener() {},
 }));
 
+global.scrollTo = jest.fn();
+
 export const renderWithProviders = (ui) => {
   const messages = getMessages('en');
   const queryClient = new QueryClient();

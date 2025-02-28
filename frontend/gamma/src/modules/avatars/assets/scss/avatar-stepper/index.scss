@@ -1,0 +1,24 @@
+.avatar-stepper-container .pgn__action-row {
+  position: fixed;
+  inset: 0;
+  padding: $spacer;
+  background: $white;
+  border-top: 1px solid $gray-200;
+  z-index: $zindex-fixed;
+}
+
+.toast-container:has(.avatars-settings-toast) {
+  bottom: 5.625rem;
+
+  .toast-header-btn-container {
+    display: none;
+  }
+}
+
+.avatar-stepper.pgn__modal.pgn__modal-visible-overflow .pgn__modal-body {
+  overflow-x: scroll;
+
+  .pgn__modal-body-content {
+    margin-bottom: 6.25rem;
+  }
+}
