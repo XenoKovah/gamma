@@ -22,7 +22,7 @@ jest.mock('./hooks/useAvatarSets', () => ({
   useAvatarSets: jest.fn(),
 }));
 
-describe('Avatars Component', () => {
+describe('Avatars', () => {
   let mock;
 
   const getMockedUseAvatarSets = (overrides = {}) => ({
@@ -87,21 +87,21 @@ describe('Avatars Component', () => {
   it('renders an empty avatars list message', async () => {
     const { getByText } = renderWithProviders(<Avatars />);
 
-    getByText(moduleMessages.alertEmptyAvatarsListTitle.defaultMessage);
-    getByText(moduleMessages.alertEmptyAvatarsListDescription.defaultMessage);
+    getByText(moduleMessages.alertEmptyAvatarSetListTitle.defaultMessage);
+    getByText(moduleMessages.alertEmptyAvatarSetListDescription.defaultMessage);
   });
 
-  it('displays the total number of avatars correctly', async () => {
+  it('displays the total number of avatar sets correctly', async () => {
     const { getByText } = renderWithProviders(<Avatars />);
     getByText(moduleMessages.totalAvatarSetsCount.defaultMessage.replace('{avatarSetsCount}', 0));
   });
 
-  it('renders add avatar button', () => {
+  it('renders add avatar set button', () => {
     const { getByTestId } = renderWithProviders(<Avatars />);
-    expect(getByTestId('add-avatar-button')).toBeInTheDocument();
+    expect(getByTestId('add-avatar-set-button')).toBeInTheDocument();
   });
 
-  it('renders avatar items correctly with titles and buttons', async () => {
+  it('renders avatar set items correctly with titles and buttons', async () => {
     useAvatarSets.mockReturnValue(getMockedUseAvatarSets({
       avatarSetsData: convertKeysToCamelCase(avatarSetsMocks),
     }));
@@ -112,10 +112,10 @@ describe('Avatars Component', () => {
     const { getByTestId, getByText } = renderWithProviders(<Avatars />);
 
     avatarSetsMocks.forEach((avatarSet) => {
-      const avatarCard = getByTestId(`avatar-item-${avatarSet.id}`);
+      const avatarCard = getByTestId(`avatar-set-item-${avatarSet.id}`);
       within(avatarCard).getByText(avatarSet.title);
-      within(avatarCard).getByText(moduleMessages.avatarDeleteBtnTitle.defaultMessage);
-      within(avatarCard).getByText(moduleMessages.avatarEditBtnTitle.defaultMessage);
+      within(avatarCard).getByText(moduleMessages.avatarSetDeleteBtnTitle.defaultMessage);
+      within(avatarCard).getByText(moduleMessages.avatarSetEditBtnTitle.defaultMessage);
     });
 
     getByText(moduleMessages.totalAvatarSetsCount.defaultMessage.replace(
@@ -137,8 +137,8 @@ describe('Avatars Component', () => {
     const {
       rerender, getByTestId, getByRole, getByText,
     } = renderWithProviders(<Avatars />);
-    const avatarCard = getByTestId(`avatar-item-${targetAvatarSetId}`);
-    const deleteAvatarSetBtn = within(avatarCard).getByText(moduleMessages.avatarDeleteBtnTitle.defaultMessage);
+    const avatarSetCard = getByTestId(`avatar-set-item-${targetAvatarSetId}`);
+    const deleteAvatarSetBtn = within(avatarSetCard).getByText(moduleMessages.avatarSetDeleteBtnTitle.defaultMessage);
 
     await act(async () => userEvent.click(deleteAvatarSetBtn));
 
@@ -149,17 +149,17 @@ describe('Avatars Component', () => {
     rerender(<Avatars />);
 
     await waitFor(() => {
-      const confirmDeletionModal = getByRole('dialog');
-      within(confirmDeletionModal).getByText(moduleMessages.confirmDeletionModalTitle.defaultMessage);
+      const confirmAvatarSetDeletionModal = getByRole('dialog');
+      within(confirmAvatarSetDeletionModal).getByText(moduleMessages.confirmDeletionModalTitle.defaultMessage);
     });
 
-    const deleteBtn = getByText(moduleMessages.avatarDeleteBtnTitle.defaultMessage);
+    const avatarSetDeleteBtn = getByText(moduleMessages.avatarSetDeleteBtnTitle.defaultMessage);
     const updatedAvatarSetsMocks = convertKeysToCamelCase(avatarSetsMocks).filter(
       avatarSet => avatarSet.id !== targetAvatarSetId,
     );
 
     mock.onDelete(`${API_ROUTES.AVATAR_SET}${targetAvatarSetId}`).reply(200, updatedAvatarSetsMocks);
-    await act(async () => userEvent.click(deleteBtn));
+    await act(async () => userEvent.click(avatarSetDeleteBtn));
     await act(() => fetchAvatarSetsData());
 
     useAvatarSets.mockReturnValue(getMockedUseAvatarSets({
@@ -183,12 +183,12 @@ describe('Avatars Component', () => {
     });
   });
 
-  describe('Avatar stepper', () => {
-    it('opens the avatar stepper and displays all expected elements', async () => {
+  describe('Avatar set stepper', () => {
+    it('opens the avatar set stepper and displays all expected elements', async () => {
       const { rerender, getByTestId, getByRole } = renderWithProviders(<Avatars />);
 
       await act(async () => {
-        userEvent.click(getByTestId('add-avatar-button'));
+        userEvent.click(getByTestId('add-avatar-set-button'));
       });
 
       useAvatarSets.mockReturnValue(getMockedUseAvatarSets({ isManageAvatarSetModalOpen: true }));
@@ -196,18 +196,18 @@ describe('Avatars Component', () => {
       rerender(<Avatars />);
 
       await waitFor(() => {
-        const avatarStepper = getByRole('dialog');
+        const avatarSetStepper = getByRole('dialog');
 
-        within(avatarStepper).getByText(moduleMessages.avatarStepperTitle.defaultMessage);
-        within(avatarStepper).getByText(moduleMessages.avatarStepperBtnStatefulDefaultText.defaultMessage);
-        within(avatarStepper).getByText(moduleMessages.avatarStepperCloseBtnTitle.defaultMessage);
+        within(avatarSetStepper).getByText(moduleMessages.avatarSetStepperTitle.defaultMessage);
+        within(avatarSetStepper).getByText(moduleMessages.avatarSetStepperBtnStatefulDefaultText.defaultMessage);
+        within(avatarSetStepper).getByText(moduleMessages.avatarSetStepperCloseBtnTitle.defaultMessage);
 
         // Steps
-        within(avatarStepper).getByText(moduleMessages.avatarStepperConfigurationStepTitle.defaultMessage);
-        within(avatarStepper).getByText(moduleMessages.avatarStepperAvatarsStepTitle.defaultMessage);
-        within(avatarStepper).getByRole('heading', {
+        within(avatarSetStepper).getByText(moduleMessages.avatarSetStepperEvolutionStepTitle.defaultMessage);
+        within(avatarSetStepper).getByText(moduleMessages.avatarSetStepperAvatarsStepTitle.defaultMessage);
+        within(avatarSetStepper).getByRole('heading', {
           level: 2,
-          name: moduleMessages.avatarStepperTitleStepTitle.defaultMessage,
+          name: moduleMessages.avatarSetStepperTitleStepTitle.defaultMessage,
         });
       });
     });
@@ -216,18 +216,18 @@ describe('Avatars Component', () => {
       const { rerender, getByTestId, getByRole } = renderWithProviders(<Avatars />);
 
       await act(async () => {
-        userEvent.click(getByTestId('add-avatar-button'));
+        userEvent.click(getByTestId('add-avatar-set-button'));
       });
 
       useAvatarSets.mockReturnValue(getMockedUseAvatarSets({ isManageAvatarSetModalOpen: true }));
       rerender(<Avatars />);
 
       await waitFor(() => {
-        const avatarStepper = getByRole('dialog');
-        within(avatarStepper).getByText(moduleMessages.avatarStepperTitleStepDescription.defaultMessage);
+        const avatarSetStepper = getByRole('dialog');
+        within(avatarSetStepper).getByText(moduleMessages.avatarSetStepperTitleStepDescription.defaultMessage);
 
-        const titleInput = within(avatarStepper).getByLabelText(
-          moduleMessages.avatarStepperTitleStepInputTitleLabel.defaultMessage,
+        const titleInput = within(avatarSetStepper).getByLabelText(
+          moduleMessages.avatarSetStepperTitleStepInputTitleLabel.defaultMessage,
         );
 
         userEvent.click(titleInput);
@@ -235,8 +235,8 @@ describe('Avatars Component', () => {
       });
 
       await waitFor(() => {
-        const avatarStepper = getByRole('dialog');
-        within(avatarStepper).getByText(moduleMessages.avatarStepperValidationTitleRequired.defaultMessage);
+        const avatarSetStepper = getByRole('dialog');
+        within(avatarSetStepper).getByText(moduleMessages.avatarSetStepperValidationTitleRequired.defaultMessage);
       });
     });
 
@@ -246,35 +246,35 @@ describe('Avatars Component', () => {
       } = renderWithProviders(<Avatars />);
 
       await act(async () => {
-        userEvent.click(getByTestId('add-avatar-button'));
+        userEvent.click(getByTestId('add-avatar-set-button'));
       });
 
       useAvatarSets.mockReturnValue(getMockedUseAvatarSets({ isManageAvatarSetModalOpen: true }));
       rerender(<Avatars />);
 
       await waitFor(() => {
-        const avatarStepper = getByRole('dialog');
+        const avatarSetStepper = getByRole('dialog');
 
-        const titleInput = within(avatarStepper).getByLabelText(
-          moduleMessages.avatarStepperTitleStepInputTitleLabel.defaultMessage,
+        const titleInput = within(avatarSetStepper).getByLabelText(
+          moduleMessages.avatarSetStepperTitleStepInputTitleLabel.defaultMessage,
         );
 
         userEvent.type(titleInput, 'Test avatar set 1');
         userEvent.tab();
 
         expect(
-          within(avatarStepper).queryByText(moduleMessages.avatarStepperValidationTitleRequired.defaultMessage),
+          within(avatarSetStepper).queryByText(moduleMessages.avatarSetStepperValidationTitleRequired.defaultMessage),
         ).not.toBeInTheDocument();
 
-        const nextBtn = within(avatarStepper)
-          .getByText(moduleMessages.avatarStepperBtnStatefulDefaultText.defaultMessage);
+        const nextBtn = within(avatarSetStepper)
+          .getByText(moduleMessages.avatarSetStepperBtnStatefulDefaultText.defaultMessage);
         userEvent.click(nextBtn);
       });
 
       const newAvatarSet = {
         id: avatarSetsMocks.length + 1,
         title: 'Test avatar set 1',
-        avatar: [],
+        avatars: [],
         use_in_courses: [],
         is_draft: true,
       };

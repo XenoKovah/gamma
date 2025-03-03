@@ -3,13 +3,13 @@ import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import { Stepper, Container, FullscreenModal } from '@openedx/paragon';
 
-import { ConfigurationStep, TitleStep, AvatarsStep } from './steps-components';
+import { EvolutionStep, TitleStep, AvatarsStep } from './steps-components';
 import { stepTitleValidationSchema } from './validation';
 import { SUBMIT_STATUSES, STEPPER_STEPS } from './constants';
 
 import moduleMessages from '../../i18n';
 
-export const AvatarStepper = ({
+export const AvatarSetStepper = ({
   submitStatus,
   avatarSetsData,
   handleCreateNewAvatarSet,
@@ -41,19 +41,19 @@ export const AvatarStepper = ({
   }, [isManageAvatarSetModalOpen, handleCloseManageAvatarSetModal]);
 
   const statefulButtonLabels = {
-    default: intl.formatMessage(moduleMessages.avatarStepperBtnStatefulDefaultText),
-    pending: intl.formatMessage(moduleMessages.avatarStepperBtnStatefulPendingText),
-    complete: intl.formatMessage(moduleMessages.avatarStepperBtnStatefulCompleteText),
-    finish: intl.formatMessage(moduleMessages.avatarStepperBtnFinishText),
+    default: intl.formatMessage(moduleMessages.avatarSetStepperBtnStatefulDefaultText),
+    pending: intl.formatMessage(moduleMessages.avatarSetStepperBtnStatefulPendingText),
+    complete: intl.formatMessage(moduleMessages.avatarSetStepperBtnStatefulCompleteText),
+    finish: intl.formatMessage(moduleMessages.avatarSetStepperBtnFinishText),
   };
 
   const translations = {
     validation: {
       titleStep: {
-        titleRequired: intl.formatMessage(moduleMessages.avatarStepperValidationTitleRequired),
-        titleMaxLength: intl.formatMessage(moduleMessages.avatarStepperValidationTitleMaxLength),
-        titleLettersNumbers: intl.formatMessage(moduleMessages.avatarStepperValidationTitleLettersNumbers),
-        titleUnique: intl.formatMessage(moduleMessages.avatarStepperValidationTitleUnique),
+        titleRequired: intl.formatMessage(moduleMessages.avatarSetStepperValidationTitleRequired),
+        titleMaxLength: intl.formatMessage(moduleMessages.avatarSetStepperValidationTitleMaxLength),
+        titleLettersNumbers: intl.formatMessage(moduleMessages.avatarSetStepperValidationTitleLettersNumbers),
+        titleUnique: intl.formatMessage(moduleMessages.avatarSetStepperValidationTitleUnique),
       },
     },
   };
@@ -66,8 +66,8 @@ export const AvatarStepper = ({
   return (
     <Stepper key={stepperKey} activeKey={currentStep}>
       <FullscreenModal
-        title={intl.formatMessage(moduleMessages.avatarStepperTitle)}
-        className="avatar-stepper"
+        title={intl.formatMessage(moduleMessages.avatarSetStepperTitle)}
+        className="avatar-set-stepper"
         // Prevents modal closure on outside clicks,
         // including interactions with floating notifications.
         isBlocking
@@ -77,7 +77,7 @@ export const AvatarStepper = ({
         isOverflowVisible
         beforeBodyNode={<Stepper.Header className="border-bottom border-light" />}
       >
-        <Container className="avatar-stepper-container" size="md">
+        <Container className="avatar-set-stepper-container" size="md">
           <TitleStep
             currentStep={currentStep}
             submitStatus={submitStatus}
@@ -88,7 +88,7 @@ export const AvatarStepper = ({
             validationSchema={stepTitleValidationSchema(translations.validation.titleStep, avatarTitleMap)}
             handleCreateNewAvatarSet={handleCreateNewAvatarSet}
           />
-          <ConfigurationStep
+          <EvolutionStep
             currentStep={currentStep}
             setCurrentStep={setCurrentStep}
             statefulButtonLabels={statefulButtonLabels}
@@ -105,7 +105,7 @@ export const AvatarStepper = ({
   );
 };
 
-AvatarStepper.propTypes = {
+AvatarSetStepper.propTypes = {
   isManageAvatarSetModalOpen: PropTypes.bool.isRequired,
   closeManageAvatarSetModal: PropTypes.func.isRequired,
   handleCreateNewAvatarSet: PropTypes.func.isRequired,
@@ -119,4 +119,4 @@ AvatarStepper.propTypes = {
   ).isRequired,
 };
 
-export default AvatarStepper;
+export default AvatarSetStepper;

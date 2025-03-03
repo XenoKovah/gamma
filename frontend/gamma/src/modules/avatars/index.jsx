@@ -14,8 +14,9 @@ import {
 } from '../../generic';
 
 import { useAvatarSets } from './hooks/useAvatarSets';
+import { AvatarSetList, AvatarSetStepper } from './components';
+
 import genericMessages from '../../i18n';
-import { AvatarsList, AvatarStepper } from './components';
 import moduleMessages from './i18n';
 
 import './assets/scss/index.scss';
@@ -71,7 +72,7 @@ export const Avatars = () => {
           title={intl.formatMessage(moduleMessages.pageTitle)}
           description={intl.formatMessage(moduleMessages.pageDescription)}
         />
-        <AvatarStepper
+        <AvatarSetStepper
           isManageAvatarSetModalOpen={isManageAvatarSetModalOpen}
           closeManageAvatarSetModal={closeManageAvatarSetModal}
           handleCreateNewAvatarSet={handleCreateNewAvatarSet}
@@ -92,7 +93,7 @@ export const Avatars = () => {
           <SubHeader
             isError={isAvatarSetsDataError}
             title={intl.formatMessage(moduleMessages.pageTitle)}
-            btnTitle={intl.formatMessage(moduleMessages.addAvatarBtnText)}
+            btnTitle={intl.formatMessage(moduleMessages.addAvatarSetBtnText)}
             description={
               intl.formatMessage(moduleMessages.totalAvatarSetsCount, { avatarSetsCount: avatarSetsData?.length || 0 })
             }
@@ -111,16 +112,16 @@ export const Avatars = () => {
           )}
           {!isAvatarSetsDataError && (
             <>
-              <AvatarsList
+              <AvatarSetList
                 avatarSetsData={avatarSetsData}
                 openConfirmDeletionModal={openConfirmDeletionModal}
               />
               <Button
                 block
-                data-testid="add-avatar-button"
+                data-testid="add-avatar-set-button"
                 onClick={openManageAvatarSetModal}
               >
-                {intl.formatMessage(moduleMessages.addAvatarBtnText)}
+                {intl.formatMessage(moduleMessages.addAvatarSetBtnText)}
               </Button>
             </>
           )}

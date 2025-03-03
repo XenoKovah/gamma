@@ -5,30 +5,30 @@ import { cleanup } from '@testing-library/react';
 import { renderWithProviders } from '../../../../../setupTests';
 import { avatarSetsMocks } from '../../../__mocks__';
 import messages from '../../../i18n';
-import AvatarItem from '.';
+import AvatarSetItem from '.';
 
-describe('AvatarItem', () => {
+describe('AvatarSetItem', () => {
   afterEach(cleanup);
 
   const defaultProps = {
     id: 1,
-    title: 'Default Avatar',
+    title: 'Default avatar set',
     openConfirmDeletionModal: jest.fn(),
-    avatars: avatarSetsMocks[1].avatar,
+    avatars: avatarSetsMocks[1].avatars,
   };
 
-  const renderComponent = (props = {}) => renderWithProviders(<AvatarItem {...defaultProps} {...props} />);
+  const renderComponent = (props = {}) => renderWithProviders(<AvatarSetItem {...defaultProps} {...props} />);
 
-  it('renders with provided props', () => {
+  it('renders avatar set card with provided props', () => {
     const { getByRole, getByText } = renderComponent();
 
     expect(getByRole('img', { name: defaultProps.title })).toBeInTheDocument();
     expect(getByText(defaultProps.title)).toBeInTheDocument();
-    expect(getByRole('button', { name: messages.avatarEditBtnTitle.defaultMessage })).toBeInTheDocument();
-    expect(getByRole('button', { name: messages.avatarDeleteBtnTitle.defaultMessage })).toBeInTheDocument();
+    expect(getByRole('button', { name: messages.avatarSetEditBtnTitle.defaultMessage })).toBeInTheDocument();
+    expect(getByRole('button', { name: messages.avatarSetDeleteBtnTitle.defaultMessage })).toBeInTheDocument();
   });
 
-  it('renders with default translations and avatar img when props are missing', () => {
+  it('renders with default translations and avatar set img when props are missing', () => {
     const { getByRole } = renderComponent({
       title: undefined,
       avatars: [],

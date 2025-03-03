@@ -2,7 +2,7 @@ module.exports = [
   {
     id: 12,
     title: 'Avatar Set 1',
-    avatar: [
+    avatars: [
       {
         id: 1,
         title: 'Avatar 1',
@@ -42,7 +42,7 @@ module.exports = [
   {
     id: 13,
     title: 'Avatar Set 2',
-    avatar: [
+    avatars: [
       {
         id: 1,
         title: 'Avatar 1',
@@ -67,7 +67,7 @@ module.exports = [
   {
     id: 14,
     title: 'Avatar Set 3',
-    avatar: [
+    avatars: [
       {
         id: 1,
         title: 'Avatar 1',
@@ -92,7 +92,7 @@ module.exports = [
   {
     id: 15,
     title: 'Avatar Set 4',
-    avatar: [
+    avatars: [
       {
         id: 1,
         title: 'Avatar 1',
@@ -117,7 +117,7 @@ module.exports = [
   {
     id: 16,
     title: 'Avatar Set 5',
-    avatar: [],
+    avatars: [],
     use_in_courses: [
       'test',
     ],
@@ -126,7 +126,7 @@ module.exports = [
   {
     id: 17,
     title: 'Avatar Set 6',
-    avatar: [
+    avatars: [
       {
         id: 1,
         title: 'Avatar 1',
@@ -151,7 +151,7 @@ module.exports = [
   {
     id: 18,
     title: 'Avatar Set 7',
-    avatar: [
+    avatars: [
       {
         id: 1,
         title: 'Avatar 1',
@@ -176,7 +176,7 @@ module.exports = [
   {
     id: 19,
     title: 'Avatar Set 8',
-    avatar: [],
+    avatars: [],
     use_in_courses: [
       'Avatar Set 1',
     ],

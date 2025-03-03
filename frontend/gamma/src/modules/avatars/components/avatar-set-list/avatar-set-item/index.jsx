@@ -8,7 +8,7 @@ import { avatarsPropTypes } from '../propTypes';
 
 import imagePlaceholder from '../../../assets/images/not-found.jpg';
 
-const AvatarItem = ({
+const AvatarSetItem = ({
   id, title, avatars, openConfirmDeletionModal,
 }) => {
   const intl = useIntl();
@@ -31,20 +31,20 @@ const AvatarItem = ({
   const imageSrc = getAvatarSetImage(avatars, imagePlaceholder);
 
   return (
-    <Card className="avatar-item" data-testid={`avatar-item-${id}`}>
+    <Card className="avatar-set-item" data-testid={`avatar-set-item-${id}`}>
       <Card.ImageCap
-        className="avatar-item-image"
+        className="avatar-set-item-image"
         src={imageSrc}
         srcAlt={title}
       />
-      <Card.Header className="avatar-item-header" title={title} />
+      <Card.Header className="avatar-set-item-header" title={title} />
       <Card.Footer>
         <ActionRow>
           <Button variant="tertiary" block onClick={() => openConfirmDeletionModal(id)}>
-            {intl.formatMessage(messages.avatarDeleteBtnTitle)}
+            {intl.formatMessage(messages.avatarSetDeleteBtnTitle)}
           </Button>
           <Button className="mt-0" block>
-            {intl.formatMessage(messages.avatarEditBtnTitle)}
+            {intl.formatMessage(messages.avatarSetEditBtnTitle)}
           </Button>
         </ActionRow>
       </Card.Footer>
@@ -52,11 +52,11 @@ const AvatarItem = ({
   );
 };
 
-AvatarItem.propTypes = {
+AvatarSetItem.propTypes = {
   id: PropTypes.number.isRequired,
   title: PropTypes.string.isRequired,
   avatars: PropTypes.arrayOf(avatarsPropTypes).isRequired,
   openConfirmDeletionModal: PropTypes.func.isRequired,
 };
 
-export default AvatarItem;
+export default AvatarSetItem;

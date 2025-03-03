@@ -14,19 +14,19 @@ const AvatarsStep = ({ currentStep, handleCloseManageAvatarSetModal }) => {
     <>
       <Stepper.Step
         eventKey={STEPPER_STEPS.avatars}
-        title={intl.formatMessage(moduleMessages.avatarStepperAvatarsStepTitle)}
+        title={intl.formatMessage(moduleMessages.avatarSetStepperAvatarsStepTitle)}
       >
         <h2 className="mt-4">
-          {intl.formatMessage(moduleMessages.avatarStepperAvatarsStepTitle)}
+          {intl.formatMessage(moduleMessages.avatarSetStepperAvatarsStepTitle)}
         </h2>
       </Stepper.Step>
       {currentStep === STEPPER_STEPS.avatars && (
         <ActionRow className="justify-content-between">
           <Button variant="outline-primary" onClick={handleCloseManageAvatarSetModal}>
-            {intl.formatMessage(moduleMessages.avatarStepperCloseBtnTitle)}
+            {intl.formatMessage(moduleMessages.avatarSetStepperCloseBtnTitle)}
           </Button>
           <Button onClick={handleCloseManageAvatarSetModal}>
-            {intl.formatMessage(moduleMessages.avatarStepperBtnFinishText)}
+            {intl.formatMessage(moduleMessages.avatarSetStepperBtnFinishText)}
           </Button>
         </ActionRow>
       )}

@@ -27,7 +27,7 @@ const TitleStep = ({
 
   useEffect(() => {
     if (showAvatarSetCreatedSuccessfully) {
-      setCurrentStep(STEPPER_STEPS.configuration);
+      setCurrentStep(STEPPER_STEPS.evolution);
     }
   }, [showAvatarSetCreatedSuccessfully, setCurrentStep]);
 
@@ -44,17 +44,17 @@ const TitleStep = ({
           <Stepper.Step
             className={isExtraSmall ? 'w-100' : 'w-50'}
             eventKey={STEPPER_STEPS.title}
-            title={intl.formatMessage(moduleMessages.avatarStepperTitleStepTitle)}
+            title={intl.formatMessage(moduleMessages.avatarSetStepperTitleStepTitle)}
           >
             <h2 className="mt-4">
-              {intl.formatMessage(moduleMessages.avatarStepperTitleStepTitle)}
+              {intl.formatMessage(moduleMessages.avatarSetStepperTitleStepTitle)}
             </h2>
             <p>
-              {intl.formatMessage(moduleMessages.avatarStepperTitleStepDescription)}
+              {intl.formatMessage(moduleMessages.avatarSetStepperTitleStepDescription)}
             </p>
             <Form.Group>
               <Form.Control
-                floatingLabel={intl.formatMessage(moduleMessages.avatarStepperTitleStepInputTitleLabel)}
+                floatingLabel={intl.formatMessage(moduleMessages.avatarSetStepperTitleStepInputTitleLabel)}
                 isInvalid={touched.title && !!errors.title}
                 onChange={handleChange}
                 onBlur={handleBlur}
@@ -71,7 +71,7 @@ const TitleStep = ({
           {currentStep === STEPPER_STEPS.title && (
             <ActionRow className="justify-content-between">
               <Button variant="outline-primary" onClick={handleCloseManageAvatarSetModal}>
-                {intl.formatMessage(moduleMessages.avatarStepperCloseBtnTitle)}
+                {intl.formatMessage(moduleMessages.avatarSetStepperCloseBtnTitle)}
               </Button>
               <StatusButton
                 variant="primary"

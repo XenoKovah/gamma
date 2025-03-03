@@ -5,17 +5,17 @@ import { CardGrid } from '@openedx/paragon';
 
 import { AlertComponent } from '../../../../generic';
 import messages from '../../i18n';
-import AvatarItem from './avatar-item';
+import AvatarSetItem from './avatar-set-item';
 import { avatarsPropTypes } from './propTypes';
 
-const AvatarsList = ({ avatarSetsData, openConfirmDeletionModal }) => {
+const AvatarSetList = ({ avatarSetsData, openConfirmDeletionModal }) => {
   const intl = useIntl();
 
   if (!avatarSetsData.length) {
     return (
       <AlertComponent
-        title={intl.formatMessage(messages.alertEmptyAvatarsListTitle)}
-        description={intl.formatMessage(messages.alertEmptyAvatarsListDescription)}
+        title={intl.formatMessage(messages.alertEmptyAvatarSetListTitle)}
+        description={intl.formatMessage(messages.alertEmptyAvatarSetListDescription)}
         variant="info"
       />
     );
@@ -26,12 +26,12 @@ const AvatarsList = ({ avatarSetsData, openConfirmDeletionModal }) => {
       columnSizes={{ xs: 12, lg: 6, xl: 4 }}
       hasEqualColumnHeights
     >
-      {avatarSetsData.map(({ id, title, avatar }) => (
-        <AvatarItem
+      {avatarSetsData.map(({ id, title, avatars }) => (
+        <AvatarSetItem
           key={id}
           id={id}
           title={title}
-          avatars={avatar}
+          avatars={avatars}
           openConfirmDeletionModal={openConfirmDeletionModal}
         />
       ))}
@@ -39,12 +39,12 @@ const AvatarsList = ({ avatarSetsData, openConfirmDeletionModal }) => {
   );
 };
 
-AvatarsList.propTypes = {
+AvatarSetList.propTypes = {
   avatarSetsData: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.number.isRequired,
       title: PropTypes.string.isRequired,
-      avatar: PropTypes.arrayOf(avatarsPropTypes).isRequired,
+      avatars: PropTypes.arrayOf(avatarsPropTypes).isRequired,
       useInCourses: PropTypes.arrayOf(PropTypes.string).isRequired,
       isDraft: PropTypes.bool.isRequired,
     }),
@@ -52,4 +52,4 @@ AvatarsList.propTypes = {
   openConfirmDeletionModal: PropTypes.func.isRequired,
 };
 
-export default AvatarsList;
+export default AvatarSetList;

@@ -16,30 +16,30 @@ const messages = defineMessages({
     defaultMessage: 'Загальна кількість аватарів: {avatarSetsCount}',
     description: 'Текст, що відображає загальну кількість аватарів.',
   },
-  addAvatarBtnText: {
-    id: 'modules.avatars.button.add-avatar',
-    defaultMessage: 'Додати аватар',
-    description: 'Текст, що відображається на кнопці додавання аватара.',
+  addAvatarSetBtnText: {
+    id: 'modules.avatars.button.add-avatar-set',
+    defaultMessage: 'Додати набір аватарів',
+    description: 'Текст, що відображається на кнопці додавання набору аватарів.',
   },
-  alertEmptyAvatarsListTitle: {
-    id: 'modules.avatars.alert.empty-avatars-list.title',
+  alertEmptyAvatarSetListTitle: {
+    id: 'modules.avatars.avatar-set.alert.empty-avatar-set-list.title',
     defaultMessage: 'Немає доступних аватарів',
-    description: 'Заголовок сповіщення, коли немає аватарів для відображення.',
+    description: 'Заголовок сповіщення, коли немає надобу аватарів для відображення.',
   },
-  alertEmptyAvatarsListDescription: {
-    id: 'modules.avatars.alert.empty-avatars-list.description',
-    defaultMessage: 'Наразі немає аватарів для відображення.',
-    description: 'Опис сповіщення, коли немає аватарів для відображення.',
+  alertEmptyAvatarSetListDescription: {
+    id: 'modules.avatars.avatar-set.alert.empty-avatars-list.description',
+    defaultMessage: 'Наразі відсутні набори аватарів для відображення.',
+    description: 'Опис сповіщення, коли немає наборів аватарів для відображення.',
   },
-  avatarEditBtnTitle: {
-    id: 'modules.avatars.avatar-item.button.edit.title',
+  avatarSetEditBtnTitle: {
+    id: 'modules.avatars.avatar-set.button.edit.title',
     defaultMessage: 'Редагувати',
-    description: 'Текст, що відображається на кнопці редагування аватара.',
+    description: 'Текст, що відображається на кнопці редагування набору аватарів.',
   },
-  avatarDeleteBtnTitle: {
-    id: 'modules.avatars.avatar-item.button.delete.title',
+  avatarSetDeleteBtnTitle: {
+    id: 'modules.avatars.avatar-set.button.delete.title',
     defaultMessage: 'Видалити',
-    description: 'Текст, що відображається на кнопці видалення аватара.',
+    description: 'Текст, що відображається на кнопці видалення набору аватарів.',
   },
   toastErrorTitle: {
     id: 'modules.avatars.toast.error.text',
@@ -56,80 +56,80 @@ const messages = defineMessages({
     defaultMessage: 'Ви впевнені, що хочете видалити цей аватар сет? Цю дію неможливо скасувати.',
     description: 'Опис у модальному вікні підтвердження видалення аватар сету.',
   },
-  avatarStepperBtnStatefulDefaultText: {
-    id: 'modules.avatars.stepper.button.stateful.default.text',
+  avatarSetStepperBtnStatefulDefaultText: {
+    id: 'modules.avatars.avatar-set.stepper.button.stateful.default.text',
     defaultMessage: 'Далі',
-    description: 'Текст для кнопки у її стандартному стані в майстрі створення аватарів.',
+    description: 'Текст для кнопки у її стандартному стані в майстрі створення набору аватарів.',
   },
-  avatarStepperBtnStatefulPendingText: {
-    id: 'modules.avatars.stepper.button.stateful.pending.text',
+  avatarSetStepperBtnStatefulPendingText: {
+    id: 'modules.avatars.avatar-set.stepper.button.stateful.pending.text',
     defaultMessage: 'Збереження',
-    description: 'Текст для кнопки у стані очікування в майстрі створення аватарів.',
+    description: 'Текст для кнопки у стані очікування в майстрі створення набору аватарів.',
   },
-  avatarStepperBtnStatefulCompleteText: {
-    id: 'modules.avatars.stepper.button.stateful.complete.text',
+  avatarSetStepperBtnStatefulCompleteText: {
+    id: 'modules.avatars.avatar-set.stepper.button.stateful.complete.text',
     defaultMessage: 'Збережено',
-    description: 'Текст для кнопки у завершеному стані в майстрі створення аватарів.',
+    description: 'Текст для кнопки у завершеному стані в майстрі створення набору аватарів.',
   },
-  avatarStepperBtnFinishText: {
-    id: 'modules.avatars.stepper.button.finish.text',
+  avatarSetStepperBtnFinishText: {
+    id: 'modules.avatars.avatar-set.stepper.button.finish.text',
     defaultMessage: 'Завершити',
-    description: 'Текст для кнопки завершення в майстрі створення аватарів.',
+    description: 'Текст для кнопки завершення в майстрі створення набору аватарів.',
   },
-  avatarStepperTitle: {
-    id: 'modules.avatars.stepper.add-avatar-set.title',
+  avatarSetStepperTitle: {
+    id: 'modules.avatars.avatar-set.stepper.add-avatar-set.title',
     defaultMessage: 'Додати новий набір аватарів',
-    description: 'Заголовок майстра створення аватарів.',
+    description: 'Заголовок майстра створення набору аватарів.',
   },
-  avatarStepperValidationTitleRequired: {
-    id: 'modules.avatars.stepper.validation.title-required',
+  avatarSetStepperValidationTitleRequired: {
+    id: 'modules.avatars.avatar-set.stepper.validation.title-required',
     defaultMessage: 'Назва є обов’язковою',
-    description: 'Повідомлення про помилку для обов’язкового поля назви в майстрі створення аватарів.',
+    description: 'Повідомлення про помилку для обов’язкового поля назви в майстрі створення набору аватарів.',
   },
-  avatarStepperValidationTitleMaxLength: {
-    id: 'modules.avatars.stepper.validation.title-max-length',
+  avatarSetStepperValidationTitleMaxLength: {
+    id: 'modules.avatars.avatar-set.stepper.validation.title-max-length',
     defaultMessage: 'Назва має містити не більше 50 символів',
-    description: 'Повідомлення про помилку для обмеження довжини назви в майстрі створення аватарів.',
+    description: 'Повідомлення про помилку для обмеження довжини назви в майстрі створення набору аватарів.',
   },
-  avatarStepperValidationTitleLettersNumbers: {
-    id: 'modules.avatars.stepper.validation.title-letters-numbers',
+  avatarSetStepperValidationTitleLettersNumbers: {
+    id: 'modules.avatars.avatar-set.stepper.validation.title-letters-numbers',
     defaultMessage: 'Назва має містити лише літери та цифри',
-    description: 'Повідомлення про помилку для назви, яка має містити лише літери та цифри в майстрі створення аватарів.',
+    description: 'Повідомлення про помилку для назви, яка має містити лише літери та цифри в майстрі створення набору аватарів.',
   },
-  avatarStepperValidationTitleUnique: {
-    id: 'modules.avatars.stepper.validation.title-unique',
+  avatarSetStepperValidationTitleUnique: {
+    id: 'modules.avatars.avatar-set.stepper.validation.title-unique',
     defaultMessage: 'Така назва вже існує',
-    description: 'Повідомлення про помилку для унікальності назви в майстрі створення аватарів.',
+    description: 'Повідомлення про помилку для унікальності назви в майстрі створення набору аватарів.',
   },
-  avatarStepperCloseBtnTitle: {
-    id: 'modules.avatars.stepper.button.close.title',
+  avatarSetStepperCloseBtnTitle: {
+    id: 'modules.avatars.avatar-set.stepper.button.close.title',
     defaultMessage: 'Закрити',
-    description: 'Заголовок для кнопки закриття в майстрі створення аватарів.',
+    description: 'Заголовок для кнопки закриття в майстрі створення набору аватарів.',
   },
-  avatarStepperAvatarsStepTitle: {
-    id: 'modules.avatars.stepper.step.avatars.title',
+  avatarSetStepperAvatarsStepTitle: {
+    id: 'modules.avatars.avatar-set.stepper.step.avatars.title',
     defaultMessage: 'Аватари',
-    description: 'Заголовок для кроку вибору аватарів у майстрі створення аватарів.',
+    description: 'Заголовок для кроку вибору аватарів у майстрі створення набору аватарів.',
   },
-  avatarStepperConfigurationStepTitle: {
-    id: 'modules.avatars.stepper.step.configuration.title',
+  avatarSetStepperEvolutionStepTitle: {
+    id: 'modules.avatars.avatar-set.stepper.step.evolution.title',
     defaultMessage: 'Конфігурація',
-    description: 'Заголовок для кроку конфігурації в майстрі створення аватарів.',
+    description: 'Заголовок для кроку еволюції в майстрі створення набору аватарів.',
   },
-  avatarStepperTitleStepTitle: {
-    id: 'modules.avatars.stepper.step.title.title',
+  avatarSetStepperTitleStepTitle: {
+    id: 'modules.avatars.avatar-set.stepper.step.title.title',
     defaultMessage: 'Назва',
-    description: 'Заголовок для кроку введення назви в майстрі створення аватарів.',
+    description: 'Заголовок для кроку введення назви в майстрі створення набору аватарів.',
   },
-  avatarStepperTitleStepDescription: {
-    id: 'modules.avatars.stepper.step.title.description',
+  avatarSetStepperTitleStepDescription: {
+    id: 'modules.avatars.avatar-set.stepper.step.title.description',
     defaultMessage: 'Будь ласка, введіть назву набору аватарів нижче.',
-    description: 'Опис для кроку введення назви в майстрі створення аватарів.',
+    description: 'Опис для кроку введення назви в майстрі створення набору аватарів.',
   },
-  avatarStepperTitleStepInputTitleLabel: {
-    id: 'modules.avatars.stepper.step.title.input.title.label',
+  avatarSetStepperTitleStepInputTitleLabel: {
+    id: 'modules.avatars.avatar-set.stepper.step.title.input.title.label',
     defaultMessage: 'Введіть назву',
-    description: 'Мітка для поля введення назви в кроці введення назви майстра створення аватарів.',
+    description: 'Мітка для поля введення назви в кроці введення назви майстра створення набору аватарів.',
   },
   toastNewAvatarSetCreatedSuccessfullyTitle: {
     id: 'modules.avatars.toast.successfully.created.avatar-set.title',

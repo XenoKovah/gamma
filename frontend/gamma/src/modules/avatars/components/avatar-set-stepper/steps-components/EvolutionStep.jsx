@@ -8,7 +8,7 @@ import { STEPPER_STEPS } from '../constants';
 
 import moduleMessages from '../../../i18n';
 
-const ConfigurationStep = ({
+const EvolutionStep = ({
   currentStep,
   setCurrentStep,
   handleCloseManageAvatarSetModal,
@@ -19,17 +19,17 @@ const ConfigurationStep = ({
   return (
     <>
       <Stepper.Step
-        eventKey={STEPPER_STEPS.configuration}
-        title={intl.formatMessage(moduleMessages.avatarStepperConfigurationStepTitle)}
+        eventKey={STEPPER_STEPS.evolution}
+        title={intl.formatMessage(moduleMessages.avatarSetStepperEvolutionStepTitle)}
       >
         <h2 className="mt-4">
-          {intl.formatMessage(moduleMessages.avatarStepperConfigurationStepTitle)}
+          {intl.formatMessage(moduleMessages.avatarSetStepperEvolutionStepTitle)}
         </h2>
       </Stepper.Step>
-      {currentStep === STEPPER_STEPS.configuration && (
+      {currentStep === STEPPER_STEPS.evolution && (
         <ActionRow className="justify-content-between">
           <Button variant="outline-primary" onClick={handleCloseManageAvatarSetModal}>
-            {intl.formatMessage(moduleMessages.avatarStepperCloseBtnTitle)}
+            {intl.formatMessage(moduleMessages.avatarSetStepperCloseBtnTitle)}
           </Button>
           <StatusButton
             variant="primary"
@@ -46,7 +46,7 @@ const ConfigurationStep = ({
   );
 };
 
-ConfigurationStep.propTypes = {
+EvolutionStep.propTypes = {
   currentStep: PropTypes.string.isRequired,
   setCurrentStep: PropTypes.func.isRequired,
   handleCloseManageAvatarSetModal: PropTypes.func.isRequired,
@@ -58,4 +58,4 @@ ConfigurationStep.propTypes = {
   }).isRequired,
 };
 
-export default ConfigurationStep;
+export default EvolutionStep;

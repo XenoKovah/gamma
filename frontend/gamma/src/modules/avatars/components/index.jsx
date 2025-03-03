@@ -1,2 +1,2 @@
-export { default as AvatarsList } from './avatars-list';
-export { default as AvatarStepper } from './avatar-stepper';
+export { default as AvatarSetList } from './avatar-set-list';
+export { default as AvatarSetStepper } from './avatar-set-stepper';

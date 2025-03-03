@@ -16,30 +16,30 @@ const messages = defineMessages({
     defaultMessage: 'Total avatar sets: {avatarSetsCount}',
     description: 'The text displayed for the total number of avatar sets.',
   },
-  addAvatarBtnText: {
-    id: 'modules.avatars.button.add-avatar',
-    defaultMessage: 'Add avatar',
-    description: 'The text displayed on the button to add a avatar.',
+  addAvatarSetBtnText: {
+    id: 'modules.avatars.button.add-avatar-set',
+    defaultMessage: 'Add avatar set',
+    description: 'The text displayed on the button to add a new avatar set.',
   },
-  alertEmptyAvatarsListTitle: {
-    id: 'modules.avatars.alert.empty-avatars-list.title',
-    defaultMessage: 'No avatars available',
-    description: 'The title for the alert when there are no avatars to display.',
+  alertEmptyAvatarSetListTitle: {
+    id: 'modules.avatars.avatar-set.alert.empty-avatar-set-list.title',
+    defaultMessage: 'No avatar sets available',
+    description: 'The title for the alert when there are no avatar sets to display.',
   },
-  alertEmptyAvatarsListDescription: {
-    id: 'modules.avatars.alert.empty-avatars-list.description',
-    defaultMessage: 'There are currently no avatars to display.',
-    description: 'The description for the alert when there are no avatars to display.',
+  alertEmptyAvatarSetListDescription: {
+    id: 'modules.avatars.avatar-set.alert.empty-avatar-set-list.description',
+    defaultMessage: 'There are currently no avatar sets to display.',
+    description: 'The description for the alert when there are no avatar sets to display.',
   },
-  avatarEditBtnTitle: {
-    id: 'modules.avatars.avatar-item.button.edit.title',
+  avatarSetEditBtnTitle: {
+    id: 'modules.avatars.avatar-set.button.edit.title',
     defaultMessage: 'Edit',
-    description: 'The text displayed on the button to edit a avatar.',
+    description: 'The text displayed on the button to edit a avatar set.',
   },
-  avatarDeleteBtnTitle: {
-    id: 'modules.avatars.avatar-item.button.delete.title',
+  avatarSetDeleteBtnTitle: {
+    id: 'modules.avatars.avatar-set.button.delete.title',
     defaultMessage: 'Delete',
-    description: 'The text displayed on the button to delete a avatar.',
+    description: 'The text displayed on the button to delete a avatar set.',
   },
   toastErrorTitle: {
     id: 'modules.avatars.toast.error.text',
@@ -66,80 +66,80 @@ const messages = defineMessages({
     defaultMessage: 'Are you sure you want to delete this avatar set? This action cannot be undone.',
     description: 'The description for the confirmation modal when deleting a avatar set.',
   },
-  avatarStepperBtnStatefulDefaultText: {
-    id: 'modules.avatars.stepper.button.stateful.default.text',
+  avatarSetStepperBtnStatefulDefaultText: {
+    id: 'modules.avatars.avatar-set.stepper.button.stateful.default.text',
     defaultMessage: 'Next',
-    description: 'Text for the default state of the stateful button inside the avatar stepper.',
+    description: 'Text for the default state of the stateful button inside the avatar set stepper.',
   },
-  avatarStepperBtnStatefulPendingText: {
-    id: 'modules.avatars.stepper.button.stateful.pending.text',
+  avatarSetStepperBtnStatefulPendingText: {
+    id: 'modules.avatars.avatar-set.stepper.button.stateful.pending.text',
     defaultMessage: 'Saving',
-    description: 'Text for the pending state of the stateful button inside the avatar stepper.',
+    description: 'Text for the pending state of the stateful button inside the avatar set stepper.',
   },
-  avatarStepperBtnStatefulCompleteText: {
-    id: 'modules.avatars.stepper.button.stateful.complete.text',
+  avatarSetStepperBtnStatefulCompleteText: {
+    id: 'modules.avatars.avatar-set.stepper.button.stateful.complete.text',
     defaultMessage: 'Saved',
-    description: 'Text for the complete state of the stateful button inside the avatar stepper.',
+    description: 'Text for the complete state of the stateful button inside the avatar set stepper.',
   },
-  avatarStepperBtnFinishText: {
-    id: 'modules.avatars.stepper.button.finish.text',
+  avatarSetStepperBtnFinishText: {
+    id: 'modules.avatars.avatar-set.stepper.button.finish.text',
     defaultMessage: 'Finish',
-    description: 'Text for the finish button inside the avatar stepper.',
+    description: 'Text for the finish button inside the avatar set stepper.',
   },
-  avatarStepperTitle: {
-    id: 'modules.avatars.stepper.add-avatar-set.title',
+  avatarSetStepperTitle: {
+    id: 'modules.avatars.avatar-set.stepper.add-avatar-set.title',
     defaultMessage: 'Add new avatar set',
-    description: 'The title for the avatar stepper.',
+    description: 'The title for the avatar set stepper.',
   },
-  avatarStepperValidationTitleRequired: {
-    id: 'modules.avatars.stepper.validation.title-required',
+  avatarSetStepperValidationTitleRequired: {
+    id: 'modules.avatars.avatar-set.stepper.validation.title-required',
     defaultMessage: 'Title is required',
-    description: 'The validation message for the title field in the avatar stepper.',
+    description: 'The validation message for the title field in the avatar set stepper.',
   },
-  avatarStepperValidationTitleMaxLength: {
-    id: 'modules.avatars.stepper.validation.title-max-length',
+  avatarSetStepperValidationTitleMaxLength: {
+    id: 'modules.avatars.avatar-set.stepper.validation.title-max-length',
     defaultMessage: 'Title must be at most 50 characters long',
-    description: 'The validation message for the title field in the avatar stepper.',
+    description: 'The validation message for the title field in the avatar set stepper.',
   },
-  avatarStepperValidationTitleLettersNumbers: {
-    id: 'modules.avatars.stepper.validation.title-letters-numbers',
+  avatarSetStepperValidationTitleLettersNumbers: {
+    id: 'modules.avatars.avatar-set.stepper.validation.title-letters-numbers',
     defaultMessage: 'Title must contain only letters and numbers',
-    description: 'The validation message for the title field in the avatar stepper.',
+    description: 'The validation message for the title field in the avatar set stepper.',
   },
-  avatarStepperValidationTitleUnique: {
-    id: 'modules.avatars.stepper.validation.title-unique',
+  avatarSetStepperValidationTitleUnique: {
+    id: 'modules.avatars.avatar-set.stepper.validation.title-unique',
     defaultMessage: 'This title already exists',
-    description: 'The validation message for the title field in the avatar stepper.',
+    description: 'The validation message for the title field in the avatar set stepper.',
   },
-  avatarStepperCloseBtnTitle: {
-    id: 'modules.avatars.stepper.button.close.title',
+  avatarSetStepperCloseBtnTitle: {
+    id: 'modules.avatars.avatar-set.stepper.button.close.title',
     defaultMessage: 'Close',
-    description: 'The title for the close button in the avatar stepper.',
+    description: 'The title for the close button in the avatar set stepper.',
   },
-  avatarStepperAvatarsStepTitle: {
-    id: 'modules.avatars.stepper.step.avatars.title',
+  avatarSetStepperAvatarsStepTitle: {
+    id: 'modules.avatars.avatar-set.stepper.step.avatars.title',
     defaultMessage: 'Avatars',
-    description: 'The title for the avatars step in the avatar stepper.',
+    description: 'The title for the avatars step in the avatar set stepper.',
   },
-  avatarStepperConfigurationStepTitle: {
-    id: 'modules.avatars.stepper.step.configuration.title',
-    defaultMessage: 'Configuration',
-    description: 'The title for the configuration step in the avatar stepper.',
+  avatarSetStepperEvolutionStepTitle: {
+    id: 'modules.avatars.avatar-set.stepper.step.evolution.title',
+    defaultMessage: 'Evolution',
+    description: 'The title for the evolution step in the avatar set stepper.',
   },
-  avatarStepperTitleStepTitle: {
-    id: 'modules.avatars.stepper.step.title.title',
+  avatarSetStepperTitleStepTitle: {
+    id: 'modules.avatars.avatar-set.stepper.step.title.title',
     defaultMessage: 'Title',
-    description: 'The title for the title step in the avatar stepper.',
+    description: 'The title for the title step in the avatar set stepper.',
   },
-  avatarStepperTitleStepDescription: {
-    id: 'modules.avatars.stepper.step.title.description',
+  avatarSetStepperTitleStepDescription: {
+    id: 'modules.avatars.avatar-set.stepper.step.title.description',
     defaultMessage: 'Please enter the avatar set title below.',
-    description: 'The description for the title step in the avatar stepper.',
+    description: 'The description for the title step in the avatar set stepper.',
   },
-  avatarStepperTitleStepInputTitleLabel: {
-    id: 'modules.avatars.stepper.step.title.input.title.label',
+  avatarSetStepperTitleStepInputTitleLabel: {
+    id: 'modules.avatars.avatar-set.stepper.step.title.input.title.label',
     defaultMessage: 'Enter title',
-    description: 'The label for the title input in the title step of the avatar stepper.',
+    description: 'The label for the title input in the title step of the avatar set stepper.',
   },
 });
 

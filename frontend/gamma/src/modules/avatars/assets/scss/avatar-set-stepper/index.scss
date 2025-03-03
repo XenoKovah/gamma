@@ -1,6 +1,8 @@
-.avatar-stepper-container .pgn__action-row {
+.avatar-set-stepper-container .pgn__action-row {
   position: fixed;
-  inset: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
   padding: $spacer;
   background: $white;
   border-top: 1px solid $gray-200;
@@ -15,7 +17,7 @@
   }
 }
 
-.avatar-stepper.pgn__modal.pgn__modal-visible-overflow .pgn__modal-body {
+.avatar-set-stepper.pgn__modal.pgn__modal-visible-overflow .pgn__modal-body {
   overflow-x: scroll;
 
   .pgn__modal-body-content {

@@ -8,7 +8,7 @@ import * as Yup from 'yup';
  * @param {string} messages.titleMaxLength - Error message when the title exceeds the maximum length.
  * @param {string} messages.titleLettersNumbers - Error message when the title contains invalid characters.
  * @param {string} messages.titleUnique - Error message when the title is not unique.
- * @param {Map<string, number>} avatarTitleMap - A map of existing avatar titles (key: lowercase title, value: ID).
+ * @param {Map<string, number>} avatarTitleMap - A map of existing avatar set titles (key: lowercase title, value: ID).
  * @returns {Yup.ObjectSchema} The validation schema for the step title.
  */
 export const stepTitleValidationSchema = (messages, avatarTitleMap) => Yup.object({
