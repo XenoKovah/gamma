@@ -46,10 +46,10 @@ const messages = defineMessages({
     defaultMessage: 'Some error occurred.',
     description: 'The text displayed in the error toast message.',
   },
-  toastNewAvatarSetCreatedSuccessfullyTitle: {
-    id: 'modules.avatars.toast.successfully.created.avatar-set.title',
-    defaultMessage: 'New avatar set created successfully',
-    description: 'The title for the toast message when a new avatar set is created successfully.',
+  toastNewAvatarSetSavedSuccessfullyTitle: {
+    id: 'modules.avatars.toast.successfully.saved.avatar-set.title',
+    defaultMessage: 'Avatar set data saved successfully',
+    description: 'The title for the toast message when avatar set data is successfully saved.',
   },
   toastAvatarSetDeletedSuccessfullyTitle: {
     id: 'modules.avatars.toast.successfully.deleted.avatar-set.title',
@@ -116,6 +116,11 @@ const messages = defineMessages({
     defaultMessage: 'Close',
     description: 'The title for the close button in the avatar set stepper.',
   },
+  avatarSetStepperPreviousBtnTitle: {
+    id: 'modules.avatars.avatar-set.stepper.button.previous.title',
+    defaultMessage: 'Previous',
+    description: 'The title for the previous button in the avatar set stepper.',
+  },
   avatarSetStepperAvatarsStepTitle: {
     id: 'modules.avatars.avatar-set.stepper.step.avatars.title',
     defaultMessage: 'Avatars',
@@ -140,6 +145,39 @@ const messages = defineMessages({
     id: 'modules.avatars.avatar-set.stepper.step.title.input.title.label',
     defaultMessage: 'Enter title',
     description: 'The label for the title input in the title step of the avatar set stepper.',
+  },
+  avatarSetStepperEvolutionAddStageBtn: {
+    id: 'modules.avatars.avatar-set.stepper.step.evolution.button.add-stage.title',
+    defaultMessage: 'Add evolution stage',
+    description: 'The title for the button to add an evolution stage in the evolution step of the avatar set stepper.',
+  },
+  avatarSetStepperEvolutionDescription: {
+    id: 'modules.avatars.avatar-set.stepper.step.evolution.description.text',
+    defaultMessage: `Please upload the base files for the avatar evolution stages.
+    The minimum required number of evolution stages is 2, and the maximum is 5.
+    Ensure the images do not include any accessories. Accepted file format: SVG.
+    Maximum file size: 20 MB.`,
+    description: 'The description for the evolution step in the avatar set stepper.',
+  },
+  avatarSetStepperEvolutionRemoveAvatarBtn: {
+    id: 'modules.avatars.avatar-set.stepper.step.evolution.button.remove-avatar.text',
+    defaultMessage: 'Remove',
+    description: 'The text for the button to remove an avatar in the evolution step of the avatar set stepper.',
+  },
+  avatarSetStepperEvolutionAvatarStageTitle: {
+    id: 'modules.avatars.avatar-set.stepper.step.evolution.avatar.stage.title',
+    defaultMessage: 'Stage {index}',
+    description: 'The title for the avatar stage in the evolution step of the avatar set stepper.',
+  },
+  avatarSetStepperEvolutionAvatarDefaultTitle: {
+    id: 'modules.avatars.avatar-set.stepper.step.evolution.avatar.default.title',
+    defaultMessage: 'Avatar {index}',
+    description: 'The default title for the avatar in the evolution step of the avatar set stepper.',
+  },
+  avatarSetStepperEvolutionAvatarDefaultDescription: {
+    id: 'modules.avatars.avatar-set.stepper.step.evolution.avatar.default.description',
+    defaultMessage: 'Some description for avatar {index}',
+    description: 'The default description for the avatar in the evolution step of the avatar set stepper.',
   },
 });
 

@@ -45,3 +45,32 @@ export const createAvatarSet = async (avatarSetData) => {
     throw error;
   }
 };
+
+/**
+ * Updates an existing avatar set with new data.
+ *
+ * @async
+ * @function updateAvatarSet
+ * @param {Object} avatarSetData - The data to update the avatar set.
+ * @param {string} avatarSetData.id - The unique identifier of the avatar set to be updated.
+ * @param {string} [avatarSetData.title] - The title of the avatar set.
+ * @param {Array<Object>} [avatarSetData.avatars] - An array of avatar objects associated with the set.
+ * @param {Array<string>} [avatarSetData.useInCourses] - A list of course IDs where the avatar set is used.
+ * @param {boolean} [avatarSetData.isDraft] - Indicates if the avatar set is in draft mode.
+ * @returns {Promise<Object>} A promise resolving to the updated avatar set with camelCase keys.
+ * @throws {Error} Throws an error if the update request fails.
+ */
+export const updateAvatarSet = async (avatarSetData) => {
+  const { id } = avatarSetData;
+  try {
+    const response = await axios.patch(`${API_ROUTES.AVATAR_SET}${id}/`, convertKeysToSnakeCase(avatarSetData), {
+      headers: { ...REQUEST_HEADERS },
+      withCredentials: true,
+    });
+
+    return convertKeysToCamelCase(response.data);
+  } catch (error) {
+    console.error('Error updating avatar set:', error); // eslint-disable-line no-console
+    throw error;
+  }
+};

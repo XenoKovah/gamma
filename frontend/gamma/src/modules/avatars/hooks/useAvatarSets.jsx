@@ -6,8 +6,11 @@ import { useMutation } from 'react-query';
 import { useToggle } from '@openedx/paragon';
 
 import { submitBtnStatuses } from '../../../generic';
+import { useAvatarsContext } from '../context/AvatarsContext';
 import { DEFAULT_DELAY, DELETION_STATES } from '../constants';
-import { deleteAvatarSet, useAvatarSetsData, createAvatarSet } from '../data';
+import {
+  deleteAvatarSet, useAvatarSetsData, createAvatarSet, updateAvatarSet,
+} from '../data';
 import { deletionReducer } from '../reducers';
 import { setAutoClose } from '../utils';
 
@@ -21,6 +24,8 @@ export const useAvatarSets = () => {
     isError: isAvatarSetsDataError,
     refetch: refetchAvatarSetsData,
   } = useAvatarSetsData();
+
+  const { setCurrentAvatarSetData } = useAvatarsContext();
 
   const [showErrorAlert, setShowErrorAlert] = useState(false);
   const [showErrorToast, setShowErrorToast] = useState(false);
@@ -50,7 +55,7 @@ export const useAvatarSets = () => {
       {
         condition: showAvatarSetCreatedSuccessfully,
         variant: 'success',
-        text: intl.formatMessage(moduleMessages.toastNewAvatarSetCreatedSuccessfullyTitle),
+        text: intl.formatMessage(moduleMessages.toastNewAvatarSetSavedSuccessfullyTitle),
         onClose: () => setShowAvatarSetCreatedSuccessfully(false),
       },
       {
@@ -102,12 +107,14 @@ export const useAvatarSets = () => {
     openDeletionAvatarSetModal();
   };
 
-  const handleCreateNewAvatarSet = useCallback(async (values) => {
+  const handleCreateNewAvatarSet = useCallback(async (values, callback) => {
     setSubmitStatus(submitBtnStatuses.PENDING);
     try {
-      await createAvatarSet(values);
+      const avatarSet = await createAvatarSet(values);
       await refetchAvatarSetsData();
       setShowAvatarSetCreatedSuccessfully(true);
+      setCurrentAvatarSetData(avatarSet);
+      callback();
     } catch (error) {
       console.error('Error creating avatar set:', error); // eslint-disable-line no-console
       setShowErrorToast(true);
@@ -117,6 +124,22 @@ export const useAvatarSets = () => {
     }
   }, [createAvatarSet]);
 
+  const handleUpdateAvatarSet = async (avatarSetData, callback) => {
+    setSubmitStatus(submitBtnStatuses.PENDING);
+    try {
+      await updateAvatarSet(avatarSetData);
+      await refetchAvatarSetsData();
+      setShowAvatarSetCreatedSuccessfully(true);
+      callback();
+    } catch (error) {
+      console.error('Error updating avatar set:', error); // eslint-disable-line no-console
+      setShowErrorToast(true);
+      setSubmitStatus(submitBtnStatuses.ERROR);
+    } finally {
+      setSubmitStatus(submitBtnStatuses.DEFAULT);
+    }
+  };
+
   return {
     activeToast,
     submitStatus,
@@ -125,6 +148,7 @@ export const useAvatarSets = () => {
     avatarSetsData,
     setShowErrorAlert,
     isAvatarSetsDataError,
+    handleUpdateAvatarSet,
     isAvatarSetsDataLoading,
     openConfirmDeletionModal,
     handleCreateNewAvatarSet,
@@ -134,6 +158,5 @@ export const useAvatarSets = () => {
     isManageAvatarSetModalOpen,
     closeDeletionAvatarSetModal,
     isDeletionAvatarSetModalOpen,
-    showAvatarSetCreatedSuccessfully,
   };
 };

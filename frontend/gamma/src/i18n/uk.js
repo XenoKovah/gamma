@@ -326,6 +326,31 @@ const messages = defineMessages({
     defaultMessage: 'Аватар',
     description: 'Текст для посилання на аватар у заголовку.',
   },
+  pgnToastCloseLabel: {
+    id: 'pgn.Toast.closeLabel',
+    defaultMessage: 'Закрити',
+    description: 'Текст для закриття сповіщення.',
+  },
+  pgnDropzonefileTypeRestriction: {
+    id: 'pgn.Dropzone.DefaultContent.fileTypeRestriction',
+    defaultMessage: 'Завантажуйте {count, plural, one {{firstPart} файл} other {{firstPart} або {secondPart} файли}}',
+    description: 'Текст для обмеження типу файлів у компоненті Dropzone.',
+  },
+  pgnDropzonefileSizeMax: {
+    id: 'pgn.Dropzone.DefaultContent.fileSizeMax',
+    defaultMessage: 'Максимум {sizeMax}',
+    description: 'Текст для максимального розміру файлу у компоненті Dropzone.',
+  },
+  pgnDropzoneDefaultContentLabel: {
+    id: 'pgn.Dropzone.DefaultContent.label',
+    defaultMessage: 'Перетягніть файл сюди або натисніть, щоб завантажити.',
+    description: 'Текст, який відображається як мітка для введення компонента Dropzone.',
+  },
+  invalidSizeMore: {
+    id: 'dropzone.Dropzone.invalidSizeMoreError',
+    defaultMessage: 'Файл повинен бути меншим за {size}.',
+    description: 'Повідомлення, що відображається при спробі завантажити файл, який перевищує максимально дозволений розмір у Dropzone.',
+  },
 });
 
 export default messages;

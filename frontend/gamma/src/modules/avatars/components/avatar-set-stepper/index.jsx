@@ -15,7 +15,7 @@ export const AvatarSetStepper = ({
   handleCreateNewAvatarSet,
   closeManageAvatarSetModal,
   isManageAvatarSetModalOpen,
-  showAvatarSetCreatedSuccessfully,
+  handleUpdateAvatarSet,
 }) => {
   const intl = useIntl();
   const [currentStep, setCurrentStep] = useState(STEPPER_STEPS.title);
@@ -84,15 +84,17 @@ export const AvatarSetStepper = ({
             setCurrentStep={setCurrentStep}
             statefulButtonLabels={statefulButtonLabels}
             handleCloseManageAvatarSetModal={handleCloseManageAvatarSetModal}
-            showAvatarSetCreatedSuccessfully={showAvatarSetCreatedSuccessfully}
             validationSchema={stepTitleValidationSchema(translations.validation.titleStep, avatarTitleMap)}
             handleCreateNewAvatarSet={handleCreateNewAvatarSet}
+            handleUpdateAvatarSet={handleUpdateAvatarSet}
           />
           <EvolutionStep
             currentStep={currentStep}
+            submitStatus={submitStatus}
             setCurrentStep={setCurrentStep}
             statefulButtonLabels={statefulButtonLabels}
             handleCloseManageAvatarSetModal={handleCloseManageAvatarSetModal}
+            handleUpdateAvatarSet={handleUpdateAvatarSet}
           />
           <AvatarsStep
             currentStep={currentStep}
@@ -109,8 +111,8 @@ AvatarSetStepper.propTypes = {
   isManageAvatarSetModalOpen: PropTypes.bool.isRequired,
   closeManageAvatarSetModal: PropTypes.func.isRequired,
   handleCreateNewAvatarSet: PropTypes.func.isRequired,
+  handleUpdateAvatarSet: PropTypes.func.isRequired,
   submitStatus: PropTypes.oneOf(SUBMIT_STATUSES).isRequired,
-  showAvatarSetCreatedSuccessfully: PropTypes.bool.isRequired,
   avatarSetsData: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,

@@ -45,7 +45,10 @@ AvatarSetList.propTypes = {
       id: PropTypes.number.isRequired,
       title: PropTypes.string.isRequired,
       avatars: PropTypes.arrayOf(avatarsPropTypes).isRequired,
-      useInCourses: PropTypes.arrayOf(PropTypes.string).isRequired,
+      useInCourses: PropTypes.oneOfType([
+        PropTypes.arrayOf(PropTypes.string),
+        PropTypes.object,
+      ]),
       isDraft: PropTypes.bool.isRequired,
     }),
   ).isRequired,

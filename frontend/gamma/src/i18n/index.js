@@ -326,6 +326,11 @@ const messages = defineMessages({
     defaultMessage: 'Avatars',
     description: 'The text displayed for the Avatars link in the header.',
   },
+  pgnDropzoneDefaultContentLabel: {
+    id: 'pgn.Dropzone.DefaultContent.label',
+    defaultMessage: 'Drag and drop your file here or click to upload.',
+    description: 'The default content label for the Dropzone component.',
+  },
 });
 
 export default messages;

@@ -41,7 +41,7 @@ export const Avatars = () => {
     isManageAvatarSetModalOpen,
     closeDeletionAvatarSetModal,
     isDeletionAvatarSetModalOpen,
-    showAvatarSetCreatedSuccessfully,
+    handleUpdateAvatarSet,
   } = useAvatarSets();
 
   useEffect(() => {
@@ -77,8 +77,8 @@ export const Avatars = () => {
           closeManageAvatarSetModal={closeManageAvatarSetModal}
           handleCreateNewAvatarSet={handleCreateNewAvatarSet}
           submitStatus={submitStatus}
-          showAvatarSetCreatedSuccessfully={showAvatarSetCreatedSuccessfully}
           avatarSetsData={avatarSetsData}
+          handleUpdateAvatarSet={handleUpdateAvatarSet}
         />
         <AlertModal
           title={intl.formatMessage(moduleMessages.confirmDeletionModalTitle)}

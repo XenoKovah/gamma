@@ -7,7 +7,7 @@ import { STEPPER_STEPS } from '../constants';
 
 import moduleMessages from '../../../i18n';
 
-const AvatarsStep = ({ currentStep, handleCloseManageAvatarSetModal }) => {
+const AvatarsStep = ({ currentStep, handleCloseManageAvatarSetModal, setCurrentStep }) => {
   const intl = useIntl();
 
   return (
@@ -22,8 +22,8 @@ const AvatarsStep = ({ currentStep, handleCloseManageAvatarSetModal }) => {
       </Stepper.Step>
       {currentStep === STEPPER_STEPS.avatars && (
         <ActionRow className="justify-content-between">
-          <Button variant="outline-primary" onClick={handleCloseManageAvatarSetModal}>
-            {intl.formatMessage(moduleMessages.avatarSetStepperCloseBtnTitle)}
+          <Button variant="outline-primary" onClick={() => setCurrentStep(STEPPER_STEPS.evolution)}>
+            {intl.formatMessage(moduleMessages.avatarSetStepperPreviousBtnTitle)}
           </Button>
           <Button onClick={handleCloseManageAvatarSetModal}>
             {intl.formatMessage(moduleMessages.avatarSetStepperBtnFinishText)}
@@ -37,6 +37,7 @@ const AvatarsStep = ({ currentStep, handleCloseManageAvatarSetModal }) => {
 AvatarsStep.propTypes = {
   currentStep: PropTypes.string.isRequired,
   handleCloseManageAvatarSetModal: PropTypes.func.isRequired,
+  setCurrentStep: PropTypes.func.isRequired,
 };
 
 export default AvatarsStep;

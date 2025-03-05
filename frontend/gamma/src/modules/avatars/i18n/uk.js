@@ -12,7 +12,7 @@ const messages = defineMessages({
     description: 'Опис сторінки налаштувань аватарів.',
   },
   totalAvatarSetsCount: {
-    id: 'modules.avatars.total-avatars.counter.text',
+    id: 'modules.avatars.total-avatars-sets.counter.text',
     defaultMessage: 'Загальна кількість аватарів: {avatarSetsCount}',
     description: 'Текст, що відображає загальну кількість аватарів.',
   },
@@ -27,7 +27,7 @@ const messages = defineMessages({
     description: 'Заголовок сповіщення, коли немає надобу аватарів для відображення.',
   },
   alertEmptyAvatarSetListDescription: {
-    id: 'modules.avatars.avatar-set.alert.empty-avatars-list.description',
+    id: 'modules.avatars.avatar-set.alert.empty-avatar-set-list.description',
     defaultMessage: 'Наразі відсутні набори аватарів для відображення.',
     description: 'Опис сповіщення, коли немає наборів аватарів для відображення.',
   },
@@ -113,7 +113,7 @@ const messages = defineMessages({
   },
   avatarSetStepperEvolutionStepTitle: {
     id: 'modules.avatars.avatar-set.stepper.step.evolution.title',
-    defaultMessage: 'Конфігурація',
+    defaultMessage: 'Еволюція',
     description: 'Заголовок для кроку еволюції в майстрі створення набору аватарів.',
   },
   avatarSetStepperTitleStepTitle: {
@@ -131,15 +131,53 @@ const messages = defineMessages({
     defaultMessage: 'Введіть назву',
     description: 'Мітка для поля введення назви в кроці введення назви майстра створення набору аватарів.',
   },
-  toastNewAvatarSetCreatedSuccessfullyTitle: {
-    id: 'modules.avatars.toast.successfully.created.avatar-set.title',
-    defaultMessage: 'Новий набір аватарів успішно створено',
-    description: 'Заголовок для сповіщення, коли новий набір аватарів успішно створено.',
+  toastNewAvatarSetSavedSuccessfullyTitle: {
+    id: 'modules.avatars.toast.successfully.saved.avatar-set.title',
+    defaultMessage: 'Данні набору аватарів успішно збережені',
+    description: 'Заголовок для сповіщення, коли новий набір аватарів успішно збережено.',
+  },
+  avatarSetStepperPreviousBtnTitle: {
+    id: 'modules.avatars.avatar-set.stepper.button.previous.title',
+    defaultMessage: 'Назад',
+    description: 'Заголовок для кнопки "Назад" у покроковому майстрі створення аватар-сета.',
   },
   toastAvatarSetDeletedSuccessfullyTitle: {
     id: 'modules.avatars.toast.successfully.deleted.avatar-set.title',
     defaultMessage: 'Набір аватарів успішно видалено',
     description: 'Заголовок для сповіщення, коли набір аватарів успішно видалено.',
+  },
+  avatarSetStepperEvolutionAddStageBtn: {
+    id: 'modules.avatars.avatar-set.stepper.step.evolution.button.add-stage.title',
+    defaultMessage: 'Додати етап еволюції',
+    description: 'Заголовок кнопки для додавання етапу еволюції на кроці еволюції в майстрі набору аватарів.',
+  },
+  avatarSetStepperEvolutionDescription: {
+    id: 'modules.avatars.avatar-set.stepper.step.evolution.description.text',
+    defaultMessage: `Будь ласка, завантажте базові файли для етапів еволюції аватара.
+      Мінімальна кількість етапів еволюції – 2, максимальна – 5.
+      Переконайтеся, що зображення не містять жодних аксесуарів. Підтримуваний формат файлів: SVG.
+      Максимальний розмір файлу: 20 МБ.`,
+    description: 'Опис для кроку еволюції в майстрі набору аватарів.',
+  },
+  avatarSetStepperEvolutionRemoveAvatarBtn: {
+    id: 'modules.avatars.avatar-set.stepper.step.evolution.button.remove-avatar.text',
+    defaultMessage: 'Видалити',
+    description: 'Текст кнопки для видалення аватара на кроці еволюції в майстрі набору аватарів.',
+  },
+  avatarSetStepperEvolutionAvatarStageTitle: {
+    id: 'modules.avatars.avatar-set.stepper.step.evolution.avatar.stage.title',
+    defaultMessage: 'Етап {index}',
+    description: 'Заголовок для етапу аватара на кроці еволюції в майстрі набору аватарів.',
+  },
+  avatarSetStepperEvolutionAvatarDefaultTitle: {
+    id: 'modules.avatars.avatar-set.stepper.step.evolution.avatar.default.title',
+    defaultMessage: 'Аватар {index}',
+    description: 'Типовий заголовок для аватара на кроці еволюції в майстрі набору аватарів.',
+  },
+  avatarSetStepperEvolutionAvatarDefaultDescription: {
+    id: 'modules.avatars.avatar-set.stepper.step.evolution.avatar.default.description',
+    defaultMessage: 'Деякий опис для аватара {index}',
+    description: 'Типовий опис для аватара на кроці еволюції в майстрі набору аватарів.',
   },
 });
 
