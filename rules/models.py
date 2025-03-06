@@ -1,7 +1,9 @@
 from django.db import models
 
+from core.mixins import TimestampModelMixin
 
-class Rule(models.Model):
+
+class Rule(TimestampModelMixin, models.Model):
     event_configuration = models.ForeignKey(
         'events.EventConfiguration',
         on_delete=models.CASCADE,

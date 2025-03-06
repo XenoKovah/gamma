@@ -11,5 +11,5 @@ class BadgeViewSet(AdminUserPermissionMixin, viewsets.ModelViewSet):
     Viewset provides CRUD operations for managing badges.
     """
 
-    queryset = Badge.objects.filter(is_active=True)
+    queryset = Badge.objects.all().prefetch_related('rules')
     serializer_class = BadgeSerializer

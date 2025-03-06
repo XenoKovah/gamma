@@ -1,8 +1,10 @@
 from django.db import models
 from django.utils.text import slugify
 
+from core.mixins import TimestampModelMixin
 
-class Badge(models.Model):
+
+class Badge(TimestampModelMixin, models.Model):
     """
     Reward given to users for achieving specific conditions defined by rules.
     """

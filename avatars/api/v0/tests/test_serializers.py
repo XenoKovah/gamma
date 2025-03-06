@@ -8,6 +8,7 @@ from avatars.api.v0.tests.constants import BASE64_CORRECT_FILE, BASE64_INVALID_F
 from avatars.constants import (
     AVATAR_SET_DUPLICATE_TITLE_ERROR,
     AVATAR_SET_TITLE_ERROR,
+    AVATAR_SHOULD_CONTAINS_AT_LEAST_ONE_RULE,
     AVATAR_STAGES_ERROR,
     AVATAR_TITLE_ERROR,
     INVALID_FILE_FORMAT,
@@ -148,6 +149,21 @@ class TestAvatarSerializer:
             assert rule.action == data['rules'][i]['action']
             assert rule.filters == data['rules'][i]['filters']
 
+    def test_update_avatar_without_rules(self, avatar_factory: AvatarFactory):
+        avatar = avatar_factory()
+        data = {
+            'title': 'single Avatar Title',
+            'description': 'single Avatar Description',
+            'image': BASE64_CORRECT_FILE,
+            'rules': []
+        }
+
+        serializer = AvatarSerializer(instance=avatar, data=data, partial=True)
+
+        with pytest.raises(ValidationError, match=AVATAR_SHOULD_CONTAINS_AT_LEAST_ONE_RULE):
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+
     def test_missing_title(self):
         data = {
             'description': 'Test Description',
@@ -174,7 +190,7 @@ class TestAvatarSerializer:
 
 @pytest.mark.django_db
 class TestAvatarSetSerializer:
-    def test_update_avatar_set_with_avatars(self, avatar_set_factory: AvatarFactory):
+    def test_update_avatar_set_with_avatars(self, avatar_set_factory: AvatarSetFactory):
         avatar_set = avatar_set_factory(title='Test Avatar Set')
         data = {
             'avatars': [

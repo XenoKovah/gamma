@@ -1,3 +1,6 @@
+from django.db import models
+from django.utils.timezone import now
+
 from rest_framework.permissions import IsAdminUser
 
 
@@ -15,3 +18,14 @@ class AdminUserPermissionMixin:
         else:
             permission_classes = []
         return [permission() for permission in permission_classes]
+
+
+class TimestampModelMixin(models.Model):
+    """
+    Mixin for adding Timestamp.
+    """
+
+    created_at = models.DateTimeField(default=now, editable=False)
+
+    class Meta:
+        abstract = True

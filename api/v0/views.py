@@ -237,7 +237,7 @@ class CoursesView(APIView):
 
 class OrganizationsView(APIView):
     """
-    Existing organisations from edx-platform.
+    Existing organizations from edx-platform.
     """
 
     @method_decorator(cache_page(CACHE_TTL))
@@ -245,7 +245,7 @@ class OrganizationsView(APIView):
         client = EdxApiV2Client()
         try:
             return Response(
-                {'organisations': client.get_organizations()},
+                {'organizations': client.get_organizations()},
                 status=status.HTTP_200_OK
             )
         except (
@@ -256,7 +256,7 @@ class OrganizationsView(APIView):
             OtherEdxApiException,
         ) as e:
             return Response(
-                {'organisations': []},
+                {'organizations': []},
                 status=e.status_code
             )
 

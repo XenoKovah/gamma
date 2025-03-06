@@ -29,4 +29,5 @@ class TestBadgeViewSet:
             'slug': badge.slug,
             'is_active': badge.is_active,
             'rules': [],
+            'created_at': badge.created_at.isoformat().replace('+00:00', 'Z'),
         }

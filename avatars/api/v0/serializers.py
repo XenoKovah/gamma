@@ -5,6 +5,7 @@ from rest_framework import serializers
 from avatars.constants import (
     AVATAR_SET_DUPLICATE_TITLE_ERROR,
     AVATAR_SET_TITLE_ERROR,
+    AVATAR_SHOULD_CONTAINS_AT_LEAST_ONE_RULE,
     AVATAR_STAGES_ERROR,
     AVATAR_TITLE_ERROR,
     INVALID_FILE_FORMAT,
@@ -57,13 +58,17 @@ class AvatarSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Avatar
-        fields = ('id', 'title', 'description', 'image', 'rules', 'existent_id')
+        fields = ('id', 'title', 'description', 'image', 'rules', 'existent_id', 'created_at')
+        read_only_fields = ('created_at',)
 
     def update(self, instance, validated_data):
         """
         Handle updates to a single Avatar, including updating rules.
         """
         rules_data = validated_data.pop('rules', None)
+
+        if not rules_data:
+            raise serializers.ValidationError(AVATAR_SHOULD_CONTAINS_AT_LEAST_ONE_RULE)
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
@@ -95,7 +100,8 @@ class AvatarSetSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AvatarSet
-        fields = ('id', 'title', 'avatars', 'use_in_courses', 'is_draft')
+        fields = ('id', 'title', 'avatars', 'use_in_courses', 'is_draft', 'created_at')
+        read_only_fields = ('created_at',)
 
     def create(self, validated_data):
         """

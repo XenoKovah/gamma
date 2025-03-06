@@ -2,10 +2,11 @@ from django.db import models
 from django.core.validators import FileExtensionValidator
 from django.utils.translation import ugettext_lazy as _
 
+from core.mixins import TimestampModelMixin
 from users.models import GammaUser
 
 
-class Avatar(models.Model):
+class Avatar(TimestampModelMixin, models.Model):
     """
     Model representing the Gamma User Avatar.
     """
@@ -27,7 +28,7 @@ class Avatar(models.Model):
         verbose_name_plural = _('Avatars')
 
 
-class AvatarSet(models.Model):
+class AvatarSet(TimestampModelMixin, models.Model):
     """
     Model representing a set of Avatars and its attributes.
 
