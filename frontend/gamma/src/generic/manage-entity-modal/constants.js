@@ -11,3 +11,5 @@ export const DATE_TYPES = {
   START: 'start',
   END: 'end',
 };
+
+export const DEFAULT_ACCEPTED_IMAGE_FORMATS = ['image/png', 'image/jpeg', 'image/webp'];

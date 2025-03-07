@@ -3,13 +3,13 @@ import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 import {
-  Stepper, Button, ActionRow, Form, useMediaQuery, breakpoints,
+  Stepper, Form, useMediaQuery, breakpoints,
 } from '@openedx/paragon';
 import * as Yup from 'yup';
 
-import { StatusButton } from '../../../../../generic';
 import { useAvatarsContext } from '../../../context/AvatarsContext';
 import { STEPPER_STEPS } from '../constants';
+import StepFooter from './StepFooter';
 
 import moduleMessages from '../../../i18n';
 
@@ -55,7 +55,7 @@ const TitleStep = ({
         const isTitleUnchanged = currentAvatarSetData?.title === values.title;
 
         const handleTrimmedBlur = (fieldName) => {
-          setFieldValue(fieldName, values[fieldName].trimEnd(), true);
+          setFieldValue(fieldName, values[fieldName].trim(), true);
           handleBlur({ target: { name: fieldName } });
         };
 
@@ -86,20 +86,15 @@ const TitleStep = ({
             </Stepper.Step>
 
             {currentStep === STEPPER_STEPS.title && (
-              <ActionRow className="justify-content-between">
-                <Button variant="outline-primary" onClick={handleCloseManageAvatarSetModal}>
-                  {intl.formatMessage(moduleMessages.avatarSetStepperCloseBtnTitle)}
-                </Button>
-                <StatusButton
-                  variant="primary"
-                  labels={statefulButtonLabels}
-                  options={{
-                    submitStatus,
-                    submitFn: isTitleUnchanged ? proceedToNextStep : handleSubmit,
-                    disabled: !isTitleUnchanged && (!isValid || !dirty),
-                  }}
-                />
-              </ActionRow>
+              <StepFooter
+                prevBtnText={intl.formatMessage(moduleMessages.avatarSetStepperCloseBtnTitle)}
+                prevBtnOnClick={handleCloseManageAvatarSetModal}
+                isStatefulBtn
+                submitFn={isTitleUnchanged ? proceedToNextStep : handleSubmit}
+                disabled={!isTitleUnchanged && (!isValid || !dirty)}
+                statefulButtonLabels={statefulButtonLabels}
+                submitStatus={submitStatus}
+              />
             )}
           </>
         );

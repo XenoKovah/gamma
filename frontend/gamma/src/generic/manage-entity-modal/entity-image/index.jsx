@@ -8,11 +8,14 @@ import { useFormikContext } from 'formik';
 
 import messages from '../../../i18n';
 
-const EntityImage = ({ imagePreview, handleImageUpload }) => {
+const EntityImage = ({ imagePreview, handleImageUpload, acceptedImageFormats }) => {
   const intl = useIntl();
-  const { errors } = useFormikContext();
+  const { values, errors } = useFormikContext();
   const [isValidationTriggered, setIsValidationTriggered] = useState(false);
   const isExtraSmall = useMediaQuery({ maxWidth: breakpoints.extraSmall.maxWidth });
+  const imageSrc = imagePreview || (
+    typeof values.image === 'string' && !values.image.startsWith('blob:') ? values.image : null
+  );
 
   const fileInputRef = useRef(null);
 
@@ -53,7 +56,7 @@ const EntityImage = ({ imagePreview, handleImageUpload }) => {
           ref={fileInputRef}
           id="entity-image-upload"
           type="file"
-          accept="image/png, image/jpeg, image/gif, image/webp"
+          accept={acceptedImageFormats.join(', ')}
           className="d-none"
           onChange={handleFileChange}
         />
@@ -82,12 +85,12 @@ const EntityImage = ({ imagePreview, handleImageUpload }) => {
           </Form.Control.Feedback>
         )}
 
-        {imagePreview && (
+        {imageSrc && (
           <Figure className="mt-3 mb-0 d-block">
             <Figure.Image
               className="entity-image-preview mb-0"
               alt={intl.formatMessage(messages.modalEntityImagePreviewText)}
-              src={imagePreview}
+              src={imageSrc}
             />
           </Figure>
         )}
@@ -99,6 +102,7 @@ const EntityImage = ({ imagePreview, handleImageUpload }) => {
 EntityImage.propTypes = {
   imagePreview: PropTypes.string,
   handleImageUpload: PropTypes.func.isRequired,
+  acceptedImageFormats: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
 
 export default EntityImage;

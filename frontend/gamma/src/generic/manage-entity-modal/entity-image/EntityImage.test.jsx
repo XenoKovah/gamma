@@ -7,7 +7,10 @@ import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '../../../setupTests';
 import { getValidationSchema } from '../validation';
 import messages from '../../../i18n';
+import { DEFAULT_ACCEPTED_IMAGE_FORMATS, DEFAULT_FORM_VALUES } from '../constants';
 import EntityImage from '.';
+
+const imageLink = 'https://example.com/image.jpg';
 
 describe('EntityImage', () => {
   const mockHandleImageUpload = jest.fn();
@@ -35,16 +38,24 @@ describe('EntityImage', () => {
     },
   };
 
-  const validationSchema = getValidationSchema(translations);
+  const validationSchema = getValidationSchema(translations, DEFAULT_FORM_VALUES);
 
-  const renderComponent = (formikProps = {}, imagePreview = null) => renderWithProviders(
+  const renderComponent = (
+    initialValues = DEFAULT_FORM_VALUES,
+    formikProps = {},
+    imagePreview = null,
+  ) => renderWithProviders(
     <Formik
-      initialValues={{ image: null }}
+      initialValues={initialValues}
       validationSchema={validationSchema}
       onSubmit={jest.fn()}
       {...formikProps}
     >
-      <EntityImage imagePreview={imagePreview} handleImageUpload={mockHandleImageUpload} />
+      <EntityImage
+        imagePreview={imagePreview}
+        handleImageUpload={mockHandleImageUpload}
+        acceptedImageFormats={DEFAULT_ACCEPTED_IMAGE_FORMATS}
+      />
     </Formik>,
   );
 
@@ -107,5 +118,46 @@ describe('EntityImage', () => {
         queryByText(messages.modalEntityValidationImageRequiredText.defaultMessage),
       ).not.toBeInTheDocument();
     });
+  });
+
+  it('renders image preview when imagePreview is provided', () => {
+    const { getByAltText } = renderComponent(DEFAULT_FORM_VALUES, {}, 'test-image.png');
+
+    expect(getByAltText(messages.modalEntityImagePreviewText.defaultMessage)).toBeInTheDocument();
+    expect(getByAltText(messages.modalEntityImagePreviewText.defaultMessage)).toHaveAttribute('src', 'test-image.png');
+  });
+
+  it('renders image preview from form values if image is a URL', () => {
+    const { getByAltText } = renderComponent({ ...DEFAULT_FORM_VALUES, image: imageLink });
+
+    expect(getByAltText(messages.modalEntityImagePreviewText.defaultMessage)).toBeInTheDocument();
+    expect(getByAltText(messages.modalEntityImagePreviewText.defaultMessage)).toHaveAttribute('src', imageLink);
+  });
+
+  it('triggers validation when upload button is clicked without file', async () => {
+    const { getByRole, getByText } = renderComponent();
+
+    const uploadButton = getByRole('button', {
+      name: messages.modalEntityImageBtnUploadText.defaultMessage,
+    });
+
+    userEvent.click(uploadButton);
+
+    await waitFor(() => {
+      expect(getByText(messages.modalEntityValidationImageRequiredText.defaultMessage)).toBeInTheDocument();
+    });
+  });
+
+  it('opens file dialog when pressing Enter or Space on the upload button', () => {
+    const { getByRole } = renderComponent();
+    const uploadButton = getByRole('button', {
+      name: messages.modalEntityImageBtnUploadText.defaultMessage,
+    });
+
+    userEvent.type(uploadButton, '{enter}');
+    expect(mockHandleImageUpload).not.toHaveBeenCalled();
+
+    userEvent.type(uploadButton, ' ');
+    expect(mockHandleImageUpload).not.toHaveBeenCalled();
   });
 });

@@ -52,6 +52,7 @@ const SelectFilters = ({
         as="select"
         className="mr-0"
         onChange={(e) => addFilter(e.target.value)}
+        data-testid="add-filter-select"
       >
         <option value="">{intl.formatMessage(messages.modalEntityRulesFiltersSelectTitle)}</option>
         {availableFilters.map((filter) => (

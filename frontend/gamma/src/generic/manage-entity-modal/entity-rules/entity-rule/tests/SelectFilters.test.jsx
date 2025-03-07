@@ -89,4 +89,41 @@ describe('SelectFilters Component', () => {
       expect(startDateRef.current.input.focus).toHaveBeenCalled();
     });
   });
+
+  it("focuses on start date field when selecting 'interval' filter", async () => {
+    const { getByRole } = renderComponent();
+
+    const select = getByRole('combobox');
+    userEvent.selectOptions(select, 'interval');
+
+    expect(mockSetFieldValue).toHaveBeenCalledWith('rules.0.filters.interval', { start: null, end: null });
+    await waitFor(() => {
+      expect(startDateRef.current.input.focus).toHaveBeenCalled();
+    });
+  });
+
+  it('does not add duplicate filters', () => {
+    const { getByRole } = renderComponent({
+      rule: {
+        filters: {
+          existingFilter: 'some value',
+          newFilter: 'already exists',
+        },
+      },
+    });
+
+    const select = getByRole('combobox');
+    userEvent.selectOptions(select, 'Interval');
+
+    expect(mockSetFieldValue).not.toHaveBeenCalledWith('rules.0.filters.interval', '');
+  });
+
+  it('does not call setFieldValue when selecting empty option', () => {
+    const { getByRole } = renderComponent();
+
+    const select = getByRole('combobox');
+    userEvent.selectOptions(select, '');
+
+    expect(mockSetFieldValue).not.toHaveBeenCalled();
+  });
 });

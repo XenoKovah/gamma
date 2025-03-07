@@ -82,4 +82,35 @@ describe('EntityRule', () => {
 
     expect(mockRemoveRule).toHaveBeenCalledWith(0);
   });
+
+  it('renders SelectFilters when there are available filters', () => {
+    const { getByTestId } = renderComponent();
+
+    expect(getByTestId('add-filter-select')).toBeInTheDocument();
+  });
+
+  it('removes filter correctly from state when remove filter button is clicked', () => {
+    const { getByRole } = renderComponent();
+
+    const removeFilterButton = getByRole('button', {
+      name: messages.modalEntityRulesBtnRemoveFilterText.defaultMessage,
+    });
+
+    userEvent.click(removeFilterButton);
+
+    expect(mockSetFieldValue).toHaveBeenCalledWith('rules.0.filters', {});
+  });
+
+  it('renders IntervalDatePicker when interval filter is present', () => {
+    const { getByLabelText } = renderComponent({
+      rule: {
+        filters: {
+          interval: { start: '2024-01-01', end: '2024-01-10' },
+        },
+      },
+    });
+
+    expect(getByLabelText(messages.modalEntityRulesIntervalStartLabelText.defaultMessage)).toBeInTheDocument();
+    expect(getByLabelText(messages.modalEntityRulesIntervalEndLabelText.defaultMessage)).toBeInTheDocument();
+  });
 });

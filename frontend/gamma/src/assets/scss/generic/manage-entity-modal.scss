@@ -1,4 +1,8 @@
 .gamification-modal-dialog {
+  .manage-entity-modal-information textarea {
+    min-height: 6.25rem;
+  }
+
   .manage-entity-modal-information,
   .manage-entity-modal-image {
     border-bottom: 1px solid $light-400;

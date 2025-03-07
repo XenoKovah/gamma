@@ -3,42 +3,45 @@ import * as yup from 'yup';
 import { capitalizeFirstLetter } from '../../utils';
 
 /**
- * Returns a Yup validation schema for entity creation.
+ * Returns a Yup validation schema for entity creation or updating.
  *
  * @param {Object} messages - The validation messages for localization.
  * @param {Object} messages.title - Title validation messages.
- * @param {string} messages.title.required - Error message when the title is missing.
- * @param {string} messages.title.maxLength - Error message when the title exceeds the character limit.
+ * @param {string} messages.titleRequired - Error message when the title is missing.
+ * @param {string} messages.titleMaxLength - Error message when the title exceeds the character limit.
  * @param {Object} messages.slug - Slug validation messages.
- * @param {string} messages.slug.required - Error message when the slug is missing.
- * @param {string} messages.slug.invalid - Error message when the slug format is incorrect.
- * @param {string} messages.slug.maxLength - Error message when the slug exceeds the character limit.
+ * @param {string} messages.slug.slugRequired - Error message when the slug is missing.
+ * @param {string} messages.slug.slugInvalid - Error message when the slug format is incorrect.
+ * @param {string} messages.slug.slugMaxLength - Error message when the slug exceeds the character limit.
  * @param {Object} messages.description - Description validation messages.
- * @param {string} messages.description.required - Error message when the description is missing.
- * @param {string} messages.description.maxLength - Error message when the description exceeds the character limit.
+ * @param {string} messages.descriptionRequired - Error message when the description is missing.
+ * @param {string} messages.descriptionMaxLength - Error message when the description exceeds the character limit.
  * @param {Object} messages.image - Image validation messages.
- * @param {string} messages.image.required - Error message when an image is not uploaded.
- * @param {string} messages.image.size - Error message when an uploaded image exceeds the file size limit.
- * @param {Object} messages.rules - Rules validation messages.
- * @param {Object} messages.rules.action - Action validation messages.
- * @param {Object} messages.rules.action.eventType - Event type validation messages.
- * @param {string} messages.rules.action.eventType.required - Error message when the event type is missing.
- * @param {Object} messages.rules.action.count - Count validation messages.
- * @param {string} messages.rules.action.count.required - Error message when the count is missing.
- * @param {string} messages.rules.action.count.positive - Error message when the count is not positive.
- * @param {string} messages.rules.action.count.integer - Error message when the count is not an integer.
- * @returns {yup.ObjectSchema} The Yup validation schema for the form.
+ * @param {string} messages.image.imageRequired - Error message when an image is not uploaded.
+ * @param {string} messages.image.imageSize - Error message when an uploaded image exceeds the file size limit.
+ * @param {Object} messages.count - Count validation messages.
+ * @param {string} messages.count.countRequired - Error message when the count is missing.
+ * @param {string} messages.count.countPositive - Error message when the count is not positive.
+ * @param {string} messages.count.countInt - Error message when the count is not an integer.
+ * @param {string} messages.eventTypeRequired - Error message when the event type is missing.
+ * @param {Object} entityData - The entity data, used to determine if slug validation should be applied.
+ * @param {string} [entityData.slug] - The slug of the entity, if applicable.
+ * @returns {yup.ObjectSchema} - The Yup validation schema for the form.
  */
-export const getValidationSchema = (messages) => yup.object().shape({
+export const getValidationSchema = (messages, entityData) => yup.object().shape({
   title: yup
     .string()
     .required(messages.titleRequired)
     .max(100, messages.titleMaxLength),
-  slug: yup
-    .string()
-    .matches(/^[a-zA-Z0-9_-]+$/, messages.slug.slugInvalid)
-    .required(messages.slug.slugRequired)
-    .max(30, messages.slug.slugMaxLength),
+  ...(Object.hasOwn(entityData, 'slug')
+    ? {
+      slug: yup
+        .string()
+        .matches(/^[a-zA-Z0-9_-]+$/, messages.slug.slugInvalid)
+        .required(messages.slug.slugRequired)
+        .max(30, messages.slug.slugMaxLength),
+    }
+    : {}),
   description: yup
     .string()
     .required(messages.descriptionRequired)
@@ -46,7 +49,12 @@ export const getValidationSchema = (messages) => yup.object().shape({
   image: yup
     .mixed()
     .required(messages.image.imageRequired)
-    .test('fileSize', messages.image.imageSize, (value) => value && value.size <= 2 * 1024 * 1024),
+    .test(
+      'fileSize',
+      messages.image.imageSize,
+      (value) => typeof value === 'string' || (value instanceof File && value.size <= 2 * 1024 * 1024),
+    ),
+
   rules: yup
     .array()
     .of(

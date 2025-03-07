@@ -36,10 +36,20 @@ const messages = defineMessages({
     defaultMessage: 'Редагувати',
     description: 'Текст, що відображається на кнопці редагування набору аватарів.',
   },
+  avatarEditBtnTitle: {
+    id: 'modules.avatars.avatar.button.edit.title',
+    defaultMessage: 'Редагувати',
+    description: 'Текст, що відображається на кнопці редагування аватару.',
+  },
   avatarSetDeleteBtnTitle: {
     id: 'modules.avatars.avatar-set.button.delete.title',
     defaultMessage: 'Видалити',
     description: 'Текст, що відображається на кнопці видалення набору аватарів.',
+  },
+  avatarDeleteBtnTitle: {
+    id: 'modules.avatars.avatar.button.delete.title',
+    defaultMessage: 'Видалити',
+    description: 'Текст, що відображається на кнопці видалення аватару',
   },
   toastErrorTitle: {
     id: 'modules.avatars.toast.error.text',
@@ -65,6 +75,16 @@ const messages = defineMessages({
     id: 'modules.avatars.avatar-set.stepper.button.stateful.pending.text',
     defaultMessage: 'Збереження',
     description: 'Текст для кнопки у стані очікування в майстрі створення набору аватарів.',
+  },
+  confirmAvatarDeletionModalDescription: {
+    id: 'modules.avatars.alert.modal.confirm.deletion.avatar.description',
+    defaultMessage: 'Ви впевнені, що хочете видалити цей аватар? Цю дію неможливо скасувати.',
+    description: 'Опис для модального вікна підтвердження видалення аватара.',
+  },
+  editAvatarModalTitle: {
+    id: 'modules.avatars.manage.modal.edit-avatar.title',
+    defaultMessage: 'Редагувати аватар',
+    description: 'Заголовок модального вікна редагування аватара.',
   },
   avatarSetStepperBtnStatefulCompleteText: {
     id: 'modules.avatars.avatar-set.stepper.button.stateful.complete.text',

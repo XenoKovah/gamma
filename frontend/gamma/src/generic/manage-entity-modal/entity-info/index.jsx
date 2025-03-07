@@ -9,7 +9,7 @@ import FormInputController from './FormInputController';
 
 const EntityInfo = () => {
   const intl = useIntl();
-  const { handleChange } = useFormikContext();
+  const { initialValues, handleChange } = useFormikContext();
   const isExtraSmall = useMediaQuery({ maxWidth: breakpoints.extraSmall.maxWidth });
 
   const handleCheckboxChange = (event) => {
@@ -24,10 +24,12 @@ const EntityInfo = () => {
           label={intl.formatMessage(messages.modalEntityInfoLabelEntityTitle)}
           name="title"
         />
-        <FormInputController
-          label={intl.formatMessage(messages.modalEntityInfoLabelEntitySlugText)}
-          name="slug"
-        />
+        {Object.hasOwn(initialValues, 'slug') && (
+          <FormInputController
+            label={intl.formatMessage(messages.modalEntityInfoLabelEntitySlugText)}
+            name="slug"
+          />
+        )}
       </Form.Row>
       <FormInputController
         label={intl.formatMessage(messages.modalEntityInfoLabelEntityDescriptionText)}
@@ -36,14 +38,16 @@ const EntityInfo = () => {
         autoResize
         hasCol={false}
       />
-      <Form.Group className="mb-4" controlId="formEntityActive">
-        <Form.Checkbox
-          className="manage-entity-modal-information-is-active"
-          onChange={handleCheckboxChange}
-        >
-          {intl.formatMessage(messages.modalEntityInfoLabelEntityIsActiveText)}
-        </Form.Checkbox>
-      </Form.Group>
+      {Object.hasOwn(initialValues, 'isActive') && (
+        <Form.Group className="mb-4" controlId="formEntityActive">
+          <Form.Checkbox
+            className="manage-entity-modal-information-is-active"
+            onChange={handleCheckboxChange}
+          >
+            {intl.formatMessage(messages.modalEntityInfoLabelEntityIsActiveText)}
+          </Form.Checkbox>
+        </Form.Group>
+      )}
     </div>
   );
 };

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import { Stepper, Container, FullscreenModal } from '@openedx/paragon';
 
+import { useAvatarsContext } from '../../context/AvatarsContext';
 import { EvolutionStep, TitleStep, AvatarsStep } from './steps-components';
 import { stepTitleValidationSchema } from './validation';
 import { SUBMIT_STATUSES, STEPPER_STEPS } from './constants';
@@ -10,14 +11,22 @@ import { SUBMIT_STATUSES, STEPPER_STEPS } from './constants';
 import moduleMessages from '../../i18n';
 
 export const AvatarSetStepper = ({
+  coursesData,
+  actionsData,
   submitStatus,
   avatarSetsData,
+  deletionStatus,
+  setSubmitStatus,
+  organizationsData,
+  handleUpdateAvatar,
+  handleDeleteAvatar,
   handleCreateNewAvatarSet,
   closeManageAvatarSetModal,
   isManageAvatarSetModalOpen,
   handleUpdateAvatarSet,
 }) => {
   const intl = useIntl();
+  const { setCurrentAvatarSetData } = useAvatarsContext();
   const [currentStep, setCurrentStep] = useState(STEPPER_STEPS.title);
   const [stepperKey, setStepperKey] = useState(0);
 
@@ -25,6 +34,7 @@ export const AvatarSetStepper = ({
     closeManageAvatarSetModal();
     setCurrentStep(STEPPER_STEPS.title);
     setStepperKey(prevKey => prevKey + 1);
+    setCurrentAvatarSetData(null);
   };
 
   useEffect(() => {
@@ -99,7 +109,16 @@ export const AvatarSetStepper = ({
           <AvatarsStep
             currentStep={currentStep}
             setCurrentStep={setCurrentStep}
+            avatarSetsData={avatarSetsData}
             handleCloseManageAvatarSetModal={handleCloseManageAvatarSetModal}
+            handleDeleteAvatar={handleDeleteAvatar}
+            submitStatus={submitStatus}
+            deletionStatus={deletionStatus}
+            setSubmitStatus={setSubmitStatus}
+            coursesData={coursesData}
+            organizationsData={organizationsData}
+            actionsData={actionsData}
+            handleUpdateAvatar={handleUpdateAvatar}
           />
         </Container>
       </FullscreenModal>
@@ -119,6 +138,19 @@ AvatarSetStepper.propTypes = {
       title: PropTypes.string.isRequired,
     }),
   ).isRequired,
+  coursesData: PropTypes.shape({
+    courses: PropTypes.arrayOf(PropTypes.string).isRequired,
+  }),
+  organizationsData: PropTypes.shape({
+    organisations: PropTypes.arrayOf(PropTypes.string).isRequired,
+  }),
+  actionsData: PropTypes.arrayOf(PropTypes.shape({
+    eventType: PropTypes.string.isRequired,
+  })),
+  handleUpdateAvatar: PropTypes.func.isRequired,
+  handleDeleteAvatar: PropTypes.func.isRequired,
+  deletionStatus: PropTypes.oneOf(SUBMIT_STATUSES).isRequired,
+  setSubmitStatus: PropTypes.func.isRequired,
 };
 
 export default AvatarSetStepper;

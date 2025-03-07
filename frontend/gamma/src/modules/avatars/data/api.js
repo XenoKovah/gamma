@@ -1,7 +1,13 @@
 import axios from 'axios';
 
 import { API_ROUTES, REQUEST_HEADERS } from './constants';
-import { convertKeysToCamelCase, convertKeysToSnakeCase } from './utils';
+import {
+  fileToBase64,
+  preparePayload,
+  convertKeysToCamelCase,
+  convertKeysToSnakeCase,
+  processReceivedAvatarSets,
+} from './utils';
 
 /**
  * Fetches avatar sets data from the API.
@@ -9,7 +15,9 @@ import { convertKeysToCamelCase, convertKeysToSnakeCase } from './utils';
  */
 export const fetchAvatarSetsData = async () => {
   const { data } = await axios.get(API_ROUTES.AVATAR_SET);
-  return Array.isArray(data) ? convertKeysToCamelCase(data).reverse() : [];
+  return Array.isArray(data)
+    ? processReceivedAvatarSets(convertKeysToCamelCase(data)).reverse()
+    : [];
 };
 
 /**
@@ -73,4 +81,94 @@ export const updateAvatarSet = async (avatarSetData) => {
     console.error('Error updating avatar set:', error); // eslint-disable-line no-console
     throw error;
   }
+};
+
+/**
+ * Deletes an avatar by its ID.
+ *
+ * @async
+ * @function deleteAvatarById
+ * @param {number|string} avatarId - The ID of the avatar to delete.
+ * @returns {Promise<Object>} - The response data with keys converted to camelCase.
+ * @throws {Error} - Throws an error if the request fails.
+ */
+export const deleteAvatarById = async (avatarId) => {
+  try {
+    const response = await axios.delete(`${API_ROUTES.AVATAR}${avatarId}/`, {
+      headers: { ...REQUEST_HEADERS },
+      withCredentials: true,
+    });
+
+    return convertKeysToCamelCase(response.data);
+  } catch (error) {
+    console.error('Error updating avatar set:', error); // eslint-disable-line no-console
+    throw error;
+  }
+};
+
+/**
+ * Updates an avatar by its ID with the provided data.
+ *
+ * @async
+ * @function updateAvatarById
+ * @param {number|string} avatarId - The ID of the avatar to update.
+ * @param {Object} avatarData - The new avatar data to update.
+ * @param {string} [avatarData.title] - The title of the avatar.
+ * @param {string} [avatarData.description] - The description of the avatar.
+ * @param {string|File|null} [avatarData.image] - The avatar image, which can be a URL, a File object, or null.
+ * @param {Array<Object>} [avatarData.rules] - The rules associated with the avatar.
+ * @returns {Promise<Object>} - The updated avatar data with keys converted to camelCase.
+ * @throws {Error} - Throws an error if the request fails.
+ */
+export const updateAvatarById = async (avatarId, avatarData) => {
+  try {
+    const cleanedData = preparePayload(structuredClone(avatarData));
+
+    if (typeof cleanedData.image === 'string') {
+      delete cleanedData.image;
+    }
+
+    if (cleanedData.image instanceof File) {
+      cleanedData.image = await fileToBase64(cleanedData.image);
+    }
+
+    const requestData = convertKeysToSnakeCase(cleanedData);
+
+    const response = await axios.patch(`${API_ROUTES.AVATAR}${avatarId}/`, requestData, {
+      headers: { ...REQUEST_HEADERS },
+      withCredentials: true,
+    });
+
+    return convertKeysToCamelCase(response.data);
+  } catch (error) {
+    console.error('Error updating avatar set:', error); // eslint-disable-line no-console
+    throw error;
+  }
+};
+
+/**
+ * Fetches badge data from the API.
+ * @returns {Promise<Object>} The badge data.
+ */
+export const fetchCoursesData = async () => {
+  const { data } = await axios.get(API_ROUTES.COURSES);
+  return convertKeysToCamelCase(data);
+};
+
+/**
+ * Fetches badge data from the API.
+ * @returns {Promise<Object>} The badge data.
+ */
+export const fetchOrganizationsData = async () => {
+  const { data } = await axios.get(API_ROUTES.ORGANIZATIONS);
+  return convertKeysToCamelCase(data);
+};
+
+/**
+ * Fetches actions data from the API.
+ * @returns {Promise<Object>} The badge data.
+ */
+export const fetchActionsData = async () => {
+  const { data } = await axios.get(API_ROUTES.ACTIONS);
+  return convertKeysToCamelCase(data);
 };

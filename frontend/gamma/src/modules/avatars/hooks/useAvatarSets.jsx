@@ -9,7 +9,15 @@ import { submitBtnStatuses } from '../../../generic';
 import { useAvatarsContext } from '../context/AvatarsContext';
 import { DEFAULT_DELAY, DELETION_STATES } from '../constants';
 import {
-  deleteAvatarSet, useAvatarSetsData, createAvatarSet, updateAvatarSet,
+  useCoursesData,
+  useActionsData,
+  deleteAvatarSet,
+  createAvatarSet,
+  updateAvatarSet,
+  updateAvatarById,
+  deleteAvatarById,
+  useAvatarSetsData,
+  useOrganizationsData,
 } from '../data';
 import { deletionReducer } from '../reducers';
 import { setAutoClose } from '../utils';
@@ -24,8 +32,26 @@ export const useAvatarSets = () => {
     isError: isAvatarSetsDataError,
     refetch: refetchAvatarSetsData,
   } = useAvatarSetsData();
-
+  const {
+    data: coursesData,
+    isLoading: isCoursesDataLoading,
+    isError: isCoursesDataError,
+  } = useCoursesData();
+  const {
+    data: organizationsData,
+    isLoading: isOrganizationsDataLoading,
+    isError: isOrganizationsDataError,
+  } = useOrganizationsData();
+  const {
+    data: actionsData,
+    isLoading: isActionsDataLoading,
+    isError: isActionsDataError,
+  } = useActionsData();
   const { setCurrentAvatarSetData } = useAvatarsContext();
+
+  const isLoading = isAvatarSetsDataLoading
+    || isCoursesDataLoading || isOrganizationsDataLoading || isActionsDataLoading;
+  const isError = isAvatarSetsDataError || isCoursesDataError || isOrganizationsDataError || isActionsDataError;
 
   const [showErrorAlert, setShowErrorAlert] = useState(false);
   const [showErrorToast, setShowErrorToast] = useState(false);
@@ -126,6 +152,7 @@ export const useAvatarSets = () => {
 
   const handleUpdateAvatarSet = async (avatarSetData, callback) => {
     setSubmitStatus(submitBtnStatuses.PENDING);
+
     try {
       await updateAvatarSet(avatarSetData);
       await refetchAvatarSetsData();
@@ -140,16 +167,57 @@ export const useAvatarSets = () => {
     }
   };
 
+  const handleDeleteAvatar = async (avatarId, callback) => {
+    setSubmitStatus(submitBtnStatuses.PENDING);
+    try {
+      await deleteAvatarById(avatarId);
+      await refetchAvatarSetsData();
+      handleCloseAlertError();
+      setShowAvatarSetDeletedSuccessfully(true);
+      dispatchDeletionStatus({ type: DELETION_STATES.SUCCESS });
+      callback();
+    } catch (error) {
+      console.error('Error deleting avatar:', error); // eslint-disable-line no-console
+      setSubmitStatus(submitBtnStatuses.ERROR);
+      dispatchDeletionStatus({ type: DELETION_STATES.ERROR });
+      setShowErrorToast(true);
+      handleCloseAlertError();
+      setShowAvatarSetDeletedSuccessfully(false);
+    } finally {
+      setSubmitStatus(submitBtnStatuses.DEFAULT);
+    }
+  };
+
+  const handleUpdateAvatar = async (entityId, values, resetForm, handleReset) => {
+    setSubmitStatus(submitBtnStatuses.PENDING);
+    try {
+      await updateAvatarById(entityId, values);
+      await refetchAvatarSetsData();
+      setShowAvatarSetCreatedSuccessfully(true);
+      handleReset(resetForm);
+    } catch (error) {
+      setShowErrorToast(true);
+    } finally {
+      setSubmitStatus(submitBtnStatuses.DEFAULT);
+    }
+  };
+
   return {
+    isError,
+    isLoading,
+    coursesData,
+    actionsData,
     activeToast,
     submitStatus,
     deletionStatus,
     showErrorAlert,
     avatarSetsData,
+    setSubmitStatus,
     setShowErrorAlert,
-    isAvatarSetsDataError,
+    organizationsData,
+    handleDeleteAvatar,
+    handleUpdateAvatar,
     handleUpdateAvatarSet,
-    isAvatarSetsDataLoading,
     openConfirmDeletionModal,
     handleCreateNewAvatarSet,
     openManageAvatarSetModal,

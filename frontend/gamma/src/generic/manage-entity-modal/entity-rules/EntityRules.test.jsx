@@ -1,5 +1,5 @@
 import React from 'react';
-import { cleanup } from '@testing-library/react';
+import { cleanup, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { useFormikContext } from 'formik';
 import userEvent from '@testing-library/user-event';
@@ -27,6 +27,8 @@ describe('EntityRules', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    rulesContainerRef.current = document.createElement('div');
+    lastRuleRef.current = document.createElement('div');
     useFormikContext.mockReturnValue({
       values: { rules: [] },
       setFieldValue: mockSetFieldValue,
@@ -92,5 +94,70 @@ describe('EntityRules', () => {
     userEvent.click(removeButtons[0]);
 
     expect(mockSetFieldValue).toHaveBeenCalledWith('rules', expect.any(Array));
+  });
+
+  it('adds a new rule with correct structure when add button is clicked', () => {
+    useFormikContext.mockReturnValue({
+      values: { rules: [] },
+      setFieldValue: mockSetFieldValue,
+    });
+
+    const { getByRole } = renderComponent();
+    const addButton = getByRole('button', {
+      name: messages.modalEntityRulesAddNewRuleBtnText.defaultMessage,
+    });
+
+    userEvent.click(addButton);
+
+    expect(mockSetFieldValue).toHaveBeenCalledWith(
+      'rules',
+      expect.arrayContaining([
+        expect.objectContaining({
+          tempId: expect.any(String),
+          action: {},
+          filters: {},
+        }),
+      ]),
+    );
+  });
+
+  it('removes the correct rule when remove button is clicked', () => {
+    useFormikContext.mockReturnValue({
+      values: { rules: [{ tempId: '1' }, { tempId: '2' }] },
+      setFieldValue: mockSetFieldValue,
+    });
+
+    EntityRule.mockImplementation(({ removeRule, ruleIndex }) => (
+      <button data-testid="remove-rule-btn" type="button" onClick={() => removeRule(ruleIndex)}>
+        {messages.modalEntityRulesBtnDeleteText.defaultMessage}
+      </button>
+    ));
+
+    const { getAllByTestId } = renderComponent();
+
+    const removeButtons = getAllByTestId('remove-rule-btn');
+    userEvent.click(removeButtons[1]);
+
+    expect(mockSetFieldValue).toHaveBeenCalledWith('rules', [{ tempId: '1' }]);
+  });
+
+  it('scrolls to the last rule when a new rule is added', async () => {
+    lastRuleRef.current.scrollIntoView = jest.fn();
+
+    useFormikContext.mockReturnValue({
+      values: { rules: [] },
+      setFieldValue: mockSetFieldValue,
+    });
+
+    const { getByRole } = renderComponent();
+    const addButton = getByRole('button', {
+      name: messages.modalEntityRulesAddNewRuleBtnText.defaultMessage,
+    });
+
+    userEvent.click(addButton);
+
+    await waitFor(() => {
+      expect(lastRuleRef.current.scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' });
+    });
   });
 });

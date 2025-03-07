@@ -4,6 +4,7 @@ export { default as ToastComponent } from './toast';
 export { default as SEOHelmet } from './seo-helmet';
 export { default as Modal } from './modal';
 export { default as AlertModal } from './alert-modal';
+export { default as Card } from './card';
 export { default as Header } from './header';
 export { default as Footer } from './footer';
 export { default as ManageEntityModal } from './manage-entity-modal';

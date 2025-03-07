@@ -25,14 +25,21 @@ export const Avatars = () => {
   const intl = useIntl();
 
   const {
+    isError,
+    isLoading,
+    coursesData,
+    actionsData,
     activeToast,
     submitStatus,
     deletionStatus,
     showErrorAlert,
     avatarSetsData,
+    setSubmitStatus,
     setShowErrorAlert,
-    isAvatarSetsDataError,
-    isAvatarSetsDataLoading,
+    organizationsData,
+    handleDeleteAvatar,
+    handleUpdateAvatar,
+    handleUpdateAvatarSet,
     openConfirmDeletionModal,
     handleCreateNewAvatarSet,
     openManageAvatarSetModal,
@@ -41,20 +48,19 @@ export const Avatars = () => {
     isManageAvatarSetModalOpen,
     closeDeletionAvatarSetModal,
     isDeletionAvatarSetModalOpen,
-    handleUpdateAvatarSet,
   } = useAvatarSets();
 
   useEffect(() => {
-    if (showErrorAlert || isAvatarSetsDataError) {
+    if (showErrorAlert || isError) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }, [showErrorAlert, isAvatarSetsDataError]);
+  }, [showErrorAlert, isError]);
 
-  if (isAvatarSetsDataLoading) {
+  if (isLoading) {
     return <Loader />;
   }
 
-  const errorAlert = (isAvatarSetsDataError || showErrorAlert) && {
+  const errorAlert = (isError || showErrorAlert) && {
     title: intl.formatMessage(genericMessages.alertDangerTitle),
     description: intl.formatMessage(genericMessages.alertDangerDescription),
     variant: 'danger',
@@ -67,7 +73,7 @@ export const Avatars = () => {
   return (
     <>
       <Header />
-      <main className="avatars-settings mt-4 mb-4 flex-grow-1">
+      <main className="avatars-settings my-4 flex-grow-1">
         <SEOHelmet
           title={intl.formatMessage(moduleMessages.pageTitle)}
           description={intl.formatMessage(moduleMessages.pageDescription)}
@@ -79,6 +85,13 @@ export const Avatars = () => {
           submitStatus={submitStatus}
           avatarSetsData={avatarSetsData}
           handleUpdateAvatarSet={handleUpdateAvatarSet}
+          handleDeleteAvatar={handleDeleteAvatar}
+          deletionStatus={deletionStatus}
+          setSubmitStatus={setSubmitStatus}
+          coursesData={coursesData}
+          organizationsData={organizationsData}
+          actionsData={actionsData}
+          handleUpdateAvatar={handleUpdateAvatar}
         />
         <AlertModal
           title={intl.formatMessage(moduleMessages.confirmDeletionModalTitle)}
@@ -91,7 +104,7 @@ export const Avatars = () => {
         />
         <Container size="lg">
           <SubHeader
-            isError={isAvatarSetsDataError}
+            isError={isError}
             title={intl.formatMessage(moduleMessages.pageTitle)}
             btnTitle={intl.formatMessage(moduleMessages.addAvatarSetBtnText)}
             description={
@@ -110,7 +123,7 @@ export const Avatars = () => {
               delay={1000}
             />
           )}
-          {!isAvatarSetsDataError && (
+          {!isError && (
             <>
               <AvatarSetList
                 avatarSetsData={avatarSetsData}

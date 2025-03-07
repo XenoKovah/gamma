@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { createRef } from 'react';
 import { cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event';
@@ -18,7 +18,9 @@ describe('DatePickerFormControl Component', () => {
     placeholder: 'Select a date',
   };
 
-  const renderComponent = (props = {}) => renderWithProviders(<DatePickerFormControl {...defaultProps} {...props} />);
+  const renderComponent = (props = {}, ref = null) => renderWithProviders(
+    <DatePickerFormControl ref={ref} {...defaultProps} {...props} />,
+  );
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -58,5 +60,13 @@ describe('DatePickerFormControl Component', () => {
 
     const input = getByRole('textbox');
     expect(input).toHaveAttribute('tabIndex', '0');
+  });
+
+  it('forwards ref correctly', () => {
+    const ref = createRef();
+    renderComponent({}, ref);
+
+    expect(ref.current).not.toBeNull();
+    expect(ref.current.tagName).toBe('INPUT');
   });
 });

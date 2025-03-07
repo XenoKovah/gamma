@@ -1,14 +1,14 @@
-.avatar-set-item.pgn__card {
-  .avatar-set-item-image.pgn__card-wrapper-image-cap.vertical {
-    max-height: $avatar-set-item-image-height;
-    height: $avatar-set-item-image-height;
+.card-item.pgn__card {
+  .card-item-image.pgn__card-wrapper-image-cap.vertical {
+    max-height: $card-item-image-height;
+    height: $card-item-image-height;
 
     .pgn__card-image-cap {
       height: 100%;
     }
   }
 
-  .avatar-set-item-header.pgn__card-header {
+  .card-item-header.pgn__card-header {
     .pgn__card-header-content {
       margin: $spacer 0;
     }

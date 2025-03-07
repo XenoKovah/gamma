@@ -7,7 +7,6 @@ import {
   AlertModal, Header, Footer, ToastComponent, SubHeader,
 } from '../../generic';
 import genericMessages from '../../i18n';
-import { useCoursesData, useOrganizationsData } from './data';
 import { BadgesList } from './components';
 import { useBadges } from './hooks/useBadges';
 import moduleMessages from './i18n';
@@ -77,9 +76,7 @@ export const Badges = () => {
         />
         <ManageEntityModal
           isManageEntityModalOpen={isManageEntityModalOpen}
-          useCoursesData={useCoursesData}
           title={intl.formatMessage(moduleMessages.addManageEntityModalTitle)}
-          useOrganizationsData={useOrganizationsData}
           data={{
             courses: coursesData?.courses || [],
             organizations: organizationsData?.organisations || [],

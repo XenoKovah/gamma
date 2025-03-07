@@ -1,6 +1,8 @@
 import { useQuery } from 'react-query';
 
-import { fetchAvatarSetsData } from '../api';
+import {
+  fetchAvatarSetsData, fetchCoursesData, fetchOrganizationsData, fetchActionsData,
+} from '../api';
 
 /**
  * Custom React Query hooks for fetching data from the API.
@@ -8,3 +10,9 @@ import { fetchAvatarSetsData } from '../api';
 */
 
 export const useAvatarSetsData = () => useQuery('avatarSetsData', fetchAvatarSetsData);
+
+export const useCoursesData = () => useQuery('coursesData', fetchCoursesData);
+
+export const useOrganizationsData = () => useQuery('organizationsData', fetchOrganizationsData);
+
+export const useActionsData = () => useQuery('actionsData', fetchActionsData);

@@ -1,8 +1,18 @@
 export {
-  deleteAvatarSet, fetchAvatarSetsData, createAvatarSet, updateAvatarSet,
+  deleteAvatarSet,
+  fetchAvatarSetsData,
+  createAvatarSet,
+  updateAvatarSet,
+  deleteAvatarById,
+  fetchCoursesData,
+  fetchOrganizationsData,
+  fetchActionsData,
+  updateAvatarById,
 } from './api';
 export { API_ROUTES } from './constants';
-export { useAvatarSetsData } from './hooks';
+export {
+  useAvatarSetsData, useCoursesData, useOrganizationsData, useActionsData,
+} from './hooks';
 export {
   toCamelCase,
   toSnakeCase,

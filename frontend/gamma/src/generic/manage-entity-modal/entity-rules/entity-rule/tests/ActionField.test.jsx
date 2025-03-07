@@ -97,4 +97,17 @@ describe('ActionField Component', () => {
 
     expect(queryByText('This field is required')).not.toBeInTheDocument();
   });
+
+  it('does not render Form.Control.Feedback when there is no error', () => {
+    const { queryByRole } = renderComponent();
+
+    expect(queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  it('renders correct field name based on ruleIndex and name', () => {
+    const { getByRole } = renderComponent({ ruleIndex: 2, name: 'customField' });
+
+    const input = getByRole('textbox');
+    expect(input).toHaveAttribute('name', 'rules.2.action.customField');
+  });
 });

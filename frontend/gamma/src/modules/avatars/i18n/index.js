@@ -36,10 +36,20 @@ const messages = defineMessages({
     defaultMessage: 'Edit',
     description: 'The text displayed on the button to edit a avatar set.',
   },
+  avatarEditBtnTitle: {
+    id: 'modules.avatars.avatar.button.edit.title',
+    defaultMessage: 'Edit',
+    description: 'The text displayed on the button to edit a avatar.',
+  },
   avatarSetDeleteBtnTitle: {
     id: 'modules.avatars.avatar-set.button.delete.title',
     defaultMessage: 'Delete',
     description: 'The text displayed on the button to delete a avatar set.',
+  },
+  avatarDeleteBtnTitle: {
+    id: 'modules.avatars.avatar.button.delete.title',
+    defaultMessage: 'Delete',
+    description: 'The text displayed on the button to delete a avatar.',
   },
   toastErrorTitle: {
     id: 'modules.avatars.toast.error.text',
@@ -65,6 +75,16 @@ const messages = defineMessages({
     id: 'modules.avatars.alert.modal.confirm.deletion.description',
     defaultMessage: 'Are you sure you want to delete this avatar set? This action cannot be undone.',
     description: 'The description for the confirmation modal when deleting a avatar set.',
+  },
+  confirmAvatarDeletionModalDescription: {
+    id: 'modules.avatars.alert.modal.confirm.deletion.avatar.description',
+    defaultMessage: 'Are you sure you want to delete this avatar? This action cannot be undone.',
+    description: 'The description for the confirmation modal when deleting a avatar.',
+  },
+  editAvatarModalTitle: {
+    id: 'modules.avatars.manage.modal.edit-avatar.title',
+    defaultMessage: 'Edit avatar',
+    description: 'The title for the edit avatar modal.',
   },
   avatarSetStepperBtnStatefulDefaultText: {
     id: 'modules.avatars.avatar-set.stepper.button.stateful.default.text',

@@ -10,7 +10,7 @@ const SubHeader = ({
   const isExtraSmall = useMediaQuery({ maxWidth: breakpoints.extraSmall.maxWidth });
 
   return (
-    <header className="mt-4 mb-4">
+    <header className="my-4">
       <Stack className="justify-content-between" direction={isExtraSmall ? 'vertical' : 'horizontal'}>
         <h1 className="mb-0">{title}</h1>
         {!isError && (

@@ -1,10 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
-import { ActionRow, Button, Card } from '@openedx/paragon';
+
+import { Card as AvatarSetCard } from '../../../../../generic';
+import { avatarsPropTypes } from '../propTypes';
 
 import messages from '../../../i18n';
-import { avatarsPropTypes } from '../propTypes';
 
 import imagePlaceholder from '../../../assets/images/not-found.jpg';
 
@@ -31,24 +32,15 @@ const AvatarSetItem = ({
   const imageSrc = getAvatarSetImage(avatars, imagePlaceholder);
 
   return (
-    <Card className="avatar-set-item" data-testid={`avatar-set-item-${id}`}>
-      <Card.ImageCap
-        className="avatar-set-item-image"
-        src={imageSrc}
-        srcAlt={title}
-      />
-      <Card.Header className="avatar-set-item-header" title={title} />
-      <Card.Footer>
-        <ActionRow>
-          <Button variant="tertiary" block onClick={() => openConfirmDeletionModal(id)}>
-            {intl.formatMessage(messages.avatarSetDeleteBtnTitle)}
-          </Button>
-          <Button className="mt-0" block>
-            {intl.formatMessage(messages.avatarSetEditBtnTitle)}
-          </Button>
-        </ActionRow>
-      </Card.Footer>
-    </Card>
+    <AvatarSetCard
+      id={id}
+      title={title}
+      src={imageSrc}
+      prevBtnTitle={intl.formatMessage(messages.avatarSetDeleteBtnTitle)}
+      nextBtnTitle={intl.formatMessage(messages.avatarSetEditBtnTitle)}
+      onPrevBtnClick={() => openConfirmDeletionModal(id)}
+      onNextBtnClick={() => {}} // TODO: implement edit
+    />
   );
 };
 

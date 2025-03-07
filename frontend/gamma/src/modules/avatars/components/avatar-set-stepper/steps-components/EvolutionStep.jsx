@@ -2,16 +2,14 @@ import React, { useCallback } from 'react';
 import { useIntl } from 'react-intl';
 import { Formik } from 'formik';
 import PropTypes from 'prop-types';
-import {
-  Stepper, Button, ActionRow, CardGrid,
-} from '@openedx/paragon';
+import { Stepper, Button, CardGrid } from '@openedx/paragon';
 import { Add as AddIcon } from '@openedx/paragon/icons';
 
 import { useAvatarsContext } from '../../../context/AvatarsContext';
-import { StatusButton } from '../../../../../generic';
 import { STEPPER_STEPS } from '../constants';
 import AvatarStageImage from './AvatarStageImage';
 import { DEFAULT_AVATAR_DATA } from './constants';
+import StepFooter from './StepFooter';
 
 import moduleMessages from '../../../i18n';
 
@@ -99,20 +97,15 @@ const EvolutionStep = ({
             </Stepper.Step>
 
             {isCurrentStep && (
-              <ActionRow className="justify-content-between">
-                <Button variant="outline-primary" onClick={() => setCurrentStep(STEPPER_STEPS.title)}>
-                  {intl.formatMessage(moduleMessages.avatarSetStepperPreviousBtnTitle)}
-                </Button>
-                <StatusButton
-                  variant="primary"
-                  labels={statefulButtonLabels}
-                  options={{
-                    submitStatus,
-                    submitFn: handleSubmit,
-                    disabled: isSubmitDisabled,
-                  }}
-                />
-              </ActionRow>
+              <StepFooter
+                prevBtnText={intl.formatMessage(moduleMessages.avatarSetStepperPreviousBtnTitle)}
+                prevBtnOnClick={() => setCurrentStep(STEPPER_STEPS.title)}
+                isStatefulBtn
+                submitFn={handleSubmit}
+                disabled={isSubmitDisabled}
+                statefulButtonLabels={statefulButtonLabels}
+                submitStatus={submitStatus}
+              />
             )}
           </>
         );

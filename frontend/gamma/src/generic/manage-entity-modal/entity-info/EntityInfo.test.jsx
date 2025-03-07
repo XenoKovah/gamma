@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { Formik } from 'formik';
 
 import { getValidationSchema } from '../validation';
+import { DEFAULT_FORM_VALUES } from '../constants';
 import { renderWithProviders } from '../../../setupTests';
 import messages from '../../../i18n';
 import EntityInfo from '.';
@@ -34,13 +35,11 @@ describe('EntityInfo', () => {
 
   afterEach(cleanup);
 
-  const validationSchema = getValidationSchema(translations);
+  const validationSchema = getValidationSchema(translations, DEFAULT_FORM_VALUES);
 
-  const renderComponent = (formikProps = {}) => renderWithProviders(
+  const renderComponent = (initialValues = DEFAULT_FORM_VALUES, formikProps = {}) => renderWithProviders(
     <Formik
-      initialValues={{
-        title: '', slug: '', description: '', image: null,
-      }}
+      initialValues={initialValues}
       validationSchema={validationSchema}
       onSubmit={jest.fn()}
       {...formikProps}
@@ -57,6 +56,19 @@ describe('EntityInfo', () => {
     expect(getByLabelText(messages.modalEntityInfoLabelEntityTitle.defaultMessage)).toBeInTheDocument();
     expect(getByLabelText(messages.modalEntityInfoLabelEntitySlugText.defaultMessage)).toBeInTheDocument();
     expect(getByLabelText(messages.modalEntityInfoLabelEntityDescriptionText.defaultMessage)).toBeInTheDocument();
+    expect(getByLabelText(messages.modalEntityInfoLabelEntityIsActiveText.defaultMessage)).toBeInTheDocument();
+  });
+
+  it('renders EntityInfo without slug label', () => {
+    const { slug, isActive, ...initialValuesWithoutSlug } = DEFAULT_FORM_VALUES;
+    const { getByRole, getByLabelText, queryByLabelText } = renderComponent(initialValuesWithoutSlug);
+
+    expect(getByRole('heading', { level: 2 }))
+      .toHaveTextContent(messages.modalEntityInfoHeadingText.defaultMessage);
+    expect(getByLabelText(messages.modalEntityInfoLabelEntityTitle.defaultMessage)).toBeInTheDocument();
+    expect(getByLabelText(messages.modalEntityInfoLabelEntityDescriptionText.defaultMessage)).toBeInTheDocument();
+    expect(queryByLabelText(messages.modalEntityInfoLabelEntitySlugText.defaultMessage)).not.toBeInTheDocument();
+    expect(queryByLabelText(messages.modalEntityInfoLabelEntityIsActiveText.defaultMessage)).not.toBeInTheDocument();
   });
 
   it('updates input values when user types', async () => {
@@ -86,7 +98,7 @@ describe('EntityInfo', () => {
   });
 
   it('displays validation errors when fields are touched and left empty', async () => {
-    const { getByText, getByLabelText } = renderComponent({
+    const { getByText, getByLabelText } = renderComponent(DEFAULT_FORM_VALUES, {
       validateOnBlur: true,
       validateOnChange: false,
     });
@@ -104,9 +116,9 @@ describe('EntityInfo', () => {
       userEvent.tab();
     });
 
-    waitFor(() => {
+    await waitFor(() => {
       expect(getByText(translations.titleRequired)).toBeInTheDocument();
-      expect(getByText(translations.slug['generic.modal.entity.validation.slug.required'])).toBeInTheDocument();
+      expect(getByText(translations.slug.slugRequired)).toBeInTheDocument();
       expect(getByText(translations.descriptionRequired)).toBeInTheDocument();
     });
   });

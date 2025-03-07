@@ -114,4 +114,22 @@ describe('IntervalDatePicker', () => {
       selectDate('Choose Wednesday, 10 January 2024', 'rules.0.filters.interval.end', '2024-01-10T00:00:00');
     });
   });
+
+  it('does not set minDate when dateType is START', () => {
+    renderComponent({ dateType: DATE_TYPES.START });
+    const input = screen.getByRole('textbox');
+    expect(input).toHaveValue(defaultProps.rule.filters.interval.start);
+    userEvent.type(input, '{enter}');
+    verifyCalendarStructure();
+    expect(input).not.toHaveAttribute('minDate');
+  });
+
+  it('clears the date when clicking the clear button', async () => {
+    renderComponent();
+    const clearButton = screen.getByRole('button', { name: 'Close' });
+    userEvent.click(clearButton);
+    await waitFor(() => {
+      expect(mockSetFieldValue).toHaveBeenCalledWith('rules.0.filters.interval.start', null);
+    });
+  });
 });
