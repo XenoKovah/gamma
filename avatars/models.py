@@ -19,7 +19,7 @@ class Avatar(models.Model):
     rules = models.ManyToManyField('rules.Rule', blank=True)
 
     def __str__(self):
-        rules = ', '.join(self.rules.values_list('action', flat=True)) or 'No rules'
+        rules = ', '.join(str(rule.action) for rule in self.rules.all()) if self.rules.exists() else 'No rules'
         return f'Avatar {self.title!r} with rules {rules}'
 
     class Meta:

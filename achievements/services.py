@@ -2,7 +2,7 @@ import logging
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
-from events.models import EventConfiguration
+from events.models import Event, EventConfiguration
 from rules.models import Rule
 
 logger = logging.getLogger(__name__)
@@ -16,7 +16,7 @@ class RuleDependencyService:
     events_key_name = 'events'
     achievements_key_name = 'achievements'
 
-    def __init__(self, rule: Rule, event_created_at: datetime, initial_dependencies: dict = None):
+    def __init__(self, rule: Rule, event_created_at: datetime, current_event: Event, initial_dependencies: dict = None):
         self.rule = rule
         self.event_created_at = event_created_at
         self.dependencies = {
@@ -26,6 +26,7 @@ class RuleDependencyService:
             **{event: self._handle_event for event in self._get_event_types()},
             **{achievement: self._handle_dependent_achievement for achievement in self._get_achievement_types()},
         }
+        self.current_event = current_event
 
     def create_or_update(self, actions: Dict[str, int]) -> dict:
         """
@@ -62,16 +63,25 @@ class RuleDependencyService:
         event_progress = events.get(action_type, {})
 
         if not self._check_frequency_fit(self.rule.filters, event_progress):
-            events[action_type] = {
-                'count': 1,
-                'goal': value,
-                'last': self.event_created_at.isoformat(),
-            }
+            if self.current_event.event_name == action_type:
+                events[action_type] = {
+                    'count': 1,
+                    'goal': value,
+                    'last': self.event_created_at.isoformat(),
+                }
         else:
             events[action_type] = {
-                'count': event_progress.get('count', 0) + 1,
+                'count': (
+                    event_progress.get('count', 0) + 1
+                    if self.current_event.event_name == action_type
+                    else event_progress.get('count', 0)
+                ),
                 'goal': value,
-                'last': self.event_created_at.isoformat(),
+                'last': (
+                    self.event_created_at.isoformat()
+                    if self.current_event.event_name == action_type
+                    else event_progress.get('last')
+                ),
             }
 
     def _handle_dependent_achievement(self, value: int):

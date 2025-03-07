@@ -13,6 +13,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from .services import RuleDependencyService
 from .managers import AchievementManager
+from events.models import Event
 
 
 class Achievement(models.Model):
@@ -81,11 +82,11 @@ class AchievementRule(models.Model):
     def __str__(self):
         return f'Rule {self.rule.id!r} with status {self.get_status_display()})'
 
-    def update_dependencies(self, actions: Dict[str, int], event_created_at: datetime) -> None:
+    def update_dependencies(self, actions: Dict[str, int], event_created_at: datetime, event: Event) -> None:
         """
         Update the dependencies dictionary by incrementing values for event based on incoming actions.
         """
-        dependencies_updater = RuleDependencyService(self.rule, event_created_at, self.dependencies)
+        dependencies_updater = RuleDependencyService(self.rule, event_created_at, event, self.dependencies)
         self.dependencies = dependencies_updater.create_or_update(actions)
         self.save(update_fields=('dependencies',))
 

@@ -26,5 +26,5 @@ class Badge(models.Model):
         verbose_name_plural = 'Badges'
 
     def __str__(self):
-        rules = ', '.join(self.rules.values_list('action', flat=True)) or 'No rules'
+        rules = ', '.join(str(rule.action) for rule in self.rules.all()) if self.rules.exists() else 'No rules'
         return f'Badge {self.title!r} with rules {rules}'

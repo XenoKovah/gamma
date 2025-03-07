@@ -5,7 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
 from badges.models import Badge
-from events.models import Event
+from events.models import Event, EventConfiguration
 from users.models import GammaUser
 
 from .services import RuleDependencyService
@@ -61,18 +61,20 @@ class AchievementManager(models.Manager):
         """
         from .models import AchievementRule
 
-        dependencies_creator = RuleDependencyService(rule, event.created_at)
+        dependencies_creator = RuleDependencyService(rule, event.created_at, event)
         dependencies = dependencies_creator.create_or_update(rule.action)
+
+        event_configuration = EventConfiguration.objects.get(id=rule.event_configuration_id)
 
         achievement_rule = AchievementRule(
             achievement=achievement,
             rule=rule,
             status=AchievementRule.Statuses.ACTIVE,
-            points=event.configuration.award,
+            points=event_configuration.award,
             dependencies=dependencies,
         )
 
-        if achievement_rule.is_ready_to_complete(achievement.user):
+        if self._can_complete_rule(achievement_rule, dependencies, achievement):
             achievement_rule.status = AchievementRule.Statuses.COMPLETED
 
         return achievement_rule
@@ -94,9 +96,9 @@ class AchievementManager(models.Manager):
             description=instance.description,
         )
 
-        self._update_achievement_rules(instance, achievement, event.created_at)
+        self._update_achievement_rules(instance, achievement, event.created_at, event)
 
-    def _update_achievement_rules(self, instance: Union[Badge], achievement, event_created_at: datetime) -> None:
+    def _update_achievement_rules(self, instance: Union[Badge], achievement, event_created_at: datetime, event) -> None:
         """
         Update dependencies of the rules of an existing achievement based on changes.
         """
@@ -109,10 +111,35 @@ class AchievementManager(models.Manager):
         )
 
         ready_to_complete_rules = []
+
         for achievement_rule in achievement_rules:
-            achievement_rule.update_dependencies(achievement_rule.rule.action, event_created_at)
+            achievement_rule.update_dependencies(achievement_rule.rule.action, event_created_at, event)
 
             if achievement_rule.is_ready_to_complete(achievement.user):
                 ready_to_complete_rules.append(achievement_rule)
 
         AchievementRule.bulk_complete(ready_to_complete_rules)
+
+    def _can_complete_rule(
+        self, achievement_rule: 'AchievementRule', dependencies: dict, achievement: 'Achievement'
+    ) -> bool:
+        """
+        Checks whether an achievement_rule can be completed.
+        """
+        from .models import Achievement
+
+        if achievement_rule.is_ready_to_complete(achievement.user) and 'achievements' not in dependencies:
+            return True
+        else:
+            required_achievements = dependencies.get('achievements', [])
+            if not required_achievements:
+                return False
+
+            for required_achievement in required_achievements:
+                required_achievement_id = required_achievement.get('id')
+                required_achievement_obj = Achievement.objects.filter(
+                    object_id=required_achievement_id, user=achievement.user
+                ).first()
+                if required_achievement_obj and required_achievement_obj.all_rules_completed:
+                    return True
+                return False

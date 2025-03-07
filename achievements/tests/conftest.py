@@ -78,14 +78,17 @@ def mock_action_achievement_based_dict(mock_dependent_badge):
 
 
 @pytest.fixture
-def rule_dependency_service(rule_factory, event_configuration_factory, mock_action_event_based_dict, mock_filters_dict):
+def rule_dependency_service(
+    rule_factory, event_configuration_factory, event_factory, mock_action_event_based_dict, mock_filters_dict
+):
     def _setup(rule=None, created_at=None, dependencies=None):
         event_configuration = event_configuration_factory(event_type__name=mock_event_based_name)
+        current_event = event_factory(configuration=event_configuration)
         rule = rule or rule_factory(
             event_configuration=event_configuration,
             action=mock_action_event_based_dict,
             filters=mock_filters_dict
         )
-        return RuleDependencyService(rule, created_at or now(), dependencies or {})
+        return RuleDependencyService(rule, created_at or now(), current_event, dependencies or {})
 
     return _setup
