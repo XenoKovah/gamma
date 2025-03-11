@@ -20,8 +20,20 @@ const ActionField = ({
   const intl = useIntl();
   const fieldName = `rules.${ruleIndex}.action.${name}`;
   const fieldValue = values.rules?.[ruleIndex]?.action?.[name] ?? '';
+  const optionsMap = new Map(options.map(option => [option.eventName, option.id]));
 
   const hasError = touched.rules?.[ruleIndex]?.action?.[name] && !!errors.rules?.[ruleIndex]?.action?.[name];
+
+  const handleChange = (e) => {
+    const selectedValue = e.target.value;
+    const selectedId = optionsMap.get(selectedValue) || '';
+
+    setFieldValue(fieldName, selectedValue);
+
+    if (selectedId) {
+      setFieldValue(`rules.${ruleIndex}.action.id`, selectedId);
+    }
+  };
 
   return (
     <Form.Group controlId={fieldName} size="sm">
@@ -32,7 +44,7 @@ const ActionField = ({
         floatingLabel={label}
         name={fieldName}
         value={fieldValue}
-        onChange={(e) => setFieldValue(fieldName, e.target.value)}
+        onChange={handleChange}
         onBlur={handleBlur}
         isInvalid={hasError}
       >
