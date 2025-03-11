@@ -15,8 +15,10 @@ const Card = ({
   nextBtnTitle,
   onPrevBtnClick,
   onNextBtnClick,
+  showFooterActionRow,
+  isLocked,
 }) => (
-  <BaseCard className="card-item" data-testid={`card-item-${id}`}>
+  <BaseCard className="card-item" data-testid={`card-item-${id}`} variant={isLocked ? 'muted' : 'light'}>
     {badgeText && (
       <Badge
         variant="warning"
@@ -40,20 +42,22 @@ const Card = ({
         {section.content}
       </BaseCard.Section>
     )}
-    <BaseCard.Footer>
-      <ActionRow>
-        {prevBtnTitle && (
-          <Button variant="tertiary" block onClick={onPrevBtnClick}>
-            {prevBtnTitle}
-          </Button>
-        )}
-        {nextBtnTitle && (
-          <Button className="mt-0" block onClick={onNextBtnClick}>
-            {nextBtnTitle}
-          </Button>
-        )}
-      </ActionRow>
-    </BaseCard.Footer>
+    {showFooterActionRow && (
+      <BaseCard.Footer>
+        <ActionRow>
+          {prevBtnTitle && (
+            <Button variant="tertiary" block onClick={onPrevBtnClick}>
+              {prevBtnTitle}
+            </Button>
+          )}
+          {nextBtnTitle && (
+            <Button className="mt-0" block onClick={onNextBtnClick}>
+              {nextBtnTitle}
+            </Button>
+          )}
+        </ActionRow>
+      </BaseCard.Footer>
+    )}
   </BaseCard>
 );
 
@@ -75,6 +79,8 @@ Card.propTypes = {
   onPrevBtnClick: PropTypes.func,
   onNextBtnClick: PropTypes.func,
   badgeText: PropTypes.string,
+  showFooterActionRow: PropTypes.bool,
+  isLocked: PropTypes.bool,
 };
 
 Card.defaultProps = {
@@ -85,6 +91,8 @@ Card.defaultProps = {
   badgeText: undefined,
   onPrevBtnClick: () => {},
   onNextBtnClick: () => {},
+  showFooterActionRow: true,
+  isLocked: false,
 };
 
 export default Card;

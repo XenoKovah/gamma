@@ -12,7 +12,11 @@ export {
 } from './api';
 export { API_ROUTES } from './constants';
 export {
-  useAvatarSetsData, useCoursesData, useOrganizationsData, useActionsData,
+  useAvatarSetsData,
+  useCoursesData,
+  useOrganizationsData,
+  useActionsData,
+  useStudentAvatarData,
 } from './hooks';
 export {
   toCamelCase,

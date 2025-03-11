@@ -14,7 +14,7 @@ import {
 } from '../../generic';
 
 import { useAvatarSets } from './hooks/useAvatarSets';
-import { AvatarSetList, AvatarSetStepper } from './components';
+import { AvatarSetList, AvatarSetStepper, StudentAvatarList } from './components';
 
 import genericMessages from '../../i18n';
 import moduleMessages from './i18n';
@@ -37,6 +37,8 @@ export const Avatars = () => {
     setSubmitStatus,
     setShowErrorAlert,
     organizationsData,
+    showStudentAvatar,
+    studentAvatarData,
     handleDeleteAvatar,
     handleUpdateAvatar,
     handleUpdateAvatarSet,
@@ -104,44 +106,70 @@ export const Avatars = () => {
           isStatefulButton
           submitStatus={deletionStatus}
         />
-        <Container size="lg">
-          <SubHeader
-            isError={isError}
-            title={intl.formatMessage(moduleMessages.pageTitle)}
-            btnTitle={intl.formatMessage(moduleMessages.addAvatarSetBtnText)}
-            description={
-              intl.formatMessage(moduleMessages.totalAvatarSetsCount, { avatarSetsCount: avatarSetsData?.length || 0 })
-            }
-            onClick={openManageAvatarSetModal}
-          />
-          {alertProps && <AlertComponent {...alertProps} />}
-          {activeToast && (
-            <ToastComponent
-              className={isManageAvatarSetModalOpen ? 'avatars-settings-toast' : ''}
-              variant={activeToast.variant}
-              text={activeToast.text}
-              isShow
-              onClose={activeToast.onClose}
-              delay={1000}
+        {!showStudentAvatar ? (
+          <Container size="lg">
+            <SubHeader
+              isError={isError}
+              title={intl.formatMessage(moduleMessages.pageTitle)}
+              btnTitle={intl.formatMessage(moduleMessages.addAvatarSetBtnText)}
+              description={
+                intl.formatMessage(
+                  moduleMessages.totalAvatarSetsCount, { avatarSetsCount: avatarSetsData?.length || 0 }
+                )
+              }
+              onClick={openManageAvatarSetModal}
             />
-          )}
-          {!isError && (
-            <>
-              <AvatarSetList
-                avatarSetsData={avatarSetsData}
-                openConfirmDeletionModal={openConfirmDeletionModal}
-                openManageAvatarSetModal={openManageAvatarSetModal}
+            {alertProps && <AlertComponent {...alertProps} />}
+            {activeToast && (
+              <ToastComponent
+                className={isManageAvatarSetModalOpen ? 'avatars-settings-toast' : ''}
+                variant={activeToast.variant}
+                text={activeToast.text}
+                isShow
+                onClose={activeToast.onClose}
+                delay={1000}
               />
-              <Button
-                block
-                data-testid="add-avatar-set-button"
-                onClick={openManageAvatarSetModal}
-              >
-                {intl.formatMessage(moduleMessages.addAvatarSetBtnText)}
-              </Button>
-            </>
-          )}
-        </Container>
+            )}
+            {!isError && (
+              <>
+                <AvatarSetList
+                  avatarSetsData={avatarSetsData}
+                  openConfirmDeletionModal={openConfirmDeletionModal}
+                  openManageAvatarSetModal={openManageAvatarSetModal}
+                />
+                <Button
+                  block
+                  data-testid="add-avatar-set-button"
+                  onClick={openManageAvatarSetModal}
+                >
+                  {intl.formatMessage(moduleMessages.addAvatarSetBtnText)}
+                </Button>
+              </>
+            )}
+          </Container>
+        ) : (
+          // TODO: temp solution to show student experience with avatars.
+          <Container size="lg">
+            <SubHeader
+              isError={isError}
+              title={intl.formatMessage(moduleMessages.studentAvatarPageTitle)}
+            />
+            {alertProps && <AlertComponent {...alertProps} />}
+            {activeToast && (
+              <ToastComponent
+                className={isManageAvatarSetModalOpen ? 'avatars-settings-toast' : ''}
+                variant={activeToast.variant}
+                text={activeToast.text}
+                isShow
+                onClose={activeToast.onClose}
+                delay={1000}
+              />
+            )}
+            {!isError && (
+              <StudentAvatarList studentAvatarData={studentAvatarData} />
+            )}
+          </Container>
+        )}
       </main>
       <Footer />
     </>

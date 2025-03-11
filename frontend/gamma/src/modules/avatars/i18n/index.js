@@ -6,6 +6,11 @@ const messages = defineMessages({
     defaultMessage: 'Avatars settings',
     description: 'The text displayed in the heading of the avatars settings page.',
   },
+  studentAvatarPageTitle: {
+    id: 'modules.avatars.student.heading.text',
+    defaultMessage: 'Student Avatar',
+    description: 'The text displayed in the heading of the avatars page for student experience.',
+  },
   pageDescription: {
     id: 'modules.avatars.page.description',
     defaultMessage: 'This page displays badges and allows users to create and edit them.',

@@ -10,6 +10,18 @@ import {
   convertImageToBase64,
 } from './utils';
 
+// TODO: temp solution to show student experience with avatars.
+/**
+ * Fetches student avatar data from the API.
+ * @returns {Promise<Object>} The student avatar data.
+ */
+export const fetchStudentAvatarData = async (avatarSetIdParams, studentUsername) => {
+  const queryParams = studentUsername ? `?username=${encodeURIComponent(studentUsername)}` : '';
+  const { data } = await axios.get(`${API_ROUTES.AVATAR_SET}${avatarSetIdParams}/${queryParams}`);
+
+  return convertKeysToCamelCase(data);
+};
+
 /**
  * Fetches avatar sets data from the API.
  * @returns {Promise<Object>} The avatar sets data.
