@@ -24,10 +24,10 @@ const AvatarsStep = ({
   organizationsData,
   handleDeleteAvatar,
   handleUpdateAvatar,
-  handleCloseManageAvatarSetModal,
 }) => {
   const intl = useIntl();
   const { currentAvatarSetData } = useAvatarsContext();
+  const proceedToNextStep = () => setCurrentStep(STEPPER_STEPS.finish);
 
   const [deletingAvatarId, setDeletingAvatarId] = useState();
   const [editingAvatarData, setEditingAvatarData] = useState(null);
@@ -113,8 +113,8 @@ const AvatarsStep = ({
         <StepFooter
           prevBtnText={intl.formatMessage(moduleMessages.avatarSetStepperPreviousBtnTitle)}
           prevBtnOnClick={() => setCurrentStep(STEPPER_STEPS.evolution)}
-          nextBtnText={intl.formatMessage(moduleMessages.avatarSetStepperBtnFinishText)}
-          nextBtnOnClick={handleCloseManageAvatarSetModal}
+          nextBtnText={intl.formatMessage(moduleMessages.avatarSetStepperBtnStatefulDefaultText)}
+          nextBtnOnClick={proceedToNextStep}
         />
       )}
     </>
@@ -123,7 +123,6 @@ const AvatarsStep = ({
 
 AvatarsStep.propTypes = {
   currentStep: PropTypes.string.isRequired,
-  handleCloseManageAvatarSetModal: PropTypes.func.isRequired,
   setCurrentStep: PropTypes.func.isRequired,
   coursesData: PropTypes.shape({
     courses: PropTypes.arrayOf(PropTypes.string).isRequired,

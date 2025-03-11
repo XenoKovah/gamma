@@ -125,13 +125,16 @@ describe('AvatarsStep', () => {
     expect(mockSetCurrentStep).toHaveBeenCalledWith(STEPPER_STEPS.evolution);
   });
 
-  it('closes the modal when clicking the finish button', () => {
+  it('navigates to the next step when clicking the next button', async () => {
     const { getByRole } = renderComponent();
 
-    userEvent.click(getByRole('button', {
-      name: moduleMessages.avatarSetStepperBtnFinishText.defaultMessage,
-    }));
+    const nextButton = getByRole('button', {
+      name: moduleMessages.avatarSetStepperPreviousBtnTitle.defaultMessage,
+    });
+    userEvent.click(nextButton);
 
-    expect(mockHandleCloseManageAvatarSetModal).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(mockSetCurrentStep).toHaveBeenCalledWith(STEPPER_STEPS.evolution);
+    });
   });
 });

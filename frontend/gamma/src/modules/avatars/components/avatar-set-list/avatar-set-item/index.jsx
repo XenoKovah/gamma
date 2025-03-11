@@ -10,7 +10,7 @@ import messages from '../../../i18n';
 import imagePlaceholder from '../../../assets/images/not-found.jpg';
 
 const AvatarSetItem = ({
-  id, title, avatars, openConfirmDeletionModal,
+  id, title, avatars, isDraft, openConfirmDeletionModal,
 }) => {
   const intl = useIntl();
 
@@ -36,6 +36,7 @@ const AvatarSetItem = ({
       id={id}
       title={title}
       src={imageSrc}
+      badgeText={isDraft && intl.formatMessage(messages.avatarSetDraftBadgeText)}
       prevBtnTitle={intl.formatMessage(messages.avatarSetDeleteBtnTitle)}
       nextBtnTitle={intl.formatMessage(messages.avatarSetEditBtnTitle)}
       onPrevBtnClick={() => openConfirmDeletionModal(id)}
@@ -47,6 +48,7 @@ const AvatarSetItem = ({
 AvatarSetItem.propTypes = {
   id: PropTypes.number.isRequired,
   title: PropTypes.string.isRequired,
+  isDraft: PropTypes.bool.isRequired,
   avatars: PropTypes.arrayOf(avatarsPropTypes).isRequired,
   openConfirmDeletionModal: PropTypes.func.isRequired,
 };

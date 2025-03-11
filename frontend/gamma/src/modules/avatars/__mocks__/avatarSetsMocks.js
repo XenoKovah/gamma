@@ -182,4 +182,40 @@ module.exports = [
     ],
     is_draft: true,
   },
+  {
+    id: 20,
+    title: 'Avatar Set 20',
+    avatars: [
+      {
+        id: 1,
+        title: 'Avatar 1',
+        description: 'Avatar Description 1',
+        image: 'avatar1.png',
+        rules: [],
+      },
+      {
+        id: 2,
+        title: 'Avatar 2',
+        description: 'Avatar Description 2',
+        image: 'avatar2.png',
+        rules: [
+          {
+            id: 17,
+            action: { eventType: 'badge', count: 20 },
+            filters: {},
+            created_at: '2025-03-10T12:07:59.431440Z',
+          },
+          {
+            id: 33,
+            action: { eventType: 'status_badge', count: 30 },
+            filters: {
+              frequency: 55,
+              course: 'course-v1:OpenedX+DemoX+DemoCourse',
+            },
+            created_at: '2025-03-10T12:58:54.145427Z',
+          },
+        ],
+      },
+    ],
+  },
 ];

@@ -46,6 +46,11 @@ const messages = defineMessages({
     defaultMessage: 'Видалити',
     description: 'Текст, що відображається на кнопці видалення набору аватарів.',
   },
+  avatarSetDraftBadgeText: {
+    id: 'modules.avatars.avatar-set.draft.badge.text',
+    defaultMessage: 'Чернетка',
+    description: 'Текст, що відображається на значку набору аватарів зі статусом чернетки.',
+  },
   avatarDeleteBtnTitle: {
     id: 'modules.avatars.avatar.button.delete.title',
     defaultMessage: 'Видалити',
@@ -130,6 +135,46 @@ const messages = defineMessages({
     id: 'modules.avatars.avatar-set.stepper.step.avatars.title',
     defaultMessage: 'Аватари',
     description: 'Заголовок для кроку вибору аватарів у майстрі створення набору аватарів.',
+  },
+  avatarSetStepperFinishStepTitle: {
+    id: 'modules.avatars.avatar-set.stepper.step.finish.title',
+    defaultMessage: 'Завершення',
+    description: 'Заголовок для кроку завершення налаштування аватарів у майстрі створення набору аватарів.',
+  },
+  avatarCardRuleSectionTitle: {
+    id: 'modules.avatars.avatar-set.card.rule.subsection.title',
+    defaultMessage: 'Правило {count}',
+    description: 'Заголовок підрозділу правил на картці аватару.',
+  },
+  avatarCardEventTypeFilterTitle: {
+    id: 'modules.avatars.avatar-set.card.count.event-type.title',
+    defaultMessage: 'Тип події',
+    description: 'Заголовок для фільтру типу події на картці аватару.',
+  },
+  avatarCardCountFilterTitle: {
+    id: 'modules.avatars.avatar-set.card.count.filter.title',
+    defaultMessage: 'Кількість',
+    description: 'Заголовок фільтру підрахунку на картці аватару.',
+  },
+  avatarCardIntervalFilterTitle: {
+    id: 'modules.avatars.avatar-set.card.interval.filter.title',
+    defaultMessage: 'Інтервал',
+    description: 'Назва інтервального фільтру на картці аватару.',
+  },
+  avatarCardFrequencyFilterTitle: {
+    id: 'modules.avatars.avatar-set.card.frequency.filter.title',
+    defaultMessage: 'Частота',
+    description: 'Назва фільтру частоти на картці аватару.',
+  },
+  avatarCardCourseFilterTitle: {
+    id: 'modules.avatars.avatar-set.card.course.filter.title',
+    defaultMessage: 'Курс',
+    description: 'Назва для фільтру курсу на картці аватару.',
+  },
+  avatarCardOrganizationFilterTitle: {
+    id: 'modules.avatars.avatar-set.card.organization.filter.title',
+    defaultMessage: 'Організація',
+    description: 'Заголовок фільтру організації на картці аватару.',
   },
   avatarSetStepperEvolutionStepTitle: {
     id: 'modules.avatars.avatar-set.stepper.step.evolution.title',

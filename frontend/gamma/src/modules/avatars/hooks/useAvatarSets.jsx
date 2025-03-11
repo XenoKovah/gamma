@@ -18,6 +18,7 @@ import {
   deleteAvatarById,
   useAvatarSetsData,
   useOrganizationsData,
+  finishUpdatingAvatarSet,
 } from '../data';
 import { deletionReducer } from '../reducers';
 import { setAutoClose } from '../utils';
@@ -202,6 +203,19 @@ export const useAvatarSets = () => {
     }
   };
 
+  const handleFinishAvatarSet = async (id, callbackFn) => {
+    setSubmitStatus(submitBtnStatuses.PENDING);
+    try {
+      await finishUpdatingAvatarSet(id);
+      setShowAvatarSetCreatedSuccessfully(true);
+      callbackFn();
+    } catch (error) {
+      setShowErrorToast(true);
+    } finally {
+      setSubmitStatus(submitBtnStatuses.DEFAULT);
+    }
+  };
+
   return {
     isError,
     isLoading,
@@ -218,6 +232,7 @@ export const useAvatarSets = () => {
     handleDeleteAvatar,
     handleUpdateAvatar,
     handleUpdateAvatarSet,
+    handleFinishAvatarSet,
     openConfirmDeletionModal,
     handleCreateNewAvatarSet,
     openManageAvatarSetModal,

@@ -26,12 +26,15 @@ const AvatarSetList = ({ avatarSetsData, openConfirmDeletionModal }) => {
       columnSizes={{ xs: 12, lg: 6, xl: 4 }}
       hasEqualColumnHeights
     >
-      {avatarSetsData.map(({ id, title, avatars }) => (
+      {avatarSetsData.map(({
+        id, title, avatars, isDraft,
+      }) => (
         <AvatarSetItem
           key={id}
           id={id}
           title={title}
           avatars={avatars}
+          isDraft={isDraft}
           openConfirmDeletionModal={openConfirmDeletionModal}
         />
       ))}

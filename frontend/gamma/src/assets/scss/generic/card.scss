@@ -8,6 +8,13 @@
     }
   }
 
+  .card-item-badge {
+    position: absolute;
+    right: $spacer;
+    top: $spacer;
+    z-index: 2;
+  }
+
   .card-item-header.pgn__card-header {
     .pgn__card-header-content {
       margin: $spacer 0;

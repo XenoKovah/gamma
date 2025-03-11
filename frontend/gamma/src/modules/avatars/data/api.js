@@ -84,6 +84,29 @@ export const updateAvatarSet = async (avatarSetData) => {
 };
 
 /**
+ * Finishes updating for an existing avatar set.
+ *
+ * @async
+ * @function finishUpdatingAvatarSet
+ * @param {string} id - The unique identifier of the avatar set to be updated.
+ * @returns {Promise<Object>} A promise resolving to the finished updating avatar set.
+ * @throws {Error} Throws an error if the update request fails.
+ */
+export const finishUpdatingAvatarSet = async (id) => {
+  try {
+    const response = await axios.patch(API_ROUTES.GET_AVATAR_SET_FINISH(id), {}, {
+      headers: { ...REQUEST_HEADERS },
+      withCredentials: true,
+    });
+
+    return convertKeysToCamelCase(response.data);
+  } catch (error) {
+    console.error('Error updating avatar set:', error); // eslint-disable-line no-console
+    throw error;
+  }
+};
+
+/**
  * Deletes an avatar by its ID.
  *
  * @async

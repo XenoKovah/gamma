@@ -48,6 +48,36 @@ describe('Card Component', () => {
     expect(getByRole('button', { name: defaultProps.nextBtnTitle })).toBeInTheDocument();
   });
 
+  it('renders the card with correct subtitle', () => {
+    const { getByText } = renderComponent({
+      subtitle: 'Subtitle text',
+    });
+
+    expect(getByText('Subtitle text')).toBeInTheDocument();
+  });
+
+  it('renders the card with correct badge', () => {
+    const { getByText } = renderComponent({
+      badgeText: 'Draft',
+    });
+
+    expect(getByText('Draft')).toBeInTheDocument();
+  });
+
+  it('renders the card with correct section content', () => {
+    const { getByText } = renderComponent({
+      section: {
+        title: 'Test section title',
+        content: (
+          <p>Test section content</p>
+        ),
+      },
+    });
+
+    expect(getByText('Test section title')).toBeInTheDocument();
+    expect(getByText('Test section content')).toBeInTheDocument();
+  });
+
   it('calls onPrevBtnClick when previous button is clicked', async () => {
     const { getByRole } = renderComponent();
 

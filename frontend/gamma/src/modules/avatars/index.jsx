@@ -40,6 +40,7 @@ export const Avatars = () => {
     handleDeleteAvatar,
     handleUpdateAvatar,
     handleUpdateAvatarSet,
+    handleFinishAvatarSet,
     openConfirmDeletionModal,
     handleCreateNewAvatarSet,
     openManageAvatarSetModal,
@@ -92,6 +93,7 @@ export const Avatars = () => {
           organizationsData={organizationsData}
           actionsData={actionsData}
           handleUpdateAvatar={handleUpdateAvatar}
+          handleFinishAvatarSet={handleFinishAvatarSet}
         />
         <AlertModal
           title={intl.formatMessage(moduleMessages.confirmDeletionModalTitle)}

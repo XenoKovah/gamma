@@ -46,6 +46,11 @@ const messages = defineMessages({
     defaultMessage: 'Delete',
     description: 'The text displayed on the button to delete a avatar set.',
   },
+  avatarSetDraftBadgeText: {
+    id: 'modules.avatars.avatar-set.draft.badge.text',
+    defaultMessage: 'Draft',
+    description: 'The text displayed on the badge of an avatar set with draft status.',
+  },
   avatarDeleteBtnTitle: {
     id: 'modules.avatars.avatar.button.delete.title',
     defaultMessage: 'Delete',
@@ -140,6 +145,46 @@ const messages = defineMessages({
     id: 'modules.avatars.avatar-set.stepper.button.previous.title',
     defaultMessage: 'Previous',
     description: 'The title for the previous button in the avatar set stepper.',
+  },
+  avatarSetStepperFinishStepTitle: {
+    id: 'modules.avatars.avatar-set.stepper.step.finish.title',
+    defaultMessage: 'Finish',
+    description: 'The title for the finish step in the avatar set stepper.',
+  },
+  avatarCardRuleSectionTitle: {
+    id: 'modules.avatars.avatar-set.card.rule.subsection.title',
+    defaultMessage: 'Rule {count}',
+    description: 'The title for the rule sub section on the avatar card.',
+  },
+  avatarCardEventTypeFilterTitle: {
+    id: 'modules.avatars.avatar-set.card.count.event-type.title',
+    defaultMessage: 'Event Type',
+    description: 'The title for the event type filter on the avatar card.',
+  },
+  avatarCardCountFilterTitle: {
+    id: 'modules.avatars.avatar-set.card.count.filter.title',
+    defaultMessage: 'Count',
+    description: 'The title for the count filter on the avatar card.',
+  },
+  avatarCardIntervalFilterTitle: {
+    id: 'modules.avatars.avatar-set.card.interval.filter.title',
+    defaultMessage: 'Interval',
+    description: 'The title for the interval filter on the avatar card.',
+  },
+  avatarCardFrequencyFilterTitle: {
+    id: 'modules.avatars.avatar-set.card.frequency.filter.title',
+    defaultMessage: 'Frequency',
+    description: 'The title for the interval filter on the avatar card.',
+  },
+  avatarCardCourseFilterTitle: {
+    id: 'modules.avatars.avatar-set.card.course.filter.title',
+    defaultMessage: 'Course',
+    description: 'The title for the course filter on the avatar card.',
+  },
+  avatarCardOrganizationFilterTitle: {
+    id: 'modules.avatars.avatar-set.card.organization.filter.title',
+    defaultMessage: 'Organization',
+    description: 'The title for the organization filter on the avatar card.',
   },
   avatarSetStepperAvatarsStepTitle: {
     id: 'modules.avatars.avatar-set.stepper.step.avatars.title',

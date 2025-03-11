@@ -34,6 +34,7 @@ const mockHandleCreateNewAvatarSet = jest.fn()
 
 describe('Avatars', () => {
   let mock;
+  const mockHandleFinishAvatarSet = jest.fn();
 
   const getMockedUseAvatarSets = (overrides = {}) => ({
     isError: false,
@@ -52,6 +53,7 @@ describe('Avatars', () => {
     closeManageAvatarSetModal: jest.fn(),
     isManageAvatarSetModalOpen: false,
     closeDeletionAvatarSetModal: jest.fn(),
+    handleFinishAvatarSet: mockHandleFinishAvatarSet,
     isDeletionAvatarSetModalOpen: false,
     showAvatarSetCreatedSuccessfully: false,
     handleUpdateAvatar: jest.fn(),
@@ -780,7 +782,7 @@ describe('Avatars', () => {
             name: moduleMessages.avatarSetStepperPreviousBtnTitle.defaultMessage,
           })).toBeInTheDocument();
           expect(within(avatarSetStepper).getByRole('button', {
-            name: moduleMessages.avatarSetStepperBtnFinishText.defaultMessage,
+            name: moduleMessages.avatarSetStepperBtnStatefulDefaultText.defaultMessage,
           })).toBeInTheDocument();
 
           uploadedAvatarsMock.forEach((avatar, index) => {
@@ -896,6 +898,247 @@ describe('Avatars', () => {
             moduleMessages.confirmAvatarDeletionModalDescription.defaultMessage,
           )).toBeInTheDocument();
         });
+      });
+    });
+
+    describe('Finish step', () => {
+      let rerender; let getByTestId; let getByRole;
+
+      const uploadedAvatarsMock = [
+        {
+          title: 'Avatar 1',
+          description: 'Some description for avatar 1',
+          image: 'data:image/svg+xml;base64,YXZhdGFyIDE=',
+        },
+        {
+          title: 'Avatar 2',
+          description: 'Some description for avatar 2',
+          image: 'data:image/svg+xml;base64,YXZhdGFyIDI=',
+        },
+      ];
+
+      const updatedAvatarSet = {
+        id: avatarSetsMocks.length + 1,
+        title: 'Test avatar set 1',
+        avatars: [{
+          title: 'Avatar',
+          description: 'Some description',
+          image: '',
+          rules: {
+            id: 17,
+            action: { eventType: 'badge', count: 20 },
+            filters: {},
+            created_at: '2025-03-10T12:07:59.431440Z',
+          },
+        }],
+        use_in_courses: [],
+        is_draft: true,
+      };
+
+      const files = [
+        new File(['avatar 1'], 'avatar1.svg', { type: 'image/svg+xml' }),
+        new File(['avatar 2'], 'avatar2.svg', { type: 'image/svg+xml' }),
+      ];
+
+      beforeEach(() => {
+        ({
+          rerender, getByTestId, getByRole,
+        } = renderWithProviders(<Avatars />));
+
+        useAvatarsContext.mockReturnValue({
+          currentAvatarSetData: null,
+          setCurrentAvatarSetData: jest.fn(),
+        });
+      });
+
+      const avatarSetId = 123;
+
+      const openAvatarModal = async () => {
+        await act(async () => {
+          userEvent.click(getByTestId('add-avatar-set-button'));
+        });
+
+        useAvatarSets.mockReturnValue(getMockedUseAvatarSets({ isManageAvatarSetModalOpen: true }));
+        rerender(<Avatars />);
+      };
+
+      const fillTitleAndGoNext = async (title = updatedAvatarSet.title) => {
+        await waitFor(async () => {
+          const avatarSetStepper = getByRole('dialog');
+          const titleInput = within(avatarSetStepper).getByRole('textbox', {
+            name: moduleMessages.avatarSetStepperTitleStepInputTitleLabel.defaultMessage,
+          });
+
+          await userEvent.type(titleInput, title, { delay: 50 });
+
+          const nextBtn = within(avatarSetStepper)
+            .getByRole('button', { name: moduleMessages.avatarSetStepperBtnStatefulDefaultText.defaultMessage });
+
+          userEvent.click(nextBtn);
+        });
+
+        await waitFor(async () => {
+          const avatarSetStepper = getByRole('dialog');
+          const nextBtn = within(avatarSetStepper)
+            .getByRole('button', { name: moduleMessages.avatarSetStepperBtnStatefulDefaultText.defaultMessage });
+
+          userEvent.click(nextBtn);
+        });
+      };
+
+      const goToFinalStep = async () => {
+        await waitFor(async () => {
+          const avatarSetStepper = getByRole('dialog');
+          const nextBtn = within(avatarSetStepper)
+            .getByRole('button', { name: moduleMessages.avatarSetStepperBtnStatefulDefaultText.defaultMessage });
+
+          userEvent.click(nextBtn);
+        });
+      };
+
+      const mockAvatarSetCreation = async (title = updatedAvatarSet.title) => {
+        const newAvatarSet = {
+          id: avatarSetsMocks.length + 1,
+          title,
+          avatars: [],
+          use_in_courses: [],
+          is_draft: true,
+        };
+
+        const updatedAvatarSetsMocks = [...avatarSetsMocks, newAvatarSet];
+
+        mock.onPost(API_ROUTES.AVATAR_SET).reply(200, updatedAvatarSetsMocks);
+
+        await waitFor(() => createAvatarSet(updatedAvatarSetsMocks));
+
+        useAvatarSets.mockReturnValue(
+          getMockedUseAvatarSets({
+            activeToast: {
+              variant: 'success',
+              text: moduleMessages.toastNewAvatarSetSavedSuccessfullyTitle.defaultMessage,
+              onClose: jest.fn(),
+            },
+            avatarSetsData: convertKeysToCamelCase(updatedAvatarSetsMocks),
+            isManageAvatarSetModalOpen: true,
+          }),
+        );
+
+        rerender(<Avatars />);
+      };
+
+      const uploadFiles = async (imgFiles) => {
+        const avatarSetStepper = await waitFor(() => getByRole('dialog'));
+
+        await waitFor(() => {
+          expect(within(avatarSetStepper).getAllByTestId('dropzone-container')).toHaveLength(imgFiles.length);
+        });
+
+        const dropzoneContainers = within(avatarSetStepper).getAllByTestId('dropzone-container');
+
+        for (let i = 0; i < imgFiles.length; i += 1) {
+          const dropzoneInput = dropzoneContainers[i].querySelector('input[type="file"]');
+
+          expect(dropzoneInput).toBeInTheDocument();
+
+          await act(async () => { // eslint-disable-line no-await-in-loop
+            userEvent.upload(dropzoneInput, imgFiles[i]);
+          });
+
+          await waitFor(() => { // eslint-disable-line no-await-in-loop
+            const uploadedImages = within(avatarSetStepper).getAllByRole('img');
+            expect(uploadedImages.length).toBe(i + 1);
+          });
+        }
+      };
+
+      const assertImagesUploaded = async (count) => {
+        await waitFor(() => {
+          const uploadedImages = within(getByRole('dialog')).getAllByRole('img');
+          expect(uploadedImages).toHaveLength(count);
+        });
+      };
+
+      const mockAvatarSetUpdating = async () => {
+        await waitFor(() => {
+          const avatarSetStepper = getByRole('dialog');
+
+          const addEvolutionStageBtn = within(avatarSetStepper).getByRole('button', {
+            name: moduleMessages.avatarSetStepperEvolutionAddStageBtn.defaultMessage,
+          });
+
+          userEvent.click(addEvolutionStageBtn);
+        });
+
+        await uploadFiles(files);
+
+        const updatedAvatarSetsMocks = [...avatarSetsMocks, updatedAvatarSet];
+
+        mock.onPatch(`${API_ROUTES.AVATAR_SET}${avatarSetId}/`).reply(200, updatedAvatarSetsMocks);
+
+        await waitFor(() => updateAvatarSet({ id: avatarSetId, avatars: updatedAvatarSetsMocks }));
+
+        useAvatarSets.mockReturnValue(
+          getMockedUseAvatarSets({
+            activeToast: {
+              variant: 'success',
+              text: moduleMessages.toastNewAvatarSetSavedSuccessfullyTitle.defaultMessage,
+              onClose: jest.fn(),
+            },
+            avatarSetsData: convertKeysToCamelCase(updatedAvatarSetsMocks),
+            isManageAvatarSetModalOpen: true,
+          }),
+        );
+
+        await assertImagesUploaded(uploadedAvatarsMock.length);
+
+        useAvatarsContext.mockReturnValue({
+          currentAvatarSetData: { ...avatarSetsMocks[0], avatars: uploadedAvatarsMock },
+          setCurrentAvatarSetData: jest.fn(),
+        });
+
+        rerender(<Avatars />);
+
+        await waitFor(() => {
+          const avatarSetStepper = getByRole('dialog');
+          const nextBtn = within(avatarSetStepper).getByRole('button', {
+            name: moduleMessages.avatarSetStepperBtnStatefulDefaultText.defaultMessage,
+          });
+
+          userEvent.click(nextBtn);
+        });
+
+        await waitFor(() => {
+          const avatarSetStepper = getByRole('dialog');
+          expect(within(avatarSetStepper).getByRole('heading', {
+            level: 2,
+            name: moduleMessages.avatarSetStepperAvatarsStepTitle.defaultMessage,
+          })).toBeInTheDocument();
+        });
+      };
+
+      it('should render the finish step correctly', async () => {
+        await openAvatarModal();
+        await fillTitleAndGoNext();
+        await mockAvatarSetCreation();
+        await mockAvatarSetUpdating();
+        await goToFinalStep();
+
+        await waitFor(() => {
+          const avatarSetStepper = getByRole('dialog');
+          expect(within(avatarSetStepper).getByRole('heading', {
+            level: 2,
+            name: moduleMessages.avatarSetStepperFinishStepTitle.defaultMessage,
+          })).toBeInTheDocument();
+        });
+
+        const avatarSetStepper = getByRole('dialog');
+        mock.onPatch(API_ROUTES.GET_AVATAR_SET_FINISH(avatarSetId)).reply(200, {});
+
+        const finishBtn = within(avatarSetStepper).getByRole('button', {
+          name: moduleMessages.avatarSetStepperBtnFinishText.defaultMessage,
+        });
+        userEvent.click(finishBtn);
+        expect(mockHandleFinishAvatarSet).toHaveBeenCalledWith(12, expect.any(Function));
       });
     });
   });

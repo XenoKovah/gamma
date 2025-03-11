@@ -4,7 +4,9 @@ import { useIntl } from 'react-intl';
 import { Stepper, Container, FullscreenModal } from '@openedx/paragon';
 
 import { useAvatarsContext } from '../../context/AvatarsContext';
-import { EvolutionStep, TitleStep, AvatarsStep } from './steps-components';
+import {
+  EvolutionStep, TitleStep, AvatarsStep, FinishStep,
+} from './steps-components';
 import { stepTitleValidationSchema } from './validation';
 import { SUBMIT_STATUSES, STEPPER_STEPS } from './constants';
 
@@ -24,6 +26,7 @@ export const AvatarSetStepper = ({
   closeManageAvatarSetModal,
   isManageAvatarSetModalOpen,
   handleUpdateAvatarSet,
+  handleFinishAvatarSet,
 }) => {
   const intl = useIntl();
   const { setCurrentAvatarSetData } = useAvatarsContext();
@@ -120,6 +123,14 @@ export const AvatarSetStepper = ({
             actionsData={actionsData}
             handleUpdateAvatar={handleUpdateAvatar}
           />
+          <FinishStep
+            currentStep={currentStep}
+            setCurrentStep={setCurrentStep}
+            avatarSetsData={avatarSetsData}
+            setSubmitStatus={setSubmitStatus}
+            handleFinishAvatarSet={handleFinishAvatarSet}
+            handleCloseManageAvatarSetModal={handleCloseManageAvatarSetModal}
+          />
         </Container>
       </FullscreenModal>
     </Stepper>
@@ -131,6 +142,7 @@ AvatarSetStepper.propTypes = {
   closeManageAvatarSetModal: PropTypes.func.isRequired,
   handleCreateNewAvatarSet: PropTypes.func.isRequired,
   handleUpdateAvatarSet: PropTypes.func.isRequired,
+  handleFinishAvatarSet: PropTypes.func.isRequired,
   submitStatus: PropTypes.oneOf(SUBMIT_STATUSES).isRequired,
   avatarSetsData: PropTypes.arrayOf(
     PropTypes.shape({

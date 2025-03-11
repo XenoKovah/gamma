@@ -3,6 +3,7 @@ export {
   fetchAvatarSetsData,
   createAvatarSet,
   updateAvatarSet,
+  finishUpdatingAvatarSet,
   deleteAvatarById,
   fetchCoursesData,
   fetchOrganizationsData,
