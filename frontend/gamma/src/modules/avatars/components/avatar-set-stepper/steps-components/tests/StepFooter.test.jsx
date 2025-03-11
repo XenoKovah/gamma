@@ -83,7 +83,7 @@ describe('StepFooter', () => {
   it('disables the stateful button when disabled prop is true', () => {
     renderComponent({
       isStatefulBtn: true,
-      disabled: true,
+      disabledNextBtn: true,
       statefulButtonLabels,
       submitStatus: 'default',
     });

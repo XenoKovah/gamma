@@ -130,6 +130,7 @@ export const Avatars = () => {
               <AvatarSetList
                 avatarSetsData={avatarSetsData}
                 openConfirmDeletionModal={openConfirmDeletionModal}
+                openManageAvatarSetModal={openManageAvatarSetModal}
               />
               <Button
                 block

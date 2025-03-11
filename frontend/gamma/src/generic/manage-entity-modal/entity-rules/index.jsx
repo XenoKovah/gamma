@@ -18,7 +18,11 @@ const EntityRules = ({
   const { values, setFieldValue } = useFormikContext();
 
   const handleAddNewRule = useCallback(() => {
-    setFieldValue('rules', [...values.rules, { tempId: uuidv4(), action: {}, filters: {} }]);
+    setFieldValue('rules', [...values.rules, {
+      id: uuidv4(), // Temporary ID, overridden by the PK (Primary key) from the BE
+      action: {},
+      filters: {},
+    }]);
     requestAnimationFrame(() => {
       if (lastRuleRef.current) {
         lastRuleRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -36,7 +40,7 @@ const EntityRules = ({
       <ul className="list-unstyled" ref={rulesContainerRef}>
         {values.rules.length ? (
           values.rules.map((rule, index) => (
-            <li key={rule.tempId} ref={index === values.rules.length - 1 ? lastRuleRef : null}>
+            <li key={`rule-${rule.id}`} ref={index === values.rules.length - 1 ? lastRuleRef : null}>
               <EntityRule
                 rule={rule}
                 ruleIndex={index}

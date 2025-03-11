@@ -113,7 +113,6 @@ describe('EntityRules', () => {
       'rules',
       expect.arrayContaining([
         expect.objectContaining({
-          tempId: expect.any(String),
           action: {},
           filters: {},
         }),

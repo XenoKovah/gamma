@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 
+import { useAvatarsContext } from '../../../context/AvatarsContext';
 import { Card as AvatarSetCard } from '../../../../../generic';
 import { avatarsPropTypes } from '../propTypes';
 
@@ -10,9 +11,10 @@ import messages from '../../../i18n';
 import imagePlaceholder from '../../../assets/images/not-found.jpg';
 
 const AvatarSetItem = ({
-  id, title, avatars, isDraft, openConfirmDeletionModal,
+  openConfirmDeletionModal, openManageAvatarSetModal, avatarSetData,
 }) => {
   const intl = useIntl();
+  const { setCurrentAvatarSetData } = useAvatarsContext();
 
   const getAvatarSetImage = (avatarsList, defaultImg) => {
     if (!avatarsList.length) {
@@ -29,28 +31,36 @@ const AvatarSetItem = ({
     return latestAvatar.image || defaultImg;
   };
 
-  const imageSrc = getAvatarSetImage(avatars, imagePlaceholder);
+  const imageSrc = getAvatarSetImage(avatarSetData.avatars, imagePlaceholder);
+
+  const handleOpenManageAvatarSetModal = (avatarSetParams) => {
+    openManageAvatarSetModal();
+    setCurrentAvatarSetData(avatarSetParams);
+  };
 
   return (
     <AvatarSetCard
-      id={id}
-      title={title}
+      id={avatarSetData.id}
+      title={avatarSetData.title}
       src={imageSrc}
-      badgeText={isDraft && intl.formatMessage(messages.avatarSetDraftBadgeText)}
+      badgeText={avatarSetData.isDraft && intl.formatMessage(messages.avatarSetDraftBadgeText)}
       prevBtnTitle={intl.formatMessage(messages.avatarSetDeleteBtnTitle)}
       nextBtnTitle={intl.formatMessage(messages.avatarSetEditBtnTitle)}
-      onPrevBtnClick={() => openConfirmDeletionModal(id)}
-      onNextBtnClick={() => {}} // TODO: implement edit
+      onPrevBtnClick={() => openConfirmDeletionModal(avatarSetData.id)}
+      onNextBtnClick={() => handleOpenManageAvatarSetModal(avatarSetData)}
     />
   );
 };
 
 AvatarSetItem.propTypes = {
-  id: PropTypes.number.isRequired,
-  title: PropTypes.string.isRequired,
-  isDraft: PropTypes.bool.isRequired,
-  avatars: PropTypes.arrayOf(avatarsPropTypes).isRequired,
   openConfirmDeletionModal: PropTypes.func.isRequired,
+  openManageAvatarSetModal: PropTypes.func.isRequired,
+  avatarSetData: PropTypes.shape({
+    id: PropTypes.number.isRequired,
+    title: PropTypes.string.isRequired,
+    avatars: PropTypes.arrayOf(avatarsPropTypes).isRequired,
+    isDraft: PropTypes.bool.isRequired,
+  }).isRequired,
 };
 
 export default AvatarSetItem;

@@ -38,6 +38,7 @@ module.exports = [
       'test',
     ],
     is_draft: true,
+    created_at: '2025-03-10T20:21:48.787907Z',
   },
   {
     id: 13,
@@ -63,6 +64,7 @@ module.exports = [
       'test',
     ],
     is_draft: true,
+    created_at: '2025-03-11T20:21:48.787907Z',
   },
   {
     id: 14,
@@ -88,6 +90,7 @@ module.exports = [
       'test',
     ],
     is_draft: true,
+    created_at: '2025-03-12T20:21:48.787907Z',
   },
   {
     id: 15,
@@ -113,6 +116,7 @@ module.exports = [
       'test',
     ],
     is_draft: true,
+    created_at: '2025-03-13T20:21:48.787907Z',
   },
   {
     id: 16,
@@ -122,6 +126,7 @@ module.exports = [
       'test',
     ],
     is_draft: true,
+    created_at: '2025-03-14T20:21:48.787907Z',
   },
   {
     id: 17,
@@ -147,6 +152,7 @@ module.exports = [
       'test',
     ],
     is_draft: true,
+    created_at: '2025-03-15T20:21:48.787907Z',
   },
   {
     id: 18,
@@ -172,6 +178,7 @@ module.exports = [
       'test',
     ],
     is_draft: true,
+    created_at: '2025-03-16T20:21:48.787907Z',
   },
   {
     id: 19,
@@ -181,6 +188,7 @@ module.exports = [
       'Avatar Set 1',
     ],
     is_draft: true,
+    created_at: '2025-03-17T20:21:48.787907Z',
   },
   {
     id: 20,

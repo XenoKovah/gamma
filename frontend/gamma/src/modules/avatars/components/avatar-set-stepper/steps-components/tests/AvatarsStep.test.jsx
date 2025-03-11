@@ -26,14 +26,19 @@ describe('AvatarsStep', () => {
   const mockHandleUpdateAvatar = jest.fn();
   const mockHandleCloseManageAvatarSetModal = jest.fn();
   const mockSetSubmitStatus = jest.fn();
+  const mockHandleUpdateAvatarSet = jest.fn();
 
   const avatarSetsData = [
     {
       id: 1,
       title: 'Avatar Set 1',
       avatars: [
-        { id: 101, title: 'Avatar 1', image: 'avatar1.png' },
-        { id: 102, title: 'Avatar 2', image: 'avatar2.png' },
+        {
+          id: 101, title: 'Avatar 1', image: 'avatar1.png', rules: [],
+        },
+        {
+          id: 102, title: 'Avatar 2', image: 'avatar2.png', rules: [],
+        },
       ],
     },
   ];
@@ -60,7 +65,8 @@ describe('AvatarsStep', () => {
       avatarSetsData={avatarSetsData}
       actionsData={[]}
       coursesData={{ courses: [] }}
-      organizationsData={{ organisations: [] }}
+      organizationsData={{ organizations: [] }}
+      handleUpdateAvatarSet={mockHandleUpdateAvatarSet}
       {...props}
     />,
   );

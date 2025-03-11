@@ -71,6 +71,13 @@ describe('EvolutionStep', () => {
     const { getAllByTestId, getByRole } = renderComponent();
 
     await waitFor(() => {
+      const addEvolutionStageBtn = getByRole('button', {
+        name: moduleMessages.avatarSetStepperEvolutionAddStageBtn.defaultMessage,
+      });
+      userEvent.click(addEvolutionStageBtn);
+    });
+
+    await waitFor(() => {
       expect(getAllByTestId('dropzone-container')).toHaveLength(1);
     });
 
@@ -94,7 +101,18 @@ describe('EvolutionStep', () => {
   });
 
   it('allows removing an avatar stage', async () => {
-    const { getByRole, queryByTestId } = renderComponent();
+    const { getByRole, queryByTestId, getAllByTestId } = renderComponent();
+
+    await waitFor(() => {
+      const addEvolutionStageBtn = getByRole('button', {
+        name: moduleMessages.avatarSetStepperEvolutionAddStageBtn.defaultMessage,
+      });
+      userEvent.click(addEvolutionStageBtn);
+    });
+
+    await waitFor(() => {
+      expect(getAllByTestId('dropzone-container')).toHaveLength(1);
+    });
 
     await waitFor(() => {
       const removeButton = getByRole('button', {

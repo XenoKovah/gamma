@@ -79,7 +79,7 @@ export const Badges = () => {
           title={intl.formatMessage(moduleMessages.addManageEntityModalTitle)}
           data={{
             courses: coursesData?.courses || [],
-            organizations: organizationsData?.organisations || [],
+            organizations: organizationsData?.organizations || [],
             actions: actionsData || [],
           }}
           submitForm={handleCreateNewBadge}

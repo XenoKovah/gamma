@@ -6,7 +6,7 @@ import { StatusButton } from '../../../../../generic';
 
 const StepFooter = ({
   prevBtnText, prevBtnOnClick, nextBtnText, nextBtnOnClick, submitFn, isStatefulBtn,
-  disabled, submitStatus, statefulButtonLabels,
+  disabledNextBtn, submitStatus, statefulButtonLabels,
 }) => (
   <ActionRow className="avatar-stepper-action-row justify-content-between">
     <Button variant="outline-primary" onClick={prevBtnOnClick}>
@@ -16,10 +16,10 @@ const StepFooter = ({
       <StatusButton
         variant="primary"
         labels={statefulButtonLabels}
-        options={{ submitStatus, submitFn, disabled }}
+        options={{ submitStatus, submitFn, disabled: disabledNextBtn }}
       />
     ) : (
-      <Button onClick={nextBtnOnClick}>
+      <Button onClick={nextBtnOnClick} disabled={disabledNextBtn}>
         {nextBtnText}
       </Button>
     )}
@@ -33,7 +33,7 @@ StepFooter.propTypes = {
   nextBtnOnClick: PropTypes.func,
   submitFn: PropTypes.func,
   isStatefulBtn: PropTypes.bool,
-  disabled: PropTypes.bool,
+  disabledNextBtn: PropTypes.bool,
   submitStatus: PropTypes.string,
   statefulButtonLabels: PropTypes.shape({
     default: PropTypes.string,
@@ -48,7 +48,7 @@ StepFooter.defaultProps = {
   nextBtnOnClick: () => {},
   submitFn: () => {},
   isStatefulBtn: false,
-  disabled: false,
+  disabledNextBtn: false,
   submitStatus: '',
   statefulButtonLabels: {
     default: '',

@@ -8,7 +8,7 @@ import messages from '../../i18n';
 import AvatarSetItem from './avatar-set-item';
 import { avatarsPropTypes } from './propTypes';
 
-const AvatarSetList = ({ avatarSetsData, openConfirmDeletionModal }) => {
+const AvatarSetList = ({ avatarSetsData, openConfirmDeletionModal, openManageAvatarSetModal }) => {
   const intl = useIntl();
 
   if (!avatarSetsData.length) {
@@ -21,21 +21,22 @@ const AvatarSetList = ({ avatarSetsData, openConfirmDeletionModal }) => {
     );
   }
 
+  // TODO: Move this sorting logic to a utility function
+  const sortedAvatarSets = [...avatarSetsData].sort(
+    (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+  );
+
   return (
     <CardGrid
       columnSizes={{ xs: 12, lg: 6, xl: 4 }}
       hasEqualColumnHeights
     >
-      {avatarSetsData.map(({
-        id, title, avatars, isDraft,
-      }) => (
+      {sortedAvatarSets.map((avatarSet) => (
         <AvatarSetItem
-          key={id}
-          id={id}
-          title={title}
-          avatars={avatars}
-          isDraft={isDraft}
+          key={avatarSet.id}
+          avatarSetData={avatarSet}
           openConfirmDeletionModal={openConfirmDeletionModal}
+          openManageAvatarSetModal={openManageAvatarSetModal}
         />
       ))}
     </CardGrid>
@@ -56,6 +57,7 @@ AvatarSetList.propTypes = {
     }),
   ).isRequired,
   openConfirmDeletionModal: PropTypes.func.isRequired,
+  openManageAvatarSetModal: PropTypes.func.isRequired,
 };
 
 export default AvatarSetList;

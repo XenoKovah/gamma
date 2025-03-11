@@ -337,6 +337,8 @@ describe('Avatars', () => {
       let rerender; let getByTestId; let getByRole;
 
       beforeEach(() => {
+        global.structuredClone = jest.fn((obj) => JSON.parse(JSON.stringify(obj)));
+
         ({
           rerender, getByTestId, getByRole,
         } = renderWithProviders(<Avatars />));
@@ -557,6 +559,8 @@ describe('Avatars', () => {
       ];
 
       beforeEach(() => {
+        global.structuredClone = jest.fn((obj) => JSON.parse(JSON.stringify(obj)));
+
         ({
           rerender, getByTestId, getByRole,
         } = renderWithProviders(<Avatars />));

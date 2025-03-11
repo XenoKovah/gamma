@@ -20,4 +20,5 @@ export {
   getCsrfToken,
   convertKeysToCamelCase,
   convertKeysToSnakeCase,
+  convertImageToBase64,
 } from './utils';

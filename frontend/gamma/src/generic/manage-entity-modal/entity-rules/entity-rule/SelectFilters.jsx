@@ -18,8 +18,8 @@ const SelectFilters = ({
   const { setFieldValue, validateForm } = useFormikContext();
 
   const addFilter = useCallback(
-    (filterName) => {
-      if (!filterName || rule.filters[filterName]) {
+    (filterName, ruleFilters) => {
+      if (!filterName || (ruleFilters && Object.prototype.hasOwnProperty.call(ruleFilters, filterName))) {
         return;
       }
 
@@ -51,7 +51,7 @@ const SelectFilters = ({
       <Form.Control
         as="select"
         className="mr-0"
-        onChange={(e) => addFilter(e.target.value)}
+        onChange={(e) => addFilter(e.target.value, rule.filters)}
         data-testid="add-filter-select"
       >
         <option value="">{intl.formatMessage(messages.modalEntityRulesFiltersSelectTitle)}</option>

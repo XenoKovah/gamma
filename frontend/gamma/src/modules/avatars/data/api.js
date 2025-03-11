@@ -2,11 +2,12 @@ import axios from 'axios';
 
 import { API_ROUTES, REQUEST_HEADERS } from './constants';
 import {
-  fileToBase64,
   preparePayload,
+  readFileAsBase64,
   convertKeysToCamelCase,
   convertKeysToSnakeCase,
   processReceivedAvatarSets,
+  convertImageToBase64,
 } from './utils';
 
 /**
@@ -16,7 +17,7 @@ import {
 export const fetchAvatarSetsData = async () => {
   const { data } = await axios.get(API_ROUTES.AVATAR_SET);
   return Array.isArray(data)
-    ? processReceivedAvatarSets(convertKeysToCamelCase(data)).reverse()
+    ? processReceivedAvatarSets(convertKeysToCamelCase(data))
     : [];
 };
 
@@ -69,12 +70,36 @@ export const createAvatarSet = async (avatarSetData) => {
  * @throws {Error} Throws an error if the update request fails.
  */
 export const updateAvatarSet = async (avatarSetData) => {
-  const { id } = avatarSetData;
+  const { id, avatars } = avatarSetData;
+
+  const formattedAvatarsData = avatars
+    ? await Promise.all(
+      avatars.map(async (avatar) => {
+        const clonedAvatar = structuredClone(avatar);
+
+        if (clonedAvatar.image) {
+          clonedAvatar.image = await convertImageToBase64(clonedAvatar.image);
+        }
+
+        return preparePayload(clonedAvatar);
+      }),
+    )
+    : undefined;
+
+  const preparedAvatarSetData = {
+    ...convertKeysToSnakeCase(avatarSetData),
+    ...(formattedAvatarsData ? { avatars: formattedAvatarsData } : {}),
+  };
+
   try {
-    const response = await axios.patch(`${API_ROUTES.AVATAR_SET}${id}/`, convertKeysToSnakeCase(avatarSetData), {
-      headers: { ...REQUEST_HEADERS },
-      withCredentials: true,
-    });
+    const response = await axios.patch(
+      `${API_ROUTES.AVATAR_SET}${id}/`,
+      convertKeysToSnakeCase(preparedAvatarSetData),
+      {
+        headers: { ...REQUEST_HEADERS },
+        withCredentials: true,
+      },
+    );
 
     return convertKeysToCamelCase(response.data);
   } catch (error) {
@@ -152,7 +177,7 @@ export const updateAvatarById = async (avatarId, avatarData) => {
     }
 
     if (cleanedData.image instanceof File) {
-      cleanedData.image = await fileToBase64(cleanedData.image);
+      cleanedData.image = await readFileAsBase64(cleanedData.image);
     }
 
     const requestData = convertKeysToSnakeCase(cleanedData);

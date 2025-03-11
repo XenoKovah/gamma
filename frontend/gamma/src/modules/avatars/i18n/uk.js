@@ -13,7 +13,12 @@ const messages = defineMessages({
   },
   totalAvatarSetsCount: {
     id: 'modules.avatars.total-avatars-sets.counter.text',
-    defaultMessage: 'Загальна кількість аватарів: {avatarSetsCount}',
+    defaultMessage: 'Загальна кількість наборів аватарів: {avatarSetsCount}',
+    description: 'Текст, що відображає загальну кількість наборів аватарів.',
+  },
+  totalAvatarsCount: {
+    id: 'modules.avatars.total-avatars.counter.text',
+    defaultMessage: 'Загальна кількість аватарів: {avatarsCount}',
     description: 'Текст, що відображає загальну кількість аватарів.',
   },
   addAvatarSetBtnText: {
@@ -23,13 +28,23 @@ const messages = defineMessages({
   },
   alertEmptyAvatarSetListTitle: {
     id: 'modules.avatars.avatar-set.alert.empty-avatar-set-list.title',
+    defaultMessage: 'Немає доступних наборів аватарів',
+    description: 'Заголовок сповіщення, коли немає наборів аватарів для відображення.',
+  },
+  alertEmptyAvatarsListTitle: {
+    id: 'modules.avatars.avatars.alert.empty-avatars-list.title',
     defaultMessage: 'Немає доступних аватарів',
-    description: 'Заголовок сповіщення, коли немає надобу аватарів для відображення.',
+    description: 'Заголовок сповіщення, коли немає аватарів для відображення.',
   },
   alertEmptyAvatarSetListDescription: {
     id: 'modules.avatars.avatar-set.alert.empty-avatar-set-list.description',
     defaultMessage: 'Наразі відсутні набори аватарів для відображення.',
     description: 'Опис сповіщення, коли немає наборів аватарів для відображення.',
+  },
+  alertEmptyAvatarsListDescription: {
+    id: 'modules.avatars.avatars.alert.empty-avatars-list.description',
+    defaultMessage: 'Потрібно не менше двох стадій набору аватарів.',
+    description: 'Опис сповіщення, коли немає аватарів для відображення.',
   },
   avatarSetEditBtnTitle: {
     id: 'modules.avatars.avatar-set.button.edit.title',

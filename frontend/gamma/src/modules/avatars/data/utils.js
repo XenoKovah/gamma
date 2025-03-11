@@ -1,36 +1,60 @@
+import axios from 'axios';
+
 /**
- * Converts a File object to a Base64-encoded string.
+ * Converts a File or Blob to a Base64-encoded string.
  *
- * @param {File} file - The file to convert.
- * @returns {Promise<string>} A promise that resolves with the Base64-encoded string of the file.
+ * @param {File | Blob} file - The file or blob to convert.
+ * @returns {Promise<string>} A promise that resolves to a Base64 string.
  */
-export const fileToBase64 = (file) => new Promise((resolve, reject) => {
+export const readFileAsBase64 = (file) => new Promise((resolve, reject) => {
   const reader = new FileReader();
-  reader.onload = () => resolve(reader.result);
-  reader.onerror = reject;
+  reader.onloadend = () => resolve(reader.result);
+  reader.onerror = () => reject(new Error('Error reading file as Base64'));
   reader.readAsDataURL(file);
 });
 
 /**
- * Recursively removes all occurrences of the `tempId` property from an object.
- * This function creates a new object without modifying the original one.
+ * Fetches an image from a URL and converts it to a Blob.
  *
- * @param {Object|Array} obj - The object or array to process.
- * @returns {Object|Array} A new object or array without `tempId` properties.
+ * @param {string} url - The image URL.
+ * @returns {Promise<Blob | null>} A promise that resolves to a Blob or null if an error occurs.
  */
-export const removeTempIds = (obj) => {
-  if (Array.isArray(obj)) {
-    return obj.map(removeTempIds);
+export const fetchImageAsBlob = async (url) => {
+  try {
+    const response = await axios.get(url, { responseType: 'blob' });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching image:', error); // eslint-disable-line no-console
+    return null;
   }
-  if (obj && typeof obj === 'object') {
-    return Object.entries(obj).reduce((acc, [key, value]) => {
-      if (key !== 'tempId') {
-        acc[key] = removeTempIds(value);
-      }
-      return acc;
-    }, {});
+};
+
+/**
+ * Converts an image to Base64 format if needed.
+ * - If the image is already in Base64 format (`data:image/...`), returns it as is.
+ * - If the image is a `File` or `Blob`, reads it as Base64.
+ * - If the image is a URL (`string`), fetches it and converts it to Base64.
+ * - If the input is `null` or invalid, returns `null`.
+ *
+ * @param {string | File | Blob | null} image - The image to be converted.
+ * @returns {Promise<string | null>} A promise that resolves to a Base64 string or `null` if conversion fails.
+ */
+export const convertImageToBase64 = async (image) => {
+  if (!image) { return null; }
+
+  if (typeof image === 'string') {
+    if (image.startsWith('data:image/')) { return image; }
+
+    const blob = await fetchImageAsBlob(image);
+    return blob ? readFileAsBase64(blob) : null;
   }
-  return obj;
+
+  if (image instanceof File || image instanceof Blob) {
+    return readFileAsBase64(image);
+  }
+
+  console.warn('Invalid image format provided:', image); // eslint-disable-line no-console
+  return null;
 };
 
 /**
@@ -65,7 +89,7 @@ export const transformActions = (rules) => rules.map((rule) => {
  */
 export const preparePayload = (data) => ({
   ...data,
-  rules: transformActions(removeTempIds(data.rules)),
+  rules: data.rules ? transformActions(data.rules) : undefined,
 });
 
 /**
@@ -138,7 +162,7 @@ export const processReceivedAvatarSets = (avatarSets) => avatarSets.map((avatarS
   ...avatarSet,
   avatars: avatarSet.avatars.map((avatar) => ({
     ...avatar,
-    rules: Array.isArray(avatar.rules) && avatar.rules.length > 0
+    rules: Array.isArray(avatar?.rules) && avatar?.rules.length > 0
       ? reverseTransformActions(avatar.rules)
       : [],
   })),

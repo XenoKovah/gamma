@@ -16,6 +16,11 @@ const messages = defineMessages({
     defaultMessage: 'Total avatar sets: {avatarSetsCount}',
     description: 'The text displayed for the total number of avatar sets.',
   },
+  totalAvatarsCount: {
+    id: 'modules.avatars.total-avatars.counter.text',
+    defaultMessage: 'Total avatars: {avatarsCount}',
+    description: 'The text displayed for the total number of avatars.',
+  },
   addAvatarSetBtnText: {
     id: 'modules.avatars.button.add-avatar-set',
     defaultMessage: 'Add avatar set',
@@ -26,10 +31,20 @@ const messages = defineMessages({
     defaultMessage: 'No avatar sets available',
     description: 'The title for the alert when there are no avatar sets to display.',
   },
+  alertEmptyAvatarsListTitle: {
+    id: 'modules.avatars.avatars.alert.empty-avatars-list.title',
+    defaultMessage: 'No avatars available',
+    description: 'The title for the alert when there are no avatars to display.',
+  },
   alertEmptyAvatarSetListDescription: {
     id: 'modules.avatars.avatar-set.alert.empty-avatar-set-list.description',
     defaultMessage: 'There are currently no avatar sets to display.',
     description: 'The description for the alert when there are no avatar sets to display.',
+  },
+  alertEmptyAvatarsListDescription: {
+    id: 'modules.avatars.avatars.alert.empty-avatar-set-list.description',
+    defaultMessage: 'At least two avatar stages are required. You can add avatar presets in the previous step: Evolution.',
+    description: 'The description for the alert when there are no avatars to display, mentioning that presets can be added in the previous step (Evolution).',
   },
   avatarSetEditBtnTitle: {
     id: 'modules.avatars.avatar-set.button.edit.title',

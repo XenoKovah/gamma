@@ -154,7 +154,7 @@ AvatarSetStepper.propTypes = {
     courses: PropTypes.arrayOf(PropTypes.string).isRequired,
   }),
   organizationsData: PropTypes.shape({
-    organisations: PropTypes.arrayOf(PropTypes.string).isRequired,
+    organizations: PropTypes.arrayOf(PropTypes.string).isRequired,
   }),
   actionsData: PropTypes.arrayOf(PropTypes.shape({
     eventType: PropTypes.string.isRequired,

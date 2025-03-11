@@ -19,25 +19,36 @@ describe('SubHeader', () => {
 
   it('renders title correctly', () => {
     const { getByRole } = renderWithProviders(<SubHeader {...defaultProps} />);
-    expect(getByRole('heading', { level: 1 })).toHaveTextContent('Test Title');
+    expect(getByRole('heading', { level: 1 })).toHaveTextContent(defaultProps.title);
   });
 
   it('renders button and description when isError is false', () => {
     const { getByText, getByRole } = renderWithProviders(<SubHeader {...defaultProps} />);
-    expect(getByText('This is a description')).toBeInTheDocument();
-    expect(getByRole('button', { name: 'Click Me' })).toBeInTheDocument();
+    expect(getByText(defaultProps.description)).toBeInTheDocument();
+    expect(getByRole('button', { name: defaultProps.btnTitle })).toBeInTheDocument();
   });
 
   it('does not render button and description when isError is true', () => {
     const { queryByText, queryByRole } = renderWithProviders(<SubHeader {...defaultProps} isError />);
-    expect(queryByText('This is a description')).not.toBeInTheDocument();
-    expect(queryByRole('button', { name: 'Click Me' })).not.toBeInTheDocument();
+    expect(queryByText(defaultProps.description)).not.toBeInTheDocument();
+    expect(queryByRole('button', { name: defaultProps.btnTitle })).not.toBeInTheDocument();
   });
 
   it('calls onClick when button is clicked', () => {
     const { getByRole } = renderWithProviders(<SubHeader {...defaultProps} />);
-    const button = getByRole('button', { name: 'Click Me' });
+    const button = getByRole('button', { name: defaultProps.btnTitle });
     userEvent.click(button);
     expect(defaultProps.onClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders different heading levels', () => {
+    const { getByRole } = renderWithProviders(<SubHeader {...defaultProps} headingLevel="h2" />);
+    expect(getByRole('heading', { level: 2 })).toHaveTextContent(defaultProps.title);
+  });
+
+  it('disables the button when isDisabledActionBtn is true', () => {
+    const { getByRole } = renderWithProviders(<SubHeader {...defaultProps} isDisabledActionBtn />);
+    const button = getByRole('button', { name: defaultProps.btnTitle });
+    expect(button).toBeDisabled();
   });
 });

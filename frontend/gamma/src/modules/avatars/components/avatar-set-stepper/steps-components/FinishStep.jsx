@@ -62,6 +62,11 @@ const FinishStep = ({
     );
   };
 
+  // TODO: Move this sorting logic to a utility function
+  const sortedAvatars = useMemo(() => [...(selectedAvatarSet?.avatars ?? [])].sort(
+    (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+  ), [selectedAvatarSet?.avatars]);
+
   return (
     <>
       <Stepper.Step
@@ -71,12 +76,12 @@ const FinishStep = ({
         <h2 className="my-4">
           {intl.formatMessage(moduleMessages.avatarSetStepperFinishStepTitle)}
         </h2>
-        {selectedAvatarSet?.avatars?.length > 0 && (
+        {sortedAvatars.length > 0 && (
           <CardGrid
             columnSizes={{ xs: 12, lg: 6, xl: 4 }}
             hasEqualColumnHeights={false}
           >
-            {selectedAvatarSet.avatars.map(({
+            {sortedAvatars.map(({
               id, title, image, description, rules,
             }) => (
               <AvatarCard

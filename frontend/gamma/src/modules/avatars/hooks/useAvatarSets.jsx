@@ -48,7 +48,7 @@ export const useAvatarSets = () => {
     isLoading: isActionsDataLoading,
     isError: isActionsDataError,
   } = useActionsData();
-  const { setCurrentAvatarSetData } = useAvatarsContext();
+  const { currentAvatarSetData, setCurrentAvatarSetData } = useAvatarsContext();
 
   const isLoading = isAvatarSetsDataLoading
     || isCoursesDataLoading || isOrganizationsDataLoading || isActionsDataLoading;
@@ -158,7 +158,9 @@ export const useAvatarSets = () => {
       await updateAvatarSet(avatarSetData);
       await refetchAvatarSetsData();
       setShowAvatarSetCreatedSuccessfully(true);
-      callback();
+      if (callback) {
+        callback();
+      }
     } catch (error) {
       console.error('Error updating avatar set:', error); // eslint-disable-line no-console
       setShowErrorToast(true);
@@ -172,11 +174,17 @@ export const useAvatarSets = () => {
     setSubmitStatus(submitBtnStatuses.PENDING);
     try {
       await deleteAvatarById(avatarId);
-      await refetchAvatarSetsData();
-      handleCloseAlertError();
+      const { data: updatedAvatarSetsData } = await refetchAvatarSetsData();
       setShowAvatarSetDeletedSuccessfully(true);
-      dispatchDeletionStatus({ type: DELETION_STATES.SUCCESS });
-      callback();
+      handleCloseAlertError();
+      if (callback) {
+        callback();
+      }
+      const updatedCurrentAvatarSet = updatedAvatarSetsData.find((
+        avatarSet,
+      ) => avatarSet.id === currentAvatarSetData.id);
+      setCurrentAvatarSetData(updatedCurrentAvatarSet);
+      dispatchDeletionStatus({ type: DELETION_STATES.RESET });
     } catch (error) {
       console.error('Error deleting avatar:', error); // eslint-disable-line no-console
       setSubmitStatus(submitBtnStatuses.ERROR);
@@ -193,10 +201,17 @@ export const useAvatarSets = () => {
     setSubmitStatus(submitBtnStatuses.PENDING);
     try {
       await updateAvatarById(entityId, values);
-      await refetchAvatarSetsData();
+      const { data: updatedAvatarSetsData } = await refetchAvatarSetsData();
+      const updatedCurrentAvatarSet = updatedAvatarSetsData.find((
+        avatarSet,
+      ) => avatarSet.id === currentAvatarSetData.id);
+      setCurrentAvatarSetData(updatedCurrentAvatarSet);
       setShowAvatarSetCreatedSuccessfully(true);
-      handleReset(resetForm);
+      if (resetForm) {
+        handleReset(resetForm);
+      }
     } catch (error) {
+      console.error('Error updating avatar:', error); // eslint-disable-line no-console
       setShowErrorToast(true);
     } finally {
       setSubmitStatus(submitBtnStatuses.DEFAULT);
@@ -207,6 +222,7 @@ export const useAvatarSets = () => {
     setSubmitStatus(submitBtnStatuses.PENDING);
     try {
       await finishUpdatingAvatarSet(id);
+      await refetchAvatarSetsData();
       setShowAvatarSetCreatedSuccessfully(true);
       callbackFn();
     } catch (error) {

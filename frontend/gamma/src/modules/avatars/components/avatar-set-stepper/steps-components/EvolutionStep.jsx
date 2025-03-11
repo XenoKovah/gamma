@@ -6,15 +6,13 @@ import { Stepper, Button, CardGrid } from '@openedx/paragon';
 import { Add as AddIcon } from '@openedx/paragon/icons';
 
 import { useAvatarsContext } from '../../../context/AvatarsContext';
+import { convertImageToBase64 } from '../../../data';
 import { STEPPER_STEPS } from '../constants';
 import AvatarStageImage from './AvatarStageImage';
-import { DEFAULT_AVATAR_DATA } from './constants';
+import { DEFAULT_AVATAR_DATA, MIN_AVATARS_COUNT, MAX_AVATARS_COUNT } from './constants';
 import StepFooter from './StepFooter';
 
 import moduleMessages from '../../../i18n';
-
-const MIN_AVATARS_COUNT = 2;
-const MAX_AVATARS_COUNT = 5;
 
 const EvolutionStep = ({
   currentStep,
@@ -28,7 +26,7 @@ const EvolutionStep = ({
   const isCurrentStep = currentStep === STEPPER_STEPS.evolution;
 
   const handleAddAvatarStage = useCallback((formValues, setFieldValue) => {
-    setFieldValue(STEPPER_STEPS.avatars, [...formValues.avatars, DEFAULT_AVATAR_DATA]);
+    setFieldValue(STEPPER_STEPS.avatars, [...(formValues.avatars || []), DEFAULT_AVATAR_DATA]);
   }, []);
 
   const handleRemoveAvatarStage = useCallback((formValues, setFieldValue, idx) => {
@@ -36,26 +34,40 @@ const EvolutionStep = ({
     setFieldValue(STEPPER_STEPS.avatars, updatedAvatars);
   }, []);
 
-  const handleAvatarSetSubmit = (values) => {
-    const updatedAvatarSet = { ...currentAvatarSetData, avatars: values.avatars };
+  const handleAvatarSetSubmit = async (values) => {
+    try {
+      const updatedAvatars = await Promise.all(
+        values.avatars.map(async (avatar) => ({
+          ...avatar,
+          image: await convertImageToBase64(avatar.image),
+        })),
+      );
 
-    const isDataUnchanged = JSON.stringify(updatedAvatarSet.avatars) === JSON.stringify(currentAvatarSetData.avatars);
+      const updatedAvatarSet = { ...currentAvatarSetData, avatars: updatedAvatars };
 
-    if (isDataUnchanged) {
-      return setCurrentStep(STEPPER_STEPS.avatars);
+      if (JSON.stringify(values.avatars) === JSON.stringify(currentAvatarSetData.avatars)) {
+        setCurrentStep(STEPPER_STEPS.avatars);
+        return;
+      }
+
+      setCurrentAvatarSetData(updatedAvatarSet);
+      await handleUpdateAvatarSet(updatedAvatarSet);
+      setCurrentStep(STEPPER_STEPS.avatars);
+    } catch (error) {
+      console.error('Error updating avatar set:', error); // eslint-disable-line no-console
     }
-
-    setCurrentAvatarSetData(updatedAvatarSet);
-    return handleUpdateAvatarSet(updatedAvatarSet, () => setCurrentStep(STEPPER_STEPS.avatars));
   };
 
   return (
     <Formik
-      initialValues={{ avatars: [DEFAULT_AVATAR_DATA] }}
+      initialValues={{
+        avatars: Array.isArray(currentAvatarSetData?.avatars) ? currentAvatarSetData.avatars : [DEFAULT_AVATAR_DATA],
+      }}
+      enableReinitialize
       onSubmit={handleAvatarSetSubmit}
     >
       {({ values, handleSubmit, setFieldValue }) => {
-        const avatarStages = values.avatars.map((_, index) => index);
+        const avatarStages = (values.avatars ?? []).map((_, index) => index);
         const isSubmitDisabled = values.avatars.length < MIN_AVATARS_COUNT
           || values.avatars.length > MAX_AVATARS_COUNT
           || values.avatars.some(avatar => !avatar.image);
@@ -102,7 +114,7 @@ const EvolutionStep = ({
                 prevBtnOnClick={() => setCurrentStep(STEPPER_STEPS.title)}
                 isStatefulBtn
                 submitFn={handleSubmit}
-                disabled={isSubmitDisabled}
+                disabledNextBtn={isSubmitDisabled}
                 statefulButtonLabels={statefulButtonLabels}
                 submitStatus={submitStatus}
               />

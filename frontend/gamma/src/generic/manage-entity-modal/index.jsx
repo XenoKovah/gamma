@@ -79,7 +79,9 @@ const ManageEntityModal = ({
 
   const handleReset = useCallback(
     (resetForm) => {
-      resetForm();
+      if (resetForm) {
+        resetForm();
+      }
       setImagePreview(null);
       setSubmitStatus(submitBtnStatuses.DEFAULT);
       if (onReset) {

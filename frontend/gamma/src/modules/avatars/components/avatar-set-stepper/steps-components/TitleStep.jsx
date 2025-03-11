@@ -38,13 +38,14 @@ const TitleStep = ({
     setCurrentAvatarSetData(updatedAvatarSet);
 
     return currentAvatarSetData
-      ? handleUpdateAvatarSet(updatedAvatarSet, proceedToNextStep)
+      ? handleUpdateAvatarSet({ id: currentAvatarSetData.id, title: values.title }, proceedToNextStep)
       : handleCreateNewAvatarSet(values, proceedToNextStep);
   };
 
   return (
     <Formik
-      initialValues={{ title: '' }}
+      initialValues={{ title: currentAvatarSetData?.title || '' }}
+      enableReinitialize
       validationSchema={validationSchema}
       onSubmit={handleSubmitAvatarSet}
     >
@@ -91,7 +92,7 @@ const TitleStep = ({
                 prevBtnOnClick={handleCloseManageAvatarSetModal}
                 isStatefulBtn
                 submitFn={isTitleUnchanged ? proceedToNextStep : handleSubmit}
-                disabled={!isTitleUnchanged && (!isValid || !dirty)}
+                disabledNextBtn={!isTitleUnchanged && (!isValid || !dirty)}
                 statefulButtonLabels={statefulButtonLabels}
                 submitStatus={submitStatus}
               />
