@@ -46,11 +46,13 @@ const Header = () => {
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="mie-auto">
               {routes?.length && routes.map(({ path, label }) => (
+                // TODO: temporary solution.
+                // Use a regex to search the word after first "/" and hide the other optional params.
                 <Nav.Link
                   className={classNames('page-header-nav-link', { 'text-center': isLargeScreen })}
                   as={Link}
                   key={path}
-                  to={path}
+                  to={path.match(/(\/\w+)/)?.[0] || path}
                 >
                   {label}
                 </Nav.Link>

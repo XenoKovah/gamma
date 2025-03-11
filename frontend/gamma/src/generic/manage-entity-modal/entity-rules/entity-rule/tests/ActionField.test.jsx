@@ -21,7 +21,10 @@ describe('ActionField Component', () => {
     errors: { rules: [{ action: { actionName: '' } }] },
     setFieldValue: mockSetFieldValue,
     handleBlur: mockHandleBlur,
-    options: ['Option 1', 'Option 2'],
+    options: [
+      { id: 'opt1', eventName: 'Option 1', title: 'Option 1' },
+      { id: 'opt2', eventName: 'Option 2', title: 'Option 2' },
+    ],
   };
 
   beforeEach(() => {
@@ -58,7 +61,10 @@ describe('ActionField Component', () => {
       messages.modalEntityActionEventNameLabelText.defaultMessage
         .replace('{eventType}', defaultProps.label.toLowerCase()),
     )).toBeInTheDocument();
-    defaultProps.options.forEach((option) => expect(getByText(option)).toBeInTheDocument());
+
+    defaultProps.options.forEach((option) => {
+      expect(getByText(option.title)).toBeInTheDocument();
+    });
   });
 
   it('calls setFieldValue when input value changes', () => {
@@ -78,6 +84,15 @@ describe('ActionField Component', () => {
     userEvent.tab();
 
     expect(mockHandleBlur).toHaveBeenCalledTimes(1);
+  });
+
+  it('updates select value when an option is selected', async () => {
+    const { getByRole } = renderComponent({ type: 'select' });
+
+    const select = getByRole('combobox');
+    userEvent.selectOptions(select, 'Option 1');
+
+    await waitFor(() => expect(mockSetFieldValue).toHaveBeenCalledWith('rules.0.action.actionName', 'Option 1'));
   });
 
   it('displays error message when there is an error', () => {
@@ -109,5 +124,48 @@ describe('ActionField Component', () => {
 
     const input = getByRole('textbox');
     expect(input).toHaveAttribute('name', 'rules.2.action.customField');
+  });
+
+  it('renders select field with correct options', () => {
+    const { getByRole, getByText } = renderComponent({ type: 'select' });
+
+    const select = getByRole('combobox');
+    expect(select).toBeInTheDocument();
+
+    defaultProps.options.forEach((option) => {
+      expect(getByText(option.title)).toBeInTheDocument();
+    });
+  });
+
+  it('renders select field with empty option as placeholder', () => {
+    const { getByRole, getByText } = renderComponent({ type: 'select' });
+
+    const select = getByRole('combobox');
+    expect(select).toBeInTheDocument();
+
+    expect(getByText(
+      messages.modalEntityActionEventNameLabelText.defaultMessage
+        .replace('{eventType}', defaultProps.label.toLowerCase()),
+    )).toBeInTheDocument();
+  });
+
+  it('renders an input with an error state if validation fails', () => {
+    const { getByRole } = renderComponent({
+      touched: { rules: [{ action: { actionName: true } }] },
+      errors: { rules: [{ action: { actionName: 'Error message' } }] },
+    });
+
+    const input = getByRole('textbox');
+    expect(input).toHaveClass('is-invalid');
+  });
+
+  it('does not render error state if field is not touched', () => {
+    const { getByRole } = renderComponent({
+      touched: { rules: [{ action: { actionName: false } }] },
+      errors: { rules: [{ action: { actionName: 'Error message' } }] },
+    });
+
+    const input = getByRole('textbox');
+    expect(input).not.toHaveClass('is-invalid');
   });
 });

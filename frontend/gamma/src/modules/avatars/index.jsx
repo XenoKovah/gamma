@@ -114,7 +114,8 @@ export const Avatars = () => {
               btnTitle={intl.formatMessage(moduleMessages.addAvatarSetBtnText)}
               description={
                 intl.formatMessage(
-                  moduleMessages.totalAvatarSetsCount, { avatarSetsCount: avatarSetsData?.length || 0 }
+                  moduleMessages.totalAvatarSetsCount,
+                  { avatarSetsCount: avatarSetsData?.length || 0 },
                 )
               }
               onClick={openManageAvatarSetModal}

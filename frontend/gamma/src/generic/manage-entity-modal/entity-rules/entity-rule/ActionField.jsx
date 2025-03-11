@@ -45,8 +45,8 @@ const ActionField = ({
               )}
             </option>
             {options.map((option) => (
-              <option key={option} value={option}>
-                {option}
+              <option key={option.id} value={option.eventName}>
+                {option.title}
               </option>
             ))}
           </>

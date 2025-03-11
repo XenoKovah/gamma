@@ -64,7 +64,7 @@ const FinishStep = ({
 
   // TODO: Move this sorting logic to a utility function
   const sortedAvatars = useMemo(() => [...(selectedAvatarSet?.avatars ?? [])].sort(
-    (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+    (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
   ), [selectedAvatarSet?.avatars]);
 
   return (

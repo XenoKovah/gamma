@@ -8,7 +8,7 @@ export const API_ROUTES = {
   AVATAR: `${API_VERSION}/avatar/`,
   COURSES: `${API_VERSION}/courses/`,
   ORGANIZATIONS: `${API_VERSION}/organizations/`,
-  ACTIONS: `${API_VERSION}/actions/`,
+  ACTIONS: `${API_VERSION}/available-actions/`,
 };
 
 export const REQUEST_HEADERS = {

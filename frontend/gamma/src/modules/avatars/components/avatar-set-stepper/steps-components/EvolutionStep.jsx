@@ -71,6 +71,8 @@ const EvolutionStep = ({
         const isSubmitDisabled = values.avatars.length < MIN_AVATARS_COUNT
           || values.avatars.length > MAX_AVATARS_COUNT
           || values.avatars.some(avatar => !avatar.image);
+        const isAddPresetBtnDisabled = values.avatars.length >= MAX_AVATARS_COUNT
+          || values.avatars.some(avatar => !avatar.image);
 
         return (
           <>
@@ -102,6 +104,7 @@ const EvolutionStep = ({
                   variant="outline-secondary"
                   onClick={() => handleAddAvatarStage(values, setFieldValue)}
                   className="add-avatar-stage-btn"
+                  disabled={isAddPresetBtnDisabled}
                 >
                   {intl.formatMessage(moduleMessages.avatarSetStepperEvolutionAddStageBtn)}
                 </Button>

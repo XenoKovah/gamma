@@ -50,7 +50,7 @@ const AvatarsStep = ({
   const selectedAvatarSet = avatarSetsMap.get(currentAvatarSetData?.id);
 
   const avatarsCount = selectedAvatarSet?.avatars?.length ?? 0;
-  const isActionButtonDisabled = avatarsCount >= MAX_AVATARS_COUNT || avatarsCount < MIN_AVATARS_COUNT;
+  const isNextButtonDisabled = avatarsCount > MAX_AVATARS_COUNT || avatarsCount < MIN_AVATARS_COUNT;
 
   const avatarsMap = useMemo(
     () => new Map(selectedAvatarSet?.avatars.map(avatar => [avatar.id, avatar])),
@@ -69,7 +69,7 @@ const AvatarsStep = ({
 
   // TODO: Move this sorting logic to a utility function
   const sortedAvatars = [...(selectedAvatarSet?.avatars || [])].sort(
-    (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+    (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
   );
 
   return (
@@ -143,7 +143,7 @@ const AvatarsStep = ({
           prevBtnOnClick={() => setCurrentStep(STEPPER_STEPS.evolution)}
           nextBtnText={intl.formatMessage(moduleMessages.avatarSetStepperBtnStatefulDefaultText)}
           nextBtnOnClick={proceedToNextStep}
-          disabledNextBtn={isActionButtonDisabled}
+          disabledNextBtn={isNextButtonDisabled}
         />
       )}
     </>

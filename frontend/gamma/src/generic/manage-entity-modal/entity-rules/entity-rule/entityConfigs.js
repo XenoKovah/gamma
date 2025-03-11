@@ -4,7 +4,7 @@ export const getActionConfig = (actionsData) => ({
   eventType: {
     type: 'select',
     labelKey: 'eventType',
-    options: actionsData.map(item => item.eventType),
+    options: [...actionsData],
   },
   count: {
     type: 'number',

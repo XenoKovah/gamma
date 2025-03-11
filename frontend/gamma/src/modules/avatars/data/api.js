@@ -208,7 +208,7 @@ export const updateAvatarById = async (avatarId, avatarData) => {
 
 /**
  * Fetches badge data from the API.
- * @returns {Promise<Object>} The badge data.
+ * @returns {Promise<Object>} The courses data.
  */
 export const fetchCoursesData = async () => {
   const { data } = await axios.get(API_ROUTES.COURSES);
@@ -217,7 +217,7 @@ export const fetchCoursesData = async () => {
 
 /**
  * Fetches badge data from the API.
- * @returns {Promise<Object>} The badge data.
+ * @returns {Promise<Object>} The organizations data.
  */
 export const fetchOrganizationsData = async () => {
   const { data } = await axios.get(API_ROUTES.ORGANIZATIONS);
@@ -226,7 +226,7 @@ export const fetchOrganizationsData = async () => {
 
 /**
  * Fetches actions data from the API.
- * @returns {Promise<Object>} The badge data.
+ * @returns {Promise<Object>} The actions data.
  */
 export const fetchActionsData = async () => {
   const { data } = await axios.get(API_ROUTES.ACTIONS);
