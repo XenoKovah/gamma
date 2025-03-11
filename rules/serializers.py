@@ -51,7 +51,7 @@ class RuleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Rule
-        fields = ('id', 'action', 'filters', 'created_at')
+        fields = ('id', 'event_configuration', 'action', 'filters', 'created_at')
         read_only_fields = ('created_at',)
 
     def validate_action(self, value):
@@ -69,7 +69,9 @@ class RuleSerializer(serializers.ModelSerializer):
                 f'Invalid event type {event_name!r} in action. Must match an existing EventConfiguration.'
             )
 
-        return {event_name: action_value}
+        # TODO: currently explicitly coercion to the int.
+        # But the solution will be updated as part of a custom events feature.
+        return {event_name: int(action_value)}
 
     def validate_filters(self, value):
         """

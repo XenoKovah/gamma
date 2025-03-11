@@ -1,10 +1,11 @@
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Count, Q, F
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from achievements.models import Achievement
+from achievements.models import Achievement, AchievementRule
 from avatars.api.v0.serializers import AvatarSetSerializer, AvatarSerializer
 from avatars.constants import AVATAR_SET_FINISH_FAILURE, AVATAR_SET_FINISH_SUCCESS
 from avatars.models import Avatar, AvatarSet
@@ -31,10 +32,17 @@ class AvatarSetViewSet(AdminUserPermissionMixin, viewsets.ModelViewSet):
                 avatar_content_type = ContentType.objects.get_for_model(Avatar)
                 avatar_ids = list(avatar_set.avatars.values_list('id', flat=True))
 
-                achievements = Achievement.objects.filter(
+                achievements = Achievement.objects.annotate(
+                    total_rules=Count('achievement_rules'),
+                    completed_rules=Count(
+                        'achievement_rules',
+                        filter=Q(achievement_rules__status=AchievementRule.Statuses.COMPLETED)
+                    )
+                ).filter(
                     user__user_uid=username,
                     content_type=avatar_content_type,
-                    object_id__in=avatar_ids
+                    object_id__in=avatar_ids,
+                    total_rules=F('completed_rules')
                 )
 
                 result_dict['achievements'] = {
