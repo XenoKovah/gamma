@@ -27,16 +27,21 @@ const StudentAvatarList = ({ studentAvatarData }) => {
       columnSizes={{ xs: 12, lg: 6, xl: 4 }}
       hasEqualColumnHeights
     >
-      {studentAvatarData.avatars.map(({ id, title, image }) => (
-        <StudentAvatarCard
-          key={id}
-          id={id}
-          title={title}
-          src={image || imagePlaceholder}
-          showFooterActionRow={false}
-          isLocked={!studentAvatarData.achievements.achievedAvatarIds.includes(id)}
-        />
-      ))}
+      {studentAvatarData.avatars.map(({ id, title, image }) => {
+        const isCharacterLocked = !studentAvatarData.achievements.achievedAvatarIds.includes(id);
+
+        return (
+          <StudentAvatarCard
+            key={id}
+            id={id}
+            title={title}
+            src={image || imagePlaceholder}
+            showFooterActionRow={false}
+            isLocked={isCharacterLocked}
+            badgeText={isCharacterLocked ? intl.formatMessage(messages.studentAvatarLockedTitle) : null}
+          />
+        );
+      })}
     </CardGrid>
   );
 };

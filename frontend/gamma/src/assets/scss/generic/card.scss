@@ -1,4 +1,8 @@
 .card-item.pgn__card {
+  .locked-image {
+    filter: opacity(0.5);
+  }
+
   .card-item-image.pgn__card-wrapper-image-cap.vertical {
     max-height: $card-item-image-height;
     height: $card-item-image-height;

@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import {
   Card as BaseCard, ActionRow, Button, Badge,
 } from '@openedx/paragon';
@@ -28,7 +29,7 @@ const Card = ({
       </Badge>
     )}
     <BaseCard.ImageCap
-      className="card-item-image"
+      className={classNames('card-item-image', { 'locked-image': isLocked })}
       src={src}
       srcAlt={title}
     />

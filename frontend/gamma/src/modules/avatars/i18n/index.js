@@ -8,8 +8,13 @@ const messages = defineMessages({
   },
   studentAvatarPageTitle: {
     id: 'modules.avatars.student.heading.text',
-    defaultMessage: 'Student Avatar',
+    defaultMessage: 'Student avatar',
     description: 'The text displayed in the heading of the avatars page for student experience.',
+  },
+  studentAvatarLockedTitle: {
+    id: 'modules.avatars.student.avatar.locked.text',
+    defaultMessage: 'Character locked',
+    description: 'The text displayed on the badge of a locked avatar.',
   },
   pageDescription: {
     id: 'modules.avatars.page.description',
