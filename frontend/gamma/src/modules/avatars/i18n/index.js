@@ -38,7 +38,7 @@ const messages = defineMessages({
   },
   alertEmptyAvatarsListTitle: {
     id: 'modules.avatars.avatars.alert.empty-avatars-list.title',
-    defaultMessage: 'No avatars available',
+    defaultMessage: 'At least two avatar stages are required',
     description: 'The title for the alert when there are no avatars to display.',
   },
   alertEmptyAvatarSetListDescription: {
@@ -48,7 +48,7 @@ const messages = defineMessages({
   },
   alertEmptyAvatarsListDescription: {
     id: 'modules.avatars.avatars.alert.empty-avatar-set-list.description',
-    defaultMessage: 'At least two avatar stages are required. You can add avatar presets in the previous step: Evolution.',
+    defaultMessage: 'You can add avatar presets in the previous step: Evolution.',
     description: 'The description for the alert when there are no avatars to display, mentioning that presets can be added in the previous step (Evolution).',
   },
   avatarSetEditBtnTitle: {

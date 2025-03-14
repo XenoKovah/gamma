@@ -72,7 +72,7 @@ export const AvatarSetStepper = ({
   };
 
   const avatarTitleMap = useMemo(
-    () => new Map(avatarSetsData.map(set => [set.title.toLowerCase(), set.id])),
+    () => new Map(avatarSetsData?.map(set => [set.title.toLowerCase(), set.id])),
     [avatarSetsData],
   );
 
