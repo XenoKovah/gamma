@@ -43,7 +43,7 @@ const AvatarSetItem = ({
       id={avatarSetData.id}
       title={avatarSetData.title}
       src={imageSrc}
-      badgeText={avatarSetData.isDraft && intl.formatMessage(messages.avatarSetDraftBadgeText)}
+      badgeText={avatarSetData.isDraft ? intl.formatMessage(messages.avatarSetDraftBadgeText) : undefined}
       prevBtnTitle={intl.formatMessage(messages.avatarSetDeleteBtnTitle)}
       nextBtnTitle={intl.formatMessage(messages.avatarSetEditBtnTitle)}
       onPrevBtnClick={() => openConfirmDeletionModal(avatarSetData.id)}

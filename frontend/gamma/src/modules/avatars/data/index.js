@@ -16,7 +16,6 @@ export {
   useCoursesData,
   useOrganizationsData,
   useActionsData,
-  useStudentAvatarData,
 } from './hooks';
 export {
   toCamelCase,

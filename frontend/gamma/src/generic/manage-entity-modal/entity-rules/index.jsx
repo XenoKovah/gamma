@@ -72,7 +72,7 @@ EntityRules.propTypes = {
     organizations: PropTypes.arrayOf(PropTypes.string),
     actions: PropTypes.arrayOf(
       PropTypes.shape({
-        eventType: PropTypes.string.isRequired,
+        eventType: PropTypes.string,
       }),
     ),
   }),

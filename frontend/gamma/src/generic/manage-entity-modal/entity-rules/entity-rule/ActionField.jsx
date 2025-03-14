@@ -85,11 +85,14 @@ ActionField.propTypes = {
     ),
   }).isRequired,
   touched: PropTypes.shape({
-    rules: PropTypes.arrayOf(
-      PropTypes.shape({
-        action: PropTypes.objectOf(PropTypes.bool),
-      }),
-    ),
+    rules: PropTypes.oneOfType([
+      PropTypes.arrayOf(
+        PropTypes.shape({
+          action: PropTypes.objectOf(PropTypes.bool),
+        }),
+      ),
+      PropTypes.object,
+    ]),
   }).isRequired,
   errors: PropTypes.shape({
     rules: PropTypes.oneOfType([
@@ -104,7 +107,13 @@ ActionField.propTypes = {
   setFieldValue: PropTypes.func.isRequired,
   handleBlur: PropTypes.func.isRequired,
   label: PropTypes.string.isRequired,
-  options: PropTypes.arrayOf(PropTypes.string),
+  options: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+      eventName: PropTypes.string.isRequired,
+      title: PropTypes.string.isRequired,
+    }),
+  ).isRequired,
 };
 
 export default ActionField;

@@ -5,6 +5,7 @@ import { CardGrid } from '@openedx/paragon';
 
 import { AlertComponent } from '../../../../generic';
 import messages from '../../i18n';
+import { sortByDate } from '../../utils';
 import AvatarSetItem from './avatar-set-item';
 import { avatarsPropTypes } from './propTypes';
 
@@ -21,10 +22,7 @@ const AvatarSetList = ({ avatarSetsData, openConfirmDeletionModal, openManageAva
     );
   }
 
-  // TODO: Move this sorting logic to a utility function
-  const sortedAvatarSets = [...avatarSetsData].sort(
-    (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
-  );
+  const sortedAvatarSets = sortByDate(avatarSetsData, 'createdAt', true);
 
   return (
     <CardGrid

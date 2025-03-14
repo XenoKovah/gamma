@@ -11,11 +11,6 @@ const messages = defineMessages({
     defaultMessage: 'Ця сторінка відображає аватари та дозволяє користувачам створювати і редагувати їх.',
     description: 'Опис сторінки налаштувань аватарів.',
   },
-  studentAvatarPageTitle: {
-    id: 'modules.avatars.student.heading.text',
-    defaultMessage: 'Аватар студента',
-    description: 'Текст, що відображається у заголовку сторінки аватарів для студентського досвіду.',
-  },
   studentAvatarLockedTitle: {
     id: 'modules.avatars.student.avatar.locked.text',
     defaultMessage: 'Персонаж заблокований',

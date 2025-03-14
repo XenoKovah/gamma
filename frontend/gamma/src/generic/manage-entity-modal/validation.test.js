@@ -1,5 +1,7 @@
 import * as yup from 'yup';
-import { getValidationSchema } from './validation';
+
+import { capitalizeFirstLetter } from '../../utils';
+import { getValidationSchema, validateFilters } from './validation';
 
 import genericMessages from '../../i18n';
 
@@ -101,5 +103,84 @@ describe('getValidationSchema', () => {
     const invalidData = { ...validData, rules: [{ action: { count: 1 } }] };
 
     await expect(schema.validate(invalidData)).rejects.toThrow(messages.eventTypeRequired);
+  });
+});
+
+describe('validateFilters', () => {
+  const messages = {
+    interval: {
+      startDateRequired: genericMessages.modalEntityValidationStartDateRequiredText.defaultMessage,
+      endDateRequired: genericMessages.modalEntityValidationEndDateRequiredText.defaultMessage,
+    },
+    frequency: {
+      frequencyInt: genericMessages.modalEntityValidationFrequencyNumberText.defaultMessage,
+      frequencyPositiveInt: genericMessages.modalEntityValidationFrequencyPositiveNumberText.defaultMessage,
+    },
+    filterKeyRequired: genericMessages.modalEntityValidationFiltersText.defaultMessage,
+  };
+
+  it('should return an empty object if there are no validation errors', () => {
+    const validValues = {
+      rules: [
+        {
+          filters: {
+            interval: { start: '2024-05-15', end: '2024-05-20' },
+            frequency: 10,
+          },
+        },
+      ],
+    };
+
+    expect(validateFilters(validValues, messages)).toEqual({});
+  });
+
+  describe('should return an error if required fields are missing', () => {
+    it('start date is missing', () => {
+      const invalidValues = { rules: [{ filters: { interval: { end: '2024-05-20' } } }] };
+      const expectedErrors = { rules: [{ filters: { interval: { start: messages.interval.startDateRequired } } }] };
+
+      expect(validateFilters(invalidValues, messages)).toEqual(expectedErrors);
+    });
+
+    it('end date is missing', () => {
+      const invalidValues = { rules: [{ filters: { interval: { start: '2024-05-15' } } }] };
+      const expectedErrors = { rules: [{ filters: { interval: { end: messages.interval.endDateRequired } } }] };
+
+      expect(validateFilters(invalidValues, messages)).toEqual(expectedErrors);
+    });
+
+    it('custom filter is empty', () => {
+      const invalidValues = { rules: [{ filters: { customFilter: '' } }] };
+      const expectedErrors = {
+        rules: [{
+          filters: { customFilter: `${capitalizeFirstLetter('customFilter')} ${messages.filterKeyRequired}` },
+        }],
+      };
+
+      expect(validateFilters(invalidValues, messages)).toEqual(expectedErrors);
+    });
+  });
+
+  describe('should return an error if frequency is invalid', () => {
+    it('not a number', () => {
+      const invalidValues = { rules: [{ filters: { frequency: 'not-a-number' } }] };
+      const expectedErrors = { rules: [{ filters: { frequency: messages.frequency.frequencyInt } }] };
+
+      expect(validateFilters(invalidValues, messages)).toEqual(expectedErrors);
+    });
+
+    it('not a positive integer', () => {
+      const invalidValues = { rules: [{ filters: { frequency: -5 } }] };
+      const expectedErrors = { rules: [{ filters: { frequency: messages.frequency.frequencyPositiveInt } }] };
+
+      expect(validateFilters(invalidValues, messages)).toEqual(expectedErrors);
+    });
+
+    it('not an integer', () => {
+      const invalidValues = { rules: [{ filters: { frequency: 3.14 } }] };
+      const expectedErrors = { rules: [{ filters: { frequency: messages.frequency.frequencyInt } }] };
+
+      expect(validateFilters(invalidValues, messages)).toEqual(expectedErrors);
+    });
   });
 });

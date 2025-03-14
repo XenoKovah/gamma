@@ -5,7 +5,6 @@ import {
   fetchAvatarSetsData,
   fetchCoursesData,
   fetchOrganizationsData,
-  fetchStudentAvatarData,
 } from '../api';
 
 /**
@@ -14,13 +13,6 @@ import {
 */
 
 export const useAvatarSetsData = () => useQuery('avatarSetsData', fetchAvatarSetsData);
-
-// TODO: temp solution to show student experience with avatars.
-export const useStudentAvatarData = (avatarSetIdParams, studentUsername) => useQuery(
-  ['studentAvatarData'],
-  () => fetchStudentAvatarData(avatarSetIdParams, studentUsername),
-  { enabled: !!(avatarSetIdParams && studentUsername) },
-);
 
 export const useCoursesData = () => useQuery('coursesData', fetchCoursesData);
 

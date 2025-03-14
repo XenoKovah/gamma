@@ -209,3 +209,7 @@ export const convertKeysToCamelCase = (data) => transformObjectKeys(data, toCame
  * @returns {any} - The transformed object or array with snake_case keys.
  */
 export const convertKeysToSnakeCase = (data) => transformObjectKeys(data, toSnakeCase);
+
+export const logError = (message, error) => {
+  console.error(`${message}`, error); // eslint-disable-line no-console
+};

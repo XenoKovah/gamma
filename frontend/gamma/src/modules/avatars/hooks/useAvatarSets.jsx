@@ -1,7 +1,6 @@
 import {
   useEffect, useReducer, useState, useCallback, useMemo,
 } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
 import { useIntl } from 'react-intl';
 import { useMutation } from 'react-query';
 import { useToggle } from '@openedx/paragon';
@@ -18,7 +17,6 @@ import {
   updateAvatarById,
   deleteAvatarById,
   useAvatarSetsData,
-  useStudentAvatarData,
   useOrganizationsData,
   finishUpdatingAvatarSet,
 } from '../data';
@@ -30,17 +28,6 @@ import moduleMessages from '../i18n';
 export const useAvatarSets = () => {
   const intl = useIntl();
 
-  // TODO: temp solution to show student experience with avatars.
-  const { id: avatarSetIdParams } = useParams();
-  const [searchParams] = useSearchParams();
-  const studentUsername = searchParams.get('username');
-  const showStudentAvatar = avatarSetIdParams && studentUsername;
-
-  const {
-    data: studentAvatarData,
-    isLoading: isStudentAvatarDataLoading,
-    isError: isStudentAvatarDataError,
-  } = useStudentAvatarData(avatarSetIdParams, studentUsername);
   const {
     data: avatarSetsData,
     isLoading: isAvatarSetsDataLoading,
@@ -65,9 +52,9 @@ export const useAvatarSets = () => {
   const { currentAvatarSetData, setCurrentAvatarSetData } = useAvatarsContext();
 
   const isLoading = isAvatarSetsDataLoading
-    || isCoursesDataLoading || isOrganizationsDataLoading || isActionsDataLoading || isStudentAvatarDataLoading;
+    || isCoursesDataLoading || isOrganizationsDataLoading || isActionsDataLoading;
   const isError = isAvatarSetsDataError
-    || isCoursesDataError || isOrganizationsDataError || isActionsDataError || isStudentAvatarDataError;
+    || isCoursesDataError || isOrganizationsDataError || isActionsDataError;
 
   const [showErrorAlert, setShowErrorAlert] = useState(false);
   const [showErrorToast, setShowErrorToast] = useState(false);
@@ -260,8 +247,6 @@ export const useAvatarSets = () => {
     setSubmitStatus,
     setShowErrorAlert,
     organizationsData,
-    studentAvatarData,
-    showStudentAvatar,
     handleDeleteAvatar,
     handleUpdateAvatar,
     handleUpdateAvatarSet,

@@ -344,6 +344,10 @@ describe('Avatars', () => {
         } = renderWithProviders(<Avatars />));
       });
 
+      const imageFile = [
+        new File(['avatar 1'], 'avatar1.svg', { type: 'image/svg+xml' }),
+      ];
+
       const openAvatarModal = async () => {
         await act(async () => {
           userEvent.click(getByTestId('add-avatar-set-button'));
@@ -445,8 +449,7 @@ describe('Avatars', () => {
           })).toBeInTheDocument();
         });
       });
-      // TODO: Fix this test
-      it.skip('should add a new evolution stage correctly', async () => {
+      it('should add a new evolution stage correctly', async () => {
         await openAvatarModal();
         await fillTitleAndGoNext();
         await mockAvatarSetCreation();
@@ -460,10 +463,27 @@ describe('Avatars', () => {
           expect(within(avatarSetStepper).getAllByTestId('dropzone-container')).toHaveLength(1);
 
           userEvent.click(addEvolutionStageBtn);
+          expect(addEvolutionStageBtn).toBeDisabled();
+        });
+
+        await uploadFiles(imageFile);
+
+        await waitFor(() => {
+          const avatarSetStepper = getByRole('dialog');
+
+          const addEvolutionStageBtn = within(avatarSetStepper)
+            .getByRole('button', { name: moduleMessages.avatarSetStepperEvolutionAddStageBtn.defaultMessage });
+          expect(addEvolutionStageBtn).not.toBeDisabled();
+
+          userEvent.click(addEvolutionStageBtn);
         });
 
         await waitFor(() => {
-          expect(within(getByRole('dialog')).getAllByTestId('dropzone-container')).toHaveLength(2);
+          const avatarSetStepper = getByRole('dialog');
+          expect(within(avatarSetStepper).getByText(
+            moduleMessages.avatarSetStepperEvolutionAvatarStageTitle.defaultMessage.replace('{index}', 1),
+          )).toBeInTheDocument();
+          expect(within(avatarSetStepper).getByTestId('dropzone-container')).toBeInTheDocument();
         });
       });
 
@@ -507,11 +527,11 @@ describe('Avatars', () => {
           is_draft: true,
         };
 
-        const updatedAvatarSetsMocks2 = [...avatarSetsMocks, updatedAvatarSet];
+        const updatedAvatarSetsMocks = [...avatarSetsMocks, updatedAvatarSet];
 
-        mock.onPatch(`${API_ROUTES.AVATAR_SET}${avatarSetId}/`).reply(200, updatedAvatarSetsMocks2);
+        mock.onPatch(`${API_ROUTES.AVATAR_SET}${avatarSetId}/`).reply(200, updatedAvatarSetsMocks);
 
-        await waitFor(() => updateAvatarSet({ id: avatarSetId, avatars: updatedAvatarSetsMocks2 }));
+        await waitFor(() => updateAvatarSet({ id: avatarSetId, avatars: updatedAvatarSetsMocks }));
 
         useAvatarSets.mockReturnValue(
           getMockedUseAvatarSets({
@@ -520,7 +540,7 @@ describe('Avatars', () => {
               text: moduleMessages.toastNewAvatarSetSavedSuccessfullyTitle.defaultMessage,
               onClose: jest.fn(),
             },
-            avatarSetsData: convertKeysToCamelCase(updatedAvatarSetsMocks2),
+            avatarSetsData: convertKeysToCamelCase(updatedAvatarSetsMocks),
             isManageAvatarSetModalOpen: true,
           }),
         );
@@ -553,9 +573,8 @@ describe('Avatars', () => {
         is_draft: true,
       };
 
-      const files = [
+      const imageFile = [
         new File(['avatar 1'], 'avatar1.svg', { type: 'image/svg+xml' }),
-        new File(['avatar 2'], 'avatar2.svg', { type: 'image/svg+xml' }),
       ];
 
       beforeEach(() => {
@@ -658,8 +677,7 @@ describe('Avatars', () => {
         });
       };
 
-      // TODO: Fix this test
-      it.skip('should render the avatars step correctly', async () => {
+      it('should render the avatars step correctly', async () => {
         await openAvatarModal();
         await fillTitleAndGoNext();
         await mockAvatarSetCreation();
@@ -673,9 +691,30 @@ describe('Avatars', () => {
           });
 
           userEvent.click(addEvolutionStageBtn);
+          expect(addEvolutionStageBtn).toBeDisabled();
         });
 
-        await uploadFiles(files);
+        await uploadFiles(imageFile);
+
+        await waitFor(() => {
+          const avatarSetStepper = getByRole('dialog');
+          const addEvolutionStageBtn = within(avatarSetStepper).getByRole('button', {
+            name: moduleMessages.avatarSetStepperEvolutionAddStageBtn.defaultMessage,
+          });
+          userEvent.click(addEvolutionStageBtn);
+          expect(addEvolutionStageBtn).toBeDisabled();
+        });
+
+        await uploadFiles(imageFile);
+
+        await waitFor(() => {
+          const avatarSetStepper = getByRole('dialog');
+          const addEvolutionStageBtn = within(avatarSetStepper).getByRole('button', {
+            name: moduleMessages.avatarSetStepperEvolutionAddStageBtn.defaultMessage,
+          });
+          userEvent.click(addEvolutionStageBtn);
+          expect(addEvolutionStageBtn).toBeDisabled();
+        });
 
         const updatedAvatarSetsMocks = [...avatarSetsMocks, updatedAvatarSet];
 
@@ -722,8 +761,7 @@ describe('Avatars', () => {
         });
       });
 
-      // TODO: Fix this test
-      it.skip('check manage entity modal for avatar', async () => {
+      it('check manage entity modal for avatar', async () => {
         await openAvatarModal();
         await fillTitleAndGoNext();
         await mockAvatarSetCreation();
@@ -739,13 +777,25 @@ describe('Avatars', () => {
           userEvent.click(addEvolutionStageBtn);
         });
 
-        await uploadFiles(files);
+        await uploadFiles(imageFile);
 
-        const updatedAvatarSetsMocks2 = [...avatarSetsMocks, updatedAvatarSet];
+        await waitFor(() => {
+          const avatarSetStepper = getByRole('dialog');
 
-        mock.onPatch(`${API_ROUTES.AVATAR_SET}${avatarSetId}/`).reply(200, updatedAvatarSetsMocks2);
+          const addEvolutionStageBtn = within(avatarSetStepper).getByRole('button', {
+            name: moduleMessages.avatarSetStepperEvolutionAddStageBtn.defaultMessage,
+          });
 
-        await waitFor(() => updateAvatarSet({ id: avatarSetId, avatars: updatedAvatarSetsMocks2 }));
+          userEvent.click(addEvolutionStageBtn);
+        });
+
+        await uploadFiles(imageFile);
+
+        const updatedAvatarSetsMocks = [...avatarSetsMocks, updatedAvatarSet];
+
+        mock.onPatch(`${API_ROUTES.AVATAR_SET}${avatarSetId}/`).reply(200, updatedAvatarSetsMocks);
+
+        await waitFor(() => updateAvatarSet({ id: avatarSetId, avatars: updatedAvatarSetsMocks }));
 
         useAvatarSets.mockReturnValue(
           getMockedUseAvatarSets({
@@ -754,7 +804,7 @@ describe('Avatars', () => {
               text: moduleMessages.toastNewAvatarSetSavedSuccessfullyTitle.defaultMessage,
               onClose: jest.fn(),
             },
-            avatarSetsData: convertKeysToCamelCase(updatedAvatarSetsMocks2),
+            avatarSetsData: convertKeysToCamelCase(updatedAvatarSetsMocks),
             isManageAvatarSetModalOpen: true,
           }),
         );
@@ -824,8 +874,7 @@ describe('Avatars', () => {
         });
       });
 
-      // TODO: Fix this test
-      it.skip('check delete avatar functional', async () => {
+      it('check delete avatar functional', async () => {
         await openAvatarModal();
         await fillTitleAndGoNext();
         await mockAvatarSetCreation();
@@ -840,7 +889,18 @@ describe('Avatars', () => {
           userEvent.click(addEvolutionStageBtn);
         });
 
-        await uploadFiles(files);
+        await uploadFiles(imageFile);
+
+        await waitFor(() => {
+          const avatarSetStepper = getByRole('dialog');
+
+          const addEvolutionStageBtn = within(avatarSetStepper)
+            .getByRole('button', { name: moduleMessages.avatarSetStepperEvolutionAddStageBtn.defaultMessage });
+
+          userEvent.click(addEvolutionStageBtn);
+        });
+
+        await uploadFiles(imageFile);
 
         const updatedAvatarSetsMocks = [...avatarSetsMocks, updatedAvatarSet];
 
@@ -942,12 +1002,13 @@ describe('Avatars', () => {
         is_draft: true,
       };
 
-      const files = [
+      const imageFile = [
         new File(['avatar 1'], 'avatar1.svg', { type: 'image/svg+xml' }),
-        new File(['avatar 2'], 'avatar2.svg', { type: 'image/svg+xml' }),
       ];
 
       beforeEach(() => {
+        global.structuredClone = jest.fn((obj) => JSON.parse(JSON.stringify(obj)));
+
         ({
           rerender, getByTestId, getByRole,
         } = renderWithProviders(<Avatars />));
@@ -1076,7 +1137,19 @@ describe('Avatars', () => {
           userEvent.click(addEvolutionStageBtn);
         });
 
-        await uploadFiles(files);
+        await uploadFiles(imageFile);
+
+        await waitFor(() => {
+          const avatarSetStepper = getByRole('dialog');
+
+          const addEvolutionStageBtn = within(avatarSetStepper).getByRole('button', {
+            name: moduleMessages.avatarSetStepperEvolutionAddStageBtn.defaultMessage,
+          });
+
+          userEvent.click(addEvolutionStageBtn);
+        });
+
+        await uploadFiles(imageFile);
 
         const updatedAvatarSetsMocks = [...avatarSetsMocks, updatedAvatarSet];
 
@@ -1123,8 +1196,7 @@ describe('Avatars', () => {
         });
       };
 
-      // TODO: Fix this test
-      it.skip('should render the finish step correctly', async () => {
+      it('should render the finish step correctly', async () => {
         await openAvatarModal();
         await fillTitleAndGoNext();
         await mockAvatarSetCreation();

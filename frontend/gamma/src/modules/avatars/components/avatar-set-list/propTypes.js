@@ -9,7 +9,15 @@ export const avatarsPropTypes = PropTypes.shape({
     PropTypes.shape({
       id: PropTypes.number.isRequired,
       action: PropTypes.objectOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number])),
-      filters: PropTypes.objectOf(PropTypes.string),
+      filters: PropTypes.oneOfType([
+        PropTypes.objectOf(PropTypes.string),
+        PropTypes.shape({
+          interval: PropTypes.shape({
+            start: PropTypes.string.isRequired,
+            end: PropTypes.string.isRequired,
+          }),
+        }),
+      ]),
     }),
   ),
 });

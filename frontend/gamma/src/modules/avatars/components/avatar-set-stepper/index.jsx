@@ -157,7 +157,7 @@ AvatarSetStepper.propTypes = {
     organizations: PropTypes.arrayOf(PropTypes.string).isRequired,
   }),
   actionsData: PropTypes.arrayOf(PropTypes.shape({
-    eventType: PropTypes.string.isRequired,
+    eventType: PropTypes.string,
   })),
   handleUpdateAvatar: PropTypes.func.isRequired,
   handleDeleteAvatar: PropTypes.func.isRequired,

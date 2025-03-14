@@ -10,6 +10,7 @@ import {
   Card as AvatarCard, SubHeader, AlertComponent,
 } from '../../../../../generic';
 import { useAvatarsContext } from '../../../context/AvatarsContext';
+import { sortByDate } from '../../../utils';
 import { STEPPER_STEPS } from '../constants';
 import {
   MAX_AVATARS_COUNT, MIN_AVATARS_COUNT, ACCEPTED_IMAGE_FORMATS,
@@ -67,10 +68,7 @@ const AvatarsStep = ({
     openManageEntityModal();
   };
 
-  // TODO: Move this sorting logic to a utility function
-  const sortedAvatars = [...(selectedAvatarSet?.avatars || [])].sort(
-    (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
-  );
+  const sortedAvatars = sortByDate(selectedAvatarSet?.avatars ?? [], 'createdAt');
 
   return (
     <>
@@ -160,7 +158,7 @@ AvatarsStep.propTypes = {
     organizations: PropTypes.arrayOf(PropTypes.string).isRequired,
   }),
   actionsData: PropTypes.arrayOf(PropTypes.shape({
-    eventType: PropTypes.string.isRequired,
+    eventType: PropTypes.string,
   })),
   submitStatus: PropTypes.string.isRequired,
   deletionStatus: PropTypes.string.isRequired,

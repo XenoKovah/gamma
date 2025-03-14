@@ -2,6 +2,7 @@ import axios from 'axios';
 
 import { API_ROUTES, REQUEST_HEADERS } from './constants';
 import {
+  logError,
   preparePayload,
   readFileAsBase64,
   convertKeysToCamelCase,
@@ -10,27 +11,20 @@ import {
   convertImageToBase64,
 } from './utils';
 
-// TODO: temp solution to show student experience with avatars.
-/**
- * Fetches student avatar data from the API.
- * @returns {Promise<Object>} The student avatar data.
- */
-export const fetchStudentAvatarData = async (avatarSetIdParams, studentUsername) => {
-  const queryParams = studentUsername ? `?username=${encodeURIComponent(studentUsername)}` : '';
-  const { data } = await axios.get(`${API_ROUTES.AVATAR_SET}${avatarSetIdParams}/${queryParams}`);
-
-  return convertKeysToCamelCase(data);
-};
-
 /**
  * Fetches avatar sets data from the API.
  * @returns {Promise<Object>} The avatar sets data.
  */
 export const fetchAvatarSetsData = async () => {
-  const { data } = await axios.get(API_ROUTES.AVATAR_SET);
-  return Array.isArray(data)
-    ? processReceivedAvatarSets(convertKeysToCamelCase(data))
-    : [];
+  try {
+    const { data } = await axios.get(API_ROUTES.AVATAR_SET);
+    return Array.isArray(data)
+      ? processReceivedAvatarSets(convertKeysToCamelCase(data))
+      : [];
+  } catch (error) {
+    logError('Error fetching avatar sets data:', error);
+    throw error;
+  }
 };
 
 /**
@@ -39,12 +33,17 @@ export const fetchAvatarSetsData = async () => {
  * @returns {Promise<Object>} The response from the API.
  */
 export const deleteAvatarSet = async (avatarSetId) => {
-  const response = await axios.delete(`${API_ROUTES.AVATAR_SET}${avatarSetId}/`, {
-    headers: { ...REQUEST_HEADERS },
-    withCredentials: true,
-  });
+  try {
+    const response = await axios.delete(`${API_ROUTES.AVATAR_SET}${avatarSetId}/`, {
+      headers: { ...REQUEST_HEADERS },
+      withCredentials: true,
+    });
 
-  return convertKeysToCamelCase(response.data);
+    return convertKeysToCamelCase(response.data);
+  } catch (error) {
+    logError('Error deleting avatar set:', error);
+    throw error;
+  }
 };
 
 /**
@@ -62,7 +61,7 @@ export const createAvatarSet = async (avatarSetData) => {
 
     return convertKeysToCamelCase(response.data);
   } catch (error) {
-    console.error('Error creating badge:', error); // eslint-disable-line no-console
+    logError('Error creating avatar set:', error);
     throw error;
   }
 };
@@ -115,7 +114,7 @@ export const updateAvatarSet = async (avatarSetData) => {
 
     return convertKeysToCamelCase(response.data);
   } catch (error) {
-    console.error('Error updating avatar set:', error); // eslint-disable-line no-console
+    logError('Error updating avatar set:', error);
     throw error;
   }
 };
@@ -138,7 +137,7 @@ export const finishUpdatingAvatarSet = async (id) => {
 
     return convertKeysToCamelCase(response.data);
   } catch (error) {
-    console.error('Error updating avatar set:', error); // eslint-disable-line no-console
+    logError('Error updating avatar set:', error);
     throw error;
   }
 };
@@ -161,7 +160,7 @@ export const deleteAvatarById = async (avatarId) => {
 
     return convertKeysToCamelCase(response.data);
   } catch (error) {
-    console.error('Error updating avatar set:', error); // eslint-disable-line no-console
+    logError('Error deleting avatar by id:', error);
     throw error;
   }
 };
@@ -201,7 +200,7 @@ export const updateAvatarById = async (avatarId, avatarData) => {
 
     return convertKeysToCamelCase(response.data);
   } catch (error) {
-    console.error('Error updating avatar set:', error); // eslint-disable-line no-console
+    logError('Error updating avatar by id:', error);
     throw error;
   }
 };
@@ -211,8 +210,13 @@ export const updateAvatarById = async (avatarId, avatarData) => {
  * @returns {Promise<Object>} The courses data.
  */
 export const fetchCoursesData = async () => {
-  const { data } = await axios.get(API_ROUTES.COURSES);
-  return convertKeysToCamelCase(data);
+  try {
+    const { data } = await axios.get(API_ROUTES.COURSES);
+    return convertKeysToCamelCase(data);
+  } catch (error) {
+    logError('Error fetching courses data:', error);
+    throw error;
+  }
 };
 
 /**
@@ -220,8 +224,13 @@ export const fetchCoursesData = async () => {
  * @returns {Promise<Object>} The organizations data.
  */
 export const fetchOrganizationsData = async () => {
-  const { data } = await axios.get(API_ROUTES.ORGANIZATIONS);
-  return convertKeysToCamelCase(data);
+  try {
+    const { data } = await axios.get(API_ROUTES.ORGANIZATIONS);
+    return convertKeysToCamelCase(data);
+  } catch (error) {
+    logError('Error fetching organizations data:', error);
+    throw error;
+  }
 };
 
 /**
@@ -229,6 +238,11 @@ export const fetchOrganizationsData = async () => {
  * @returns {Promise<Object>} The actions data.
  */
 export const fetchActionsData = async () => {
-  const { data } = await axios.get(API_ROUTES.ACTIONS);
-  return convertKeysToCamelCase(data);
+  try {
+    const { data } = await axios.get(API_ROUTES.ACTIONS);
+    return convertKeysToCamelCase(data);
+  } catch (error) {
+    logError('Error fetching actions data:', error);
+    throw error;
+  }
 };

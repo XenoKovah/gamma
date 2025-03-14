@@ -6,6 +6,7 @@ import { CardGrid, Collapsible, Stepper } from '@openedx/paragon';
 import { Card as AvatarCard } from '../../../../../generic';
 import { useAvatarsContext } from '../../../context/AvatarsContext';
 import moduleMessages from '../../../i18n';
+import { sortByDate } from '../../../utils';
 import { STEPPER_STEPS } from '../constants';
 import StepFooter from './StepFooter';
 
@@ -62,10 +63,10 @@ const FinishStep = ({
     );
   };
 
-  // TODO: Move this sorting logic to a utility function
-  const sortedAvatars = useMemo(() => [...(selectedAvatarSet?.avatars ?? [])].sort(
-    (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
-  ), [selectedAvatarSet?.avatars]);
+  const sortedAvatarsMemoized = useMemo(
+    () => sortByDate(selectedAvatarSet?.avatars ?? [], 'createdAt'),
+    [selectedAvatarSet?.avatars],
+  );
 
   return (
     <>
@@ -76,12 +77,12 @@ const FinishStep = ({
         <h2 className="my-4">
           {intl.formatMessage(moduleMessages.avatarSetStepperFinishStepTitle)}
         </h2>
-        {sortedAvatars.length > 0 && (
+        {sortedAvatarsMemoized.length > 0 && (
           <CardGrid
             columnSizes={{ xs: 12, lg: 6, xl: 4 }}
             hasEqualColumnHeights={false}
           >
-            {sortedAvatars.map(({
+            {sortedAvatarsMemoized.map(({
               id, title, image, description, rules,
             }) => (
               <AvatarCard

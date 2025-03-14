@@ -79,7 +79,13 @@ SelectFilters.propTypes = {
   }).isRequired,
   ruleIndex: PropTypes.number.isRequired,
   startDateRef: PropTypes.shape({
-    current: PropTypes.instanceOf(Element),
+    current: PropTypes.oneOfType([
+      PropTypes.instanceOf(Element),
+      PropTypes.shape({
+        input: PropTypes.instanceOf(Element),
+      }),
+      PropTypes.oneOf([null]),
+    ]),
   }),
   filterRefs: PropTypes.shape({
     current: PropTypes.objectOf(PropTypes.shape({
