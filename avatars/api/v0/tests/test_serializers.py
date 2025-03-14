@@ -17,6 +17,7 @@ from avatars.constants import (
 from avatars.factories import AvatarFactory, AvatarSetFactory
 from avatars.models import Avatar, AvatarSet
 from events.factories import EventFactory, EventTypeFactory
+from rules.factories import RuleFactory
 
 
 @pytest.mark.django_db
@@ -216,6 +217,122 @@ class TestAvatarSetSerializer:
         assert avatar_set.avatars.count() == 2
         assert avatar_set.avatars.first().title == 'Avatar 1'
         assert avatar_set.avatars.last().title == 'Avatar 2'
+
+    def test_update_avatar_set_with_existent_avatars(
+        self, avatar_factory: AvatarFactory, avatar_set_factory: AvatarSetFactory
+    ):
+        avatar_1 = avatar_factory(title='Avatar 1')
+        avatar_2 = avatar_factory(title='Avatar 2')
+
+        avatar_set = avatar_set_factory(title='Test Avatar Set')
+        avatar_set.avatars.set([avatar_1, avatar_2])
+
+        # Check initial avatars states
+        assert avatar_set.avatars.count() == 2
+        assert avatar_set.avatars.first().id == avatar_1.id
+        assert avatar_set.avatars.last().id == avatar_2.id
+        assert avatar_set.avatars.first().title == 'Avatar 1'
+        assert avatar_set.avatars.last().title == 'Avatar 2'
+
+        data = {
+            'avatars': [
+                {
+                    'existent_id': avatar_1.id,
+                    'title': 'Avatar 1 UPDATED',
+                    'description': 'Avatar 1 description',
+                    'image': BASE64_CORRECT_FILE
+                },
+                {
+                    'existent_id': avatar_2.id,
+                    'title': 'Avatar 2 UPDATED',
+                    'description': 'Avatar 2 description',
+                    'image': BASE64_CORRECT_FILE
+                }
+            ]
+        }
+
+        serializer = AvatarSetSerializer(data=data)
+        serializer.update(instance=avatar_set, validated_data=data)
+
+        assert serializer.is_valid(), serializer.errors
+        serializer.save()
+
+        # Check avatars states after updating
+        assert avatar_set.title == 'Test Avatar Set'
+        assert avatar_set.avatars.count() == 2
+        assert avatar_set.avatars.first().id == avatar_1.id
+        assert avatar_set.avatars.last().id == avatar_2.id
+        assert avatar_set.avatars.first().title == 'Avatar 1 UPDATED'
+        assert avatar_set.avatars.last().title == 'Avatar 2 UPDATED'
+
+    def test_update_avatar_set_with_avatars_already_have_rules(
+        self,
+        avatar_factory: AvatarFactory,
+        avatar_set_factory: AvatarSetFactory,
+        rule_factory: RuleFactory
+    ):
+        avatar_1 = avatar_factory(title='Avatar 1')
+        avatar_2 = avatar_factory(title='Avatar 2')
+
+        rule_1 = rule_factory()
+        rule_2 = rule_factory()
+
+        avatar_1.rules.set([rule_1, rule_2])
+        avatar_2.rules.set([rule_1, rule_2])
+
+        avatar_set = avatar_set_factory(title='Test Avatar Set')
+        avatar_set.avatars.set([avatar_1, avatar_2])
+
+        # Check initial avatars states with already existent rules
+        assert avatar_set.avatars.count() == 2
+        assert avatar_set.avatars.first().id == avatar_1.id
+        assert avatar_set.avatars.last().id == avatar_2.id
+        assert avatar_set.avatars.first().title == 'Avatar 1'
+        assert avatar_set.avatars.last().title == 'Avatar 2'
+
+        assert avatar_set.avatars.first().rules.count() == 2
+        assert avatar_set.avatars.last().rules.count() == 2
+        assert avatar_set.avatars.first().rules.first().id == rule_1.id
+        assert avatar_set.avatars.first().rules.last().id == rule_2.id
+        assert avatar_set.avatars.last().rules.first().id == rule_1.id
+        assert avatar_set.avatars.last().rules.last().id == rule_2.id
+
+        data = {
+            'avatars': [
+                {
+                    'existent_id': avatar_1.id,
+                    'title': 'Avatar 1 UPDATED',
+                    'description': 'Avatar 1 description',
+                    'image': BASE64_CORRECT_FILE
+                },
+                {
+                    'existent_id': avatar_2.id,
+                    'title': 'Avatar 2 UPDATED',
+                    'description': 'Avatar 2 description',
+                    'image': BASE64_CORRECT_FILE
+                }
+            ]
+        }
+
+        serializer = AvatarSetSerializer(data=data)
+        serializer.update(instance=avatar_set, validated_data=data)
+
+        assert serializer.is_valid(), serializer.errors
+        serializer.save()
+
+        # Check avatars with existent rules states after updating
+        assert avatar_set.avatars.count() == 2
+        assert avatar_set.avatars.first().id == avatar_1.id
+        assert avatar_set.avatars.last().id == avatar_2.id
+        assert avatar_set.avatars.first().title == 'Avatar 1 UPDATED'
+        assert avatar_set.avatars.last().title == 'Avatar 2 UPDATED'
+
+        assert avatar_set.avatars.first().rules.count() == 2
+        assert avatar_set.avatars.last().rules.count() == 2
+        assert avatar_set.avatars.first().rules.first().id == rule_1.id
+        assert avatar_set.avatars.first().rules.last().id == rule_2.id
+        assert avatar_set.avatars.last().rules.first().id == rule_1.id
+        assert avatar_set.avatars.last().rules.last().id == rule_2.id
 
     def test_update_avatar_set_requires_two_avatars(self, avatar_set_factory: AvatarSetFactory):
         avatar_set = avatar_set_factory()
