@@ -67,8 +67,7 @@ describe('EvolutionStep', () => {
     ).toBeInTheDocument();
   });
 
-  // TOTO: Fix this test
-  it.skip('allows adding a new avatar stage', async () => {
+  it('allows adding a new avatar stage and uploading an image to Stage 1', async () => {
     const { getAllByTestId, getByRole } = renderComponent();
 
     await waitFor(() => {
@@ -82,6 +81,20 @@ describe('EvolutionStep', () => {
       expect(getAllByTestId('dropzone-container')).toHaveLength(1);
     });
 
+    const file = new File(['dummy content'], 'avatar.svg', { type: 'image/svg+xml' });
+
+    await waitFor(() => {
+      const fileInput = getAllByTestId('dropzone-container')[0].querySelector('input[type="file"]');
+      expect(fileInput).toBeInTheDocument();
+      userEvent.upload(fileInput, file);
+    });
+
+    await waitFor(() => {
+      const fileInput = getAllByTestId('dropzone-container')[0].querySelector('input[type="file"]');
+      expect(fileInput.files[0]).toBe(file);
+      expect(fileInput.files).toHaveLength(1);
+    });
+
     await waitFor(() => {
       const addEvolutionStageBtn = getByRole('button', {
         name: moduleMessages.avatarSetStepperEvolutionAddStageBtn.defaultMessage,
@@ -90,7 +103,10 @@ describe('EvolutionStep', () => {
     });
 
     await waitFor(() => {
-      expect(getAllByTestId('dropzone-container')).toHaveLength(2);
+      expect(getAllByTestId('dropzone-container')).toHaveLength(1);
+      const uploadedAvatarImg = getByRole('img');
+      expect(uploadedAvatarImg).toBeInTheDocument();
+      expect(uploadedAvatarImg).toHaveAttribute('src', 'data:image/svg+xml;base64,ZHVtbXkgY29udGVudA==');
     });
   });
 

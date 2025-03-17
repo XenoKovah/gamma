@@ -92,6 +92,13 @@ export const updateAvatarSet = async (avatarSetData) => {
           clonedAvatar.image = await convertImageToBase64(clonedAvatar.image);
         }
 
+        if (clonedAvatar.id) {
+          // To maintain consistency when updating existing avatars,
+          // the `id` field is replaced with `existent_id`.
+          clonedAvatar.existent_id = clonedAvatar.id;
+          delete clonedAvatar.id;
+        }
+
         return preparePayload(clonedAvatar);
       }),
     )
