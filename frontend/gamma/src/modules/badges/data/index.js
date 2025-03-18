@@ -4,6 +4,7 @@ export {
   fetchOrganizationsData,
   createBadge,
   deleteBadge,
+  editBadge,
 } from './api';
 export {
   useBadgesData,

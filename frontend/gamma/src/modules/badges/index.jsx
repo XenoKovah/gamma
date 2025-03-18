@@ -8,6 +8,7 @@ import {
 } from '../../generic';
 import genericMessages from '../../i18n';
 import { BadgesList } from './components';
+import { TOAST_TYPES } from './constants';
 import { useBadges } from './hooks/useBadges';
 import moduleMessages from './i18n';
 
@@ -15,23 +16,25 @@ import './assets/scss/index.scss';
 
 export const Badges = () => {
   const {
+    toast,
     isError,
+    showToast,
     isLoading,
     badgesData,
     actionsData,
     coursesData,
-    firstBadgeRef,
     submitStatus,
+    firstBadgeRef,
     showErrorAlert,
-    showErrorToast,
     deletionStatus,
+    editedBadgeData,
+    handleEditBadge,
     setSubmitStatus,
-    setShowErrorToast,
     setShowErrorAlert,
     organizationsData,
+    setEditedBadgeData,
     handleCreateNewBadge,
     openManageEntityModal,
-    showBadgeCreatedAlert,
     handleDeleteBadgeById,
     closeManageEntityModal,
     isManageEntityModalOpen,
@@ -45,21 +48,49 @@ export const Badges = () => {
     return <Loader />;
   }
 
-  const successAlert = showBadgeCreatedAlert && {
-    title: intl.formatMessage(moduleMessages.badgeCreatedTitle),
-    description: intl.formatMessage(moduleMessages.badgeCreatedDescription),
-    variant: 'success',
+  const getNotificationToastProps = () => {
+    if (!toast) { return null; }
+
+    const toastMessages = {
+      [TOAST_TYPES.BADGE.CREATED]: {
+        isShow: true,
+        text: intl.formatMessage(moduleMessages.badgeCreatedTitle),
+        variant: 'success',
+        onClose: () => showToast(null),
+      },
+      [TOAST_TYPES.BADGE.EDITED]: {
+        isShow: true,
+        text: intl.formatMessage(moduleMessages.badgeEditedTitle),
+        variant: 'success',
+        onClose: () => showToast(null),
+      },
+      [TOAST_TYPES.BADGE.DELETED]: {
+        isShow: true,
+        text: intl.formatMessage(moduleMessages.badgeDeletedTitle),
+        variant: 'success',
+        onClose: () => showToast(null),
+      },
+      [TOAST_TYPES.ERROR]: {
+        isShow: true,
+        text: intl.formatMessage(moduleMessages.toastErrorTitle),
+        variant: 'danger',
+        onClose: () => showToast(null),
+      },
+    };
+
+    return toastMessages[toast] || null;
   };
 
-  const errorAlert = (isError || showErrorAlert) && {
-    title: intl.formatMessage(genericMessages.alertDangerTitle),
-    description: intl.formatMessage(genericMessages.alertDangerDescription),
-    variant: 'danger',
-    onClose: () => setShowErrorAlert(!showErrorAlert),
-    isDismissible: true,
+  const handleOpenManageEntityModal = (badgeId) => {
+    openManageEntityModal();
+    const badge = badgesData.find((badgeItem) => badgeItem.id === badgeId);
+    setEditedBadgeData(badge);
   };
 
-  const alertProps = successAlert || errorAlert || null;
+  const handleResetManageEntityModal = () => {
+    closeManageEntityModal();
+    setEditedBadgeData(null);
+  };
 
   return (
     <>
@@ -78,14 +109,15 @@ export const Badges = () => {
           isManageEntityModalOpen={isManageEntityModalOpen}
           title={intl.formatMessage(moduleMessages.addManageEntityModalTitle)}
           data={{
+            entityData: editedBadgeData,
             courses: coursesData?.courses || [],
             organizations: organizationsData?.organizations || [],
             actions: actionsData || [],
           }}
-          submitForm={handleCreateNewBadge}
+          submitForm={editedBadgeData ? handleEditBadge : handleCreateNewBadge}
           submitStatus={submitStatus}
           setSubmitStatus={setSubmitStatus}
-          onReset={closeManageEntityModal}
+          onReset={handleResetManageEntityModal}
         />
         <SEOHelmet
           title={intl.formatMessage(moduleMessages.pageTitle)}
@@ -99,19 +131,23 @@ export const Badges = () => {
             description={intl.formatMessage(moduleMessages.totalBadgesCount, { badgesCount: badgesData?.length || 0 })}
             onClick={openManageEntityModal}
           />
-          {alertProps && <AlertComponent {...alertProps} />}
-          {showErrorToast && (
-            <ToastComponent
-              text={intl.formatMessage(moduleMessages.toastErrorTitle)}
-              onClose={() => setShowErrorToast(!showErrorToast)}
+          {isError && (
+            <AlertComponent
+              variant="danger"
+              title={intl.formatMessage(genericMessages.alertDangerTitle)}
+              description={intl.formatMessage(genericMessages.alertDangerDescription)}
+              onClose={() => setShowErrorAlert(!showErrorAlert)}
+              isDismissible
             />
           )}
+          {getNotificationToastProps() && <ToastComponent {...getNotificationToastProps()} />}
           {!isError && (
             <>
               <BadgesList
                 badgesData={badgesData}
                 openConfirmDeletionAlert={openConfirmDeletionAlert}
                 firstBadgeRef={firstBadgeRef}
+                handleOpenManageEntityModal={handleOpenManageEntityModal}
               />
               <Button
                 block

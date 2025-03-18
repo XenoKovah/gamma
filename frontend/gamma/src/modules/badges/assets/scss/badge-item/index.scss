@@ -7,4 +7,16 @@
     max-width: $badge-item-dimension;
     min-width: $badge-item-dimension;
   }
+
+  &.pgn__card .pgn__card-section {
+    width: 100%;
+
+    .pgn__card-section-title {
+      font-size: $font-size-base;
+    }
+  }
+
+  .badge-item-description {
+    font-size: $font-size-sm;
+  }
 }

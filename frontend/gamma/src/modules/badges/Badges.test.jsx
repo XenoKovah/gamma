@@ -1,7 +1,8 @@
 import React from 'react';
 import axios from 'axios';
 import '@testing-library/jest-dom';
-import { cleanup } from '@testing-library/react';
+import { cleanup, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import { renderWithProviders } from '../../setupTests';
 import genericMessages from '../../i18n';
@@ -23,10 +24,13 @@ jest.mock('./hooks/useBadges', () => ({
   useBadges: jest.fn(),
 }));
 
+const daysInTheWeek = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+
 describe('Badges Component', () => {
   afterEach(cleanup);
 
   beforeEach(() => {
+    window.HTMLElement.prototype.scrollIntoView = jest.fn();
     useBadges.mockReturnValue({
       isError: false,
       isLoading: false,
@@ -131,6 +135,667 @@ describe('Badges Component', () => {
       moduleMessages.totalBadgesCount.defaultMessage.replace('{badgesCount}', badgesMocks.length),
     )).toBeInTheDocument();
   });
+
+  it('opens the modal and verifies its content when the add badge button is clicked', async () => {
+    const setModalOpen = jest.fn();
+
+    useBadges.mockImplementation(() => ({
+      badgesData: [],
+      isLoading: false,
+      isError: false,
+      isManageEntityModalOpen: false,
+      openManageEntityModal: setModalOpen,
+    }));
+
+    const { rerender, getByTestId, getByRole } = renderWithProviders(<Badges />);
+
+    const addNewBadgeBtn = getByTestId('add-badge-button');
+    userEvent.click(addNewBadgeBtn);
+
+    useBadges.mockImplementation(() => ({
+      badgesData: [],
+      isLoading: false,
+      isError: false,
+      isManageEntityModalOpen: true,
+      openManageEntityModal: setModalOpen,
+    }));
+
+    rerender(<Badges />);
+
+    await waitFor(() => {
+      const modal = getByRole('dialog');
+      expect(within(modal).getByText(moduleMessages.addManageEntityModalTitle.defaultMessage)).toBeInTheDocument();
+      expect(within(modal).getByText(genericMessages.modalEntityInfoHeadingText.defaultMessage)).toBeInTheDocument();
+      expect(within(modal).getByText(genericMessages.modalEntityImageHeadingText.defaultMessage)).toBeInTheDocument();
+      expect(within(modal).getByRole('button', {
+        name: genericMessages.modalEntityImageBtnUploadText.defaultMessage,
+      })).toBeInTheDocument();
+      expect(within(modal).getByText(genericMessages.modalEntityRulesTitle.defaultMessage)).toBeInTheDocument();
+
+      const alertAboutEmptyRules = within(modal).getByRole('alert');
+      expect(within(alertAboutEmptyRules)
+        .getByText(genericMessages.modalEntityRulesAlertNoRulesTitle.defaultMessage)).toBeInTheDocument();
+      expect(within(alertAboutEmptyRules)
+        .getByText(genericMessages.modalEntityRulesAlertNoRulesDescription.defaultMessage)).toBeInTheDocument();
+      expect(within(modal)
+        .getByRole('button', { name: genericMessages.modalEntityRulesAddNewRuleBtnText.defaultMessage })).toBeInTheDocument();
+      expect(within(modal)
+        .getByRole('button', { name: genericMessages.modalDialogBtnStatefulDefaultText.defaultMessage })).toBeInTheDocument();
+      expect(within(modal)
+        .getByRole('button', { name: genericMessages.modalDialogBtnCancelText.defaultMessage })).toBeInTheDocument();
+
+      const inputTitleElement = within(modal)
+        .getByLabelText(genericMessages.modalEntityInfoLabelEntityTitle.defaultMessage);
+      expect(inputTitleElement).toBeInTheDocument();
+      const inputSlugElement = within(modal)
+        .getByLabelText(genericMessages.modalEntityInfoLabelEntitySlugText.defaultMessage);
+      expect(inputSlugElement).toBeInTheDocument();
+      const inputActiveElement = within(modal)
+        .getByLabelText(genericMessages.modalEntityInfoLabelEntityIsActiveText.defaultMessage);
+      expect(inputActiveElement).toBeInTheDocument();
+      const inputDescriptionElement = within(modal)
+        .getByLabelText(genericMessages.modalEntityInfoLabelEntityDescriptionText.defaultMessage);
+      expect(inputDescriptionElement).toBeInTheDocument();
+    });
+  });
+
+  it('shows an error message when the title field is left empty', async () => {
+    const setModalOpen = jest.fn();
+
+    useBadges.mockImplementation(() => ({
+      badgesData: [],
+      isLoading: false,
+      isError: false,
+      isManageEntityModalOpen: false,
+      openManageEntityModal: setModalOpen,
+    }));
+
+    const { rerender, getByTestId, getByRole } = renderWithProviders(<Badges />);
+
+    const addNewBadgeBtn = getByTestId('add-badge-button');
+    userEvent.click(addNewBadgeBtn);
+
+    useBadges.mockImplementation(() => ({
+      badgesData: [],
+      isLoading: false,
+      isError: false,
+      isManageEntityModalOpen: true,
+      openManageEntityModal: setModalOpen,
+    }));
+
+    rerender(<Badges />);
+
+    await waitFor(() => {
+      const modal = getByRole('dialog');
+      const inputTitleElement = within(modal)
+        .getByLabelText(genericMessages.modalEntityInfoLabelEntityTitle.defaultMessage);
+      userEvent.click(inputTitleElement);
+      userEvent.tab();
+    });
+
+    await waitFor(() => {
+      const modal = getByRole('dialog');
+      expect(
+        within(modal).getByText(genericMessages.modalEntityValidationTitleRequiredText.defaultMessage),
+      ).toBeInTheDocument();
+    });
+  });
+
+  it('shows an error message when the slug field is left empty', async () => {
+    const setModalOpen = jest.fn();
+
+    useBadges.mockImplementation(() => ({
+      badgesData: [],
+      isLoading: false,
+      isError: false,
+      isManageEntityModalOpen: false,
+      openManageEntityModal: setModalOpen,
+    }));
+
+    const { rerender, getByTestId, getByRole } = renderWithProviders(<Badges />);
+
+    const addNewBadgeBtn = getByTestId('add-badge-button');
+    userEvent.click(addNewBadgeBtn);
+
+    useBadges.mockImplementation(() => ({
+      badgesData: [],
+      isLoading: false,
+      isError: false,
+      isManageEntityModalOpen: true,
+      openManageEntityModal: setModalOpen,
+    }));
+
+    rerender(<Badges />);
+
+    await waitFor(async () => {
+      const modal = getByRole('dialog');
+      const inputSlugElement = within(modal)
+        .getByLabelText(genericMessages.modalEntityInfoLabelEntitySlugText.defaultMessage);
+      userEvent.click(inputSlugElement);
+      userEvent.tab();
+    });
+
+    await waitFor(() => {
+      const modal = getByRole('dialog');
+      expect(
+        within(modal).getByText(genericMessages.modalEntityValidationSlugRequiredText.defaultMessage),
+      ).toBeInTheDocument();
+    });
+  });
+
+  it('shows an error message when the description field is left empty', async () => {
+    const setModalOpen = jest.fn();
+
+    useBadges.mockImplementation(() => ({
+      badgesData: [],
+      isLoading: false,
+      isError: false,
+      isManageEntityModalOpen: false,
+      openManageEntityModal: setModalOpen,
+    }));
+
+    const { rerender, getByTestId, getByRole } = renderWithProviders(<Badges />);
+
+    const addNewBadgeBtn = getByTestId('add-badge-button');
+    userEvent.click(addNewBadgeBtn);
+
+    useBadges.mockImplementation(() => ({
+      badgesData: [],
+      isLoading: false,
+      isError: false,
+      isManageEntityModalOpen: true,
+      openManageEntityModal: setModalOpen,
+    }));
+
+    rerender(<Badges />);
+
+    await waitFor(async () => {
+      const modal = getByRole('dialog');
+      const inputDescriptionElement = within(modal)
+        .getByLabelText(genericMessages.modalEntityInfoLabelEntityDescriptionText.defaultMessage);
+      expect(inputDescriptionElement).toBeInTheDocument();
+      userEvent.click(inputDescriptionElement);
+      userEvent.tab();
+    });
+
+    await waitFor(() => {
+      const modal = getByRole('dialog');
+      expect(
+        within(modal).getByText(genericMessages.modalEntityValidationDescriptionRequiredText.defaultMessage),
+      ).toBeInTheDocument();
+    });
+  });
+
+  it('adds a new rule and verifies the modal content', async () => {
+    const setModalOpen = jest.fn();
+
+    useBadges.mockImplementation(() => ({
+      badgesData: [],
+      isLoading: false,
+      isError: false,
+      isManageEntityModalOpen: false,
+      openManageEntityModal: setModalOpen,
+    }));
+
+    const { rerender, getByTestId, getByRole } = renderWithProviders(<Badges />);
+
+    const addNewBadgeBtn = getByTestId('add-badge-button');
+    userEvent.click(addNewBadgeBtn);
+
+    useBadges.mockImplementation(() => ({
+      badgesData: [],
+      isLoading: false,
+      isError: false,
+      isManageEntityModalOpen: true,
+      openManageEntityModal: setModalOpen,
+    }));
+
+    rerender(<Badges />);
+
+    await waitFor(async () => {
+      const modal = getByRole('dialog');
+      const addNewRuleBtn = within(modal)
+        .getByRole('button', { name: genericMessages.modalEntityRulesAddNewRuleBtnText.defaultMessage });
+      userEvent.click(addNewRuleBtn);
+    });
+
+    await waitFor(async () => {
+      const modal = getByRole('dialog');
+      expect(within(modal)
+        .getByText(genericMessages.modalEntityRulesActionHeadingTitle.defaultMessage)).toBeInTheDocument();
+      expect(within(modal)
+        .getByText(
+          genericMessages.modalEntityActionEventNameLabelText.defaultMessage.replace('{eventType}', 'event type'),
+        )).toBeInTheDocument();
+      expect(within(modal)
+        .getByLabelText(genericMessages.modalEntityRulesRuleEventTypeLabel.defaultMessage)).toBeInTheDocument();
+      expect(within(modal)
+        .getByLabelText(genericMessages.modalEntityRulesRuleCountLabel.defaultMessage)).toBeInTheDocument();
+      expect(within(modal)
+        .getByText(genericMessages.modalEntityRulesFiltersHeadingTitle.defaultMessage)).toBeInTheDocument();
+      expect(within(modal)
+        .getByText(genericMessages.modalEntityRulesFiltersSelectTitle.defaultMessage)).toBeInTheDocument();
+      // Filters
+      expect(within(modal)
+        .getByText(genericMessages.modalEntityRulesRuleCourseLabel.defaultMessage)).toBeInTheDocument();
+      expect(within(modal)
+        .getByText(genericMessages.modalEntityOrganizationFilterTitle.defaultMessage)).toBeInTheDocument();
+      expect(within(modal).getByText(/Frequency/i)).toBeInTheDocument();
+      expect(within(modal).getByText(/Interval/i)).toBeInTheDocument();
+
+      expect(within(modal)
+        .getByRole('button', {
+          name: genericMessages.modalEntityRulesBtnDeleteText.defaultMessage,
+        })).toBeInTheDocument();
+    });
+  });
+
+  it('validates required action fields when adding a new rule', async () => {
+    const setModalOpen = jest.fn();
+
+    useBadges.mockImplementation(() => ({
+      badgesData: [],
+      isLoading: false,
+      isError: false,
+      isManageEntityModalOpen: false,
+      openManageEntityModal: setModalOpen,
+    }));
+
+    const { rerender, getByTestId, getByRole } = renderWithProviders(<Badges />);
+
+    const addNewBadgeBtn = getByTestId('add-badge-button');
+    userEvent.click(addNewBadgeBtn);
+
+    useBadges.mockImplementation(() => ({
+      badgesData: [],
+      isLoading: false,
+      isError: false,
+      isManageEntityModalOpen: true,
+      openManageEntityModal: setModalOpen,
+    }));
+
+    rerender(<Badges />);
+
+    await waitFor(async () => {
+      const modal = getByRole('dialog');
+      const addNewRuleBtn = within(modal)
+        .getByRole('button', { name: genericMessages.modalEntityRulesAddNewRuleBtnText.defaultMessage });
+      userEvent.click(addNewRuleBtn);
+    });
+
+    await waitFor(async () => {
+      const modal = getByRole('dialog');
+
+      expect(within(modal)
+        .getByText(
+          genericMessages.modalEntityActionEventNameLabelText.defaultMessage.replace('{eventType}', 'event type'),
+        )).toBeInTheDocument();
+      const eventTypeInput = within(modal)
+        .getByLabelText(genericMessages.modalEntityRulesRuleEventTypeLabel.defaultMessage);
+      userEvent.click(eventTypeInput);
+      userEvent.tab();
+    });
+
+    await waitFor(async () => {
+      const modal = getByRole('dialog');
+      expect(within(modal)
+        .getByText(
+          genericMessages.modalEntityValidationActionEventNameRequiredText.defaultMessage,
+        )).toBeInTheDocument();
+    });
+
+    await waitFor(async () => {
+      const modal = getByRole('dialog');
+      expect(within(modal)
+        .getByText(
+          genericMessages.modalEntityActionEventNameLabelText.defaultMessage.replace('{eventType}', 'event type'),
+        )).toBeInTheDocument();
+      const countInput = within(modal)
+        .getByLabelText(genericMessages.modalEntityRulesRuleCountLabel.defaultMessage);
+      userEvent.click(countInput);
+      userEvent.tab();
+    });
+
+    await waitFor(async () => {
+      const modal = getByRole('dialog');
+      expect(within(modal)
+        .getByText(genericMessages.modalEntityValidationActionCountRequiredText.defaultMessage)).toBeInTheDocument();
+    });
+  });
+
+  it('validates the course filter when adding a new rule', async () => {
+    const setModalOpen = jest.fn();
+
+    useBadges.mockImplementation(() => ({
+      badgesData: [],
+      isLoading: false,
+      isError: false,
+      isManageEntityModalOpen: false,
+      openManageEntityModal: setModalOpen,
+    }));
+
+    const { rerender, getByTestId, getByRole } = renderWithProviders(<Badges />);
+
+    const addNewBadgeBtn = getByTestId('add-badge-button');
+    userEvent.click(addNewBadgeBtn);
+
+    useBadges.mockImplementation(() => ({
+      badgesData: [],
+      isLoading: false,
+      isError: false,
+      isManageEntityModalOpen: true,
+      openManageEntityModal: setModalOpen,
+    }));
+
+    rerender(<Badges />);
+
+    await waitFor(async () => {
+      const modal = getByRole('dialog');
+      const addNewRuleBtn = within(modal)
+        .getByRole('button', { name: genericMessages.modalEntityRulesAddNewRuleBtnText.defaultMessage });
+      userEvent.click(addNewRuleBtn);
+    });
+
+    await waitFor(async () => {
+      const selectElement = getByTestId('add-filter-select');
+      userEvent.selectOptions(selectElement, ['course']);
+    });
+
+    await waitFor(async () => {
+      const modal = getByRole('dialog');
+      const courseSelectField = within(modal)
+        .getByText(genericMessages.modalEntityRulesFilterSelectTitle.defaultMessage.replace('{filterName}', 'Course'));
+      expect(
+        within(modal).getByRole('button', { name: genericMessages.modalEntityRulesBtnRemoveFilterText.defaultMessage }),
+      ).toBeInTheDocument();
+      userEvent.click(courseSelectField);
+      userEvent.tab();
+    });
+
+    await waitFor(async () => {
+      const modal = getByRole('dialog');
+      expect(within(modal).getByText(/course is required/i)).toBeInTheDocument();
+    });
+  });
+
+  it('validates the organization filter when adding a new rule', async () => {
+    const setModalOpen = jest.fn();
+
+    useBadges.mockImplementation(() => ({
+      badgesData: [],
+      isLoading: false,
+      isError: false,
+      isManageEntityModalOpen: false,
+      openManageEntityModal: setModalOpen,
+    }));
+
+    const { rerender, getByTestId, getByRole } = renderWithProviders(<Badges />);
+
+    const addNewBadgeBtn = getByTestId('add-badge-button');
+    userEvent.click(addNewBadgeBtn);
+
+    useBadges.mockImplementation(() => ({
+      badgesData: [],
+      isLoading: false,
+      isError: false,
+      isManageEntityModalOpen: true,
+      openManageEntityModal: setModalOpen,
+    }));
+
+    rerender(<Badges />);
+
+    await waitFor(async () => {
+      const modal = getByRole('dialog');
+      const addNewRuleBtn = within(modal)
+        .getByRole('button', { name: genericMessages.modalEntityRulesAddNewRuleBtnText.defaultMessage });
+      userEvent.click(addNewRuleBtn);
+    });
+
+    await waitFor(async () => {
+      const modal = getByRole('dialog');
+      const selectElement = within(modal).getByTestId('add-filter-select');
+      userEvent.selectOptions(selectElement, ['org']);
+    });
+
+    await waitFor(async () => {
+      const modal = getByRole('dialog');
+      const orgSelectField = within(modal)
+        .getByText(
+          genericMessages.modalEntityRulesFilterSelectTitle.defaultMessage.replace('{filterName}', 'Organization'),
+        );
+      expect(
+        within(modal).getByRole('button', {
+          name: genericMessages.modalEntityRulesBtnRemoveFilterText.defaultMessage,
+        }),
+      ).toBeInTheDocument();
+      userEvent.click(orgSelectField);
+      userEvent.tab();
+    });
+
+    await waitFor(async () => {
+      const modal = getByRole('dialog');
+      expect(within(modal).getByText(/org is required/i)).toBeInTheDocument();
+    });
+  });
+
+  it('validates the frequency filter when adding a new rule', async () => {
+    const setModalOpen = jest.fn();
+
+    useBadges.mockImplementation(() => ({
+      badgesData: [],
+      isLoading: false,
+      isError: false,
+      isManageEntityModalOpen: false,
+      openManageEntityModal: setModalOpen,
+    }));
+
+    const { rerender, getByTestId, getByRole } = renderWithProviders(<Badges />);
+
+    const addNewBadgeBtn = getByTestId('add-badge-button');
+    userEvent.click(addNewBadgeBtn);
+
+    useBadges.mockImplementation(() => ({
+      badgesData: [],
+      isLoading: false,
+      isError: false,
+      isManageEntityModalOpen: true,
+      openManageEntityModal: setModalOpen,
+    }));
+
+    rerender(<Badges />);
+
+    await waitFor(async () => {
+      const modal = getByRole('dialog');
+      const addNewRuleBtn = within(modal)
+        .getByRole('button', { name: genericMessages.modalEntityRulesAddNewRuleBtnText.defaultMessage });
+      userEvent.click(addNewRuleBtn);
+    });
+
+    await waitFor(async () => {
+      const modal = getByRole('dialog');
+      const selectElement = within(modal).getByTestId('add-filter-select');
+      userEvent.selectOptions(selectElement, ['frequency']);
+    });
+
+    await waitFor(async () => {
+      const modal = getByRole('dialog');
+      const frequencySelectField = within(modal).getByPlaceholderText('Frequency');
+      expect(
+        within(modal).getByRole('button', { name: genericMessages.modalEntityRulesBtnRemoveFilterText.defaultMessage }),
+      ).toBeInTheDocument();
+      userEvent.click(frequencySelectField);
+      userEvent.tab();
+    });
+
+    await waitFor(async () => {
+      const modal = getByRole('dialog');
+      expect(
+        within(modal).getByText(genericMessages.modalEntityValidationFrequencyPositiveNumberText.defaultMessage),
+      ).toBeInTheDocument();
+    });
+  });
+
+  it('check validation errors when required interval fields are not filled in the badge management modal', async () => {
+    const setModalOpen = jest.fn();
+
+    useBadges.mockImplementation(() => ({
+      badgesData: [],
+      isLoading: false,
+      isError: false,
+      isManageEntityModalOpen: false,
+      openManageEntityModal: setModalOpen,
+    }));
+
+    const { rerender, getByTestId, getByRole } = renderWithProviders(<Badges />);
+
+    const addNewBadgeBtn = getByTestId('add-badge-button');
+    userEvent.click(addNewBadgeBtn);
+
+    useBadges.mockImplementation(() => ({
+      badgesData: [],
+      isLoading: false,
+      isError: false,
+      isManageEntityModalOpen: true,
+      openManageEntityModal: setModalOpen,
+    }));
+
+    rerender(<Badges />);
+
+    await waitFor(async () => {
+      const modal = getByRole('dialog');
+      const addNewRuleBtn = within(modal)
+        .getByRole('button', { name: genericMessages.modalEntityRulesAddNewRuleBtnText.defaultMessage });
+      userEvent.click(addNewRuleBtn);
+    });
+
+    await waitFor(async () => {
+      const modal = getByRole('dialog');
+      const selectElement = within(modal).getByTestId('add-filter-select');
+      userEvent.selectOptions(selectElement, ['interval']);
+    });
+
+    await waitFor(async () => {
+      const modal = getByRole('dialog', { name: moduleMessages.addManageEntityModalTitle.defaultMessage });
+      const intervalStartDateDatePicker = within(modal)
+        .getByText(genericMessages.modalEntityRulesIntervalStartLabelText.defaultMessage);
+      expect(
+        within(modal).getByRole('button', { name: genericMessages.modalEntityRulesBtnRemoveFilterText.defaultMessage }),
+      ).toBeInTheDocument();
+      userEvent.click(intervalStartDateDatePicker);
+
+      const filtersHeading = within(modal).getByRole('heading', {
+        level: 2, name: genericMessages.modalEntityRulesFiltersHeadingTitle.defaultMessage,
+      });
+      userEvent.click(filtersHeading);
+    });
+
+    await waitFor(async () => {
+      const modal = getByRole('dialog', { name: moduleMessages.addManageEntityModalTitle.defaultMessage });
+      expect(within(modal)
+        .getByText(genericMessages.modalEntityValidationStartDateRequiredText.defaultMessage)).toBeInTheDocument();
+    });
+
+    await waitFor(async () => {
+      const modal = getByRole('dialog', { name: moduleMessages.addManageEntityModalTitle.defaultMessage });
+      const intervalEndDateDatePicker = within(modal)
+        .getByText(genericMessages.modalEntityRulesIntervalEndLabelText.defaultMessage);
+
+      expect(
+        within(modal).getByRole('button', { name: genericMessages.modalEntityRulesBtnRemoveFilterText.defaultMessage }),
+      ).toBeInTheDocument();
+      userEvent.click(intervalEndDateDatePicker);
+
+      const filtersHeading = within(modal).getByRole('heading', {
+        level: 2, name: genericMessages.modalEntityRulesFiltersHeadingTitle.defaultMessage,
+      });
+      userEvent.click(filtersHeading);
+    });
+
+    await waitFor(async () => {
+      const modal = getByRole('dialog', { name: moduleMessages.addManageEntityModalTitle.defaultMessage });
+      expect(within(modal)
+        .getByText(/is required/)).toBeInTheDocument();
+    });
+  });
+
+  it('check show date picker calendar', async () => {
+    const setModalOpen = jest.fn();
+
+    useBadges.mockImplementation(() => ({
+      badgesData: [],
+      isLoading: false,
+      isError: false,
+      isManageEntityModalOpen: false,
+      openManageEntityModal: setModalOpen,
+    }));
+
+    const { rerender, getByTestId, getByRole } = renderWithProviders(<Badges />);
+
+    const addNewBadgeBtn = getByTestId('add-badge-button');
+    userEvent.click(addNewBadgeBtn);
+
+    useBadges.mockImplementation(() => ({
+      badgesData: [],
+      isLoading: false,
+      isError: false,
+      isManageEntityModalOpen: true,
+      openManageEntityModal: setModalOpen,
+    }));
+
+    rerender(<Badges />);
+
+    await waitFor(async () => {
+      const modal = getByRole('dialog');
+      const addNewRuleBtn = within(modal)
+        .getByRole('button', { name: genericMessages.modalEntityRulesAddNewRuleBtnText.defaultMessage });
+      userEvent.click(addNewRuleBtn);
+    });
+
+    await waitFor(async () => {
+      const modal = getByRole('dialog');
+      const selectElement = within(modal).getByTestId('add-filter-select');
+      userEvent.selectOptions(selectElement, ['interval']);
+    });
+
+    await waitFor(async () => {
+      const modal = getByRole('dialog');
+      const intervalStartDateDatePicker = within(modal)
+        .getByText(genericMessages.modalEntityRulesIntervalStartLabelText.defaultMessage);
+      const intervalEndDateDatePicker = within(modal)
+        .getByText(genericMessages.modalEntityRulesIntervalEndLabelText.defaultMessage);
+      expect(intervalStartDateDatePicker).toBeInTheDocument();
+      expect(intervalEndDateDatePicker).toBeInTheDocument();
+      expect(
+        within(modal).getByRole('button', { name: genericMessages.modalEntityRulesBtnRemoveFilterText.defaultMessage }),
+      ).toBeInTheDocument();
+      userEvent.click(intervalStartDateDatePicker);
+      userEvent.tab();
+    });
+
+    await waitFor(async () => {
+      const datePickerCalendar = getByRole('dialog', { name: 'Choose Date' });
+
+      daysInTheWeek.forEach((day) => {
+        expect(within(datePickerCalendar).getByText(day)).toBeInTheDocument();
+      });
+    });
+
+    await waitFor(async () => {
+      const datePickerCalendar = getByRole('dialog', { name: 'Choose Date' });
+      const previousMonthBtn = within(datePickerCalendar).getByRole('button', { name: /Previous Month/i });
+      expect(within(datePickerCalendar).getByRole('heading', {
+        level: 2, name: /March 2025/i,
+      })).toBeInTheDocument();
+      userEvent.click(previousMonthBtn);
+    });
+
+    await waitFor(async () => {
+      const datePickerCalendar = getByRole('dialog', { name: 'Choose Date' });
+      expect(within(datePickerCalendar).getByRole('heading', {
+        level: 2, name: /February 2025/i,
+      })).toBeInTheDocument();
+    });
+  });
 });
 
 describe('fetchBadgesData API', () => {
@@ -139,13 +804,13 @@ describe('fetchBadgesData API', () => {
   });
 
   it('fetches badge data successfully from API', async () => {
-    axios.get.mockResolvedValueOnce({ data: badgesMocks.reverse() });
+    axios.get.mockResolvedValueOnce({ data: badgesMocks });
 
     const data = await fetchBadgesData();
 
     expect(axios.get).toHaveBeenCalledTimes(1);
     expect(axios.get).toHaveBeenCalledWith(API_ROUTES.BADGES);
-    expect(convertKeysToSnakeCase(data.reverse())).toEqual(badgesMocks);
+    expect(convertKeysToSnakeCase(data)).toEqual(badgesMocks);
   });
 
   it('throws an error when API request fails', async () => {

@@ -1,15 +1,14 @@
 import {
-  useState, useReducer, useRef, useEffect, useCallback,
+  useState, useReducer, useRef, useEffect,
 } from 'react';
 import { useToggle } from '@openedx/paragon';
-import { useMutation } from 'react-query';
 
 import { submitBtnStatuses } from '../../../generic';
 import {
   deleteBadge, useBadgesData, createBadge, useCoursesData,
-  useOrganizationsData, useActionsData,
+  useOrganizationsData, useActionsData, editBadge,
 } from '../data';
-import { DELETION_STATES, DEFAULT_DELAY } from '../constants';
+import { DELETION_STATES, DEFAULT_DELAY, TOAST_TYPES } from '../constants';
 import { deletionReducer } from '../reducers';
 import { setAutoClose } from '../utils';
 
@@ -39,10 +38,12 @@ export const useBadges = () => {
   const isLoading = isBadgesDataLoading || isCoursesDataLoading || isOrganizationsDataLoading || isActionsDataLoading;
   const isError = isBadgesDataError || isCoursesDataError || isOrganizationsDataError || isActionsDataError;
 
+  const [toast, setToast] = useState(null);
   const [showErrorAlert, setShowErrorAlert] = useState(false);
-  const [showBadgeCreatedAlert, setShowBadgeCreatedAlert] = useState(false);
-  const [showErrorToast, setShowErrorToast] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(submitBtnStatuses.DEFAULT);
+  const [editedBadgeData, setEditedBadgeData] = useState(null);
+  const [deletingBadgeId, setDeletingBadgeId] = useState(null);
+  const firstBadgeRef = useRef(null);
 
   const [isManageEntityModalOpen, openManageEntityModal, closeManageEntityModal] = useToggle(false);
   const [
@@ -50,59 +51,73 @@ export const useBadges = () => {
   ] = useToggle(false);
   const [deletionStatus, dispatchDeletionStatus] = useReducer(deletionReducer, DELETION_STATES.RESET);
 
-  const [deletingBadgeId, setDeletingBadgeId] = useState(null);
-
-  const firstBadgeRef = useRef(null);
-
-  useEffect(() => showBadgeCreatedAlert
-    && setAutoClose(setShowBadgeCreatedAlert, DEFAULT_DELAY), [showBadgeCreatedAlert]);
-  useEffect(() => showErrorAlert && setAutoClose(setShowErrorAlert, DEFAULT_DELAY), [showErrorAlert]);
-
   useEffect(() => {
-    if (firstBadgeRef.current && showBadgeCreatedAlert) {
-      requestAnimationFrame(() => {
-        firstBadgeRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      });
+    if (showErrorAlert) {
+      setAutoClose(setShowErrorAlert, DEFAULT_DELAY);
     }
-  }, [showBadgeCreatedAlert]);
+  }, [showErrorAlert]);
 
-  const handleCreateNewBadge = useCallback(async (values, resetForm, handleReset) => {
+  const showToast = (type) => {
+    setToast(type);
+    setAutoClose(() => setToast(null), DEFAULT_DELAY);
+  };
+
+  const handleCreateNewBadge = async (values, resetForm, handleReset) => {
     setSubmitStatus(submitBtnStatuses.PENDING);
     try {
       await createBadge(values);
       await refetchBadgesData();
-      setShowBadgeCreatedAlert(true);
+      showToast(TOAST_TYPES.BADGE.CREATED);
       handleReset(resetForm);
+
+      requestAnimationFrame(() => {
+        if (firstBadgeRef.current) {
+          firstBadgeRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      });
     } catch (error) {
-      setShowErrorToast(true);
+      showToast(TOAST_TYPES.ERROR);
     } finally {
       setSubmitStatus(submitBtnStatuses.DEFAULT);
     }
-  }, [createBadge, refetchBadgesData, setShowBadgeCreatedAlert, setShowErrorToast]);
+  };
+
+  const handleEditBadge = async (badgeId, values, resetForm, handleReset) => {
+    setSubmitStatus(submitBtnStatuses.PENDING);
+    try {
+      await editBadge(badgeId, values);
+      await refetchBadgesData();
+      showToast(TOAST_TYPES.BADGE.EDITED);
+      handleReset(resetForm);
+    } catch (error) {
+      showToast(TOAST_TYPES.ERROR);
+    } finally {
+      setSubmitStatus(submitBtnStatuses.DEFAULT);
+    }
+  };
 
   const handleCloseAlertError = () => {
     closeDeletionManageEntityModal();
     dispatchDeletionStatus({ type: DELETION_STATES.RESET });
   };
 
-  const mutation = useMutation({
-    mutationFn: deleteBadge,
-    onSuccess: () => {
-      refetchBadgesData();
-      dispatchDeletionStatus({ type: DELETION_STATES.SUCCESS });
-      handleCloseAlertError();
-    },
-    onError: () => {
-      dispatchDeletionStatus({ type: DELETION_STATES.ERROR });
-      setShowErrorAlert(true);
-      handleCloseAlertError();
-    },
-  });
-
-  const handleDeleteBadgeById = () => {
+  const handleDeleteBadgeById = async () => {
     dispatchDeletionStatus({ type: DELETION_STATES.START });
-    if (deletingBadgeId) {
-      mutation.mutate(deletingBadgeId);
+
+    if (!deletingBadgeId) {
+      return;
+    }
+
+    try {
+      await deleteBadge(deletingBadgeId);
+      await refetchBadgesData();
+      dispatchDeletionStatus({ type: DELETION_STATES.SUCCESS });
+      showToast(TOAST_TYPES.BADGE.DELETED);
+    } catch (error) {
+      dispatchDeletionStatus({ type: DELETION_STATES.ERROR });
+      showToast(TOAST_TYPES.ERROR);
+    } finally {
+      handleCloseAlertError();
     }
   };
 
@@ -112,23 +127,25 @@ export const useBadges = () => {
   };
 
   return {
+    toast,
     isError,
+    showToast,
     isLoading,
     badgesData,
     actionsData,
     coursesData,
-    firstBadgeRef,
     submitStatus,
+    firstBadgeRef,
     showErrorAlert,
-    showErrorToast,
     deletionStatus,
+    editedBadgeData,
+    handleEditBadge,
     setSubmitStatus,
-    setShowErrorToast,
     setShowErrorAlert,
     organizationsData,
+    setEditedBadgeData,
     handleCreateNewBadge,
     openManageEntityModal,
-    showBadgeCreatedAlert,
     handleDeleteBadgeById,
     closeManageEntityModal,
     isManageEntityModalOpen,

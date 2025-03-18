@@ -75,7 +75,7 @@ export const transformActions = (rules) => rules.map((rule) => {
     return {
       ...rule,
       action: { [eventType]: count },
-      eventConfiguration: id ?? null,
+      eventConfiguration: id ?? rule.eventConfiguration ?? null,
     };
   }
   return rule;
@@ -210,6 +210,12 @@ export const convertKeysToCamelCase = (data) => transformObjectKeys(data, toCame
  */
 export const convertKeysToSnakeCase = (data) => transformObjectKeys(data, toSnakeCase);
 
+/**
+ * Logs an error message along with the error object to the console.
+ *
+ * @param {string} message - The error message to log.
+ * @param {Error} [error] - The optional error object providing more details.
+ */
 export const logError = (message, error) => {
   console.error(`${message}`, error); // eslint-disable-line no-console
 };

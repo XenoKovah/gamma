@@ -10,8 +10,10 @@ module.exports = [
       {
         id: 1,
         action: {
-          test: 'test',
+          count: 'test',
+          eventType: 'count',
         },
+        event_configuration: null,
         filters: {
           test: 'test',
         },
@@ -29,8 +31,10 @@ module.exports = [
       {
         id: 1,
         action: {
-          test: 'test',
+          count: 'test',
+          eventType: 'count',
         },
+        event_configuration: null,
         filters: {
           test: 'test',
         },

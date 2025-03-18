@@ -73,13 +73,28 @@ const messages = defineMessages({
   },
   badgeCreatedTitle: {
     id: 'modules.badges.alert.badge-created.title',
-    defaultMessage: 'Значок створено',
+    defaultMessage: 'Значок успішно створено',
     description: 'Заголовок для сповіщення, коли значок успішно створено.',
   },
-  badgeCreatedDescription: {
-    id: 'modules.badges.alert.badge-created.description',
-    defaultMessage: 'Значок було успішно створено.',
-    description: 'Опис для сповіщення, коли значок успішно створено.',
+  badgeEditedTitle: {
+    id: 'modules.badges.alert.badge-edited.title',
+    defaultMessage: 'Значок успішно відредаговано',
+    description: 'Заголовок для сповіщення, коли значок успішно відредаговано.',
+  },
+  badgeDeletedTitle: {
+    id: 'modules.badges.alert.badge-deleted.title',
+    defaultMessage: 'Значок успішно видалено',
+    description: 'Заголовок для сповіщення, коли значок успішно видалено.',
+  },
+  badgeDraftStatusText: {
+    id: 'modules.badges.badge.draft.status.text',
+    defaultMessage: 'Чернетка',
+    description: 'Текст, який відображається для статусу значка, коли він перебуває в режимі чернетки.',
+  },
+  badgeActiveStatusText: {
+    id: 'modules.badges.badge.active.status.text',
+    defaultMessage: 'Активний',
+    description: 'Текст, який відображається для статусу значка, коли він активний.',
   },
 });
 

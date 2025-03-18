@@ -74,13 +74,28 @@ const messages = defineMessages({
   },
   badgeCreatedTitle: {
     id: 'modules.badges.alert.badge-created.title',
-    defaultMessage: 'Badge created',
+    defaultMessage: 'Badge successfully created',
     description: 'The title for the alert when a badge is successfully created.',
   },
-  badgeCreatedDescription: {
-    id: 'modules.badges.alert.badge-created.description',
-    defaultMessage: 'The badge has been successfully created.',
-    description: 'The description for the alert when a badge is successfully created.',
+  badgeEditedTitle: {
+    id: 'modules.badges.alert.badge-edited.title',
+    defaultMessage: 'Badge successfully edited',
+    description: 'The title for the alert when a badge is successfully edited.',
+  },
+  badgeDeletedTitle: {
+    id: 'modules.badges.alert.badge-deleted.title',
+    defaultMessage: 'Badge successfully deleted',
+    description: 'The title for the alert when a badge is successfully deleted.',
+  },
+  badgeDraftStatusText: {
+    id: 'modules.badges.badge.draft.status.text',
+    defaultMessage: 'Draft',
+    description: 'The text displayed for the badge status when it is in draft mode.',
+  },
+  badgeActiveStatusText: {
+    id: 'modules.badges.badge.active.status.text',
+    defaultMessage: 'Active',
+    description: 'The text displayed for the badge status when it is active.',
   },
 });
 

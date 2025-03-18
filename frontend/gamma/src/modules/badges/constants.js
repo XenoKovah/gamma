@@ -6,3 +6,12 @@ export const DELETION_STATES = {
 };
 
 export const DEFAULT_DELAY = 5000;
+
+export const TOAST_TYPES = {
+  BADGE: {
+    CREATED: 'created',
+    EDITED: 'edited',
+    DELETED: 'deleted',
+  },
+  ERROR: 'error',
+};

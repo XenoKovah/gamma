@@ -9,7 +9,7 @@ import FormInputController from './FormInputController';
 
 const EntityInfo = () => {
   const intl = useIntl();
-  const { initialValues, handleChange } = useFormikContext();
+  const { values, initialValues, handleChange } = useFormikContext();
   const isExtraSmall = useMediaQuery({ maxWidth: breakpoints.extraSmall.maxWidth });
 
   const handleCheckboxChange = (event) => {
@@ -42,6 +42,7 @@ const EntityInfo = () => {
         <Form.Group className="mb-4" controlId="formEntityActive">
           <Form.Checkbox
             className="manage-entity-modal-information-is-active"
+            checked={values.isActive}
             onChange={handleCheckboxChange}
           >
             {intl.formatMessage(messages.modalEntityInfoLabelEntityIsActiveText)}

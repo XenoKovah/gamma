@@ -4,22 +4,32 @@ import { useIntl } from 'react-intl';
 
 import { AlertComponent } from '../../../../generic';
 import messages from '../../i18n';
+import { sortByDate } from '../../utils';
 import BadgeItem from './badge-item';
 
-const BadgesList = ({ badgesData, openConfirmDeletionAlert, firstBadgeRef }) => {
+const BadgesList = ({
+  badgesData,
+  openConfirmDeletionAlert,
+  firstBadgeRef,
+  handleOpenManageEntityModal,
+}) => {
   const intl = useIntl();
+
+  const sortedBadges = sortByDate(badgesData, 'createdAt', true);
 
   return (
     <ul className="list-unstyled p-0">
-      {badgesData.length ? (
-        badgesData.map((badge, index) => (
+      {sortedBadges.length ? (
+        sortedBadges.map((badge, index) => (
           <li key={badge.id} ref={index === 0 ? firstBadgeRef : null}>
             <BadgeItem
               title={badge.title}
               description={badge.description}
               image={badge.image}
               slug={badge.slug}
+              isActive={badge.isActive}
               openConfirmDeletionAlert={() => openConfirmDeletionAlert(badge.id)}
+              handleOpenManageEntityModal={() => handleOpenManageEntityModal(badge.id)}
             />
           </li>
         ))
@@ -48,6 +58,7 @@ BadgesList.propTypes = {
   ).isRequired,
   openConfirmDeletionAlert: PropTypes.func,
   firstBadgeRef: PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
+  handleOpenManageEntityModal: PropTypes.func.isRequired,
 };
 
 BadgesList.defaultProps = {
