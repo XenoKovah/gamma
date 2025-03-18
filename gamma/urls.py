@@ -47,6 +47,7 @@ urlpatterns = [
     path('api/', include('badges.urls')),
     path('api/', include('events.urls')),
     path('api/', include('avatars.urls')),
+    path('api/', include('users.urls')),
 
     # Gamma React routes
     path('gamma/<path:subpath>/', GammaView.as_view(), name='gamma_react_app'),
