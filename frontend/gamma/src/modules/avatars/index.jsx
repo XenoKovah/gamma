@@ -15,6 +15,7 @@ import {
 
 import { useAvatarSets } from './hooks/useAvatarSets';
 import { AvatarSetList, AvatarSetStepper } from './components';
+import { DEFAULT_DELAY } from './constants';
 
 import genericMessages from '../../i18n';
 import moduleMessages from './i18n';
@@ -41,6 +42,8 @@ export const Avatars = () => {
     handleUpdateAvatar,
     handleUpdateAvatarSet,
     handleFinishAvatarSet,
+    isEditStepperMode,
+    setIsEditStepperMode,
     openConfirmDeletionModal,
     handleCreateNewAvatarSet,
     openManageAvatarSetModal,
@@ -50,6 +53,10 @@ export const Avatars = () => {
     closeDeletionAvatarSetModal,
     isDeletionAvatarSetModalOpen,
   } = useAvatarSets();
+
+  const avatarSetStepperTitle = isEditStepperMode
+    ? intl.formatMessage(moduleMessages.avatarSetStepperEditTitle)
+    : intl.formatMessage(moduleMessages.avatarSetStepperTitle);
 
   useEffect(() => {
     if (showErrorAlert || isError) {
@@ -71,6 +78,11 @@ export const Avatars = () => {
 
   const alertProps = errorAlert || null;
 
+  const handleOpenManageAvatarSetModal = () => {
+    openManageAvatarSetModal();
+    setIsEditStepperMode(false);
+  };
+
   return (
     <>
       <Header />
@@ -80,6 +92,7 @@ export const Avatars = () => {
           description={intl.formatMessage(moduleMessages.pageDescription)}
         />
         <AvatarSetStepper
+          avatarSetStepperTitle={avatarSetStepperTitle}
           isManageAvatarSetModalOpen={isManageAvatarSetModalOpen}
           closeManageAvatarSetModal={closeManageAvatarSetModal}
           handleCreateNewAvatarSet={handleCreateNewAvatarSet}
@@ -115,7 +128,7 @@ export const Avatars = () => {
                 { avatarSetsCount: avatarSetsData?.length || 0 },
               )
             }
-            onClick={openManageAvatarSetModal}
+            onClick={handleOpenManageAvatarSetModal}
           />
           {alertProps && <AlertComponent {...alertProps} />}
           {activeToast && (
@@ -125,7 +138,7 @@ export const Avatars = () => {
               text={activeToast.text}
               isShow
               onClose={activeToast.onClose}
-              delay={1000}
+              delay={DEFAULT_DELAY}
             />
           )}
           {!isError && (
@@ -134,11 +147,12 @@ export const Avatars = () => {
                 avatarSetsData={avatarSetsData}
                 openConfirmDeletionModal={openConfirmDeletionModal}
                 openManageAvatarSetModal={openManageAvatarSetModal}
+                setIsEditStepperMode={setIsEditStepperMode}
               />
               <Button
                 block
                 data-testid="add-avatar-set-button"
-                onClick={openManageAvatarSetModal}
+                onClick={handleOpenManageAvatarSetModal}
               >
                 {intl.formatMessage(moduleMessages.addAvatarSetBtnText)}
               </Button>

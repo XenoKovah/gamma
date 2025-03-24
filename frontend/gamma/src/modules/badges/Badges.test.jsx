@@ -37,6 +37,8 @@ describe('Badges Component', () => {
       badgesData: [],
       actionsData: [],
       coursesData: [],
+      isEditManageEntityModal: false,
+      setIsEditManageEntityModal: jest.fn(),
       firstBadgeRef: null,
       submitStatus: submitBtnStatuses.DEFAULT,
       showErrorAlert: false,
@@ -715,6 +717,39 @@ describe('Badges Component', () => {
       const modal = getByRole('dialog', { name: moduleMessages.addManageEntityModalTitle.defaultMessage });
       expect(within(modal)
         .getByText(/is required/)).toBeInTheDocument();
+    });
+  });
+
+  it('displays the correct modal title when isEditModal is true', async () => {
+    const setModalOpen = jest.fn();
+
+    useBadges.mockImplementation(() => ({
+      badgesData: [],
+      isLoading: false,
+      isError: false,
+      isManageEntityModalOpen: false,
+      openManageEntityModal: setModalOpen,
+    }));
+
+    const { rerender, getByTestId, getByRole } = renderWithProviders(<Badges />);
+
+    const addNewBadgeBtn = getByTestId('add-badge-button');
+    userEvent.click(addNewBadgeBtn);
+
+    useBadges.mockImplementation(() => ({
+      badgesData: [],
+      isLoading: false,
+      isError: false,
+      isManageEntityModalOpen: true,
+      openManageEntityModal: setModalOpen,
+      isEditManageEntityModal: true,
+    }));
+
+    rerender(<Badges />);
+
+    await waitFor(async () => {
+      const modal = getByRole('dialog', { name: moduleMessages.editManageEntityModalTitle.defaultMessage });
+      expect(modal).toBeInTheDocument();
     });
   });
 

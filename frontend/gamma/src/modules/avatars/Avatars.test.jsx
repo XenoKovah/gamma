@@ -59,6 +59,8 @@ describe('Avatars', () => {
     handleUpdateAvatar: jest.fn(),
     handleDeleteAvatar: jest.fn(),
     handleUpdateAvatarSet: jest.fn(),
+    setIsEditStepperMode: jest.fn(),
+    isEditStepperMode: false,
     ...overrides,
   });
 
@@ -206,6 +208,27 @@ describe('Avatars', () => {
 
   describe('Avatar set stepper', () => {
     describe('Title step', () => {
+      it('displays the correct modal title when isEditStepperMode is true', async () => {
+        const { rerender, getByTestId, getByRole } = renderWithProviders(<Avatars />);
+
+        await act(async () => {
+          userEvent.click(getByTestId('add-avatar-set-button'));
+        });
+
+        useAvatarSets.mockReturnValue(getMockedUseAvatarSets({
+          isManageAvatarSetModalOpen: true, isEditStepperMode: true,
+        }));
+
+        rerender(<Avatars />);
+
+        await waitFor(() => {
+          const avatarSetStepper = getByRole('dialog', {
+            name: moduleMessages.avatarSetStepperEditTitle.defaultMessage,
+          });
+          expect(avatarSetStepper).toBeInTheDocument();
+        });
+      });
+
       it('opens the avatar set stepper and displays all expected elements', async () => {
         const { rerender, getByTestId, getByRole } = renderWithProviders(<Avatars />);
 

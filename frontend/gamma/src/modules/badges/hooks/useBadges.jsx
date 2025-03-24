@@ -44,6 +44,7 @@ export const useBadges = () => {
   const [editedBadgeData, setEditedBadgeData] = useState(null);
   const [deletingBadgeId, setDeletingBadgeId] = useState(null);
   const firstBadgeRef = useRef(null);
+  const [isEditManageEntityModal, setIsEditManageEntityModal] = useState(false);
 
   const [isManageEntityModalOpen, openManageEntityModal, closeManageEntityModal] = useToggle(false);
   const [
@@ -135,6 +136,8 @@ export const useBadges = () => {
     actionsData,
     coursesData,
     submitStatus,
+    isEditManageEntityModal,
+    setIsEditManageEntityModal,
     firstBadgeRef,
     showErrorAlert,
     deletionStatus,

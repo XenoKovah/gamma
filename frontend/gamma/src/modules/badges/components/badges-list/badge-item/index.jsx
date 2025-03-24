@@ -34,7 +34,7 @@ const BadgeItem = ({
         <Button onClick={handleOpenManageEntityModal}>
           {intl.formatMessage(messages.badgeEditBtnTitle)}
         </Button>
-        <Button variant="danger" onClick={openConfirmDeletionAlert}>
+        <Button variant="tertiary" onClick={openConfirmDeletionAlert}>
           {intl.formatMessage(messages.badgeDeleteBtnTitle)}
         </Button>
       </Card.Footer>

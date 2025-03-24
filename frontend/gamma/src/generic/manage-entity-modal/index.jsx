@@ -115,7 +115,6 @@ const ManageEntityModal = ({
           isOpen={isManageEntityModalOpen}
           handleClose={() => handleReset(resetForm)}
           size="lg"
-          variant="dark"
           hasCloseButton
           isFullscreenOnMobile
           isOverflowVisible={false}

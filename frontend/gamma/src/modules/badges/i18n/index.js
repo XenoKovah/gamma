@@ -56,6 +56,11 @@ const messages = defineMessages({
     defaultMessage: 'Add new badge',
     description: 'The title for the badge modal.',
   },
+  editManageEntityModalTitle: {
+    id: 'modules.badges.modal.edit-badge.title',
+    defaultMessage: 'Edit badge',
+    description: 'The title for the edit badge modal.',
+  },
   confirmDeletionModalTitle: {
     id: 'modules.badges.alert.modal.confirm.deletion.title',
     defaultMessage: 'Confirm deletion',

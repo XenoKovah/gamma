@@ -39,10 +39,16 @@ export const Badges = () => {
     closeManageEntityModal,
     isManageEntityModalOpen,
     openConfirmDeletionAlert,
+    isEditManageEntityModal,
+    setIsEditManageEntityModal,
     closeDeletionManageEntityModal,
     isDeletionManageEntityModalOpen,
   } = useBadges();
   const intl = useIntl();
+
+  const manageEntityModalTitle = isEditManageEntityModal
+    ? intl.formatMessage(moduleMessages.editManageEntityModalTitle)
+    : intl.formatMessage(moduleMessages.addManageEntityModalTitle);
 
   if (isLoading) {
     return <Loader />;
@@ -85,11 +91,13 @@ export const Badges = () => {
     openManageEntityModal();
     const badge = badgesData.find((badgeItem) => badgeItem.id === badgeId);
     setEditedBadgeData(badge);
+    setIsEditManageEntityModal(true);
   };
 
   const handleResetManageEntityModal = () => {
     closeManageEntityModal();
     setEditedBadgeData(null);
+    setIsEditManageEntityModal(false);
   };
 
   return (
@@ -107,7 +115,7 @@ export const Badges = () => {
         />
         <ManageEntityModal
           isManageEntityModalOpen={isManageEntityModalOpen}
-          title={intl.formatMessage(moduleMessages.addManageEntityModalTitle)}
+          title={manageEntityModalTitle}
           data={{
             entityData: editedBadgeData,
             courses: coursesData?.courses || [],

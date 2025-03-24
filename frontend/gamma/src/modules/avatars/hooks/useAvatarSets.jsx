@@ -62,6 +62,7 @@ export const useAvatarSets = () => {
   const [submitStatus, setSubmitStatus] = useState(submitBtnStatuses.DEFAULT);
   const [showAvatarSetCreatedSuccessfully, setShowAvatarSetCreatedSuccessfully] = useState(false);
   const [showAvatarSetDeletedSuccessfully, setShowAvatarSetDeletedSuccessfully] = useState(false);
+  const [isEditStepperMode, setIsEditStepperMode] = useState(false);
 
   const [
     isDeletionAvatarSetModalOpen, openDeletionAvatarSetModal, closeDeletionAvatarSetModal,
@@ -251,6 +252,8 @@ export const useAvatarSets = () => {
     handleUpdateAvatar,
     handleUpdateAvatarSet,
     handleFinishAvatarSet,
+    isEditStepperMode,
+    setIsEditStepperMode,
     openConfirmDeletionModal,
     handleCreateNewAvatarSet,
     openManageAvatarSetModal,

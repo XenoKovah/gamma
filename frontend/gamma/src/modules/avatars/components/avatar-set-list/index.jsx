@@ -9,7 +9,12 @@ import { sortByDate } from '../../utils';
 import AvatarSetItem from './avatar-set-item';
 import { avatarsPropTypes } from './propTypes';
 
-const AvatarSetList = ({ avatarSetsData, openConfirmDeletionModal, openManageAvatarSetModal }) => {
+const AvatarSetList = ({
+  avatarSetsData,
+  openConfirmDeletionModal,
+  openManageAvatarSetModal,
+  setIsEditStepperMode,
+}) => {
   const intl = useIntl();
 
   if (!avatarSetsData.length) {
@@ -35,6 +40,7 @@ const AvatarSetList = ({ avatarSetsData, openConfirmDeletionModal, openManageAva
           avatarSetData={avatarSet}
           openConfirmDeletionModal={openConfirmDeletionModal}
           openManageAvatarSetModal={openManageAvatarSetModal}
+          setIsEditStepperMode={setIsEditStepperMode}
         />
       ))}
     </CardGrid>
@@ -56,6 +62,7 @@ AvatarSetList.propTypes = {
   ).isRequired,
   openConfirmDeletionModal: PropTypes.func.isRequired,
   openManageAvatarSetModal: PropTypes.func.isRequired,
+  setIsEditStepperMode: PropTypes.func.isRequired,
 };
 
 export default AvatarSetList;

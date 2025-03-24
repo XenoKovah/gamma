@@ -10,6 +10,8 @@ import { avatarSetsMocks } from '../../../__mocks__';
 import messages from '../../../i18n';
 import AvatarSetItem from '.';
 
+import { convertKeysToCamelCase } from '../../../data';
+
 jest.mock('../../../hooks/useAvatarSets', () => ({
   useAvatarSets: jest.fn(),
 }));
@@ -35,7 +37,8 @@ describe('AvatarSetItem', () => {
   const defaultProps = {
     openConfirmDeletionModal: jest.fn(),
     openManageAvatarSetModal: jest.fn(),
-    avatarSetData: avatarSetsMocks[1],
+    avatarSetData: convertKeysToCamelCase(avatarSetsMocks[1]),
+    setIsEditStepperMode: jest.fn(),
   };
 
   const renderComponent = (props = {}) => renderWithProviders(<AvatarSetItem {...defaultProps} {...props} />);
@@ -51,7 +54,7 @@ describe('AvatarSetItem', () => {
 
   it('renders with default translations and avatar set img when props are missing', () => {
     const { getByRole } = renderComponent({
-      avatarSetData: { ...avatarSetsMocks[1], avatars: [] },
+      avatarSetData: { ...avatarSetsMocks[1], avatars: [], isDraft: false },
     });
 
     // Image placeholder
@@ -85,7 +88,7 @@ describe('AvatarSetItem', () => {
 
   it('renders with default image when avatar set has no avatars', () => {
     const { getByRole } = renderComponent({
-      avatarSetData: { ...avatarSetsMocks[1], avatars: [] },
+      avatarSetData: { ...avatarSetsMocks[1], avatars: [], isDraft: false },
     });
 
     expect(getByRole('img')).toHaveAttribute('src', expect.stringContaining('test-file-stub'));
@@ -96,6 +99,7 @@ describe('AvatarSetItem', () => {
     const avatarSetData = {
       ...avatarSetsMocks[1],
       avatars: [{ id: 1, image: 'old-avatar.jpg' }, latestAvatar],
+      isDraft: false,
     };
 
     const { getByRole } = renderComponent({ avatarSetData });

@@ -22,6 +22,7 @@ export const AvatarSetStepper = ({
   organizationsData,
   handleUpdateAvatar,
   handleDeleteAvatar,
+  avatarSetStepperTitle,
   handleCreateNewAvatarSet,
   closeManageAvatarSetModal,
   isManageAvatarSetModalOpen,
@@ -79,7 +80,7 @@ export const AvatarSetStepper = ({
   return (
     <Stepper key={stepperKey} activeKey={currentStep}>
       <FullscreenModal
-        title={intl.formatMessage(moduleMessages.avatarSetStepperTitle)}
+        title={avatarSetStepperTitle}
         className="avatar-set-stepper"
         // Prevents modal closure on outside clicks,
         // including interactions with floating notifications.
@@ -88,6 +89,7 @@ export const AvatarSetStepper = ({
         isOpen={isManageAvatarSetModalOpen}
         onClose={closeManageAvatarSetModal}
         isOverflowVisible
+        variant="default"
         beforeBodyNode={<Stepper.Header className="border-bottom border-light" />}
       >
         <Container className="avatar-set-stepper-container" size="md">
@@ -138,6 +140,7 @@ export const AvatarSetStepper = ({
 };
 
 AvatarSetStepper.propTypes = {
+  avatarSetStepperTitle: PropTypes.string.isRequired,
   isManageAvatarSetModalOpen: PropTypes.bool.isRequired,
   closeManageAvatarSetModal: PropTypes.func.isRequired,
   handleCreateNewAvatarSet: PropTypes.func.isRequired,

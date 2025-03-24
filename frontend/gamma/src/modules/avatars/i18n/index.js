@@ -136,6 +136,11 @@ const messages = defineMessages({
     defaultMessage: 'Add new avatar set',
     description: 'The title for the avatar set stepper.',
   },
+  avatarSetStepperEditTitle: {
+    id: 'modules.avatars.avatar-set.stepper.edit-avatar-set.title',
+    defaultMessage: 'Edit avatar set',
+    description: 'The title for the edit avatar set stepper.',
+  },
   avatarSetStepperValidationTitleRequired: {
     id: 'modules.avatars.avatar-set.stepper.validation.title-required',
     defaultMessage: 'Title is required',

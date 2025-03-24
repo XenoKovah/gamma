@@ -11,7 +11,7 @@ import messages from '../../../i18n';
 import imagePlaceholder from '../../../assets/images/not-found.jpg';
 
 const AvatarSetItem = ({
-  openConfirmDeletionModal, openManageAvatarSetModal, avatarSetData,
+  openConfirmDeletionModal, openManageAvatarSetModal, avatarSetData, setIsEditStepperMode,
 }) => {
   const intl = useIntl();
   const { setCurrentAvatarSetData } = useAvatarsContext();
@@ -35,6 +35,7 @@ const AvatarSetItem = ({
 
   const handleOpenManageAvatarSetModal = (avatarSetParams) => {
     openManageAvatarSetModal();
+    setIsEditStepperMode(true);
     setCurrentAvatarSetData(avatarSetParams);
   };
 
@@ -61,6 +62,7 @@ AvatarSetItem.propTypes = {
     avatars: PropTypes.arrayOf(avatarsPropTypes).isRequired,
     isDraft: PropTypes.bool.isRequired,
   }).isRequired,
+  setIsEditStepperMode: PropTypes.func.isRequired,
 };
 
 export default AvatarSetItem;

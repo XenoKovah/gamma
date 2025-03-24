@@ -56,6 +56,11 @@ const messages = defineMessages({
     defaultMessage: 'Додати новий значок',
     description: 'Заголовок модального вікна для додавання значків.',
   },
+  editManageEntityModalTitle: {
+    id: 'modules.badges.modal.edit-badge.title',
+    defaultMessage: 'Рудагувати значок',
+    description: 'Заголовок модального вікна для редагування значків.',
+  },
   confirmDeletionModalTitle: {
     id: 'modules.badges.alert.modal.confirm.deletion.title',
     defaultMessage: 'Підтвердження видалення',
