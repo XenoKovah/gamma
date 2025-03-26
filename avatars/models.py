@@ -19,6 +19,8 @@ class Avatar(TimestampModelMixin, models.Model):
     )
     rules = models.ManyToManyField('rules.Rule', blank=True)
 
+    stage = models.PositiveIntegerField(blank=True, null=True, default=None)
+
     def __str__(self):
         rules = ', '.join(str(rule.action) for rule in self.rules.all()) if self.rules.exists() else 'No rules'
         return f'Avatar {self.title!r} with rules {rules}'
@@ -48,6 +50,12 @@ class AvatarSet(TimestampModelMixin, models.Model):
     class Meta:
         verbose_name = _('Avatar Set')
         verbose_name_plural = _('Avatar Sets')
+
+    def get_ordered_avatar_ids_from_set(self):
+        """
+        Get ordered list with avatars ids from definite AvatarSet.
+        """
+        return list(self.avatars.order_by('-stage').values_list('id', flat=True))
 
 
 class UserAvatarConfig(models.Model):

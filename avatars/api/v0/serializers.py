@@ -11,9 +11,11 @@ from avatars.constants import (
     INVALID_FILE_FORMAT,
     SVG_EXTENSION
 )
-from avatars.models import Avatar, AvatarSet
+from avatars.models import Avatar, AvatarSet, UserAvatarConfig
 from rules.models import Rule
 from rules.serializers import RuleSerializer
+from users.models import GammaUser
+from users.utils import get_received_user_avatars_ids
 
 
 class Base64SVGField(Base64FileField):
@@ -58,7 +60,7 @@ class AvatarSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Avatar
-        fields = ('id', 'title', 'description', 'image', 'rules', 'existent_id', 'created_at')
+        fields = ('id', 'title', 'description', 'image', 'rules', 'existent_id', 'stage', 'created_at')
         read_only_fields = ('created_at',)
 
     def update(self, instance, validated_data):
@@ -131,6 +133,7 @@ class AvatarSetSerializer(serializers.ModelSerializer):
                         'title': av.get('title'),
                         'description': av.get('description'),
                         'image': av.get('image'),
+                        'stage': av.get('stage'),
                     }
                 )
                 avatar_instances.append(avatar_instance)
@@ -156,3 +159,69 @@ class AvatarSetSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(AVATAR_SET_DUPLICATE_TITLE_ERROR)
 
         return value
+
+
+class UserAvatarConfigSerializer(serializers.ModelSerializer):
+    """
+
+    """
+
+    gamma_user_id = serializers.PrimaryKeyRelatedField(
+        source='user', queryset=GammaUser.objects.all()
+    )
+    selected_avatar_id = serializers.PrimaryKeyRelatedField(
+        source='selected_avatar', queryset=Avatar.objects.all(), allow_null=True, required=False
+    )
+    selected_avatar_set_id = serializers.PrimaryKeyRelatedField(
+        source='avatar_set', queryset=AvatarSet.objects.all(), allow_null=True, required=False
+    )
+
+    class Meta:
+        model = UserAvatarConfig
+        fields = ('id', 'gamma_user_id', 'selected_avatar_id', 'selected_avatar_set_id')
+
+        read_only_fields = ('selected_avatar_id',)
+
+    def create(self, validated_data):
+        """
+        Add `selected_avatar_id` to User Avatar Set config if it exists.
+        """
+        user_avatar_config = super().create(validated_data)
+
+        gamma_user = validated_data.pop('user', None)
+        selected_avatar_set = validated_data.pop('avatar_set', None)
+
+        latest_user_avatar_id = self.get_latest_user_avatar_id_for_set(selected_avatar_set, gamma_user)
+        user_avatar_config.selected_avatar_id = latest_user_avatar_id
+        user_avatar_config.save()
+
+        return user_avatar_config
+
+    def update(self, instance, validated_data):
+        """
+        Add `selected_avatar_id` to User Avatar Set config if it exists.
+        """
+        instance = super().update(instance, validated_data)
+
+        gamma_user = validated_data.pop('user', None)
+        selected_avatar_set = validated_data.pop('avatar_set', None)
+
+        latest_user_avatar_id = self.get_latest_user_avatar_id_for_set(selected_avatar_set, gamma_user)
+        instance.selected_avatar_id = latest_user_avatar_id
+        instance.save()
+
+        return instance
+
+    def get_latest_user_avatar_id_for_set(self, avatar_set=None, gamma_user=None):
+        """
+        Get latest received user's Avatar id for given AvatarSet.
+        """
+        if avatar_set and gamma_user:
+            ordered_avatar_ids = avatar_set.get_ordered_avatar_ids_from_set()
+            received_user_avatars_ids = get_received_user_avatars_ids(gamma_user.user_uid)
+
+            for avatar_id in ordered_avatar_ids:
+                if avatar_id in received_user_avatars_ids:
+                    return avatar_id
+
+        return None

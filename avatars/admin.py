@@ -5,7 +5,7 @@ from avatars.models import Avatar, AvatarSet, UserAvatarConfig
 
 @admin.register(Avatar)
 class AvatarAdmin(admin.ModelAdmin):
-    list_display = ('title', 'description', 'rule_actions', 'id')
+    list_display = ('title', 'description', 'rule_actions', 'stage', 'id')
     search_fields = ('title',)
     filter_horizontal = ('rules',)
 

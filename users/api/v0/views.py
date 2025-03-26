@@ -8,6 +8,7 @@ from core.authentication import KeySecretAuthentication
 from core.utils import AppClientUtils
 from events.usecases import GetEventsUseCase
 from events.repository import EventRepository
+from users.api.v0.serializers import UserGameProfileSerializer
 
 
 class UserGameProfileView(APIView, AppClientUtils):
@@ -31,4 +32,9 @@ class UserGameProfileView(APIView, AppClientUtils):
         repository = EventRepository(conn.db)
         user.system_events = GetEventsUseCase(repository).execute()
 
-        return Response(user.to_primitive('public'))
+        user_data = user.to_primitive('public')
+
+        serializer = UserGameProfileSerializer(user_uid, context={'user_uid': user_uid})
+        user_data.update(serializer.data)
+
+        return Response(user_data)

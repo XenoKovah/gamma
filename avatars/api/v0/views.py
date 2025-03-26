@@ -3,9 +3,10 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from avatars.api.v0.serializers import AvatarSetSerializer, AvatarSerializer
+from avatars.api.v0.serializers import AvatarSetSerializer, AvatarSerializer, UserAvatarConfigSerializer
 from avatars.constants import AVATAR_SET_FINISH_FAILURE, AVATAR_SET_FINISH_SUCCESS
-from avatars.models import Avatar, AvatarSet
+from avatars.models import Avatar, AvatarSet, UserAvatarConfig
+from core.authentication import KeySecretAuthentication
 from core.mixins import AdminUserPermissionMixin
 
 
@@ -46,3 +47,14 @@ class AvatarViewSet(AdminUserPermissionMixin, viewsets.ModelViewSet):
 
     queryset = Avatar.objects.all().prefetch_related('rules')
     serializer_class = AvatarSerializer
+
+
+class UserAvatarConfigViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing User Avatar Configurations.
+    """
+    queryset = UserAvatarConfig.objects.all()
+    serializer_class = UserAvatarConfigSerializer
+
+    # TODO: find way to check Authentication state for request from edX.
+    # authentication_classes = (KeySecretAuthentication,)

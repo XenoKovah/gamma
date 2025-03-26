@@ -196,11 +196,13 @@ class TestAvatarSetSerializer:
         data = {
             'avatars': [
                 {
+                    'stage': 1,
                     'title': 'Avatar 1',
                     'description': 'Avatar 1 description',
                     'image': BASE64_CORRECT_FILE
                 },
                 {
+                    'stage': 2,
                     'title': 'Avatar 2',
                     'description': 'Avatar 2 description',
                     'image': BASE64_CORRECT_FILE
@@ -217,6 +219,8 @@ class TestAvatarSetSerializer:
         assert avatar_set.avatars.count() == 2
         assert avatar_set.avatars.first().title == 'Avatar 1'
         assert avatar_set.avatars.last().title == 'Avatar 2'
+        assert avatar_set.avatars.first().stage == 1
+        assert avatar_set.avatars.last().stage == 2
 
     def test_update_avatar_set_with_existent_avatars(
         self, avatar_factory: AvatarFactory, avatar_set_factory: AvatarSetFactory
@@ -237,12 +241,14 @@ class TestAvatarSetSerializer:
         data = {
             'avatars': [
                 {
+                    'stage': 1,
                     'existent_id': avatar_1.id,
                     'title': 'Avatar 1 UPDATED',
                     'description': 'Avatar 1 description',
                     'image': BASE64_CORRECT_FILE
                 },
                 {
+                    'stage': 2,
                     'existent_id': avatar_2.id,
                     'title': 'Avatar 2 UPDATED',
                     'description': 'Avatar 2 description',
@@ -264,6 +270,8 @@ class TestAvatarSetSerializer:
         assert avatar_set.avatars.last().id == avatar_2.id
         assert avatar_set.avatars.first().title == 'Avatar 1 UPDATED'
         assert avatar_set.avatars.last().title == 'Avatar 2 UPDATED'
+        assert avatar_set.avatars.first().stage == 1
+        assert avatar_set.avatars.last().stage == 2
 
     def test_update_avatar_set_with_avatars_already_have_rules(
         self,
@@ -300,12 +308,14 @@ class TestAvatarSetSerializer:
         data = {
             'avatars': [
                 {
+                    'stage': 1,
                     'existent_id': avatar_1.id,
                     'title': 'Avatar 1 UPDATED',
                     'description': 'Avatar 1 description',
                     'image': BASE64_CORRECT_FILE
                 },
                 {
+                    'stage': 2,
                     'existent_id': avatar_2.id,
                     'title': 'Avatar 2 UPDATED',
                     'description': 'Avatar 2 description',
@@ -326,6 +336,8 @@ class TestAvatarSetSerializer:
         assert avatar_set.avatars.last().id == avatar_2.id
         assert avatar_set.avatars.first().title == 'Avatar 1 UPDATED'
         assert avatar_set.avatars.last().title == 'Avatar 2 UPDATED'
+        assert avatar_set.avatars.first().stage == 1
+        assert avatar_set.avatars.last().stage == 2
 
         assert avatar_set.avatars.first().rules.count() == 2
         assert avatar_set.avatars.last().rules.count() == 2
@@ -340,6 +352,7 @@ class TestAvatarSetSerializer:
             'title': 'Test Avatar Set',
             'avatars': [
                 {
+                    'stage': 1,
                     'title': 'Only One Avatar',
                     'description': 'Not enough avatars',
                     'image': BASE64_CORRECT_FILE
