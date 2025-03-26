@@ -1,5 +1,6 @@
 import base64
 import imghdr
+import uuid
 
 from django.core.files.base import ContentFile
 from rest_framework import serializers
@@ -18,7 +19,9 @@ class Base64ImageField(serializers.ImageField):
             try:
                 _, imgstr = data.split(';base64,')
                 decoded_file = base64.b64decode(imgstr)
-                return ContentFile(decoded_file, name=f'temp.{imghdr.what(None, decoded_file)}')
+                file_extension = imghdr.what(None, decoded_file)
+                unique_filename = f"{uuid.uuid4().hex}.{file_extension if file_extension else 'unknown'}"
+                return ContentFile(decoded_file, name=unique_filename)
             except Exception:
                 raise serializers.ValidationError('Invalid image format')
         return super().to_internal_value(data)
