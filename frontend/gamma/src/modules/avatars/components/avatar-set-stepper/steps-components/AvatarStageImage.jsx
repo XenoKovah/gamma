@@ -17,9 +17,7 @@ const AvatarStageImage = ({
   });
 
   const getAvatarData = (idx, image) => ({
-    title: intl.formatMessage(moduleMessages.avatarSetStepperEvolutionAvatarDefaultTitle, {
-      index: idx + 1,
-    }),
+    title: intl.formatMessage(moduleMessages.avatarSetStepperEvolutionAvatarDefaultTitle),
     description: intl.formatMessage(moduleMessages.avatarSetStepperEvolutionAvatarDefaultDescription, {
       index: idx + 1,
     }),

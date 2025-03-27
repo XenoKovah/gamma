@@ -51,7 +51,7 @@ describe('EntityInfo', () => {
   it('renders EntityInfo with correct labels', () => {
     const { getByRole, getByLabelText } = renderComponent();
 
-    expect(getByRole('heading', { level: 2 }))
+    expect(getByRole('heading', { level: 3 }))
       .toHaveTextContent(messages.modalEntityInfoHeadingText.defaultMessage);
     expect(getByLabelText(messages.modalEntityInfoLabelEntityTitle.defaultMessage)).toBeInTheDocument();
     expect(getByLabelText(messages.modalEntityInfoLabelEntitySlugText.defaultMessage)).toBeInTheDocument();
@@ -63,7 +63,7 @@ describe('EntityInfo', () => {
     const { slug, isActive, ...initialValuesWithoutSlug } = DEFAULT_FORM_VALUES;
     const { getByRole, getByLabelText, queryByLabelText } = renderComponent(initialValuesWithoutSlug);
 
-    expect(getByRole('heading', { level: 2 }))
+    expect(getByRole('heading', { level: 3 }))
       .toHaveTextContent(messages.modalEntityInfoHeadingText.defaultMessage);
     expect(getByLabelText(messages.modalEntityInfoLabelEntityTitle.defaultMessage)).toBeInTheDocument();
     expect(getByLabelText(messages.modalEntityInfoLabelEntityDescriptionText.defaultMessage)).toBeInTheDocument();

@@ -126,6 +126,7 @@ export const Badges = () => {
           submitStatus={submitStatus}
           setSubmitStatus={setSubmitStatus}
           onReset={handleResetManageEntityModal}
+          hasFilters
         />
         <SEOHelmet
           title={intl.formatMessage(moduleMessages.pageTitle)}

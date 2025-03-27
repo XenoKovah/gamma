@@ -236,6 +236,11 @@ const messages = defineMessages({
     defaultMessage: 'Додати етап еволюції',
     description: 'Заголовок кнопки для додавання етапу еволюції на кроці еволюції в майстрі набору аватарів.',
   },
+  avatarSetStepperEditTitle: {
+    id: 'modules.avatars.avatar-set.stepper.edit-avatar-set.title',
+    defaultMessage: 'Редагування набору аватарів',
+    description: 'Заголовок майстра редагування набору аватарів.',
+  },
   avatarSetStepperEvolutionDescription: {
     id: 'modules.avatars.avatar-set.stepper.step.evolution.description.text',
     defaultMessage: `Будь ласка, завантажте базові файли для етапів еволюції аватара.
@@ -256,13 +261,13 @@ const messages = defineMessages({
   },
   avatarSetStepperEvolutionAvatarDefaultTitle: {
     id: 'modules.avatars.avatar-set.stepper.step.evolution.avatar.default.title',
-    defaultMessage: 'Аватар {index}',
-    description: 'Типовий заголовок для аватара на кроці еволюції в майстрі набору аватарів.',
+    defaultMessage: 'Стандартний заголовок',
+    description: 'Стандартний заголовок для аватара на кроці еволюції в майстрі набору аватарів.',
   },
   avatarSetStepperEvolutionAvatarDefaultDescription: {
     id: 'modules.avatars.avatar-set.stepper.step.evolution.avatar.default.description',
-    defaultMessage: 'Деякий опис для аватара {index}',
-    description: 'Типовий опис для аватара на кроці еволюції в майстрі набору аватарів.',
+    defaultMessage: 'Стандартний опис',
+    description: 'Стандартний опис для аватара на кроці еволюції в майстрі набору аватарів.',
   },
 });
 

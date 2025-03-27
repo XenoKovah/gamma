@@ -17,6 +17,7 @@ const EntityRule = ({
   rule,
   data,
   ruleIndex,
+  hasFilters,
   removeRule,
 }) => {
   const intl = useIntl();
@@ -68,9 +69,9 @@ const EntityRule = ({
       className="entity-rule mb-3"
       defaultOpen
     >
-      <h2 className="entity-rule-title h4 mb-3">
+      <h4 className="entity-rule-title mb-3">
         {intl.formatMessage(messages.modalEntityRulesActionHeadingTitle)}
-      </h2>
+      </h4>
 
       {Object.entries(memoizedActionConfig).map(([key, config]) => (
         <ActionField
@@ -87,61 +88,64 @@ const EntityRule = ({
           options={config.options || []}
         />
       ))}
+      {hasFilters && (
+        <>
+          <h2 className="entity-rule-title h4 mb-3">
+            {intl.formatMessage(messages.modalEntityRulesFiltersHeadingTitle)}
+          </h2>
 
-      <h2 className="entity-rule-title h4 mb-3">
-        {intl.formatMessage(messages.modalEntityRulesFiltersHeadingTitle)}
-      </h2>
+          <Form.Group controlId={`rules.${ruleIndex}.filters`} size="sm">
+            {Object.keys(rule.filters).map((filterKey) => {
+              const config = memoizedFilterConfig[filterKey];
 
-      <Form.Group controlId={`rules.${ruleIndex}.filters`} size="sm">
-        {Object.keys(rule.filters).map((filterKey) => {
-          const config = memoizedFilterConfig[filterKey];
-
-          return (
-            <div
-              key={filterKey}
-              className={classNames('entity-rule-filters mb-3', {
-                'entity-rule-filters-interval': filterKey === 'interval',
-              })}
-            >
-              {config?.type !== 'date-range' && (
-                <FilterInputController
-                  ref={filterRefs.current[filterKey]}
-                  filterKey={filterKey}
-                  rule={rule}
-                  ruleIndex={ruleIndex}
-                  {...config}
-                />
-              )}
-              {config?.type === 'date-range' && (
-                <>
-                  {[DATE_TYPES.START, DATE_TYPES.END].map((dateType) => (
-                    <IntervalDatePicker
-                      key={dateType}
-                      pickerDateRef={dateType === DATE_TYPES.START ? startDateRef : endDateRef}
-                      dateType={dateType}
+              return (
+                <div
+                  key={filterKey}
+                  className={classNames('entity-rule-filters mb-3', {
+                    'entity-rule-filters-interval': filterKey === 'interval',
+                  })}
+                >
+                  {config?.type !== 'date-range' && (
+                    <FilterInputController
+                      ref={filterRefs.current[filterKey]}
+                      filterKey={filterKey}
                       rule={rule}
                       ruleIndex={ruleIndex}
-                      placeholder={translations.interval[dateType]}
-                      isDateTouched={touched.rules?.[ruleIndex]?.filters?.interval?.[dateType]}
-                      validationErrorText={errors.rules?.[ruleIndex]?.filters?.interval?.[dateType]}
+                      {...config}
                     />
-                  ))}
-                </>
-              )}
-              <Button
-                variant="outline-danger"
-                size="sm"
-                onClick={() => handleRemoveFilter(filterKey, rule)}
-                className="entity-rule-remove-filter-btn ml-2"
-              >
-                {intl.formatMessage(messages.modalEntityRulesBtnRemoveFilterText)}
-              </Button>
-            </div>
-          );
-        })}
-      </Form.Group>
+                  )}
+                  {config?.type === 'date-range' && (
+                  <>
+                    {[DATE_TYPES.START, DATE_TYPES.END].map((dateType) => (
+                      <IntervalDatePicker
+                        key={dateType}
+                        pickerDateRef={dateType === DATE_TYPES.START ? startDateRef : endDateRef}
+                        dateType={dateType}
+                        rule={rule}
+                        ruleIndex={ruleIndex}
+                        placeholder={translations.interval[dateType]}
+                        isDateTouched={touched.rules?.[ruleIndex]?.filters?.interval?.[dateType]}
+                        validationErrorText={errors.rules?.[ruleIndex]?.filters?.interval?.[dateType]}
+                      />
+                    ))}
+                  </>
+                  )}
+                  <Button
+                    variant="outline-danger"
+                    size="sm"
+                    onClick={() => handleRemoveFilter(filterKey, rule)}
+                    className="entity-rule-remove-filter-btn ml-2"
+                  >
+                    {intl.formatMessage(messages.modalEntityRulesBtnRemoveFilterText)}
+                  </Button>
+                </div>
+              );
+            })}
+          </Form.Group>
+        </>
+      )}
 
-      {Object.keys(rule.filters).length < AVAILABLE_FILTERS.length && (
+      {hasFilters && Object.keys(rule.filters).length < AVAILABLE_FILTERS.length && (
         <SelectFilters
           ruleIndex={ruleIndex}
           startDateRef={startDateRef}
@@ -178,6 +182,11 @@ EntityRule.propTypes = {
       }),
     ).isRequired,
   }),
+  hasFilters: PropTypes.bool,
+};
+
+EntityRule.defaultProps = {
+  hasFilters: false,
 };
 
 export default EntityRule;

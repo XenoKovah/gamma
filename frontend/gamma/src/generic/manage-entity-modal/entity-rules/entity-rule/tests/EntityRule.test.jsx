@@ -4,7 +4,7 @@ import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event';
 import { useFormikContext } from 'formik';
 
-import messages from '../../../../../i18n';
+import genericMessages from '../../../../../i18n';
 import { renderWithProviders } from '../../../../../setupTests';
 import EntityRule from '..';
 
@@ -30,6 +30,7 @@ describe('EntityRule', () => {
       organizations: ['Org 1', 'Org 2'],
       actions: [{ eventType: 'view' }, { eventType: 'complete' }],
     },
+    hasFilters: true,
   };
 
   beforeEach(() => {
@@ -50,22 +51,22 @@ describe('EntityRule', () => {
   it('renders rule title and action section', () => {
     const { getByText } = renderComponent();
 
-    expect(getByText(messages.modalEntityRulesRuleTitle.defaultMessage.replace('{id}', 1))).toBeInTheDocument();
-    expect(getByText(messages.modalEntityRulesActionHeadingTitle.defaultMessage)).toBeInTheDocument();
+    expect(getByText(genericMessages.modalEntityRulesRuleTitle.defaultMessage.replace('{id}', 1))).toBeInTheDocument();
+    expect(getByText(genericMessages.modalEntityRulesActionHeadingTitle.defaultMessage)).toBeInTheDocument();
   });
 
   it('renders action fields based on available actions', () => {
     const { getByLabelText } = renderComponent();
 
-    expect(getByLabelText(messages.modalEntityRulesRuleEventTypeLabel.defaultMessage)).toBeInTheDocument();
-    expect(getByLabelText(messages.modalEntityRulesRuleCountLabel.defaultMessage)).toBeInTheDocument();
+    expect(getByLabelText(genericMessages.modalEntityRulesRuleEventTypeLabel.defaultMessage)).toBeInTheDocument();
+    expect(getByLabelText(genericMessages.modalEntityRulesRuleCountLabel.defaultMessage)).toBeInTheDocument();
   });
 
   it('removes a filter when remove filter button is clicked', () => {
     const { getByRole } = renderComponent();
 
     const removeFilterButton = getByRole('button', {
-      name: messages.modalEntityRulesBtnRemoveFilterText.defaultMessage,
+      name: genericMessages.modalEntityRulesBtnRemoveFilterText.defaultMessage,
     });
     userEvent.click(removeFilterButton);
 
@@ -76,7 +77,7 @@ describe('EntityRule', () => {
     const { getByRole } = renderComponent();
 
     const deleteRuleButton = getByRole('button', {
-      name: messages.modalEntityRulesBtnDeleteText.defaultMessage,
+      name: genericMessages.modalEntityRulesBtnDeleteText.defaultMessage,
     });
     userEvent.click(deleteRuleButton);
 
@@ -93,7 +94,7 @@ describe('EntityRule', () => {
     const { getByRole } = renderComponent();
 
     const removeFilterButton = getByRole('button', {
-      name: messages.modalEntityRulesBtnRemoveFilterText.defaultMessage,
+      name: genericMessages.modalEntityRulesBtnRemoveFilterText.defaultMessage,
     });
 
     userEvent.click(removeFilterButton);
@@ -110,7 +111,27 @@ describe('EntityRule', () => {
       },
     });
 
-    expect(getByLabelText(messages.modalEntityRulesIntervalStartLabelText.defaultMessage)).toBeInTheDocument();
-    expect(getByLabelText(messages.modalEntityRulesIntervalEndLabelText.defaultMessage)).toBeInTheDocument();
+    expect(getByLabelText(
+      genericMessages.modalEntityRulesIntervalStartLabelText.defaultMessage,
+    )).toBeInTheDocument();
+    expect(getByLabelText(
+      genericMessages.modalEntityRulesIntervalEndLabelText.defaultMessage,
+    )).toBeInTheDocument();
+  });
+
+  it('renders the heading when filters are present', () => {
+    const { getByRole } = renderComponent();
+
+    expect(getByRole('heading', {
+      name: genericMessages.modalEntityRulesFiltersHeadingTitle.defaultMessage,
+    })).toBeInTheDocument();
+  });
+
+  it('does not render the heading when filters are absent', () => {
+    const { queryByRole } = renderComponent({ hasFilters: false });
+
+    expect(queryByRole('heading', {
+      name: genericMessages.modalEntityRulesFiltersHeadingTitle.defaultMessage,
+    })).not.toBeInTheDocument();
   });
 });

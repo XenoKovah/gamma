@@ -50,7 +50,7 @@ const EntityImage = ({ imagePreview, handleImageUpload, acceptedImageFormats }) 
 
   return (
     <div className="manage-entity-modal-image mb-4">
-      <h2 className="h3 mb-3">{intl.formatMessage(messages.modalEntityImageHeadingText)}</h2>
+      <h3 className="h4 mb-3">{intl.formatMessage(messages.modalEntityImageHeadingText)}</h3>
       <Form.Group className="mb-4" controlId="formEntityImage" size={isExtraSmall ? null : 'sm'}>
         <Form.Control
           ref={fileInputRef}

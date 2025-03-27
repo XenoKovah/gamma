@@ -18,7 +18,7 @@ const EntityInfo = () => {
 
   return (
     <div className="manage-entity-modal-information mb-4">
-      <h2 className="h3 mb-3">{intl.formatMessage(messages.modalEntityInfoHeadingText)}</h2>
+      <h3 className="h4 mb-3">{intl.formatMessage(messages.modalEntityInfoHeadingText)}</h3>
       <Form.Row className={classNames({ 'flex-column': isExtraSmall })}>
         <FormInputController
           label={intl.formatMessage(messages.modalEntityInfoLabelEntityTitle)}

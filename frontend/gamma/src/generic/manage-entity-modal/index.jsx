@@ -16,6 +16,7 @@ const ManageEntityModal = ({
   data,
   title,
   onReset,
+  hasFilters,
   submitForm,
   submitStatus,
   setSubmitStatus,
@@ -137,6 +138,7 @@ const ManageEntityModal = ({
               rulesContainerRef={rulesContainerRef}
               lastRuleRef={lastRuleRef}
               data={data}
+              hasFilters={hasFilters}
             />
           </FormikForm>
         </Modal>
@@ -180,12 +182,14 @@ ManageEntityModal.propTypes = {
     ),
   }),
   entityAcceptedImageFormats: PropTypes.arrayOf(PropTypes.string),
+  hasFilters: PropTypes.bool,
 };
 
 ManageEntityModal.defaultProps = {
   onReset: null,
   data: {},
   entityAcceptedImageFormats: DEFAULT_ACCEPTED_IMAGE_FORMATS,
+  hasFilters: false,
 };
 
 export default ManageEntityModal;

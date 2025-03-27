@@ -261,12 +261,12 @@ const messages = defineMessages({
   },
   avatarSetStepperEvolutionAvatarDefaultTitle: {
     id: 'modules.avatars.avatar-set.stepper.step.evolution.avatar.default.title',
-    defaultMessage: 'Avatar {index}',
+    defaultMessage: 'Title placeholder',
     description: 'The default title for the avatar in the evolution step of the avatar set stepper.',
   },
   avatarSetStepperEvolutionAvatarDefaultDescription: {
     id: 'modules.avatars.avatar-set.stepper.step.evolution.avatar.default.description',
-    defaultMessage: 'Some description for avatar {index}',
+    defaultMessage: 'Some description',
     description: 'The default description for the avatar in the evolution step of the avatar set stepper.',
   },
 });

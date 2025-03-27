@@ -61,7 +61,7 @@ describe('EntityImage', () => {
 
   it('renders EntityImage with upload button', () => {
     const { getByRole } = renderComponent();
-    expect(getByRole('heading', { level: 2 }))
+    expect(getByRole('heading', { level: 3 }))
       .toHaveTextContent(messages.modalEntityImageHeadingText.defaultMessage);
     expect(
       getByRole('button', { name: messages.modalEntityImageBtnUploadText.defaultMessage }),

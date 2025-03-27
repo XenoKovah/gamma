@@ -11,6 +11,7 @@ import EntityRule from './entity-rule';
 
 const EntityRules = ({
   data,
+  hasFilters,
   lastRuleRef,
   rulesContainerRef,
 }) => {
@@ -36,7 +37,7 @@ const EntityRules = ({
 
   return (
     <>
-      <h2 className="h3 mb-3">{intl.formatMessage(messages.modalEntityRulesTitle)}</h2>
+      <h3 className="h4 mb-3">{intl.formatMessage(messages.modalEntityRulesTitle)}</h3>
       <ul className="list-unstyled" ref={rulesContainerRef}>
         {values.rules.length ? (
           values.rules.map((rule, index) => (
@@ -46,6 +47,7 @@ const EntityRules = ({
                 ruleIndex={index}
                 removeRule={handleRemoveRule}
                 data={data}
+                hasFilters={hasFilters}
               />
             </li>
           ))
@@ -82,6 +84,11 @@ EntityRules.propTypes = {
   lastRuleRef: PropTypes.shape({
     current: PropTypes.instanceOf(Element),
   }).isRequired,
+  hasFilters: PropTypes.bool,
+};
+
+EntityRules.defaultProps = {
+  hasFilters: false,
 };
 
 export default EntityRules;
