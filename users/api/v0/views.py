@@ -27,14 +27,14 @@ class UserGameProfileView(APIView, AppClientUtils):
 
         user = db.users.read_one(user_uid)
         user.system_statuses = db.statuses.read()
-        user.system_badges = db.badges.read_active()
 
         repository = EventRepository(conn.db)
         user.system_events = GetEventsUseCase(repository).execute()
 
         user_data = user.to_primitive('public')
 
-        serializer = UserGameProfileSerializer(user_uid, context={'user_uid': user_uid})
+        serializer = UserGameProfileSerializer(data={}, context={'user_uid': user_uid})
+        serializer.is_valid()
         user_data.update(serializer.data)
 
         return Response(user_data)

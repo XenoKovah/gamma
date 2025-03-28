@@ -163,7 +163,7 @@ class AvatarSetSerializer(serializers.ModelSerializer):
 
 class UserAvatarConfigSerializer(serializers.ModelSerializer):
     """
-
+    UserAvatarConfig serializer.
     """
 
     gamma_user_id = serializers.PrimaryKeyRelatedField(

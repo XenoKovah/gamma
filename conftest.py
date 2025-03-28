@@ -10,6 +10,7 @@ from django.core.files.base import ContentFile
 from rest_framework.test import APIClient
 from webpack_loader.loader import WebpackLoader
 
+from avatars.factories import UserAvatarConfigFactory
 from badges.factories import BadgeFactory
 from core.models import AppClient
 from core.data_models.models import User
@@ -28,6 +29,7 @@ register(EventTypeFactory)
 register(EventConfigurationFactory)
 register(GammaUserFactory)
 register(RuleFactory)
+register(UserAvatarConfigFactory)
 
 
 @pytest.fixture(scope='function')

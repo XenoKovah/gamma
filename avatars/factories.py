@@ -1,7 +1,7 @@
 import factory
 from django.core.files.uploadedfile import SimpleUploadedFile
 
-from avatars.models import Avatar, AvatarSet
+from avatars.models import Avatar, AvatarSet, UserAvatarConfig
 
 
 class AvatarFactory(factory.django.DjangoModelFactory):
@@ -57,3 +57,16 @@ class AvatarSetFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = AvatarSet
+
+
+class UserAvatarConfigFactory(factory.django.DjangoModelFactory):
+    """
+    Factory for creating UserAvatarConfig instances.
+    """
+
+    user = factory.SubFactory('users.factories.GammaUserFactory')
+    selected_avatar = factory.SubFactory('avatars.factories.AvatarFactory')
+    avatar_set = factory.SubFactory('avatars.factories.AvatarSetFactory')
+
+    class Meta:
+        model = UserAvatarConfig

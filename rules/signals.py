@@ -23,7 +23,7 @@ def process_event_creation(sender, instance, created, **kwargs):
 
     event = instance
     configuration = event.configuration
-    user, _ = GammaUser.objects.get_or_create(user_uid=event.username)
+    user = GammaUser.ensure_gamma_user_is_created(user_uid=event.username)
 
     affected_rules_by_event = Rule.objects.filter(
         event_configuration=configuration

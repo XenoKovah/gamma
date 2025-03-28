@@ -43,6 +43,17 @@ class Achievement(models.Model):
         """
         return all(rule.status == AchievementRule.Statuses.COMPLETED for rule in self.achievement_rules.all())
 
+    @property
+    def achievement_dependencies(self):
+        """
+        Receive all Achievement dependencies.
+        """
+        dependencies_list = []
+        for rule in self.achievement_rules.all():
+            if hasattr(rule, 'dependencies'):
+                dependencies_list.append(rule.dependencies)
+        return dependencies_list if dependencies_list else None
+
 
 class AchievementRule(models.Model):
     """

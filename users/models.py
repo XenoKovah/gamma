@@ -26,6 +26,14 @@ class GammaUser(models.Model):
     def __str__(self):
         return f'Gamma User {self.user_uid!r}'
 
+    @classmethod
+    def ensure_gamma_user_is_created(cls, user_uid):
+        """
+        Ensure that Gamma User exists or create a new one.
+        """
+        gamma_user, __ = cls.objects.get_or_create(user_uid=user_uid)
+        return gamma_user
+
     def update_user_progress(self, event_points: int) -> None:
         """
         Update Gamma User progress dict.
