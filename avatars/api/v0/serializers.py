@@ -79,7 +79,8 @@ class AvatarSerializer(serializers.ModelSerializer):
         if rules_data is not None:
             instance.rules.clear()
             for rule_data in rules_data:
-                rule, __ = Rule.objects.get_or_create(**rule_data)
+                rule_data['filters'] = {}
+                rule = Rule.ensure_rule_is_created_from_data(rule_data)
                 instance.rules.add(rule)
 
         return instance

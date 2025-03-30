@@ -73,20 +73,11 @@ class TestAvatarSerializer:
                     'action': {
                         'problem_check': 2
                     },
-                    'filters': {
-                        'interval': {
-                            'start': '2012-12-20T12:20:12',
-                            'end': '2020-12-20T12:20:12'
-                        }
-                    }
                 },
                 {
                     'action': {
                         'problem_graded': 4
                     },
-                    'filters': {
-                        'frequency': 2
-                    }
                 }
             ]
         }
@@ -100,7 +91,7 @@ class TestAvatarSerializer:
 
         for i, rule in enumerate(avatar.rules.all()):
             assert rule.action == data['rules'][i]['action']
-            assert rule.filters == data['rules'][i]['filters']
+            assert rule.filters == {}
 
     def test_valid_avatar_update_all_fields(
             self,
@@ -120,20 +111,11 @@ class TestAvatarSerializer:
                     'action': {
                         'problem_check': 2
                     },
-                    'filters': {
-                        'interval': {
-                            'start': '2012-12-20T12:20:12',
-                            'end': '2020-12-20T12:20:12'
-                        }
-                    }
                 },
                 {
                     'action': {
                         'problem_graded': 4
                     },
-                    'filters': {
-                        'frequency': 2
-                    }
                 }
             ]
         }
@@ -148,7 +130,7 @@ class TestAvatarSerializer:
 
         for i, rule in enumerate(avatar.rules.all()):
             assert rule.action == data['rules'][i]['action']
-            assert rule.filters == data['rules'][i]['filters']
+            assert rule.filters == {}
 
     def test_update_avatar_without_rules(self, avatar_factory: AvatarFactory):
         avatar = avatar_factory()

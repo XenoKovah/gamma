@@ -29,3 +29,13 @@ class Rule(TimestampModelMixin, models.Model):
         Return the content type (related to the dependent badges) of the event configuration.
         """
         return self.event_configuration.content_type
+
+    @classmethod
+    def ensure_rule_is_created_from_data(cls, rule_data):
+        """
+        Get existent or create new Rule from data.
+        """
+        if (rule := cls.objects.filter(**rule_data).first()) is None:
+            rule = cls.objects.create(**rule_data)
+
+        return rule
