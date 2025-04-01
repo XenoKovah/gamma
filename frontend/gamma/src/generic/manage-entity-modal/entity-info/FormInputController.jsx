@@ -9,9 +9,20 @@ const FormInputController = ({
   label, name, type, as, hasCol, autoResize,
 }) => {
   const {
-    values, errors, touched, handleChange, handleBlur,
+    values, errors, touched, handleChange, handleBlur, setFieldValue,
   } = useFormikContext();
   const isExtraSmall = useMediaQuery({ maxWidth: breakpoints.extraSmall.maxWidth });
+
+  const handleTrimmedBlur = (e) => {
+    const { name: fieldName, value } = e.target;
+    const trimmedValue = value.trim();
+
+    if (value !== trimmedValue) {
+      setFieldValue(fieldName, trimmedValue);
+    }
+
+    handleBlur(e);
+  };
 
   const InputComponent = (
     <>
@@ -22,7 +33,7 @@ const FormInputController = ({
         type={type}
         value={values[name]}
         onChange={handleChange}
-        onBlur={handleBlur}
+        onBlur={handleTrimmedBlur}
         isInvalid={touched[name] && !!errors[name]}
         autoResize={autoResize}
       />

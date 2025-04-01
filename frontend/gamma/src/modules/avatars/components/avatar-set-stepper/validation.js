@@ -15,7 +15,7 @@ export const stepTitleValidationSchema = (messages, avatarTitleMap) => Yup.objec
   title: Yup.string()
     .required(messages.titleRequired)
     .max(50, messages.titleMaxLength)
-    .matches(/^[a-zA-Z0-9\s]+$/, messages.titleLettersNumbers)
+    .matches(/^[\p{L}\p{N}\s'’\-.,]+$/u, messages.titleLettersNumbers)
     .test(
       'non-empty-title',
       messages.titleRequired,

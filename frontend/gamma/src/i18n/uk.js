@@ -351,6 +351,11 @@ const messages = defineMessages({
     defaultMessage: 'Файл повинен бути меншим за {size}.',
     description: 'Повідомлення, що відображається при спробі завантажити файл, який перевищує максимально дозволений розмір у Dropzone.',
   },
+  genericManageEntityModalEntityInfoTitle: {
+    id: 'generic.manage.entity.modal.entity.info.title',
+    defaultMessage: 'Заголовок повинен містити лише літери та цифри',
+    description: 'Повідомлення про валідацію для поля заголовка в модальному вікні керування сутністю.',
+  },
 });
 
 export default messages;

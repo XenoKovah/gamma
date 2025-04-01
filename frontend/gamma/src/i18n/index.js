@@ -331,6 +331,11 @@ const messages = defineMessages({
     defaultMessage: 'Drag and drop your file here or click to upload.',
     description: 'The default content label for the Dropzone component.',
   },
+  genericManageEntityModalEntityInfoTitle: {
+    id: 'generic.manage.entity.modal.entity.info.title',
+    defaultMessage: 'Title must contain only letters and numbers',
+    description: 'The validation message for the title field in the manage entity modal.',
+  },
 });
 
 export default messages;

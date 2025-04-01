@@ -31,6 +31,7 @@ import { capitalizeFirstLetter } from '../../utils';
 export const getValidationSchema = (messages, entityData) => yup.object().shape({
   title: yup
     .string()
+    .matches(/^[\p{L}\p{N}\s'’\-.,]+$/u, messages.titleInvalid)
     .required(messages.titleRequired)
     .max(100, messages.titleMaxLength),
   ...(Object.hasOwn(entityData, 'slug')

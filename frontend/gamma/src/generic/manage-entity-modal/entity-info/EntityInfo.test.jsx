@@ -122,4 +122,22 @@ describe('EntityInfo', () => {
       expect(getByText(translations.descriptionRequired)).toBeInTheDocument();
     });
   });
+
+  it('trims leading and trailing spaces from title on blur', async () => {
+    const { getByLabelText } = renderComponent(DEFAULT_FORM_VALUES, {
+      validateOnBlur: false,
+      validateOnChange: false,
+    });
+
+    const titleInput = getByLabelText(messages.modalEntityInfoLabelEntityTitle.defaultMessage);
+
+    userEvent.clear(titleInput);
+    userEvent.type(titleInput, '  Test Title  ');
+
+    userEvent.tab();
+
+    await waitFor(() => {
+      expect(titleInput).toHaveValue('Test Title');
+    });
+  });
 });

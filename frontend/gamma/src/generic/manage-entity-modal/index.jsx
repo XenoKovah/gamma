@@ -33,6 +33,7 @@ const ManageEntityModal = ({
 
   const translations = {
     validation: {
+      titleInvalid: intl.formatMessage(messages.genericManageEntityModalEntityInfoTitle),
       titleRequired: intl.formatMessage(messages.modalEntityValidationTitleRequiredText),
       titleMaxLength: intl.formatMessage(messages.modalEntityValidationTitleMaxLengthText),
       slug: {
