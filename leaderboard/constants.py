@@ -1,0 +1,2 @@
+GENERAL_LEADERBOARD_ID_TEMPLATE = "leaderboard:{user_signup_source}"
+LEADERBOARDS_INITIALIZATION_BATCHES_LEFT_COUNT_CACHE_KEY = "leaderboards_initialization_batches_left"

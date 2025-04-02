@@ -1,0 +1,400 @@
+[
+  {
+    "setup_data": {
+      "gamma_user": {
+        "user_uid": "user_uid_1",
+        "signup_source": "RG"
+      },
+      "badges": [
+        {
+          "title": "Master Collector",
+          "description": "You’ve bookmarked tons of valuable content. Knowledge is power!",
+          "image_name": "bookmark.png",
+          "rules": [
+            {
+              "action": {
+                "edx_bookmark_added": 15
+              },
+              "achievement_rules": [
+                {
+                  "dependencies": {
+                    "events": {
+                      "edx_bookmark_added": {
+                        "count": 15,
+                        "goal": 15,
+                        "last": "2025-03-21T16:10:06.262390+00:00"
+                      }
+                    }
+                  },
+                  "status": "completed"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "expected_serialization_result": {
+      "user_uid": "user_uid_1",
+      "signup_source": "RG",
+      "badges": [
+        {
+          "title": "Master Collector",
+          "description": "You’ve bookmarked tons of valuable content. Knowledge is power!",
+          "url": "/media/uploads/badges/bookmark.png",
+          "progress": [
+            {
+              "events": {
+                "edx_bookmark_added": {
+                  "count": 15,
+                  "goal": 15,
+                  "last": "2025-03-21T16:10:06.262390+00:00"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "setup_data": {
+      "gamma_user": {
+        "user_uid": "user_uid_2",
+        "signup_source": "main"
+      },
+      "badges": []
+    },
+    "expected_serialization_result": {
+      "user_uid": "user_uid_2",
+      "signup_source": "main",
+      "badges": []
+    }
+  },
+  {
+    "setup_data": {
+      "gamma_user": {
+        "user_uid": "user_uid_3",
+        "signup_source": "RG"
+      },
+      "badges": [
+        {
+          "title": "Master Collector",
+          "description": "You’ve bookmarked tons of valuable content. Knowledge is power!",
+          "image_name": "bookmark.png",
+          "rules": [
+            {
+              "action": {
+                "edx_bookmark_added": 15
+              },
+              "achievement_rules": [
+                {
+                  "dependencies": {
+                    "events": {
+                      "edx_bookmark_added": {
+                        "count": 6,
+                        "goal": 15,
+                        "last": "2025-02-11T16:10:06.262390+00:00"
+                      }
+                    }
+                  },
+                  "status": "active"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Community Contributor",
+          "description": "Your posts and replies help make this forum a better place!",
+          "image_name": "community_contributor.png",
+          "rules": [
+            {
+              "action": {
+                "edx_forum_thread_created": 10
+              },
+              "achievement_rules": [
+                {
+                  "dependencies": {
+                    "events": {
+                      "edx_forum_thread_created": {
+                        "count": 7,
+                        "goal": 10,
+                        "last": "2025-01-11T16:10:06.262390+00:00"
+                      }
+                    }
+                  },
+                  "status": "active"
+                }
+              ]
+            },
+            {
+              "action": {
+                "edx_forum_response_created": 5
+              },
+              "achievement_rules": [
+                {
+                  "dependencies": {
+                    "events": {
+                      "edx_forum_response_created": {
+                        "count": 5,
+                        "goal": 5,
+                        "last": "2024-12-17T16:10:06.262390+00:00"
+                      }
+                    }
+                  },
+                  "status": "completed"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "expected_serialization_result": {
+      "user_uid": "user_uid_3",
+      "signup_source": "RG",
+      "badges": []
+    }
+  },
+  {
+    "setup_data": {
+      "gamma_user": {
+        "user_uid": "user_uid_4",
+        "signup_source": "main"
+      },
+      "badges": [
+        {
+          "title": "Master Collector",
+          "description": "You’ve bookmarked tons of valuable content. Knowledge is power!",
+          "image_name": "bookmark.png",
+          "rules": [
+            {
+              "action": {
+                "edx_bookmark_added": 15
+              },
+              "achievement_rules": [
+                {
+                  "dependencies": {
+                    "events": {
+                      "edx_bookmark_added": {
+                        "count": 14,
+                        "goal": 15,
+                        "last": "2025-02-11T16:10:06.262390+00:00"
+                      }
+                    }
+                  },
+                  "status": "active"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Community Contributor",
+          "description": "Your posts and replies help make this forum a better place!",
+          "image_name": "community_contributor.png",
+          "rules": [
+            {
+              "action": {
+                "edx_forum_thread_created": 10
+              },
+              "achievement_rules": [
+                {
+                  "dependencies": {
+                    "events": {
+                      "edx_forum_thread_created": {
+                        "count": 10,
+                        "goal": 10,
+                        "last": "2024-11-26T17:10:06.262390+00:00"
+                      }
+                    }
+                  },
+                  "status": "completed"
+                }
+              ]
+            },
+            {
+              "action": {
+                "edx_forum_response_created": 5
+              },
+              "achievement_rules": [
+                {
+                  "dependencies": {
+                    "events": {
+                      "edx_forum_response_created": {
+                        "count": 5,
+                        "goal": 5,
+                        "last": "2024-12-18T16:10:06.262390+00:00"
+                      }
+                    }
+                  },
+                  "status": "completed"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "expected_serialization_result": {
+      "user_uid": "user_uid_4",
+      "signup_source": "main",
+      "badges": [
+        {
+          "title": "Community Contributor",
+          "description": "Your posts and replies help make this forum a better place!",
+          "url": "/media/uploads/badges/community_contributor.png",
+          "progress": [
+            {
+              "events": {
+                "edx_forum_thread_created": {
+                  "count": 10,
+                  "goal": 10,
+                  "last": "2024-11-26T17:10:06.262390+00:00"
+                }
+              }
+            },
+            {
+              "events": {
+                "edx_forum_response_created": {
+                  "count": 5,
+                  "goal": 5,
+                  "last": "2024-12-18T16:10:06.262390+00:00"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "setup_data": {
+      "gamma_user": {
+        "user_uid": "user_uid_5",
+        "signup_source": "main"
+      },
+      "badges": [
+        {
+          "title": "Master Collector",
+          "description": "You’ve bookmarked tons of valuable content. Knowledge is power!",
+          "image_name": "bookmark.png",
+          "rules": [
+            {
+              "action": {
+                "edx_bookmark_added": 15
+              },
+              "achievement_rules": [
+                {
+                  "dependencies": {
+                    "events": {
+                      "edx_bookmark_added": {
+                        "count": 15,
+                        "goal": 15,
+                        "last": "2025-02-11T16:10:06.262390+00:00"
+                      }
+                    }
+                  },
+                  "status": "completed"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Community Contributor",
+          "description": "Your posts and replies help make this forum a better place!",
+          "image_name": "community_contributor.png",
+          "rules": [
+            {
+              "action": {
+                "edx_forum_thread_created": 10
+              },
+              "achievement_rules": [
+                {
+                  "dependencies": {
+                    "events": {
+                      "edx_forum_thread_created": {
+                        "count": 10,
+                        "goal": 10,
+                        "last": "2024-11-26T17:10:06.262390+00:00"
+                      }
+                    }
+                  },
+                  "status": "completed"
+                }
+              ]
+            },
+            {
+              "action": {
+                "edx_forum_response_created": 5
+              },
+              "achievement_rules": [
+                {
+                  "dependencies": {
+                    "events": {
+                      "edx_forum_response_created": {
+                        "count": 5,
+                        "goal": 5,
+                        "last": "2024-12-18T16:10:06.262390+00:00"
+                      }
+                    }
+                  },
+                  "status": "completed"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "expected_serialization_result": {
+      "user_uid": "user_uid_5",
+      "signup_source": "main",
+      "badges": [
+        {
+          "title": "Master Collector",
+          "description": "You’ve bookmarked tons of valuable content. Knowledge is power!",
+          "url": "/media/uploads/badges/bookmark.png",
+          "progress": [
+            {
+              "events": {
+                "edx_bookmark_added": {
+                  "count": 15,
+                  "goal": 15,
+                  "last": "2025-02-11T16:10:06.262390+00:00"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "title": "Community Contributor",
+          "description": "Your posts and replies help make this forum a better place!",
+          "url": "/media/uploads/badges/community_contributor.png",
+          "progress": [
+            {
+              "events": {
+                "edx_forum_thread_created": {
+                  "count": 10,
+                  "goal": 10,
+                  "last": "2024-11-26T17:10:06.262390+00:00"
+                }
+              }
+            },
+            {
+              "events": {
+                "edx_forum_response_created": {
+                  "count": 5,
+                  "goal": 5,
+                  "last": "2024-12-18T16:10:06.262390+00:00"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'rules',
 
     'badges',
+    'leaderboard',
 ]
 
 
@@ -168,17 +169,6 @@ CELERY_DEFAULT_EXCHANGE_TYPE = 'direct'
 CELERY_DEFAULT_ROUTING_KEY = 'gamma'
 CELERY_QUEUES = {'gamma': {}}
 
-CACHES = {
-    "default": {
-        "BACKEND": "redis_cache.RedisCache",
-        "LOCATION": "redis:6379",
-        "OPTIONS": {
-            'DB': 1,
-        },
-    }
-}
-
-
 ENABLE_CORS_HEADERS = True
 CORS_ORIGIN_WHITELIST = [
     'http://localhost:3000',
@@ -204,14 +194,22 @@ for override, value in DB_OVERRIDES.items():
 
 CELERY_BROKER_URL = environ.get('CELERY_BROKER_URL', 'amqp://guest@rabbit')
 CELERY_RESULT_BACKEND = environ.get('CELERY_RESULT_BACKEND', 'redis://redis:6379')
-
+CELERY_BEAT_SCHEDULE = {
+    'update-leaderboard-every-minute': {
+        'task': 'leaderboard.tasks.task_update_leaderboards',
+        'schedule': 60,
+    }
+}
 
 CACHES = {
     "default": {
         "BACKEND": "redis_cache.RedisCache",
-        "LOCATION": environ.get('REDIS_LOCATION', 'redis:6379'),
+        "LOCATION": environ.get("REDIS_LOCATION", "redis:6379"),
         "OPTIONS": {
-            'DB': environ.get('REDIS_DB', 1),
+            "DB": environ.get("REDIS_DB", 1),
+            "CONNECTION_POOL_CLASS_KWARGS": {
+                "decode_responses": True
+            },
         },
     }
 }
@@ -237,3 +235,5 @@ STORE_RELATIVE_URLS            = strtobool(environ.get('STORE_RELATIVE_URLS', 'T
 ONESIGNAL_NOTIFICATION_ENABLED = strtobool(environ.get('ONESIGNAL_NOTIFICATION_ENABLED', 'False'))
 
 EDX_NOTIF_FORMAT_FUNC = environ.get('EDX_NOTIF_FORMAT_FUNC', 'core.notif.formatters.json_formatter')
+
+LEADERBOARD_INITIALIZATION_BATCH_SIZE = environ.get('LEADERBOARD_INITIALIZATION_BATCH_SIZE', 100)

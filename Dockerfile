@@ -32,15 +32,14 @@ ENV PYTHONUNBUFFERED 1
 RUN mkdir /app
 COPY . /app
 
-WORKDIR /app/frontend/gamma
+WORKDIR /app
 
 FROM base as production
 
 ARG node_env=prod
 
-COPY --from=static /app/frontend/gamma/dist frontend/gamma/dist
-COPY --from=static /app/frontend/gamma/webpack-stats-$node_env.json frontend/gamma/webpack-stats-$node_env.json
-
+COPY --from=static /app/frontend/gamma/dist /app/frontend/gamma/dist
+COPY --from=static /app/frontend/gamma/webpack-stats-$node_env.json /app/frontend/gamma/webpack-stats-$node_env.json
 
 FROM base as development
 
@@ -50,6 +49,6 @@ WORKDIR /requirements
 RUN pip install --upgrade pip==24.0
 RUN pip install -r test.txt
 
-WORKDIR /app/frontend/gamma
-COPY --from=static /app/frontend/gamma/dist frontend/gamma/dist
-COPY --from=static /app/frontend/gamma/webpack-stats-$node_env.json frontend/gamma/webpack-stats-$node_env.json
+WORKDIR /app
+COPY --from=static /app/frontend/gamma/dist /app/frontend/gamma/dist
+COPY --from=static /app/frontend/gamma/webpack-stats-$node_env.json /app/frontend/gamma/webpack-stats-$node_env.json

@@ -18,14 +18,15 @@ services:
     links:
       - mongo
       - postgres
-      - celery
+      - celery_worker
+      - celery_beat
 
-  celery:
-    container_name: gamma_celery
+  celery_worker: &celery_worker
+    container_name: gamma_celery_worker
     build:
       context: .
       target: base
-    command: celery worker -A gamma --loglevel=INFO -B
+    command: celery worker -A gamma --loglevel=INFO
     env_file:
       - ./envs/test.env
     volumes:
@@ -33,6 +34,11 @@ services:
     links:
       - rabbit
       - redis
+
+  celery_beat:
+    <<: *celery_worker
+    container_name: gamma_celery_beat
+    command: celery beat -A gamma --loglevel=INFO
 
   mongo:
     container_name: gamma_mongo

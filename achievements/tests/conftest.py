@@ -1,15 +1,10 @@
 import pytest
 from django.contrib.contenttypes.models import ContentType
 from django.utils.timezone import now
-from pytest_factoryboy import register
 
 from achievements.services import RuleDependencyService
 
 from .constants import mock_event_based_name, mock_achievement_based_name
-from .factories import AchievementFactory, AchievementRuleFactory
-
-register(AchievementFactory)
-register(AchievementRuleFactory)
 
 
 @pytest.fixture

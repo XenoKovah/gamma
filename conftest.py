@@ -5,11 +5,15 @@ import string
 from datetime import datetime
 
 import pytest
+from pytest_django.fixtures import SettingsWrapper
 from pytest_factoryboy import register
+from django.core.cache import cache
 from django.core.files.base import ContentFile
+from redis import Redis
 from rest_framework.test import APIClient
 from webpack_loader.loader import WebpackLoader
 
+from achievements.tests.factories import AchievementFactory, AchievementRuleFactory
 from avatars.factories import UserAvatarConfigFactory
 from badges.factories import BadgeFactory
 from core.models import AppClient
@@ -23,6 +27,8 @@ from rules.factories import RuleFactory
 from users.factories import GammaUserFactory
 
 
+register(AchievementFactory)
+register(AchievementRuleFactory)
 register(BadgeFactory)
 register(EventFactory)
 register(EventTypeFactory)
@@ -156,3 +162,38 @@ def user():
     })
 
     return _user
+
+
+@pytest.fixture
+def redis_client() -> Redis:
+    """
+    Provide the Redis client.
+    """
+    return cache.get_client(None)
+
+
+@pytest.fixture(autouse=True)
+def clear_redis_dbs(redis_client) -> None:
+    """
+    Clear all Redis databases.
+    """
+    redis_client.flushall()
+
+
+@pytest.fixture(autouse=True)
+def clear_django_cache() -> None:
+    """
+    Clear Django cache after each test run.
+    """
+    yield
+    cache.clear()
+
+
+@pytest.fixture(autouse=True)
+def temp_media_root(tmpdir_factory: pytest.TempdirFactory, settings: SettingsWrapper) -> "LocalPath":
+    """
+    Create a temporary directory to store Django media files.
+    """
+    media_root = tmpdir_factory.mktemp("media_root")
+    settings.MEDIA_ROOT = str(media_root)
+    return media_root

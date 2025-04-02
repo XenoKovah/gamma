@@ -33,7 +33,8 @@ services:
     links:
       - mongo
       - postgres
-      - celery
+      - celery_worker
+      - celery_beat
     labels:
       - "traefik.enable=true"
       - "traefik.http.middlewares.redirect-https.redirectscheme.scheme=https"
@@ -65,19 +66,24 @@ services:
     expose:
       - "9000"
 
-  celery:
+  celery_worker: &celery_worker
     restart: unless-stopped
-    container_name: gamma_celery
+    container_name: gamma_celery_worker
     build:
       context: .
       target: base
-    command: celery worker -A gamma --loglevel=INFO -B
+    command: celery worker -A gamma --loglevel=INFO
     env_file:
       - ./envs/base.env
       - ./envs/private.env
     links:
       - rabbit
       - redis
+
+  celery_beat:
+    <<: *celery_worker
+    container_name: gamma_celery_beat
+    command: celery beat -A gamma --loglevel=INFO
 
   mongo:
     restart: unless-stopped

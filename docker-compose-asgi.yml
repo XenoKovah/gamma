@@ -19,7 +19,8 @@ services:
     links:
       - mongo
       - postgres
-      - celery
+      - celery_worker
+      - celery_beat
       - api-asgi
   
   api-asgi:
@@ -40,12 +41,12 @@ services:
       - mongo
       - postgres
 
-  celery:
-    container_name: gamma_celery
+  celery_worker: &celery_worker
+    container_name: gamma_celery_worker
     build:
       context: .
       dockerfile: Dockerfile-celery
-    command: celery worker -A gamma --loglevel=INFO -B
+    command: celery worker -A gamma --loglevel=INFO
     env_file:
       - ./envs/base.env
       - ./envs/private.env
@@ -54,6 +55,11 @@ services:
     links:
       - rabbit
       - redis
+
+  celery_beat:
+    <<: *celery_worker
+    container_name: gamma_celery_beat
+    command: celery beat -A gamma --loglevel=INFO
 
   mongo:
     container_name: gamma_mongo
