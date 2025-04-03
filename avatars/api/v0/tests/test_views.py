@@ -47,3 +47,28 @@ class TestAvatarSetFinishAction:
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.json() == {'error': AVATAR_SET_FINISH_FAILURE}
         assert invalid_avatar_set.is_draft is True
+
+
+@pytest.mark.django_db
+class TestUserAvatarConfigViewSet:
+    """
+    Test case for the testing AvatarConfigViewSet.
+    """
+
+    def test_valid_key_secret_authentication(self, live_server, client):
+        url = live_server + reverse('user_avatar_config-list')
+
+        response = client.get(
+            url,
+            HTTP_APP_KEY='key',
+            HTTP_APP_SECRET='secret'
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+
+    def test_invalid_key_secret_authentication(self, live_server, client):
+        url = live_server + reverse('user_avatar_config-list')
+
+        response = client.get(url)
+
+        assert response.status_code == status.HTTP_403_FORBIDDEN

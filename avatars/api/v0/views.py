@@ -55,6 +55,4 @@ class UserAvatarConfigViewSet(viewsets.ModelViewSet):
     """
     queryset = UserAvatarConfig.objects.all()
     serializer_class = UserAvatarConfigSerializer
-
-    # TODO: find way to check Authentication state for request from edX.
-    # authentication_classes = (KeySecretAuthentication,)
+    authentication_classes = (KeySecretAuthentication,)
