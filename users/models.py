@@ -3,7 +3,7 @@ from datetime import datetime
 from django.db import models
 from django.utils.translation import gettext as _
 
-from events.models import EventConfiguration
+from events.models import Event, EventConfiguration
 
 
 class GammaUser(models.Model):
@@ -83,10 +83,51 @@ class GammaUser(models.Model):
         self.points += points
         self.save(update_fields=('points',))
 
-    def run_update_user_pipeline(self, event_configuration: EventConfiguration) -> None:
+    def update_user_course_points(self, event: Event) -> None:
+        """
+        Update Gamma User points earned for the course.
+        """
+        if not (event_course_id := event.course_id):
+            return
+
+        event_configuration = event.configuration
+        event_award = event_configuration.award
+
+        user_course_points, created = GammaUserCoursePoints.objects.get_or_create(
+            gamma_user=self,
+            course_id=event_course_id,
+            defaults={'points': event_award},
+        )
+
+        if not created:
+            user_course_points.points += event_award
+            user_course_points.save(update_fields=('points',))
+
+    def run_update_user_pipeline(self, event: Event) -> None:
         """
         Aggregated pipeline with actions which updates user progress.
         """
+        event_configuration = event.configuration
+
         self.update_user_progress(event_configuration.award)
         self.update_user_chart(event_configuration)
         self.update_user_points(event_configuration.award)
+        self.update_user_course_points(event)
+
+
+class GammaUserCoursePoints(models.Model):
+    """
+    Represent points earned by the user for the course.
+    """
+
+    gamma_user = models.ForeignKey(GammaUser, on_delete=models.CASCADE, related_name='courses_points')
+    course_id = models.CharField(max_length=255)
+    points = models.PositiveBigIntegerField(default=0)
+
+    class Meta:
+        verbose_name = _('Gamma User course points')
+        verbose_name_plural = _("Gamma User courses' points")
+        unique_together = ('gamma_user', 'course_id')
+
+    def __str__(self) -> str:
+        return f'{self.gamma_user.user_uid}: {self.course_id} - {self.points} points'

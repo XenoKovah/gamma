@@ -1,4 +1,10 @@
+from typing import Type
+from unittest.mock import MagicMock, Mock, patch
+
 import pytest
+
+from events.factories import EventFactory
+from users.factories import GammaUserFactory
 
 pytestmark = pytest.mark.django_db
 
@@ -37,3 +43,20 @@ def test_process_event_creation_with_no_relevant_rules(
     event_factory(username=user.username)
 
     mock_gamification_backends.process_achievement.assert_not_called()
+
+
+@patch('rules.signals.RulesFilterService', MagicMock())
+@patch('rules.signals.Rule', Mock())
+@patch('rules.signals.GammaUser')
+def test_process_event_creation_runs_update_user_pipeline(
+    gamma_user_mock: MagicMock,
+    gamma_user_factory: Type[GammaUserFactory],
+    event_factory: Type[EventFactory],
+) -> None:
+    user_uid = 'test_user'
+    gamma_user_factory(user_uid=user_uid)
+
+    event = event_factory(username=user_uid)
+
+    gamma_user_mock.ensure_gamma_user_is_created.assert_called_once_with(user_uid=user_uid)
+    gamma_user_mock.ensure_gamma_user_is_created.return_value.run_update_user_pipeline.assert_called_once_with(event)

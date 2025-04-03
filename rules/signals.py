@@ -42,4 +42,4 @@ def process_event_creation(sender, instance, created, **kwargs):
         for backend in get_gamification_backends():
             backend.process_achievement(rule, event, user, is_achievement_exists)
 
-    user.run_update_user_pipeline(configuration)
+    user.run_update_user_pipeline(event)
