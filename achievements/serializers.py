@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
-from achievements.models import Achievement, AchievementRule
-
+from achievements.models import Achievement
+from badges.models import Badge
 
 class AchievementDetailSerializer(serializers.ModelSerializer):
     """
@@ -11,10 +11,28 @@ class AchievementDetailSerializer(serializers.ModelSerializer):
     done = serializers.SerializerMethodField()
     progress = serializers.SerializerMethodField()
     object_uri = serializers.SerializerMethodField()
+    slug = serializers.SerializerMethodField()
+    is_active = serializers.SerializerMethodField()
 
     class Meta:
         model = Achievement
-        fields = ('title', 'description', 'done', 'progress', 'object_id', 'object_uri')
+        fields = ('title', 'slug', 'description', 'done', 'progress', 'object_id', 'object_uri', 'is_active')
+
+    def get_slug(self, obj):
+        """
+        Get the achievement slug.
+        """
+        if isinstance(obj.content_object, Badge):
+            return obj.content_object.slug
+        return None
+
+    def get_is_active(self, obj):
+        """
+        Get the achievement active status.
+        """
+        if isinstance(obj.content_object, Badge):
+            return obj.content_object.is_active
+        return None
 
     def get_done(self, obj):
         """

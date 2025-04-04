@@ -44,7 +44,7 @@ class BadgeSerializer(serializers.ModelSerializer):
         badge = Badge.objects.create(**validated_data)
 
         for rule_data in rules_data:
-            rule = Rule.enensure_rule_is_created_from_data(rule_data)
+            rule = Rule.ensure_rule_is_created_from_data(rule_data)
             badge.rules.add(rule)
 
         return badge
@@ -62,7 +62,7 @@ class BadgeSerializer(serializers.ModelSerializer):
         if rules_data is not None:
             instance.rules.clear()
             for rule_data in rules_data:
-                rule = Rule.enensure_rule_is_created_from_data(rule_data)
+                rule = Rule.ensure_rule_is_created_from_data(rule_data)
                 instance.rules.add(rule)
 
         return instance
