@@ -1,0 +1,6 @@
+from pytest_factoryboy import register
+
+from leaderboard.factories import LeaderboardRetrievingContextFactory
+
+
+register(LeaderboardRetrievingContextFactory)

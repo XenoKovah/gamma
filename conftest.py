@@ -24,7 +24,7 @@ from core.notif.cfg import Provider, Config
 from core.notif.utils import get_format_func
 from events.factories import EventFactory, EventConfigurationFactory, EventTypeFactory
 from rules.factories import RuleFactory
-from users.factories import GammaUserFactory
+from users.factories import GammaUserCoursePointsFactory, GammaUserFactory
 
 
 register(AchievementFactory)
@@ -33,6 +33,7 @@ register(BadgeFactory)
 register(EventFactory)
 register(EventTypeFactory)
 register(EventConfigurationFactory)
+register(GammaUserCoursePointsFactory)
 register(GammaUserFactory)
 register(RuleFactory)
 register(UserAvatarConfigFactory)

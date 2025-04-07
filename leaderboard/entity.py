@@ -1,5 +1,5 @@
 from schematics.models import Model
-from schematics.types import IntType, StringType
+from schematics.types import DictType, IntType, StringType
 
 
 class LeaderboardMember(Model):
@@ -25,3 +25,4 @@ class UserLeaderboardsData(Model):
     user_uid = StringType(required=True)
     points = IntType(required=True)
     signup_source = StringType(required=True, serialize_when_none=True)
+    courses_points = DictType(IntType(), default={})

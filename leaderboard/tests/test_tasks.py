@@ -4,9 +4,11 @@ from unittest.mock import MagicMock, patch
 import pytest
 from redis import Redis
 
+from core.tests.utils.helpers import load_params_from_json
 from leaderboard import tasks
 from leaderboard.repository import RedisLeaderboardRepository, RedisLeaderboardsPendingUpdateRepository
-from users.factories import GammaUserFactory
+from users.models import GammaUser
+from users.factories import GammaUserCoursePointsFactory, GammaUserFactory
 
 
 class TestTaskInitializeLeaderboards:
@@ -35,37 +37,33 @@ class TestTaskInitializeLeaderboards:
 
     @pytest.mark.django_db
     @pytest.mark.parametrize(
-        "user_uid,leaderboard_id,expected_score",
-        (
-            ("test_user_1", "leaderboard:RG", 0),
-            ("test_user_1", "leaderboard:main", 0),
-            ("test_user_2", "leaderboard:RG", 0),
-            ("test_user_2", "leaderboard:main", 0),
-            ("test_user_3", "leaderboard:RG", 7),
-            ("test_user_3", "leaderboard:main", 0),
-            ("test_user_4", "leaderboard:RG", 0),
-            ("test_user_4", "leaderboard:main", 1),
-            ("test_user_5", "leaderboard:RG", 0),
-            ("test_user_5", "leaderboard:main", 0),
-        ),
+        "entry",
+        load_params_from_json("leaderboard/tests/resources/leaderboard_initialization_cases.json"),
     )
     def test_user_leaderboard_score_is_correctly_initialized(
         self,
         gamma_user_factory: Type[GammaUserFactory],
-        user_uid: str,
-        leaderboard_id: str,
-        expected_score: int,
+        gamma_user_course_points_factory: Type[GammaUserCoursePointsFactory],
+        entry: dict,
     ) -> None:
-        gamma_user_factory(user_uid="test_user_1", points=6, signup_source="main")
-        gamma_user_factory(user_uid="test_user_2", points=0, signup_source="main")
-        gamma_user_factory(user_uid="test_user_3", points=7, signup_source="RG")
-        gamma_user_factory(user_uid="test_user_4", points=1, signup_source="main")
-        gamma_user_factory(user_uid="test_user_5", points=15, signup_source="RG")
+        for user_data in entry["gamma_users"]:
+            gamma_user = gamma_user_factory(
+                user_uid=user_data["user_uid"],
+                points=user_data["points"],
+                signup_source=user_data["signup_source"],
+            )
+            for course_id, points in user_data["course_points"].items():
+                gamma_user_course_points_factory(gamma_user=gamma_user, course_id=course_id, points=points)
+
         repository = RedisLeaderboardRepository()
 
-        tasks.task_initialize_leaderboards(2, 2)
+        tasks.task_initialize_leaderboards(entry["offset"], entry["batch_size"])
 
-        assert repository.get_or_init_user_score(user_uid, leaderboard_id) == expected_score
+        for data_item in entry["user_leaderboard_scores"]:
+            assert repository.get_or_init_user_score(
+                data_item["user_uid"],
+                data_item["leaderboard_id"],
+            ) == data_item["score"]
 
     @pytest.mark.django_db
     @pytest.mark.parametrize(
@@ -185,33 +183,48 @@ class TestTaskUpdateLeaderboards:
 
     @pytest.mark.django_db
     @pytest.mark.parametrize(
-        "user_uid,leaderboard_id,expected_score",
-        (
-            ("test_user_1", "leaderboard:RG", 0),
-            ("test_user_1", "leaderboard:main", 6),
-            ("test_user_2", "leaderboard:RG", 0),
-            ("test_user_2", "leaderboard:main", 0),
-            ("test_user_3", "leaderboard:RG", 7),
-            ("test_user_3", "leaderboard:main", 0),
-        ),
+        "entry",
+        load_params_from_json("leaderboard/tests/resources/leaderboard_updating_cases.json"),
     )
     def test_user_leaderboard_score_is_correctly_updated(
         self,
         gamma_user_factory: Type[GammaUserFactory],
-        redis_client: Redis,
-        user_uid: str,
-        leaderboard_id: str,
-        expected_score: int,
+        gamma_user_course_points_factory: Type[GammaUserCoursePointsFactory],
+        entry: dict,
     ) -> None:
-        gamma_user_factory(user_uid="test_user_1", points=6, signup_source="main")
-        gamma_user_factory(user_uid="test_user_2", points=3, signup_source="main")
-        gamma_user_factory(user_uid="test_user_3", points=7, signup_source="RG")
-        redis_client.set("leaderboards_initialization_batches_left", 0)
+        gamma_users = entry["gamma_users_initial_state"]
+
+        for user_data in gamma_users:
+            gamma_user = gamma_user_factory(
+                user_uid=user_data["user_uid"],
+                points=user_data["points"],
+                signup_source=user_data["signup_source"],
+            )
+            for course_id, points in user_data["course_points"].items():
+                gamma_user_course_points_factory(gamma_user=gamma_user, course_id=course_id, points=points)
+
+        tasks.task_initialize_leaderboards(0, len(gamma_users))
+
+        for user_updates in entry["gamma_users_updates"]:
+            user = GammaUser.objects.get(user_uid=user_updates["user_uid"])
+            user.points = user_updates["points"]
+            user.save(update_fields=["points"])
+
+            for course_id, points in user_updates["course_points"].items():
+                user_courses_points = user.courses_points.get(course_id=course_id)
+                user_courses_points.points = points
+                user_courses_points.save(update_fields=["points"])
+
         leaderboards_pending_update_repository = RedisLeaderboardsPendingUpdateRepository()
-        leaderboards_pending_update_repository.schedule_user_leaderboards_update("test_user_1")
-        leaderboards_pending_update_repository.schedule_user_leaderboards_update("test_user_3")
         leaderboard_repository = RedisLeaderboardRepository()
+
+        for user_uid in entry["users_to_update_leaderboards"]:
+            leaderboards_pending_update_repository.schedule_user_leaderboards_update(user_uid)
 
         tasks.task_update_leaderboards()
 
-        assert leaderboard_repository.get_or_init_user_score(user_uid, leaderboard_id) == expected_score
+        for data_item in entry["user_leaderboard_scores"]:
+            assert leaderboard_repository.get_or_init_user_score(
+                data_item["user_uid"],
+                data_item["leaderboard_id"],
+            ) == data_item["score"]

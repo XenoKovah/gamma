@@ -5,6 +5,7 @@ from django.core.management import call_command
 
 from core.tests.utils.helpers import load_params_from_json
 from leaderboard import usecases
+from leaderboard.dataclasses import LeaderboardRetrievingContext
 from leaderboard.entity import LeaderboardMember
 from leaderboard.repository import ORMLeaderboardMemberDataRepository, RedisLeaderboardRepository
 from users.factories import GammaUserFactory
@@ -23,9 +24,9 @@ class TestGetPersonalizedLeaderboardUseCase:
     ) -> None:
         user_uid = entry["user_uid"]
         user_signup_source = entry["signup_source"]
-        leaderboard_id = f"leaderboard:{user_signup_source}"
         redis_leaderboard_repository = RedisLeaderboardRepository()
         leaderboard_member_data_repository = ORMLeaderboardMemberDataRepository()
+        leaderboard_retrieving_context = LeaderboardRetrievingContext(user_uid, user_signup_source, None)
 
         for i in range(1, 31):
             gamma_user_factory(user_uid=f"user_uid_{i}", signup_source=user_signup_source, points=31 - i)
@@ -35,7 +36,7 @@ class TestGetPersonalizedLeaderboardUseCase:
         top10_members_data, competitors_data, rank = usecases.GetPersonalizedLeaderboardUseCase(
             redis_leaderboard_repository,
             leaderboard_member_data_repository,
-        ).execute(leaderboard_id, user_uid)
+        ).execute(leaderboard_retrieving_context)
 
         assert rank == entry["expected_rank"]
         assert top10_members_data == entry["expected_top10"]
@@ -53,9 +54,9 @@ class TestGetPersonalizedLeaderboardUseCase:
     ) -> None:
         user_uid = entry["user_uid"]
         signup_source = entry["signup_source"]
-        leaderboard_id = f"leaderboard:{signup_source[1]}"
         redis_leaderboard_repository = RedisLeaderboardRepository()
         leaderboard_member_data_repository = ORMLeaderboardMemberDataRepository()
+        leaderboard_retrieving_context = LeaderboardRetrievingContext(user_uid, signup_source[1], None)
 
         # Odd users are created with signup_source = "RG", even - signup_source = "main"
         for i in range(1, 31):
@@ -67,7 +68,7 @@ class TestGetPersonalizedLeaderboardUseCase:
         top10_members_data, competitors_data, rank = usecases.GetPersonalizedLeaderboardUseCase(
             redis_leaderboard_repository,
             leaderboard_member_data_repository,
-        ).execute(leaderboard_id, user_uid)
+        ).execute(leaderboard_retrieving_context)
 
         assert rank == entry["expected_rank"]
         assert top10_members_data == entry["expected_top10"]
@@ -86,9 +87,9 @@ class TestGetPersonalizedLeaderboardUseCase:
         all_users = entry["all_users"]
         user_uid = entry["user_uid"]
         signup_source = entry["signup_source"]
-        leaderboard_id = f"leaderboard:{signup_source}"
         redis_leaderboard_repository = RedisLeaderboardRepository()
         leaderboard_member_data_repository = ORMLeaderboardMemberDataRepository()
+        leaderboard_retrieving_context = LeaderboardRetrievingContext(user_uid, signup_source, None)
 
         for item in all_users:
             gamma_user_factory(user_uid=item["user_uid"], signup_source=signup_source, points=item["points"])
@@ -98,7 +99,7 @@ class TestGetPersonalizedLeaderboardUseCase:
         top10_members_data, competitors_data, rank = usecases.GetPersonalizedLeaderboardUseCase(
             redis_leaderboard_repository,
             leaderboard_member_data_repository,
-        ).execute(leaderboard_id, user_uid)
+        ).execute(leaderboard_retrieving_context)
 
         assert rank == entry["expected_rank"]
         assert top10_members_data == entry["expected_top10"]
@@ -116,6 +117,7 @@ class TestGetPersonalizedLeaderboardUseCase:
             leaderboard_member_data_repository,
         )
         current_user = LeaderboardMember({"user_uid": "user_uid", "points": 0})
+        leaderboard_retrieving_context = LeaderboardRetrievingContext(current_user.user_uid, "main", None)
 
         for i in range(1, 3):
             gamma_user_factory(user_uid=f"user_uid_{i}", points=3 - i)
@@ -123,7 +125,7 @@ class TestGetPersonalizedLeaderboardUseCase:
 
         call_command("initialize_leaderboard")
 
-        top10_members_data = usecase._get_top10_members_data(current_user, 3, "leaderboard:main")
+        top10_members_data = usecase._get_top10_members_data(current_user, 3, leaderboard_retrieving_context)
 
         assert len(top10_members_data) == 2
         assert top10_members_data[0]["user_uid"] == "user_uid_1"
@@ -142,6 +144,7 @@ class TestGetPersonalizedLeaderboardUseCase:
         )
         current_user_uid = "current_user"
         current_user = LeaderboardMember({"user_uid": current_user_uid, "points": 1})
+        leaderboard_retrieving_context = LeaderboardRetrievingContext(current_user.user_uid, "main", None)
 
         for i in range(1, 10):
             gamma_user_factory(user_uid=f"user_uid_{i}", points=11 - i)
@@ -149,7 +152,7 @@ class TestGetPersonalizedLeaderboardUseCase:
 
         call_command("initialize_leaderboard")
 
-        top10_members_data = usecase._get_top10_members_data(current_user, 10, "leaderboard:main")
+        top10_members_data = usecase._get_top10_members_data(current_user, 10, leaderboard_retrieving_context)
 
         assert len(top10_members_data) == 10
         assert top10_members_data[9]["user_uid"] == current_user_uid
@@ -166,12 +169,13 @@ class TestGetPersonalizedLeaderboardUseCase:
             leaderboard_member_data_repository,
         )
         current_user = LeaderboardMember({"user_uid": "current_user", "points": 0})
+        leaderboard_retrieving_context = LeaderboardRetrievingContext(current_user.user_uid, "main", None)
 
         gamma_user_factory(user_uid=current_user.user_uid, points=current_user.points)
 
         call_command("initialize_leaderboard")
 
-        top10_members_data = usecase._get_top10_members_data(current_user, 10, "leaderboard:main")
+        top10_members_data = usecase._get_top10_members_data(current_user, 10, leaderboard_retrieving_context)
 
         assert len(top10_members_data) == 0
 

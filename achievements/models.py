@@ -54,6 +54,15 @@ class Achievement(models.Model):
                 dependencies_list.append(rule.dependencies)
         return dependencies_list if dependencies_list else None
 
+    def get_course_related_achievement_rules(self, course_id: str) -> List['AchievementRule']:
+        """
+        Provide achievement rules with a rule filter for a specific course.
+        """
+        return [
+            achievement_rule for achievement_rule in self.achievement_rules.all()
+            if achievement_rule.rule.has_filter('course', course_id)
+        ]
+
 
 class AchievementRule(models.Model):
     """

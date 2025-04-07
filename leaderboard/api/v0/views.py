@@ -1,12 +1,9 @@
-from typing import Optional
-
-from django.conf import settings
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from core.authentication import KeySecretAuthentication
-from leaderboard.constants import GENERAL_LEADERBOARD_ID_TEMPLATE
+from leaderboard.dataclasses import LeaderboardRetrievingContext
 from leaderboard.repository import ORMLeaderboardMemberDataRepository, RedisLeaderboardRepository
 from leaderboard.usecases import GetPersonalizedLeaderboardUseCase
 from users.models import GammaUser
@@ -21,27 +18,32 @@ class LeaderBoardView(APIView):
 
     def get(self, request):
         user_uid = request.GET.get("username")
-        user_signup_source = request.GET.get("signup_source")
+        leaderboard_retrieving_context = LeaderboardRetrievingContext(
+            user_uid,
+            request.GET.get("signup_source"),
+            request.GET.get("course_id"),
+        )
 
         GammaUser.ensure_gamma_user_is_created(user_uid=user_uid)
 
-        response_data = self._collect_response_data(user_uid, user_signup_source)
+        response_data = self._collect_response_data(leaderboard_retrieving_context)
 
         return Response(response_data, status=status.HTTP_200_OK)
 
-    def _collect_response_data(self, user_uid: Optional[str], user_signup_source: Optional[str]) -> dict:
-        redis_leaderboard_repo = RedisLeaderboardRepository()
+    def _collect_response_data(self, leaderboard_retrieving_context: LeaderboardRetrievingContext) -> dict:
+        """
+        Collect data to place in the response body.
+        """
+        redis_leaderboard_repository = RedisLeaderboardRepository()
         leaderboard_member_data_repository = ORMLeaderboardMemberDataRepository()
-        user_signup_source = user_signup_source or settings.MAIN_SIGNUP_SOURCE
-        leaderboard_id = GENERAL_LEADERBOARD_ID_TEMPLATE.format(user_signup_source=user_signup_source)
         leaders, competitors, rank = GetPersonalizedLeaderboardUseCase(
-            redis_leaderboard_repo,
+            redis_leaderboard_repository,
             leaderboard_member_data_repository,
-        ).execute(leaderboard_id, user_uid)
+        ).execute(leaderboard_retrieving_context)
 
         return {
             "top10": leaders,
             "rank": rank,
-            "user_uid": user_uid,
+            "user_uid": leaderboard_retrieving_context.user_uid,
             "competitors": competitors,
         }

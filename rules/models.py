@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.db import models
 
 from core.mixins import TimestampModelMixin
@@ -39,3 +41,9 @@ class Rule(TimestampModelMixin, models.Model):
             rule = cls.objects.create(**rule_data)
 
         return rule
+
+    def has_filter(self, name: str, value: Any) -> bool:
+        """
+        Check whether the rule has a filter with a specific value.
+        """
+        return self.filters.get(name) == value if name in self.filters else False

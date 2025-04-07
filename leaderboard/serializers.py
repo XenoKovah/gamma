@@ -1,8 +1,7 @@
-from django.contrib.contenttypes.models import ContentType
 from rest_framework import serializers
 
-from achievements.models import Achievement, AchievementRule
-from badges.models import Badge
+from achievements.models import Achievement
+from badges.utils import is_achieved_badge
 from users.models import GammaUser
 
 
@@ -33,10 +32,16 @@ class LeaderboardMemberSerializer(serializers.ModelSerializer):
     badges = serializers.SerializerMethodField()
 
     def get_badges(self, obj: GammaUser) -> dict:
-        badge_content_type = ContentType.objects.get_for_model(Badge)
+        """
+        Provide a leaderboard-related badges achieved by a user.
+
+        If there is a course_id in the context, only course-related badges
+        are returned.
+        """
+        course_id = self.context["leaderboard_retrieving_context"].course_id
         achieved_badges = [
             achievement for achievement in obj.achievement_set.all()
-            if achievement.content_type == badge_content_type and achievement.all_rules_completed
+            if is_achieved_badge(achievement, course_id)
         ]
         return LeaderboardMemberBadgeSerializer(achieved_badges, many=True, read_only=True).data
 

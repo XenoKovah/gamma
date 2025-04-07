@@ -6,8 +6,10 @@ from django.core.cache import cache
 from django.db.models import Prefetch
 
 from achievements.models import AchievementRule
+from leaderboard.dataclasses import LeaderboardRetrievingContext
 from leaderboard.entity import LeaderboardMember, UserLeaderboardsData
 from leaderboard.serializers import LeaderboardMemberSerializer
+from rules.models import Rule
 from users.models import GammaUser
 
 logger = logging.getLogger(__name__)
@@ -221,7 +223,11 @@ class LeaderboardMemberDataRepository(ABC):
         """
 
     @abstractmethod
-    def get_leaderboard_members_data(self, user_uids: List[str]) -> List[dict]:
+    def get_leaderboard_members_data(
+        self,
+        user_uids: List[str],
+        leaderboard_retrieving_context: LeaderboardRetrievingContext,
+    ) -> List[dict]:
         """
         Provide additional data related to the leaderboard members.
         """
@@ -246,17 +252,27 @@ class ORMLeaderboardMemberDataRepository(LeaderboardMemberDataRepository):
     def get_user_count(self) -> int:
         return GammaUser.objects.count()
 
-    def get_leaderboard_members_data(self, user_uids: List[str]) -> List[dict]:
+    def get_leaderboard_members_data(
+        self,
+        user_uids: List[str],
+        leaderboard_retrieving_context: LeaderboardRetrievingContext,
+    ) -> List[dict]:
         leaderboard_members = (
             GammaUser.objects.filter(user_uid__in=user_uids)
             .prefetch_related(
                 "achievement_set__content_type",
                 "achievement_set__content_object",
                 Prefetch("achievement_set__achievement_rules", queryset=AchievementRule.objects.order_by("pk")),
+                Prefetch("achievement_set__achievement_rules__rule", queryset=Rule.objects.order_by("pk")),
             )
         )
 
-        leaderboard_members_data = LeaderboardMemberSerializer(leaderboard_members, many=True).data
+        serializer = LeaderboardMemberSerializer(
+            leaderboard_members,
+            context={"leaderboard_retrieving_context": leaderboard_retrieving_context},
+            many=True,
+        )
+        leaderboard_members_data = serializer.data
         leaderboard_members_data.sort(key=lambda data_item: user_uids.index(data_item["user_uid"]))
         return leaderboard_members_data
 
@@ -266,14 +282,29 @@ class ORMLeaderboardMemberDataRepository(LeaderboardMemberDataRepository):
         offset: Optional[int] = None,
         batch_size: Optional[int] = None,
     ) -> List[UserLeaderboardsData]:
-        queryset = GammaUser.objects.all()
+        queryset = GammaUser.objects.prefetch_related("courses_points")
 
         if _filters:
             queryset = queryset.filter(**_filters)
 
-        queryset = queryset.order_by("pk").values("user_uid", "points", "signup_source")
+        queryset = queryset.order_by("pk")
 
         if offset is not None and batch_size is not None:
             queryset = queryset[offset:offset + batch_size]
 
-        return [UserLeaderboardsData(item) for item in queryset]
+        return [self._build_user_leaderboards_data(item) for item in queryset]
+
+    @staticmethod
+    def _build_user_leaderboards_data(gamma_user: GammaUser) -> UserLeaderboardsData:
+        """
+        Build user leaderboards data from a GammaUser and its relations.
+        """
+        return UserLeaderboardsData({
+            "user_uid": gamma_user.user_uid,
+            "points": gamma_user.points,
+            "signup_source": gamma_user.signup_source,
+            "courses_points": {
+                course_points.course_id: course_points.points
+                for course_points in gamma_user.courses_points.all()
+            },
+        })

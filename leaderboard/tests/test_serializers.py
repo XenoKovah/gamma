@@ -7,6 +7,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from achievements.tests.factories import AchievementFactory, AchievementRuleFactory
 from badges.factories import BadgeFactory
 from core.tests.utils.helpers import load_params_from_json
+from leaderboard.dataclasses import LeaderboardRetrievingContext
 from leaderboard.serializers import LeaderboardMemberSerializer
 from rules.factories import RuleFactory
 from users.factories import GammaUserFactory
@@ -26,11 +27,19 @@ def test_leaderboard_member_serializer_data_correctness(
     rule_factory: Type[RuleFactory],
 ) -> None:
     setup_data = entry["setup_data"]
+    leaderboard_retrieving_context_data = setup_data["leaderboard_retrieving_context"]
+    user_uid = leaderboard_retrieving_context_data["user_uid"]
+    user_signup_source = leaderboard_retrieving_context_data["user_signup_source"]
+    course_id = leaderboard_retrieving_context_data["course_id"]
+    leaderboard_retrieving_context = LeaderboardRetrievingContext(user_uid, user_signup_source, course_id)
 
-    user = gamma_user_factory(**setup_data["gamma_user"])
+    user = gamma_user_factory(user_uid=user_uid, signup_source=user_signup_source)
 
     for badge_data in setup_data["badges"]:
-        rules = [rule_factory(action=rule_data["action"]) for rule_data in badge_data["rules"]]
+        rules = [
+            rule_factory(action=rule_data["action"], filters=rule_data["filters"])
+            for rule_data in badge_data["rules"]
+        ]
         badge = badge_factory(
             title=badge_data["title"],
             description=badge_data["description"],
@@ -58,6 +67,9 @@ def test_leaderboard_member_serializer_data_correctness(
                     status=achievement_rule_data["status"],
                 )
 
-    serializer = LeaderboardMemberSerializer(user)
+    serializer = LeaderboardMemberSerializer(
+        user,
+        context={"leaderboard_retrieving_context": leaderboard_retrieving_context},
+    )
 
     assert serializer.data == entry["expected_serialization_result"]

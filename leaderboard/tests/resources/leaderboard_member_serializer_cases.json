@@ -1,9 +1,10 @@
 [
   {
     "setup_data": {
-      "gamma_user": {
+      "leaderboard_retrieving_context": {
         "user_uid": "user_uid_1",
-        "signup_source": "RG"
+        "user_signup_source": "RG",
+        "course_id": null
       },
       "badges": [
         {
@@ -15,6 +16,7 @@
               "action": {
                 "edx_bookmark_added": 15
               },
+              "filters": {},
               "achievement_rules": [
                 {
                   "dependencies": {
@@ -59,9 +61,10 @@
   },
   {
     "setup_data": {
-      "gamma_user": {
+      "leaderboard_retrieving_context": {
         "user_uid": "user_uid_2",
-        "signup_source": "main"
+        "user_signup_source": "main",
+        "course_id": null
       },
       "badges": []
     },
@@ -73,9 +76,10 @@
   },
   {
     "setup_data": {
-      "gamma_user": {
+      "leaderboard_retrieving_context": {
         "user_uid": "user_uid_3",
-        "signup_source": "RG"
+        "user_signup_source": "RG",
+        "course_id": null
       },
       "badges": [
         {
@@ -87,6 +91,7 @@
               "action": {
                 "edx_bookmark_added": 15
               },
+              "filters": {},
               "achievement_rules": [
                 {
                   "dependencies": {
@@ -113,6 +118,7 @@
               "action": {
                 "edx_forum_thread_created": 10
               },
+              "filters": {},
               "achievement_rules": [
                 {
                   "dependencies": {
@@ -132,6 +138,7 @@
               "action": {
                 "edx_forum_response_created": 5
               },
+              "filters": {},
               "achievement_rules": [
                 {
                   "dependencies": {
@@ -159,9 +166,10 @@
   },
   {
     "setup_data": {
-      "gamma_user": {
+      "leaderboard_retrieving_context": {
         "user_uid": "user_uid_4",
-        "signup_source": "main"
+        "user_signup_source": "main",
+        "course_id": null
       },
       "badges": [
         {
@@ -173,6 +181,7 @@
               "action": {
                 "edx_bookmark_added": 15
               },
+              "filters": {},
               "achievement_rules": [
                 {
                   "dependencies": {
@@ -199,6 +208,7 @@
               "action": {
                 "edx_forum_thread_created": 10
               },
+              "filters": {},
               "achievement_rules": [
                 {
                   "dependencies": {
@@ -218,6 +228,7 @@
               "action": {
                 "edx_forum_response_created": 5
               },
+              "filters": {},
               "achievement_rules": [
                 {
                   "dependencies": {
@@ -271,9 +282,10 @@
   },
   {
     "setup_data": {
-      "gamma_user": {
+      "leaderboard_retrieving_context": {
         "user_uid": "user_uid_5",
-        "signup_source": "main"
+        "user_signup_source": "main",
+        "course_id": null
       },
       "badges": [
         {
@@ -285,6 +297,7 @@
               "action": {
                 "edx_bookmark_added": 15
               },
+              "filters": {},
               "achievement_rules": [
                 {
                   "dependencies": {
@@ -311,6 +324,7 @@
               "action": {
                 "edx_forum_thread_created": 10
               },
+              "filters": {},
               "achievement_rules": [
                 {
                   "dependencies": {
@@ -330,6 +344,7 @@
               "action": {
                 "edx_forum_response_created": 5
               },
+              "filters": {},
               "achievement_rules": [
                 {
                   "dependencies": {
@@ -395,6 +410,347 @@
           ]
         }
       ]
+    }
+  },
+  {
+    "setup_data": {
+      "leaderboard_retrieving_context": {
+        "user_uid": "user_uid_6",
+        "user_signup_source": "RG",
+        "course_id": "course-v1:OpenedX+DemoX+DemoCourse"
+      },
+      "badges": [
+        {
+          "title": "Master Collector",
+          "description": "You’ve bookmarked tons of valuable content. Knowledge is power!",
+          "image_name": "bookmark.png",
+          "rules": [
+            {
+              "action": {
+                "edx_bookmark_added": 15
+              },
+              "filters": {},
+              "achievement_rules": [
+                {
+                  "dependencies": {
+                    "events": {
+                      "edx_bookmark_added": {
+                        "count": 15,
+                        "goal": 15,
+                        "last": "2025-03-21T16:10:06.262390+00:00"
+                      }
+                    }
+                  },
+                  "status": "completed"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "expected_serialization_result": {
+      "user_uid": "user_uid_6",
+      "signup_source": "RG",
+      "badges": []
+    }
+  },
+  {
+    "setup_data": {
+      "leaderboard_retrieving_context": {
+        "user_uid": "user_uid_7",
+        "user_signup_source": "main",
+        "course_id": "course-v1:OpenedX+DemoX+DemoCourse"
+      },
+      "badges": [
+        {
+          "title": "Master Collector",
+          "description": "You’ve bookmarked tons of valuable content. Knowledge is power!",
+          "image_name": "bookmark.png",
+          "rules": [
+            {
+              "action": {
+                "edx_bookmark_added": 15
+              },
+              "filters": {"course": "course-v1:RG+Math+2022"},
+              "achievement_rules": [
+                {
+                  "dependencies": {
+                    "events": {
+                      "edx_bookmark_added": {
+                        "count": 15,
+                        "goal": 15,
+                        "last": "2025-03-21T16:10:06.262390+00:00"
+                      }
+                    }
+                  },
+                  "status": "completed"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "expected_serialization_result": {
+      "user_uid": "user_uid_7",
+      "signup_source": "main",
+      "badges": []
+    }
+  },
+  {
+    "setup_data": {
+      "leaderboard_retrieving_context": {
+        "user_uid": "user_uid_8",
+        "user_signup_source": "RG",
+        "course_id": "course-v1:OpenedX+DemoX+DemoCourse"
+      },
+      "badges": [
+        {
+          "title": "Master Collector",
+          "description": "You’ve bookmarked tons of valuable content. Knowledge is power!",
+          "image_name": "bookmark.png",
+          "rules": [
+            {
+              "action": {
+                "edx_bookmark_added": 15
+              },
+              "filters": {"course": "course-v1:OpenedX+DemoX+DemoCourse"},
+              "achievement_rules": [
+                {
+                  "dependencies": {
+                    "events": {
+                      "edx_bookmark_added": {
+                        "count": 15,
+                        "goal": 15,
+                        "last": "2025-03-21T16:10:06.262390+00:00"
+                      }
+                    }
+                  },
+                  "status": "completed"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "expected_serialization_result": {
+      "user_uid": "user_uid_8",
+      "signup_source": "RG",
+      "badges": [
+        {
+          "title": "Master Collector",
+          "description": "You’ve bookmarked tons of valuable content. Knowledge is power!",
+          "url": "/media/uploads/badges/bookmark.png",
+          "progress": [
+            {
+              "events": {
+                "edx_bookmark_added": {
+                  "count": 15,
+                  "goal": 15,
+                  "last": "2025-03-21T16:10:06.262390+00:00"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "setup_data": {
+      "leaderboard_retrieving_context": {
+        "user_uid": "user_uid_9",
+        "user_signup_source": "RG",
+        "course_id": "course-v1:OpenedX+DemoX+DemoCourse"
+      },
+      "badges": [
+        {
+          "title": "Master Collector",
+          "description": "You’ve bookmarked tons of valuable content. Knowledge is power!",
+          "image_name": "bookmark.png",
+          "rules": [
+            {
+              "action": {
+                "edx_bookmark_added": 10
+              },
+              "filters": {"course": "course-v1:OpenedX+DemoX+DemoCourse"},
+              "achievement_rules": [
+                {
+                  "dependencies": {
+                    "events": {
+                      "edx_bookmark_added": {
+                        "count": 10,
+                        "goal": 10,
+                        "last": "2025-03-15T18:20:06.262390+00:00"
+                      }
+                    }
+                  },
+                  "status": "completed"
+                }
+              ]
+            },
+            {
+              "action": {
+                "edx_bookmark_added": 10
+              },
+              "filters": {"course": "course-v1:RG+Math+2022"},
+              "achievement_rules": [
+                {
+                  "dependencies": {
+                    "events": {
+                      "edx_bookmark_added": {
+                        "count": 10,
+                        "goal": 10,
+                        "last": "2025-03-17T11:16:06.262390+00:00"
+                      }
+                    }
+                  },
+                  "status": "completed"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "expected_serialization_result": {
+      "user_uid": "user_uid_9",
+      "signup_source": "RG",
+      "badges": [
+        {
+          "title": "Master Collector",
+          "description": "You’ve bookmarked tons of valuable content. Knowledge is power!",
+          "url": "/media/uploads/badges/bookmark.png",
+          "progress": [
+            {
+              "events": {
+                "edx_bookmark_added": {
+                  "count": 10,
+                  "goal": 10,
+                  "last": "2025-03-15T18:20:06.262390+00:00"
+                }
+              }
+            },
+            {
+              "events": {
+                "edx_bookmark_added": {
+                  "count": 10,
+                  "goal": 10,
+                  "last": "2025-03-17T11:16:06.262390+00:00"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "setup_data": {
+      "leaderboard_retrieving_context": {
+        "user_uid": "user_uid_10",
+        "user_signup_source": "RG",
+        "course_id": "course-v1:OpenedX+DemoX+DemoCourse"
+      },
+      "badges": [
+        {
+          "title": "Master Collector",
+          "description": "You’ve bookmarked tons of valuable content. Knowledge is power!",
+          "image_name": "bookmark.png",
+          "rules": [
+            {
+              "action": {
+                "edx_bookmark_added": 10
+              },
+              "filters": {"course": "course-v1:RG+English+2024"},
+              "achievement_rules": [
+                {
+                  "dependencies": {
+                    "events": {
+                      "edx_bookmark_added": {
+                        "count": 10,
+                        "goal": 10,
+                        "last": "2025-03-15T18:20:06.262390+00:00"
+                      }
+                    }
+                  },
+                  "status": "completed"
+                }
+              ]
+            },
+            {
+              "action": {
+                "edx_bookmark_added": 10
+              },
+              "filters": {"course": "course-v1:RG+Math+2022"},
+              "achievement_rules": [
+                {
+                  "dependencies": {
+                    "events": {
+                      "edx_bookmark_added": {
+                        "count": 10,
+                        "goal": 10,
+                        "last": "2025-03-17T11:16:06.262390+00:00"
+                      }
+                    }
+                  },
+                  "status": "completed"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "expected_serialization_result": {
+      "user_uid": "user_uid_10",
+      "signup_source": "RG",
+      "badges": []
+    }
+  },
+  {
+    "setup_data": {
+      "leaderboard_retrieving_context": {
+        "user_uid": "user_uid_11",
+        "user_signup_source": "RG",
+        "course_id": "course-v1:OpenedX+DemoX+DemoCourse"
+      },
+      "badges": [
+        {
+          "title": "Master Collector",
+          "description": "You’ve bookmarked tons of valuable content. Knowledge is power!",
+          "image_name": "bookmark.png",
+          "rules": [
+            {
+              "action": {
+                "edx_bookmark_added": 15
+              },
+              "filters": {"course": "course-v1:OpenedX+DemoX+DemoCourse"},
+              "achievement_rules": [
+                {
+                  "dependencies": {
+                    "events": {
+                      "edx_bookmark_added": {
+                        "count": 10,
+                        "goal": 15,
+                        "last": "2025-03-21T16:10:06.262390+00:00"
+                      }
+                    }
+                  },
+                  "status": "active"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "expected_serialization_result": {
+      "user_uid": "user_uid_11",
+      "signup_source": "RG",
+      "badges": []
     }
   }
 ]

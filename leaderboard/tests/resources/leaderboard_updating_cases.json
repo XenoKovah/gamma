@@ -1,0 +1,615 @@
+[
+    {
+        "gamma_users_initial_state": [
+            {
+                "user_uid": "test_user_1",
+                "points": 0,
+                "signup_source": "main",
+                "course_points": {
+                    "course-v1:OpenedX+DemoX+DemoCourse": 0,
+                    "course-v1:RG+Math+2022": 0
+                }
+            },
+            {
+                "user_uid": "test_user_2",
+                "points": 0,
+                "signup_source": "main",
+                "course_points": {
+                    "course-v1:OpenedX+DemoX+DemoCourse": 0,
+                    "course-v1:RG+Math+2022": 0
+                }
+            },
+            {
+                "user_uid": "test_user_3",
+                "points": 0,
+                "signup_source": "RG",
+                "course_points": {
+                    "course-v1:OpenedX+DemoX+DemoCourse": 0,
+                    "course-v1:RG+Math+2022": 0
+                }
+            }
+        ],
+        "gamma_users_updates": [
+            {
+                "user_uid": "test_user_1",
+                "points": 6,
+                "course_points": {
+                    "course-v1:OpenedX+DemoX+DemoCourse": 5,
+                    "course-v1:RG+Math+2022": 1
+                }
+            },
+            {
+                "user_uid": "test_user_2",
+                "points": 3,
+                "course_points": {
+                    "course-v1:OpenedX+DemoX+DemoCourse": 0,
+                    "course-v1:RG+Math+2022": 0
+                }
+            },
+            {
+                "user_uid": "test_user_3",
+                "points": 7,
+                "course_points": {
+                    "course-v1:OpenedX+DemoX+DemoCourse": 1,
+                    "course-v1:RG+Math+2022": 4
+                }
+            }
+        ],
+        "users_to_update_leaderboards": [
+            "test_user_1",
+            "test_user_2",
+            "test_user_3"
+        ],
+        "user_leaderboard_scores": [
+            {
+                "user_uid": "test_user_1",
+                "leaderboard_id": "leaderboard:RG",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_1",
+                "leaderboard_id": "leaderboard:main",
+                "score": 6
+            },
+            {
+                "user_uid": "test_user_1",
+                "leaderboard_id": "leaderboard:main:course-v1:OpenedX+DemoX+DemoCourse",
+                "score": 5
+            },
+            {
+                "user_uid": "test_user_1",
+                "leaderboard_id": "leaderboard:main:course-v1:RG+Math+2022",
+                "score": 1
+            },
+            {
+                "user_uid": "test_user_1",
+                "leaderboard_id": "leaderboard:RG:course-v1:OpenedX+DemoX+DemoCourse",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_1",
+                "leaderboard_id": "leaderboard:RG:course-v1:RG+Math+2022",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_2",
+                "leaderboard_id": "leaderboard:RG",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_2",
+                "leaderboard_id": "leaderboard:main",
+                "score": 3
+            },
+            {
+                "user_uid": "test_user_2",
+                "leaderboard_id": "leaderboard:main:course-v1:OpenedX+DemoX+DemoCourse",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_2",
+                "leaderboard_id": "leaderboard:main:course-v1:RG+Math+2022",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_2",
+                "leaderboard_id": "leaderboard:RG:course-v1:OpenedX+DemoX+DemoCourse",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_2",
+                "leaderboard_id": "leaderboard:RG:course-v1:RG+Math+2022",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_3",
+                "leaderboard_id": "leaderboard:RG",
+                "score": 7
+            },
+            {
+                "user_uid": "test_user_3",
+                "leaderboard_id": "leaderboard:main",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_3",
+                "leaderboard_id": "leaderboard:main:course-v1:OpenedX+DemoX+DemoCourse",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_3",
+                "leaderboard_id": "leaderboard:main:course-v1:RG+Math+2022",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_3",
+                "leaderboard_id": "leaderboard:RG:course-v1:OpenedX+DemoX+DemoCourse",
+                "score": 1
+            },
+            {
+                "user_uid": "test_user_3",
+                "leaderboard_id": "leaderboard:RG:course-v1:RG+Math+2022",
+                "score": 4
+            }
+        ]
+    },
+    {
+        "gamma_users_initial_state": [
+            {
+                "user_uid": "test_user_1",
+                "points": 0,
+                "signup_source": "main",
+                "course_points": {
+                    "course-v1:OpenedX+DemoX+DemoCourse": 0,
+                    "course-v1:RG+Math+2022": 0
+                }
+            },
+            {
+                "user_uid": "test_user_2",
+                "points": 0,
+                "signup_source": "main",
+                "course_points": {
+                    "course-v1:OpenedX+DemoX+DemoCourse": 0,
+                    "course-v1:RG+Math+2022": 0
+                }
+            },
+            {
+                "user_uid": "test_user_3",
+                "points": 0,
+                "signup_source": "RG",
+                "course_points": {
+                    "course-v1:OpenedX+DemoX+DemoCourse": 0,
+                    "course-v1:RG+Math+2022": 0
+                }
+            }
+        ],
+        "gamma_users_updates": [
+            {
+                "user_uid": "test_user_1",
+                "points": 6,
+                "course_points": {
+                    "course-v1:OpenedX+DemoX+DemoCourse": 5,
+                    "course-v1:RG+Math+2022": 1
+                }
+            },
+            {
+                "user_uid": "test_user_2",
+                "points": 3,
+                "course_points": {
+                    "course-v1:OpenedX+DemoX+DemoCourse": 0,
+                    "course-v1:RG+Math+2022": 0
+                }
+            },
+            {
+                "user_uid": "test_user_3",
+                "points": 7,
+                "course_points": {
+                    "course-v1:OpenedX+DemoX+DemoCourse": 1,
+                    "course-v1:RG+Math+2022": 4
+                }
+            }
+        ],
+        "users_to_update_leaderboards": [
+            "test_user_2",
+            "test_user_3"
+        ],
+        "user_leaderboard_scores": [
+            {
+                "user_uid": "test_user_1",
+                "leaderboard_id": "leaderboard:RG",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_1",
+                "leaderboard_id": "leaderboard:main",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_1",
+                "leaderboard_id": "leaderboard:main:course-v1:OpenedX+DemoX+DemoCourse",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_1",
+                "leaderboard_id": "leaderboard:main:course-v1:RG+Math+2022",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_1",
+                "leaderboard_id": "leaderboard:RG:course-v1:OpenedX+DemoX+DemoCourse",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_1",
+                "leaderboard_id": "leaderboard:RG:course-v1:RG+Math+2022",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_2",
+                "leaderboard_id": "leaderboard:RG",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_2",
+                "leaderboard_id": "leaderboard:main",
+                "score": 3
+            },
+            {
+                "user_uid": "test_user_2",
+                "leaderboard_id": "leaderboard:main:course-v1:OpenedX+DemoX+DemoCourse",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_2",
+                "leaderboard_id": "leaderboard:main:course-v1:RG+Math+2022",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_2",
+                "leaderboard_id": "leaderboard:RG:course-v1:OpenedX+DemoX+DemoCourse",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_2",
+                "leaderboard_id": "leaderboard:RG:course-v1:RG+Math+2022",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_3",
+                "leaderboard_id": "leaderboard:RG",
+                "score": 7
+            },
+            {
+                "user_uid": "test_user_3",
+                "leaderboard_id": "leaderboard:main",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_3",
+                "leaderboard_id": "leaderboard:main:course-v1:OpenedX+DemoX+DemoCourse",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_3",
+                "leaderboard_id": "leaderboard:main:course-v1:RG+Math+2022",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_3",
+                "leaderboard_id": "leaderboard:RG:course-v1:OpenedX+DemoX+DemoCourse",
+                "score": 1
+            },
+            {
+                "user_uid": "test_user_3",
+                "leaderboard_id": "leaderboard:RG:course-v1:RG+Math+2022",
+                "score": 4
+            }
+        ]
+    },
+    {
+        "gamma_users_initial_state": [
+            {
+                "user_uid": "test_user_1",
+                "points": 4,
+                "signup_source": "main",
+                "course_points": {
+                    "course-v1:OpenedX+DemoX+DemoCourse": 2,
+                    "course-v1:RG+Math+2022": 0
+                }
+            },
+            {
+                "user_uid": "test_user_2",
+                "points": 1,
+                "signup_source": "main",
+                "course_points": {
+                    "course-v1:OpenedX+DemoX+DemoCourse": 0,
+                    "course-v1:RG+Math+2022": 0
+                }
+            },
+            {
+                "user_uid": "test_user_3",
+                "points": 0,
+                "signup_source": "RG",
+                "course_points": {
+                    "course-v1:OpenedX+DemoX+DemoCourse": 0,
+                    "course-v1:RG+Math+2022": 0
+                }
+            }
+        ],
+        "gamma_users_updates": [
+            {
+                "user_uid": "test_user_1",
+                "points": 6,
+                "course_points": {
+                    "course-v1:OpenedX+DemoX+DemoCourse": 5,
+                    "course-v1:RG+Math+2022": 1
+                }
+            },
+            {
+                "user_uid": "test_user_2",
+                "points": 3,
+                "course_points": {
+                    "course-v1:OpenedX+DemoX+DemoCourse": 0,
+                    "course-v1:RG+Math+2022": 0
+                }
+            },
+            {
+                "user_uid": "test_user_3",
+                "points": 7,
+                "course_points": {
+                    "course-v1:OpenedX+DemoX+DemoCourse": 1,
+                    "course-v1:RG+Math+2022": 4
+                }
+            }
+        ],
+        "users_to_update_leaderboards": [
+            "test_user_1",
+            "test_user_2",
+            "test_user_3"
+        ],
+        "user_leaderboard_scores": [
+            {
+                "user_uid": "test_user_1",
+                "leaderboard_id": "leaderboard:RG",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_1",
+                "leaderboard_id": "leaderboard:main",
+                "score": 6
+            },
+            {
+                "user_uid": "test_user_1",
+                "leaderboard_id": "leaderboard:main:course-v1:OpenedX+DemoX+DemoCourse",
+                "score": 5
+            },
+            {
+                "user_uid": "test_user_1",
+                "leaderboard_id": "leaderboard:main:course-v1:RG+Math+2022",
+                "score": 1
+            },
+            {
+                "user_uid": "test_user_1",
+                "leaderboard_id": "leaderboard:RG:course-v1:OpenedX+DemoX+DemoCourse",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_1",
+                "leaderboard_id": "leaderboard:RG:course-v1:RG+Math+2022",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_2",
+                "leaderboard_id": "leaderboard:RG",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_2",
+                "leaderboard_id": "leaderboard:main",
+                "score": 3
+            },
+            {
+                "user_uid": "test_user_2",
+                "leaderboard_id": "leaderboard:main:course-v1:OpenedX+DemoX+DemoCourse",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_2",
+                "leaderboard_id": "leaderboard:main:course-v1:RG+Math+2022",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_2",
+                "leaderboard_id": "leaderboard:RG:course-v1:OpenedX+DemoX+DemoCourse",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_2",
+                "leaderboard_id": "leaderboard:RG:course-v1:RG+Math+2022",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_3",
+                "leaderboard_id": "leaderboard:RG",
+                "score": 7
+            },
+            {
+                "user_uid": "test_user_3",
+                "leaderboard_id": "leaderboard:main",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_3",
+                "leaderboard_id": "leaderboard:main:course-v1:OpenedX+DemoX+DemoCourse",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_3",
+                "leaderboard_id": "leaderboard:main:course-v1:RG+Math+2022",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_3",
+                "leaderboard_id": "leaderboard:RG:course-v1:OpenedX+DemoX+DemoCourse",
+                "score": 1
+            },
+            {
+                "user_uid": "test_user_3",
+                "leaderboard_id": "leaderboard:RG:course-v1:RG+Math+2022",
+                "score": 4
+            }
+        ]
+    },
+    {
+        "gamma_users_initial_state": [
+            {
+                "user_uid": "test_user_1",
+                "points": 4,
+                "signup_source": "main",
+                "course_points": {
+                    "course-v1:OpenedX+DemoX+DemoCourse": 2,
+                    "course-v1:RG+Math+2022": 0
+                }
+            },
+            {
+                "user_uid": "test_user_2",
+                "points": 1,
+                "signup_source": "main",
+                "course_points": {
+                    "course-v1:OpenedX+DemoX+DemoCourse": 0,
+                    "course-v1:RG+Math+2022": 0
+                }
+            },
+            {
+                "user_uid": "test_user_3",
+                "points": 0,
+                "signup_source": "RG",
+                "course_points": {
+                    "course-v1:OpenedX+DemoX+DemoCourse": 0,
+                    "course-v1:RG+Math+2022": 0
+                }
+            }
+        ],
+        "gamma_users_updates": [
+            {
+                "user_uid": "test_user_1",
+                "points": 6,
+                "course_points": {
+                    "course-v1:OpenedX+DemoX+DemoCourse": 5,
+                    "course-v1:RG+Math+2022": 1
+                }
+            },
+            {
+                "user_uid": "test_user_2",
+                "points": 3,
+                "course_points": {
+                    "course-v1:OpenedX+DemoX+DemoCourse": 0,
+                    "course-v1:RG+Math+2022": 0
+                }
+            },
+            {
+                "user_uid": "test_user_3",
+                "points": 7,
+                "course_points": {
+                    "course-v1:OpenedX+DemoX+DemoCourse": 1,
+                    "course-v1:RG+Math+2022": 4
+                }
+            }
+        ],
+        "users_to_update_leaderboards": [
+            "test_user_1"
+        ],
+        "user_leaderboard_scores": [
+            {
+                "user_uid": "test_user_1",
+                "leaderboard_id": "leaderboard:RG",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_1",
+                "leaderboard_id": "leaderboard:main",
+                "score": 6
+            },
+            {
+                "user_uid": "test_user_1",
+                "leaderboard_id": "leaderboard:main:course-v1:OpenedX+DemoX+DemoCourse",
+                "score": 5
+            },
+            {
+                "user_uid": "test_user_1",
+                "leaderboard_id": "leaderboard:main:course-v1:RG+Math+2022",
+                "score": 1
+            },
+            {
+                "user_uid": "test_user_1",
+                "leaderboard_id": "leaderboard:RG:course-v1:OpenedX+DemoX+DemoCourse",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_1",
+                "leaderboard_id": "leaderboard:RG:course-v1:RG+Math+2022",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_2",
+                "leaderboard_id": "leaderboard:RG",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_2",
+                "leaderboard_id": "leaderboard:main",
+                "score": 1
+            },
+            {
+                "user_uid": "test_user_2",
+                "leaderboard_id": "leaderboard:main:course-v1:OpenedX+DemoX+DemoCourse",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_2",
+                "leaderboard_id": "leaderboard:main:course-v1:RG+Math+2022",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_2",
+                "leaderboard_id": "leaderboard:RG:course-v1:OpenedX+DemoX+DemoCourse",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_2",
+                "leaderboard_id": "leaderboard:RG:course-v1:RG+Math+2022",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_3",
+                "leaderboard_id": "leaderboard:RG",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_3",
+                "leaderboard_id": "leaderboard:main",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_3",
+                "leaderboard_id": "leaderboard:main:course-v1:OpenedX+DemoX+DemoCourse",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_3",
+                "leaderboard_id": "leaderboard:main:course-v1:RG+Math+2022",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_3",
+                "leaderboard_id": "leaderboard:RG:course-v1:OpenedX+DemoX+DemoCourse",
+                "score": 0
+            },
+            {
+                "user_uid": "test_user_3",
+                "leaderboard_id": "leaderboard:RG:course-v1:RG+Math+2022",
+                "score": 0
+            }
+        ]
+    }
+]
