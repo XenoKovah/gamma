@@ -41,6 +41,11 @@ state based on the `leaderboards_initialization_batches_left` value:
 - 0 < x <= batches count: in progress;
 - 0: completed.
 
+If for any reason, this cache value is in inconsistent state (e.g., because of a
+batch initialization task failure or a Redis connection failure), you can run 
+`reset_leaderboards_initialization_status` management command to reset it and 
+run an initialization command again.
+
 ### Leaderboards update
 During the work on the course, students progress is updated, so cached 
 leaderboards must be rebuilt. It would be inefficient to update them after 

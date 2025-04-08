@@ -3,7 +3,6 @@ from collections import defaultdict
 from typing import Callable, Dict, Generator, List, Optional, Tuple
 
 from django.conf import settings
-from django.core.cache import cache
 
 from leaderboard.constants import (
     COURSE_LEADERBOARD_ID_TEMPLATE,
@@ -12,12 +11,13 @@ from leaderboard.constants import (
 )
 from leaderboard.dataclasses import LeaderboardRetrievingContext
 from leaderboard.entity import LeaderboardMember, UserLeaderboardsData
+from leaderboard.enums import LeaderboardsInitializationStatus
 from leaderboard.repository import (
     LeaderboardMemberDataRepository,
     LeaderboardRepository,
     LeaderboardsPendingUpdateRepository,
 )
-from leaderboard.utils import is_leaderboards_updating_allowed
+from leaderboard.utils import get_leaderboards_initialization_status, get_redis_client
 
 logger = logging.getLogger(__name__)
 
@@ -176,7 +176,7 @@ class EnqueueLeaderboardsUpdateUseCase:
         self._repository = repository
 
     def execute(self, user_uid: str) -> None:
-        if is_leaderboards_updating_allowed():
+        if get_leaderboards_initialization_status() == LeaderboardsInitializationStatus.COMPLETED:
             self._repository.schedule_user_leaderboards_update(user_uid)
             logger.info(f"Leaderboards updating is scheduled for user {user_uid!r}.")
         else:
@@ -198,10 +198,14 @@ class ScheduleLeaderboardsInitializationUseCase:
         self._leaderboard_member_data_repository = leaderboard_member_data_repository
 
     def execute(self, batch_size: int) -> None:
+        if get_leaderboards_initialization_status() == LeaderboardsInitializationStatus.IN_PROGRESS:
+            logger.warning("Leaderboards initialization is not scheduled because it's already in progress.")
+            return
+
         logger.info("Leaderboards initialization scheduling is started.")
 
         users_count = self._leaderboard_member_data_repository.get_user_count()
-        redis_client = cache.get_client(None)
+        redis_client = get_redis_client()
         batches_count = users_count // batch_size + bool(users_count % batch_size)
         redis_client.set(LEADERBOARDS_INITIALIZATION_BATCHES_LEFT_COUNT_CACHE_KEY, batches_count)
 
@@ -345,12 +349,30 @@ class InitializeLeaderboardsUseCase:
 
         LeaderboardsBuildingService(self._leaderboard_repository).build_all_leaderboards(leaderboards_data)
 
-        redis_client = cache.get_client(None)
+        redis_client = get_redis_client()
         batches_left = redis_client.decr(LEADERBOARDS_INITIALIZATION_BATCHES_LEFT_COUNT_CACHE_KEY)
         logger.info(
             f'Leaderboards initialization for user batch with batch size "{batch_size}" and offset "{offset}" is '
             f"finished. Batches left: {batches_left}."
         )
+
+
+class ResetLeaderboardsInitializationStatusUseCase:
+    """
+    Reset leaderboards initialization status to "Not started".
+
+    It is useful for the cases when the leaderboards initialization is failed,
+    and we want to re-run it.
+    As the leaderboards initialization status depends on a cache value and
+    a failure can potentially lead to an inconsistent cache value state, it
+    could be necessary to reset this cache value before trying an initialization
+    process again.
+    """
+
+    def execute(self) -> None:
+        redis_client = get_redis_client()
+        redis_client.delete(LEADERBOARDS_INITIALIZATION_BATCHES_LEFT_COUNT_CACHE_KEY)
+        logger.info('Leaderboards initialization status is set to "Not started.')
 
 
 class UpdateLeaderboardsUseCase:
@@ -369,7 +391,7 @@ class UpdateLeaderboardsUseCase:
         self._leaderboards_pending_update_repository = leaderboards_pending_update_repository
 
     def execute(self) -> None:
-        if not is_leaderboards_updating_allowed():
+        if get_leaderboards_initialization_status() != LeaderboardsInitializationStatus.COMPLETED:
             logger.info(
                 "Leaderboards updating is not started because leaderboards are not initialized or their "
                 "initialization is in progress."

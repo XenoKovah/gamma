@@ -1,19 +1,30 @@
 from django.core.cache import cache
+from redis import Redis
 
 from leaderboard.constants import LEADERBOARDS_INITIALIZATION_BATCHES_LEFT_COUNT_CACHE_KEY
+from leaderboard.enums import LeaderboardsInitializationStatus
 
 
-def is_leaderboards_updating_allowed() -> bool:
+def get_redis_client() -> Redis:
     """
-    Decide whether the leaderboards updating is allowed.
-
-    The updating is allowed if the leaderboards' initialization is finished.
+    Provide the Redis client.
     """
-    redis_client = cache.get_client(None)
+    return cache.get_client(None)
+
+
+def get_leaderboards_initialization_status() -> LeaderboardsInitializationStatus:
+    """
+    Provide the status of the leaderboards initialization process.
+    """
+    redis_client = get_redis_client()
     leaderboard_initialization_batches_left = redis_client.get(LEADERBOARDS_INITIALIZATION_BATCHES_LEFT_COUNT_CACHE_KEY)
 
-    leaderboards_initialization_started = leaderboard_initialization_batches_left is not None
-    leaderboards_initialization_is_in_progress = (
-        leaderboards_initialization_started and int(leaderboard_initialization_batches_left) > 0
-    )
-    return leaderboards_initialization_started and not leaderboards_initialization_is_in_progress
+    if leaderboard_initialization_batches_left is None:
+        return LeaderboardsInitializationStatus.NOT_STARTED
+
+    leaderboard_initialization_batches_left = int(leaderboard_initialization_batches_left)
+
+    if leaderboard_initialization_batches_left > 0:
+        return LeaderboardsInitializationStatus.IN_PROGRESS
+
+    return LeaderboardsInitializationStatus.COMPLETED

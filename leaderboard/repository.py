@@ -2,13 +2,13 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Dict, List, Optional, Set, Tuple
 
-from django.core.cache import cache
 from django.db.models import Prefetch
 
 from achievements.models import AchievementRule
 from leaderboard.dataclasses import LeaderboardRetrievingContext
 from leaderboard.entity import LeaderboardMember, UserLeaderboardsData
 from leaderboard.serializers import LeaderboardMemberSerializer
+from leaderboard.utils import get_redis_client
 from rules.models import Rule
 from users.models import GammaUser
 
@@ -96,7 +96,7 @@ class RedisLeaderboardRepository(LeaderboardRepository):
     """
 
     def __init__(self):
-        self._redis_client = cache.get_client(None)
+        self._redis_client = get_redis_client()
 
     def get_or_init_user_score(self, user_uid: str, leaderboard_id: str) -> float:
         score = self._redis_client.zscore(leaderboard_id, user_uid)
@@ -198,7 +198,7 @@ class RedisLeaderboardsPendingUpdateRepository(LeaderboardsPendingUpdateReposito
     CACHE_KEY = "pending_leaderboard_update"
 
     def __init__(self) -> None:
-        self._redis_client = cache.get_client(None)
+        self._redis_client = get_redis_client()
 
     def schedule_user_leaderboards_update(self, user_uid: str) -> None:
         self._redis_client.sadd(self.CACHE_KEY, user_uid)

@@ -127,7 +127,7 @@ class TestTaskEnqueueLeaderboardsUserDataUpdate:
             ),
         )
     )
-    def test_user_leaderboards_update_is_scheduled_if_leaderboards_updating_is_allowed(
+    def test_user_leaderboards_update_is_scheduled_if_leaderboards_are_initialized(
         self,
         redis_client: Redis,
         task_call_args: List[str],
@@ -145,7 +145,7 @@ class TestTaskEnqueueLeaderboardsUserDataUpdate:
         "task_call_args",
         ([], ["user_1"], ["user_1", "user_2", "user_3"], ["user_3", "user_1", "user_1", "user_2", "user_3"]),
     )
-    def test_user_leaderboards_update_is_not_scheduled_if_leaderboards_updating_is_not_allowed(
+    def test_user_leaderboards_update_is_not_scheduled_if_leaderboards_are_not_initialized(
         self,
         task_call_args: List[str],
     ) -> None:
