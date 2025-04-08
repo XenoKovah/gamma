@@ -1,6 +1,5 @@
 export const DEFAULT_FORM_VALUES = {
   title: '',
-  slug: '',
   description: '',
   isActive: false,
   image: null,

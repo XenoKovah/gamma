@@ -54,20 +54,18 @@ describe('EntityInfo', () => {
     expect(getByRole('heading', { level: 3 }))
       .toHaveTextContent(messages.modalEntityInfoHeadingText.defaultMessage);
     expect(getByLabelText(messages.modalEntityInfoLabelEntityTitle.defaultMessage)).toBeInTheDocument();
-    expect(getByLabelText(messages.modalEntityInfoLabelEntitySlugText.defaultMessage)).toBeInTheDocument();
     expect(getByLabelText(messages.modalEntityInfoLabelEntityDescriptionText.defaultMessage)).toBeInTheDocument();
     expect(getByLabelText(messages.modalEntityInfoLabelEntityIsActiveText.defaultMessage)).toBeInTheDocument();
   });
 
   it('renders EntityInfo without slug label', () => {
-    const { slug, isActive, ...initialValuesWithoutSlug } = DEFAULT_FORM_VALUES;
+    const { isActive, ...initialValuesWithoutSlug } = DEFAULT_FORM_VALUES;
     const { getByRole, getByLabelText, queryByLabelText } = renderComponent(initialValuesWithoutSlug);
 
     expect(getByRole('heading', { level: 3 }))
       .toHaveTextContent(messages.modalEntityInfoHeadingText.defaultMessage);
     expect(getByLabelText(messages.modalEntityInfoLabelEntityTitle.defaultMessage)).toBeInTheDocument();
     expect(getByLabelText(messages.modalEntityInfoLabelEntityDescriptionText.defaultMessage)).toBeInTheDocument();
-    expect(queryByLabelText(messages.modalEntityInfoLabelEntitySlugText.defaultMessage)).not.toBeInTheDocument();
     expect(queryByLabelText(messages.modalEntityInfoLabelEntityIsActiveText.defaultMessage)).not.toBeInTheDocument();
   });
 
@@ -75,25 +73,20 @@ describe('EntityInfo', () => {
     const { findByDisplayValue, getByLabelText } = renderComponent();
 
     const titleInput = getByLabelText(messages.modalEntityInfoLabelEntityTitle.defaultMessage);
-    const slugInput = getByLabelText(messages.modalEntityInfoLabelEntitySlugText.defaultMessage);
     const descriptionInput = getByLabelText(messages.modalEntityInfoLabelEntityDescriptionText.defaultMessage);
 
     userEvent.clear(titleInput);
 
     userEvent.type(titleInput, 'Test Title');
-    userEvent.clear(slugInput);
 
-    userEvent.type(slugInput, 'test-slug');
     userEvent.clear(descriptionInput);
 
     userEvent.type(descriptionInput, 'Test description');
 
     await findByDisplayValue('Test Title');
-    await findByDisplayValue('test-slug');
     await findByDisplayValue('Test description');
 
     expect(titleInput).toHaveValue('Test Title');
-    expect(slugInput).toHaveValue('test-slug');
     expect(descriptionInput).toHaveValue('Test description');
   });
 
@@ -104,13 +97,11 @@ describe('EntityInfo', () => {
     });
 
     const titleInput = getByLabelText(messages.modalEntityInfoLabelEntityTitle.defaultMessage);
-    const slugInput = getByLabelText(messages.modalEntityInfoLabelEntitySlugText.defaultMessage);
     const descriptionInput = getByLabelText(messages.modalEntityInfoLabelEntityDescriptionText.defaultMessage);
 
     await act(async () => {
       userEvent.click(titleInput);
       userEvent.tab();
-      userEvent.click(slugInput);
       userEvent.tab();
       userEvent.click(descriptionInput);
       userEvent.tab();
@@ -118,7 +109,6 @@ describe('EntityInfo', () => {
 
     await waitFor(() => {
       expect(getByText(translations.titleRequired)).toBeInTheDocument();
-      expect(getByText(translations.slug.slugRequired)).toBeInTheDocument();
       expect(getByText(translations.descriptionRequired)).toBeInTheDocument();
     });
   });

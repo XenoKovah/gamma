@@ -39,8 +39,7 @@ export const getValidationSchema = (messages, entityData) => yup.object().shape(
       slug: yup
         .string()
         .matches(/^[a-zA-Z0-9_-]+$/, messages.slug.slugInvalid)
-        .required(messages.slug.slugRequired)
-        .max(30, messages.slug.slugMaxLength),
+        .max(100, messages.slug.slugMaxLength),
     }
     : {}),
   description: yup

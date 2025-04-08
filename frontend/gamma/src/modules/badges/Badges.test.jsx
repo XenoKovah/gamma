@@ -189,9 +189,6 @@ describe('Badges Component', () => {
       const inputTitleElement = within(modal)
         .getByLabelText(genericMessages.modalEntityInfoLabelEntityTitle.defaultMessage);
       expect(inputTitleElement).toBeInTheDocument();
-      const inputSlugElement = within(modal)
-        .getByLabelText(genericMessages.modalEntityInfoLabelEntitySlugText.defaultMessage);
-      expect(inputSlugElement).toBeInTheDocument();
       const inputActiveElement = within(modal)
         .getByLabelText(genericMessages.modalEntityInfoLabelEntityIsActiveText.defaultMessage);
       expect(inputActiveElement).toBeInTheDocument();
@@ -239,48 +236,6 @@ describe('Badges Component', () => {
       const modal = getByRole('dialog');
       expect(
         within(modal).getByText(genericMessages.modalEntityValidationTitleRequiredText.defaultMessage),
-      ).toBeInTheDocument();
-    });
-  });
-
-  it('shows an error message when the slug field is left empty', async () => {
-    const setModalOpen = jest.fn();
-
-    useBadges.mockImplementation(() => ({
-      badgesData: [],
-      isLoading: false,
-      isError: false,
-      isManageEntityModalOpen: false,
-      openManageEntityModal: setModalOpen,
-    }));
-
-    const { rerender, getByTestId, getByRole } = renderWithProviders(<Badges />);
-
-    const addNewBadgeBtn = getByTestId('add-badge-button');
-    userEvent.click(addNewBadgeBtn);
-
-    useBadges.mockImplementation(() => ({
-      badgesData: [],
-      isLoading: false,
-      isError: false,
-      isManageEntityModalOpen: true,
-      openManageEntityModal: setModalOpen,
-    }));
-
-    rerender(<Badges />);
-
-    await waitFor(async () => {
-      const modal = getByRole('dialog');
-      const inputSlugElement = within(modal)
-        .getByLabelText(genericMessages.modalEntityInfoLabelEntitySlugText.defaultMessage);
-      userEvent.click(inputSlugElement);
-      userEvent.tab();
-    });
-
-    await waitFor(() => {
-      const modal = getByRole('dialog');
-      expect(
-        within(modal).getByText(genericMessages.modalEntityValidationSlugRequiredText.defaultMessage),
       ).toBeInTheDocument();
     });
   });
