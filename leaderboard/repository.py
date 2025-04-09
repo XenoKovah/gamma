@@ -167,7 +167,7 @@ class RedisLeaderboardRepository(LeaderboardRepository):
         """
         Convert the username-score pair into a LeaderboardMember instance.
         """
-        return LeaderboardMember({"user_uid": data[0], "points": data[1]})
+        return LeaderboardMember({"user_uid": data[0].decode("utf-8"), "points": data[1]})
 
 
 class LeaderboardsPendingUpdateRepository(ABC):
@@ -208,7 +208,7 @@ class RedisLeaderboardsPendingUpdateRepository(LeaderboardsPendingUpdateReposito
         pipe.smembers(self.CACHE_KEY)
         pipe.delete(self.CACHE_KEY)
         users_with_pending_leaderboards_update, __ = pipe.execute()
-        return users_with_pending_leaderboards_update
+        return {user_uid.decode("utf-8") for user_uid in users_with_pending_leaderboards_update}
 
 
 class LeaderboardMemberDataRepository(ABC):

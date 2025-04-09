@@ -207,9 +207,6 @@ CACHES = {
         "LOCATION": environ.get("REDIS_LOCATION", "redis:6379"),
         "OPTIONS": {
             "DB": environ.get("REDIS_DB", 1),
-            "CONNECTION_POOL_CLASS_KWARGS": {
-                "decode_responses": True
-            },
         },
     }
 }
