@@ -15,26 +15,16 @@ class GammaUserInfoSerializer(serializers.Serializer):
     Serializer for GammaUser information.
     """
 
-    gamma_user_id = serializers.SerializerMethodField()
+    gamma_user_id = serializers.IntegerField(source='id')
     user_avatar_config = serializers.SerializerMethodField()
-
-    def get_gamma_user_id(self, obj):
-        """
-        Get Gamma User ID.
-        """
-        gamma_user = GammaUser.ensure_gamma_user_is_created(self.context.get('user_uid'))
-
-        return gamma_user.id
 
     def get_user_avatar_config(self, obj):
         """
         Get Gamma User Avatar Set info.
         """
-        gamma_user = GammaUser.ensure_gamma_user_is_created(self.context.get('user_uid'))
-        user_avatar_set = UserAvatarConfig.objects.filter(user_id=gamma_user.id).first()
-        user_avatar_config = UserAvatarConfigSerializer(user_avatar_set).data if user_avatar_set else None
+        user_avatar_set = UserAvatarConfig.objects.filter(user_id=obj.id).first()
 
-        return user_avatar_config
+        return UserAvatarConfigSerializer(user_avatar_set).data if user_avatar_set else None
 
 
 class UserGameProfileSerializer(serializers.Serializer):
@@ -47,6 +37,11 @@ class UserGameProfileSerializer(serializers.Serializer):
     system_badges = serializers.SerializerMethodField()
     badges = serializers.SerializerMethodField()
 
+    points = serializers.IntegerField()
+    chart = serializers.JSONField()
+    progress = serializers.JSONField()
+    signup_source = serializers.CharField(allow_null=True)
+
     def get_avatar_sets(self, obj):
         """
         Get all current system AvatarSets.
@@ -58,8 +53,7 @@ class UserGameProfileSerializer(serializers.Serializer):
         """
         Get Gamma User profile info.
         """
-        user_uid = self.context.get('user_uid')
-        return GammaUserInfoSerializer(obj, context={'user_uid': user_uid}).data
+        return GammaUserInfoSerializer(obj).data
 
     def get_system_badges(self, obj):
         """
@@ -74,7 +68,7 @@ class UserGameProfileSerializer(serializers.Serializer):
         """
         content_type = ContentType.objects.get_for_model(Badge)
         received_user_badges = Achievement.objects.filter(
-            content_type=content_type, user__user_uid=self.context.get('user_uid')
+            content_type=content_type, user__user_uid=obj.user_uid
         )
 
         return AchievementDetailSerializer(received_user_badges, many=True).data

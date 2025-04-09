@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Dict, List
 
 from django.db import models
 from django.utils.translation import gettext as _
@@ -40,24 +41,23 @@ class GammaUser(models.Model):
         """
         current_progress = self.progress or {}
 
-        date = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-        year = str(date.year)
-        formatted_date = date.strftime('%Y.%m.%d')
+        today_date = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        iso_today_date = today_date.isoformat()
+        current_year = str(today_date.year)
 
-        points_key = f'progress.{year}.points'
-        points_by_day_key = f'progress.{year}'
+        current_progress.setdefault(current_year, [])
 
-        if points_key not in current_progress:
-            current_progress[points_key] = 0
+        year_entries: List[Dict] = current_progress[current_year]
 
-        if points_by_day_key not in current_progress:
-            current_progress[points_by_day_key] = {}
+        today_progress = next((entry for entry in year_entries if entry['date'] == iso_today_date), None)
 
-        if formatted_date not in current_progress[points_by_day_key]:
-            current_progress[points_by_day_key][formatted_date] = 0
-
-        current_progress[points_key] += event_points
-        current_progress[points_by_day_key][formatted_date] += event_points
+        if today_progress:
+            today_progress['points'] += event_points
+        else:
+            year_entries.append({
+                'date': iso_today_date,
+                'points': event_points
+            })
 
         self.progress = current_progress
         self.save(update_fields=('progress',))
@@ -68,7 +68,7 @@ class GammaUser(models.Model):
         """
         self.chart = self.chart or {}
 
-        event_chart_key = f'chart.{event_configuration.event_type}'
+        event_chart_key = str(event_configuration.event_type)
         self.chart.setdefault(event_chart_key, {'title': '', 'points': 0})
 
         self.chart[event_chart_key]['points'] += event_configuration.award

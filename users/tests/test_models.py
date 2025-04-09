@@ -25,12 +25,10 @@ def test_update_user_progress(gamma_user_factory: GammaUserFactory) -> None:
 
     date = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
     year = str(date.year)
-    formatted_date = date.strftime('%Y.%m.%d')
-    points_key = f'progress.{year}.points'
-    points_by_day_key = f'progress.{year}'
+    formatted_date = date.isoformat()
 
-    assert gamma_user.progress[points_key] == event_points
-    assert gamma_user.progress[points_by_day_key][formatted_date] == event_points
+    assert gamma_user.progress[year][0]['date'] == formatted_date
+    assert gamma_user.progress[year][0]['points'] == event_points
 
 
 @pytest.mark.django_db
@@ -48,7 +46,7 @@ def test_update_user_chart(
 
     gamma_user.refresh_from_db()
 
-    event_chart_key = f'chart.{configuration.event_type.name}'
+    event_chart_key = configuration.event_type.name
 
     assert gamma_user.chart[event_chart_key]['points'] == configuration.award
     assert gamma_user.chart[event_chart_key]['title'] == configuration.title

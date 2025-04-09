@@ -14,7 +14,7 @@ from rest_framework.test import APIClient
 from webpack_loader.loader import WebpackLoader
 
 from achievements.tests.factories import AchievementFactory, AchievementRuleFactory
-from avatars.factories import UserAvatarConfigFactory
+from avatars.factories import AvatarSetFactory, UserAvatarConfigFactory
 from badges.factories import BadgeFactory
 from core.models import AppClient
 from core.data_models.models import User
@@ -29,6 +29,7 @@ from users.factories import GammaUserCoursePointsFactory, GammaUserFactory
 
 register(AchievementFactory)
 register(AchievementRuleFactory)
+register(AvatarSetFactory)
 register(BadgeFactory)
 register(EventFactory)
 register(EventTypeFactory)

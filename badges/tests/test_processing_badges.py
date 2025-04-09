@@ -93,11 +93,12 @@ def test_non_dependent_badge_receive(
 
     date = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
     expected_gamma_user_chart = {
-        f'chart.{event.event_name}': {'title': f'{event_configuration.title}', 'points': event_configuration.award}
+        str(event.event_name): {'title': f'{event_configuration.title}', 'points': event_configuration.award}
     }
     expected_gamma_user_progress = {
-        f'progress.{date.year}.points': event_configuration.award,
-        f'progress.{date.year}': {date.strftime('%Y.%m.%d'): event_configuration.award}
+        str(date.year): [
+            {'date': date.isoformat(), 'points': event_configuration.award}
+        ]
     }
 
     assert achievement.count() == 1
@@ -149,13 +150,14 @@ def test_non_dependent_badge_requires_three_events(
     event1 = imitate_signal_dispatch(event_factory, event_configuration)
 
     expected_gamma_user_chart = {
-        f'chart.{event_configuration.event_name}': {
+        str(event_configuration.event_name): {
             'title': f'{event_configuration.title}', 'points': event_configuration.award
         }
     }
     expected_gamma_user_progress = {
-        f'progress.{date.year}.points': event_configuration.award,
-        f'progress.{date.year}': {date.strftime('%Y.%m.%d'): event_configuration.award}
+        str(date.year): [
+            {'date': date.isoformat(), 'points': event_configuration.award}
+        ]
     }
 
     achievement = Achievement.objects.first()
@@ -180,13 +182,14 @@ def test_non_dependent_badge_requires_three_events(
     event2 = imitate_signal_dispatch(event_factory, event_configuration)
 
     expected_gamma_user_chart = {
-        f'chart.{event_configuration.event_name}': {
+        str(event_configuration.event_name): {
             'title': f'{event_configuration.title}', 'points': event_configuration.award * 2
         }
     }
     expected_gamma_user_progress = {
-        f'progress.{date.year}.points': event_configuration.award * 2,
-        f'progress.{date.year}': {date.strftime('%Y.%m.%d'): event_configuration.award * 2}
+        str(date.year): [
+            {'date': date.isoformat(), 'points': event_configuration.award * 2}
+        ]
     }
 
     achievement.refresh_from_db()
@@ -211,13 +214,14 @@ def test_non_dependent_badge_requires_three_events(
     # third event processing and checking states
     event3 = imitate_signal_dispatch(event_factory, event_configuration)
     expected_gamma_user_chart = {
-        f'chart.{event_configuration.event_name}': {
+        str(event_configuration.event_name): {
             'title': f'{event_configuration.title}', 'points': event_configuration.award * 3
         }
     }
     expected_gamma_user_progress = {
-        f'progress.{date.year}.points': event_configuration.award * 3,
-        f'progress.{date.year}': {date.strftime('%Y.%m.%d'): event_configuration.award * 3}
+        str(date.year): [
+            {'date': date.isoformat(), 'points': event_configuration.award * 3}
+        ]
     }
 
     achievement.refresh_from_db()
@@ -283,13 +287,14 @@ def test_non_dependent_badge_requires_different_events(
     course_enroll_event_1 = imitate_signal_dispatch(event_factory, event_configuration_1)
 
     expected_gamma_user_chart = {
-        f'chart.{event_configuration_1.event_name}': {
+        str(event_configuration_1.event_name): {
             'title': f'{event_configuration_1.title}', 'points': event_configuration_1.award
         }
     }
     expected_gamma_user_progress = {
-        f'progress.{date.year}.points': event_configuration_1.award,
-        f'progress.{date.year}': {date.strftime('%Y.%m.%d'): event_configuration_1.award}
+        str(date.year): [
+            {'date': date.isoformat(), 'points': event_configuration_1.award}
+        ]
     }
 
     achievement = Achievement.objects.first()
@@ -325,16 +330,16 @@ def test_non_dependent_badge_requires_different_events(
 
     expected_gamma_user_chart.update(
         {
-            f'chart.{event_configuration_2.event_name}': {
+            str(event_configuration_2.event_name): {
                 'title': f'{event_configuration_2.title}', 'points': event_configuration_2.award
             }
         }
     )
     expected_gamma_user_progress.update(
         {
-            f'progress.{date.year}.points': event_configuration_1.award + event_configuration_2.award,
-            f'progress.{date.year}': {
-                date.strftime('%Y.%m.%d'): event_configuration_1.award + event_configuration_2.award}
+            str(date.year): [
+                {'date': date.isoformat(), 'points': event_configuration_1.award + event_configuration_2.award}
+            ]
         }
     )
 
@@ -370,16 +375,16 @@ def test_non_dependent_badge_requires_different_events(
 
     expected_gamma_user_chart.update(
         {
-            f'chart.{event_configuration_1.event_name}': {
+            str(event_configuration_1.event_name): {
                 'title': f'{event_configuration_1.title}', 'points': event_configuration_1.award * 2
             }
         }
     )
     expected_gamma_user_progress.update(
         {
-            f'progress.{date.year}.points': event_configuration_1.award * 2 + event_configuration_2.award,
-            f'progress.{date.year}': {
-                date.strftime('%Y.%m.%d'): event_configuration_1.award * 2 + event_configuration_2.award}
+            str(date.year): [
+                {'date': date.isoformat(), 'points': event_configuration_1.award * 2 + event_configuration_2.award}
+            ]
         }
     )
 
@@ -415,16 +420,16 @@ def test_non_dependent_badge_requires_different_events(
 
     expected_gamma_user_chart.update(
         {
-            f'chart.{event_configuration_2.event_name}': {
+            str(event_configuration_2.event_name): {
                 'title': f'{event_configuration_2.title}', 'points': event_configuration_2.award * 2
             }
         }
     )
     expected_gamma_user_progress.update(
         {
-            f'progress.{date.year}.points': event_configuration_1.award * 2 + event_configuration_2.award * 2,
-            f'progress.{date.year}': {
-                date.strftime('%Y.%m.%d'): event_configuration_1.award * 2 + event_configuration_2.award * 2}
+            str(date.year): [
+                {'date': date.isoformat(), 'points': event_configuration_1.award * 2 + event_configuration_2.award * 2}
+            ]
         }
     )
 

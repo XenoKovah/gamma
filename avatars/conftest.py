@@ -1,7 +1,6 @@
 import pytest_factoryboy
 
-from avatars.factories import AvatarFactory, AvatarSetFactory
+from avatars.factories import AvatarFactory
 
 
 pytest_factoryboy.register(AvatarFactory)
-pytest_factoryboy.register(AvatarSetFactory)
