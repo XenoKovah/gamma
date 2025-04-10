@@ -14,9 +14,10 @@ def is_achieved_badge(achievement: Achievement, course_id: Optional[str]) -> boo
     provided, the badge must have at least one course-related rule.
     """
     badge_content_type = ContentType.objects.get_for_model(Badge)
+    achievement_content_type = getattr(achievement, 'content_type', None)
 
     return (
-        achievement.content_type == badge_content_type
+        achievement_content_type == badge_content_type
         and achievement.all_rules_completed
         and (not course_id or achievement.get_course_related_achievement_rules(course_id))
     )
