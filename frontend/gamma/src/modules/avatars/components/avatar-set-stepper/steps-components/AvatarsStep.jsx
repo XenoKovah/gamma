@@ -31,6 +31,7 @@ const AvatarsStep = ({
   organizationsData,
   handleDeleteAvatar,
   handleUpdateAvatar,
+  handleCloseManageAvatarSetModal,
 }) => {
   const intl = useIntl();
   const { currentAvatarSetData } = useAvatarsContext();
@@ -142,6 +143,7 @@ const AvatarsStep = ({
           nextBtnText={intl.formatMessage(moduleMessages.avatarSetStepperBtnStatefulDefaultText)}
           nextBtnOnClick={proceedToNextStep}
           disabledNextBtn={isNextButtonDisabled}
+          closeBtnOnClick={handleCloseManageAvatarSetModal}
         />
       )}
     </>
@@ -171,6 +173,7 @@ AvatarsStep.propTypes = {
       title: PropTypes.string.isRequired,
     }),
   ).isRequired,
+  handleCloseManageAvatarSetModal: PropTypes.func.isRequired,
 };
 
 export default AvatarsStep;

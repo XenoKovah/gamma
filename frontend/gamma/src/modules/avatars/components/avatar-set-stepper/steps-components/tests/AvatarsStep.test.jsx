@@ -121,6 +121,15 @@ describe('AvatarsStep', () => {
     });
   });
 
+  it('calls handleCloseManageAvatarSetModal when close button is clicked', async () => {
+    const { getByRole } = renderComponent();
+
+    const closeButton = getByRole('button', { name: moduleMessages.avatarSetStepperCloseBtnTitle.defaultMessage });
+    userEvent.click(closeButton);
+
+    expect(mockHandleCloseManageAvatarSetModal).toHaveBeenCalledTimes(1);
+  });
+
   it('navigates to the previous step when clicking the back button', () => {
     const { getByRole } = renderComponent();
 

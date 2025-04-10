@@ -105,6 +105,15 @@ describe('FinishStep', () => {
     expect(mockSetCurrentStep).toHaveBeenCalledWith(STEPPER_STEPS.avatars);
   });
 
+  it('calls handleCloseManageAvatarSetModal when close button is clicked', async () => {
+    const { getByRole } = renderComponent();
+
+    const closeButton = getByRole('button', { name: moduleMessages.avatarSetStepperCloseBtnTitle.defaultMessage });
+    userEvent.click(closeButton);
+
+    expect(mockHandleCloseManageAvatarSetModal).toHaveBeenCalledTimes(1);
+  });
+
   it('closes the modal when clicking the finish button', () => {
     const { getByRole } = renderComponent();
 

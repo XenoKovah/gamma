@@ -24,6 +24,7 @@ describe('StepFooter', () => {
   const mockPrevBtnOnClick = jest.fn();
   const mockNextBtnOnClick = jest.fn();
   const mockSubmitFn = jest.fn();
+  const mockCloseBtnOnClick = jest.fn();
 
   const defaultProps = {
     prevBtnText: moduleMessages.avatarSetStepperPreviousBtnTitle.defaultMessage,
@@ -61,6 +62,20 @@ describe('StepFooter', () => {
 
     userEvent.click(nextButton);
     expect(mockNextBtnOnClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders the close button and calls the callback when clicked', () => {
+    const { getByRole } = renderComponent({
+      closeBtnOnClick: mockCloseBtnOnClick,
+    });
+
+    const closeButton = getByRole('button', {
+      name: moduleMessages.avatarSetStepperCloseBtnTitle.defaultMessage,
+    });
+    expect(closeButton).toBeInTheDocument();
+
+    userEvent.click(closeButton);
+    expect(mockCloseBtnOnClick).toHaveBeenCalledTimes(1);
   });
 
   it('renders a stateful button instead of the next button when isStatefulBtn is true', () => {

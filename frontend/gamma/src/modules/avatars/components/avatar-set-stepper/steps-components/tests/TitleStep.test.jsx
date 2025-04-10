@@ -149,6 +149,14 @@ describe('TitleStep', () => {
     });
   });
 
+  it('renders close button', async () => {
+    const { getAllByRole } = renderComponent();
+
+    const closeButton = getAllByRole('button', { name: moduleMessages.avatarSetStepperCloseBtnTitle.defaultMessage });
+
+    expect(closeButton).toHaveLength(1);
+  });
+
   it('trims input value when field loses focus', async () => {
     const { getByRole } = renderComponent();
 

@@ -89,12 +89,13 @@ const TitleStep = ({
             {currentStep === STEPPER_STEPS.title && (
               <StepFooter
                 prevBtnText={intl.formatMessage(moduleMessages.avatarSetStepperCloseBtnTitle)}
-                prevBtnOnClick={handleCloseManageAvatarSetModal}
+                isFirstStep
                 isStatefulBtn
                 submitFn={isTitleUnchanged ? proceedToNextStep : handleSubmit}
                 disabledNextBtn={!isTitleUnchanged && (!isValid || !dirty)}
                 statefulButtonLabels={statefulButtonLabels}
                 submitStatus={submitStatus}
+                closeBtnOnClick={handleCloseManageAvatarSetModal}
               />
             )}
           </>

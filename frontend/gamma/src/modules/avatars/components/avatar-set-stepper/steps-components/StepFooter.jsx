@@ -1,30 +1,47 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, ActionRow } from '@openedx/paragon';
+import { useIntl } from 'react-intl';
+import { Button, ActionRow, Stack } from '@openedx/paragon';
 
 import { StatusButton } from '../../../../../generic';
+import messages from '../../../i18n';
 
 const StepFooter = ({
   prevBtnText, prevBtnOnClick, nextBtnText, nextBtnOnClick, submitFn, isStatefulBtn,
-  disabledNextBtn, submitStatus, statefulButtonLabels,
-}) => (
-  <ActionRow className="avatar-stepper-action-row justify-content-between">
-    <Button variant="outline-primary" onClick={prevBtnOnClick}>
-      {prevBtnText}
-    </Button>
-    {isStatefulBtn ? (
-      <StatusButton
-        variant="primary"
-        labels={statefulButtonLabels}
-        options={{ submitStatus, submitFn, disabled: disabledNextBtn }}
-      />
-    ) : (
-      <Button onClick={nextBtnOnClick} disabled={disabledNextBtn}>
-        {nextBtnText}
-      </Button>
-    )}
-  </ActionRow>
-);
+  disabledNextBtn, submitStatus, statefulButtonLabels, closeBtnOnClick, isFirstStep,
+}) => {
+  const intl = useIntl();
+
+  return (
+    <ActionRow className="avatar-stepper-action-row justify-content-between">
+      <Stack direction="horizontal" gap={2}>
+        {closeBtnOnClick && (
+          <Button variant="outline-primary" onClick={closeBtnOnClick}>
+            {intl.formatMessage(messages.avatarSetStepperCloseBtnTitle)}
+          </Button>
+        )}
+      </Stack>
+      <Stack direction="horizontal" gap={2}>
+        {!isFirstStep && (
+          <Button variant="outline-primary" onClick={prevBtnOnClick}>
+            {prevBtnText}
+          </Button>
+        )}
+        {isStatefulBtn ? (
+          <StatusButton
+            variant="primary"
+            labels={statefulButtonLabels}
+            options={{ submitStatus, submitFn, disabled: disabledNextBtn }}
+          />
+        ) : (
+          <Button onClick={nextBtnOnClick} disabled={disabledNextBtn}>
+            {nextBtnText}
+          </Button>
+        )}
+      </Stack>
+    </ActionRow>
+  );
+};
 
 StepFooter.propTypes = {
   prevBtnText: PropTypes.string.isRequired,
@@ -41,6 +58,8 @@ StepFooter.propTypes = {
     complete: PropTypes.string,
     finish: PropTypes.string,
   }),
+  closeBtnOnClick: PropTypes.func,
+  isFirstStep: PropTypes.bool,
 };
 
 StepFooter.defaultProps = {
@@ -56,6 +75,8 @@ StepFooter.defaultProps = {
     complete: '',
     finish: '',
   },
+  closeBtnOnClick: undefined,
+  isFirstStep: false,
 };
 
 export default StepFooter;

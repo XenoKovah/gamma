@@ -20,6 +20,7 @@ const EvolutionStep = ({
   setCurrentStep,
   statefulButtonLabels,
   handleUpdateAvatarSet,
+  handleCloseManageAvatarSetModal,
 }) => {
   const intl = useIntl();
   const { currentAvatarSetData, setCurrentAvatarSetData } = useAvatarsContext();
@@ -120,6 +121,7 @@ const EvolutionStep = ({
                 disabledNextBtn={isSubmitDisabled}
                 statefulButtonLabels={statefulButtonLabels}
                 submitStatus={submitStatus}
+                closeBtnOnClick={handleCloseManageAvatarSetModal}
               />
             )}
           </>
@@ -140,6 +142,7 @@ EvolutionStep.propTypes = {
     complete: PropTypes.string.isRequired,
     finish: PropTypes.string.isRequired,
   }).isRequired,
+  handleCloseManageAvatarSetModal: PropTypes.func.isRequired,
 };
 
 export default EvolutionStep;

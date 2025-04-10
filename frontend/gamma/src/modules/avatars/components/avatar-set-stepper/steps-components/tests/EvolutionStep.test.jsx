@@ -26,6 +26,7 @@ describe('EvolutionStep', () => {
   const mockSetCurrentStep = jest.fn();
   const mockHandleUpdateAvatarSet = jest.fn();
   const mockSetCurrentAvatarSetData = jest.fn();
+  const mockHandleCloseManageAvatarSetModal = jest.fn();
 
   const defaultProps = {
     currentStep: STEPPER_STEPS.evolution,
@@ -38,6 +39,7 @@ describe('EvolutionStep', () => {
       complete: moduleMessages.avatarSetStepperBtnStatefulCompleteText.defaultMessage,
       finish: moduleMessages.avatarSetStepperBtnFinishText.defaultMessage,
     },
+    handleCloseManageAvatarSetModal: mockHandleCloseManageAvatarSetModal,
   };
 
   beforeEach(() => {
@@ -115,6 +117,15 @@ describe('EvolutionStep', () => {
 
     const submitButton = getByRole('button', { name: defaultProps.statefulButtonLabels.default });
     expect(submitButton).toBeDisabled();
+  });
+
+  it('calls handleCloseManageAvatarSetModal when close button is clicked', async () => {
+    const { getByRole } = renderComponent();
+
+    const closeButton = getByRole('button', { name: moduleMessages.avatarSetStepperCloseBtnTitle.defaultMessage });
+    userEvent.click(closeButton);
+
+    expect(mockHandleCloseManageAvatarSetModal).toHaveBeenCalledTimes(1);
   });
 
   it('allows removing an avatar stage', async () => {

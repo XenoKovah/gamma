@@ -105,6 +105,7 @@ const FinishStep = ({
           prevBtnOnClick={() => setCurrentStep(STEPPER_STEPS.avatars)}
           nextBtnText={intl.formatMessage(moduleMessages.avatarSetStepperBtnFinishText)}
           nextBtnOnClick={() => handleFinishAvatarSet(selectedAvatarSet.id, handleCloseManageAvatarSetModal)}
+          closeBtnOnClick={handleCloseManageAvatarSetModal}
         />
       )}
     </>
