@@ -106,6 +106,16 @@ const messages = defineMessages({
     defaultMessage: 'Are you sure you want to delete this avatar? This action cannot be undone.',
     description: 'The description for the confirmation modal when deleting a avatar.',
   },
+  confirmAvatarStageDeletionModalTitle: {
+    id: 'modules.avatars.alert.modal.confirm.deletion.avatar.stage.title',
+    defaultMessage: 'Confirm deletion',
+    description: 'The title for the confirmation modal when deleting a avatar stage.',
+  },
+  confirmAvatarStageDeletionModalDescription: {
+    id: 'modules.avatars.alert.modal.confirm.deletion.avatar.stage.description',
+    defaultMessage: 'Are you sure you want to delete this avatar stage? This action cannot be undone.',
+    description: 'The description for the confirmation modal when deleting a avatar stage.',
+  },
   editAvatarModalTitle: {
     id: 'modules.avatars.manage.modal.edit-avatar.title',
     defaultMessage: 'Edit avatar',

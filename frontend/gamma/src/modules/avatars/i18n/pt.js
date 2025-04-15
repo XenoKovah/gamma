@@ -101,6 +101,16 @@ const messages = defineMessages({
     defaultMessage: 'Tem certeza de que deseja excluir este conjunto de avatares? Esta ação não pode ser desfeita.',
     description: 'A descrição do modal de confirmação ao excluir um conjunto de avatares.',
   },
+  confirmAvatarStageDeletionModalTitle: {
+    id: 'modules.avatars.alert.modal.confirm.deletion.avatar.stage.title',
+    defaultMessage: 'Confirmar exclusão',
+    description: 'The title for the confirmation modal when deleting a avatar stage.',
+  },
+  confirmAvatarStageDeletionModalDescription: {
+    id: 'modules.avatars.alert.modal.confirm.deletion.avatar.stage.description',
+    defaultMessage: 'Tem certeza que deseja excluir este estágio do avatar? Esta ação não pode ser desfeita.',
+    description: 'The description for the confirmation modal when deleting a avatar stage.',
+  },
   confirmAvatarDeletionModalDescription: {
     id: 'modules.avatars.alert.modal.confirm.deletion.avatar.description',
     defaultMessage: 'Tem certeza de que deseja excluir este avatar? Esta ação não pode ser desfeita.',

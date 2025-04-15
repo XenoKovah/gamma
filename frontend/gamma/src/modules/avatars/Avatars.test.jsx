@@ -526,6 +526,11 @@ describe('Avatars', () => {
         });
 
         await waitFor(() => {
+          const deleteButton = getByRole('button', { name: genericMessages.alertBtnDeleteText.defaultMessage });
+          userEvent.click(deleteButton);
+        });
+
+        await waitFor(() => {
           expect(within(getByRole('dialog')).queryAllByTestId('dropzone-container')).toHaveLength(0);
         });
       });

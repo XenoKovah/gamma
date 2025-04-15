@@ -150,6 +150,11 @@ describe('EvolutionStep', () => {
     });
 
     await waitFor(() => {
+      const deleteButton = getByRole('button', { name: genericMessages.alertBtnDeleteText.defaultMessage });
+      userEvent.click(deleteButton);
+    });
+
+    await waitFor(() => {
       expect(queryByTestId('dropzone-container')).not.toBeInTheDocument();
     });
   });

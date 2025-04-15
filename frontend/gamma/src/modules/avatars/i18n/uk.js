@@ -91,6 +91,16 @@ const messages = defineMessages({
     defaultMessage: 'Ви впевнені, що хочете видалити цей аватар сет? Цю дію неможливо скасувати.',
     description: 'Опис у модальному вікні підтвердження видалення аватар сету.',
   },
+  confirmAvatarStageDeletionModalTitle: {
+    id: 'modules.avatars.alert.modal.confirm.deletion.avatar.stage.title',
+    defaultMessage: 'Підтвердити видалення',
+    description: 'Заголовок модального вікна підтвердження видалення етапу аватара.',
+  },
+  confirmAvatarStageDeletionModalDescription: {
+    id: 'modules.avatars.alert.modal.confirm.deletion.avatar.stage.description',
+    defaultMessage: 'Ви впевнені, що хочете видалити цей етап аватара? Цю дію неможливо скасувати.',
+    description: 'Опис у модальному вікні підтвердження видалення етапу аватара.',
+  },
   avatarSetStepperBtnStatefulDefaultText: {
     id: 'modules.avatars.avatar-set.stepper.button.stateful.default.text',
     defaultMessage: 'Далі',

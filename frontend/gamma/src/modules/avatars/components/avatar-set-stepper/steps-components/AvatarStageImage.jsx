@@ -1,10 +1,13 @@
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
-import { Image, Dropzone, Button } from '@openedx/paragon';
+import {
+  Image, Dropzone, Button, useToggle,
+} from '@openedx/paragon';
 
 import { readFileAsDataURL } from '../utils';
 import { MAX_IMAGE_SIZE, ACCEPTED_IMAGE_FORMATS } from './constants';
+import { AlertModal } from '../../../../../generic';
 
 import moduleMessages from '../../../i18n';
 
@@ -12,6 +15,7 @@ const AvatarStageImage = ({
   index, onRemove, setFieldValue, values,
 }) => {
   const intl = useIntl();
+  const [isDeletionAlertModalOpen, openDeletionAlertModal, closeDeletionAlertModal] = useToggle(false);
   const avatarStageTitle = intl.formatMessage(moduleMessages.avatarSetStepperEvolutionAvatarStageTitle, {
     index: index + 1,
   });
@@ -39,6 +43,13 @@ const AvatarStageImage = ({
   return (
     <div className="avatar-stage-image">
       <h3 className="avatar-stage-image-title">{avatarStageTitle}</h3>
+      <AlertModal
+        title={intl.formatMessage(moduleMessages.confirmAvatarStageDeletionModalTitle)}
+        isOpen={isDeletionAlertModalOpen}
+        onClose={closeDeletionAlertModal}
+        onDelete={onRemove}
+        description={intl.formatMessage(moduleMessages.confirmAvatarStageDeletionModalDescription)}
+      />
       {values.avatars[index]?.image ? (
         <Image
           className="avatar-stage-image-preview"
@@ -57,7 +68,7 @@ const AvatarStageImage = ({
       <Button
         className="avatar-stage-image-remove-btn mt-2"
         variant="outline-secondary"
-        onClick={onRemove}
+        onClick={openDeletionAlertModal}
         block
         size="sm"
       >

@@ -60,15 +60,50 @@ describe('AvatarStageImage', () => {
     expect(screen.getByRole('img')).toHaveAttribute('src', 'data:image/png;base64,somebase64string');
   });
 
-  it('calls onRemove when remove button is clicked', () => {
-    renderComponent();
+  it('opens deletion confirmation modal when remove button is clicked', () => {
+    const { getByRole, getByText } = renderComponent();
 
-    const removeButton = screen.getByRole('button', {
+    const removeButton = getByRole('button', {
       name: moduleMessages.avatarSetStepperEvolutionRemoveAvatarBtn.defaultMessage,
     });
     userEvent.click(removeButton);
 
+    expect(
+      getByText(moduleMessages.confirmAvatarStageDeletionModalTitle.defaultMessage),
+    ).toBeInTheDocument();
+    expect(
+      getByText(moduleMessages.confirmAvatarStageDeletionModalDescription.defaultMessage),
+    ).toBeInTheDocument();
+  });
+
+  it('calls onRemove when delete is confirmed in the modal', () => {
+    const { getByRole } = renderComponent();
+
+    const removeButton = getByRole('button', {
+      name: moduleMessages.avatarSetStepperEvolutionRemoveAvatarBtn.defaultMessage,
+    });
+    userEvent.click(removeButton);
+
+    const deleteButton = getByRole('button', { name: /delete/i });
+    userEvent.click(deleteButton);
+
     expect(mockOnRemove).toHaveBeenCalled();
+  });
+
+  it('closes the modal when cancel is clicked', () => {
+    const { getByRole, getByText, queryByText } = renderComponent();
+
+    const removeButton = getByRole('button', {
+      name: moduleMessages.avatarSetStepperEvolutionRemoveAvatarBtn.defaultMessage,
+    });
+    userEvent.click(removeButton);
+
+    expect(getByText(moduleMessages.confirmAvatarStageDeletionModalTitle.defaultMessage)).toBeInTheDocument();
+
+    const cancelButton = getByRole('button', { name: /cancel/i });
+    userEvent.click(cancelButton);
+
+    expect(queryByText(moduleMessages.confirmAvatarStageDeletionModalTitle.defaultMessage)).not.toBeInTheDocument();
   });
 
   it('calls setFieldValue when a valid SVG file is uploaded', async () => {
