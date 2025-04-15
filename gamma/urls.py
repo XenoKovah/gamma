@@ -26,7 +26,7 @@ from gamma.views import GammaView
 
 
 urlpatterns = [
-    # Dashboard page
+    # Dashboard page (will be redirected to `/gamma/avatars/`)
     path('', DashboardView.as_view()),
 
     # Native admin page
