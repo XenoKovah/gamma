@@ -166,10 +166,30 @@ const messages = defineMessages({
     defaultMessage: 'Аватари',
     description: 'Заголовок для кроку вибору аватарів у майстрі створення набору аватарів.',
   },
+  avatarSetStepperAvatarsStepSupportText1: {
+    id: 'modules.avatars.avatar-set.stepper.step.avatars.support-text-1',
+    defaultMessage: 'Відредагуйте кожен етап аватара, щоб додати його назву, опис і правила еволюції. Вони будуть видимі для користувачів.',
+    description: 'Перший допоміжний текст для кроку аватарів в майстрі створення набору аватарів.',
+  },
+  avatarSetStepperAvatarsStepSupportText2: {
+    id: 'modules.avatars.avatar-set.stepper.step.avatars.support-text-2',
+    defaultMessage: 'Натисніть <span>Редагувати</span> під кожним аватаром, щоб відкрити налаштування. Не забудьте натиснути <span>Зберегти</span>, щоб зберегти зміни.',
+    description: 'Другий допоміжний текст для кроку аватарів в майстрі створення набору аватарів.',
+  },
+  avatarSetStepperAvatarsStepSupportText3: {
+    id: 'modules.avatars.avatar-set.stepper.step.avatars.support-text-3',
+    defaultMessage: 'Якщо ви видалите етап еволюції аватара тут і залишиться менше двох етапів, ви не зможете продовжити. Використовуйте кнопку <span>Назад</span>, щоб повернутися назад і завантажити принаймні два етапи розвитку.',
+    description: 'Третій допоміжний текст для кроку аватарів в майстрі створення набору аватарів.',
+  },
   avatarSetStepperFinishStepTitle: {
     id: 'modules.avatars.avatar-set.stepper.step.finish.title',
     defaultMessage: 'Завершення',
     description: 'Заголовок для кроку завершення налаштування аватарів у майстрі створення набору аватарів.',
+  },
+  avatarSetStepperFinishStepSupportText1: {
+    id: 'modules.avatars.avatar-set.stepper.step.finish.support-text-1',
+    defaultMessage: 'Перегляньте свій набір аватарів. Натисніть <span>Назад</span>, щоб повернутися та внести зміни, або натисніть <span>Завершити</span>, щоб зберегти ваш набір аватарів.',
+    description: 'Перший допоміжний текст для кроку завершення в майстрі створення набору аватарів.',
   },
   avatarCardRuleSectionTitle: {
     id: 'modules.avatars.avatar-set.card.rule.subsection.title',
@@ -216,10 +236,15 @@ const messages = defineMessages({
     defaultMessage: 'Назва',
     description: 'Заголовок для кроку введення назви в майстрі створення набору аватарів.',
   },
-  avatarSetStepperTitleStepDescription: {
-    id: 'modules.avatars.avatar-set.stepper.step.title.description',
-    defaultMessage: 'Будь ласка, введіть назву набору аватарів нижче.',
-    description: 'Опис для кроку введення назви в майстрі створення набору аватарів.',
+  avatarSetStepperTitleStepSupportText1: {
+    id: 'modules.avatars.avatar-set.stepper.step.title.support-text-1',
+    defaultMessage: 'Якщо ви натиснете <span>Далі</span>, ваші зміни буде збережено, і ви перейдете до наступного кроку.',
+    description: 'Перший допоміжний текст для кроку заголовка в степпері набору аватарів.',
+  },
+  avatarSetStepperTitleStepSupportText2: {
+    id: 'modules.avatars.avatar-set.stepper.step.title.support-text-2',
+    defaultMessage: 'Якщо натиснути <span>Закрити</span>, ваші дані не буде збережено.',
+    description: 'Другий допоміжний текст для кроку заголовка в степпері набору аватарів.',
   },
   avatarSetStepperTitleStepInputTitleLabel: {
     id: 'modules.avatars.avatar-set.stepper.step.title.input.title.label',
@@ -253,11 +278,18 @@ const messages = defineMessages({
   },
   avatarSetStepperEvolutionDescription: {
     id: 'modules.avatars.avatar-set.stepper.step.evolution.description.text',
-    defaultMessage: `Будь ласка, завантажте базові файли для етапів еволюції аватара.
-      Мінімальна кількість етапів еволюції – 2, максимальна – 5.
-      Переконайтеся, що зображення не містять жодних аксесуарів. Підтримуваний формат файлів: SVG.
-      Максимальний розмір файлу: 20 МБ.`,
+    defaultMessage: 'Завантажте зображення SVG для етапів еволюції аватара (мінімум {minCount}, максимум {maxCount}). Максимальний розмір файлу: {maxImgSize} Мб. Для продовження потрібні принаймні два етапи із завантаженими зображеннями.',
     description: 'Опис для кроку еволюції в майстрі набору аватарів.',
+  },
+  avatarSetStepperEvolutionSupportText1: {
+    id: 'modules.avatars.avatar-set.stepper.step.evolution.support.text-1',
+    defaultMessage: 'Натисніть <span>Далі</span>, щоб зберегти завантажені етапи набору аватарів. Якщо ви залишите сторінку, не натиснувши <span>Далі</span>, ваші зображення не буде збережено.',
+    description: 'Перший допоміжний текст для кроку еволюції в майстрі набору аватарів.',
+  },
+  avatarSetStepperEvolutionSupportText2: {
+    id: 'modules.avatars.avatar-set.stepper.step.evolution.support.text-2',
+    defaultMessage: 'Якщо ви додаєте новий етап, але не завантажуєте зображення, кнопка <span>Далі</span> залишатиметься недоступною. Щоб продовжити, завантажте зображення або натисніть <span>Видалити</span>, щоб видалити порожній етап.',
+    description: 'Другий допоміжний текст для кроку еволюції в майстрі набору аватарів.',
   },
   avatarSetStepperEvolutionRemoveAvatarBtn: {
     id: 'modules.avatars.avatar-set.stepper.step.evolution.button.remove-avatar.text',

@@ -226,6 +226,11 @@ const messages = defineMessages({
     defaultMessage: 'Avatars',
     description: 'The title for the avatars step in the avatar set stepper.',
   },
+  avatarSetStepperAvatarsStepSupportText1: {
+    id: 'modules.avatars.avatar-set.stepper.step.avatars.support-text-1',
+    defaultMessage: 'Edit each avatar stage to set its title, description, and evolution rule. These will be visible to users.',
+    description: 'Support text for the avatars step in the avatar set stepper.',
+  },
   avatarSetStepperEvolutionStepTitle: {
     id: 'modules.avatars.avatar-set.stepper.step.evolution.title',
     defaultMessage: 'Evolution',
@@ -235,11 +240,6 @@ const messages = defineMessages({
     id: 'modules.avatars.avatar-set.stepper.step.title.title',
     defaultMessage: 'Title',
     description: 'The title for the title step in the avatar set stepper.',
-  },
-  avatarSetStepperTitleStepDescription: {
-    id: 'modules.avatars.avatar-set.stepper.step.title.description',
-    defaultMessage: 'Please enter the avatar set title below.',
-    description: 'The description for the title step in the avatar set stepper.',
   },
   avatarSetStepperTitleStepInputTitleLabel: {
     id: 'modules.avatars.avatar-set.stepper.step.title.input.title.label',
@@ -253,10 +253,7 @@ const messages = defineMessages({
   },
   avatarSetStepperEvolutionDescription: {
     id: 'modules.avatars.avatar-set.stepper.step.evolution.description.text',
-    defaultMessage: `Please upload the base files for the avatar evolution stages.
-    The minimum required number of evolution stages is 2, and the maximum is 5.
-    Ensure the images do not include any accessories. Accepted file format: SVG.
-    Maximum file size: 20 MB.`,
+    defaultMessage: 'Upload SVG images for the avatar\'s evolution stages (minimum {minCount}, maximum {maxCount}). Max file size: {maxImgSize} MB. At least two stages with uploaded images are required to continue.',
     description: 'The description for the evolution step in the avatar set stepper.',
   },
   avatarSetStepperEvolutionRemoveAvatarBtn: {

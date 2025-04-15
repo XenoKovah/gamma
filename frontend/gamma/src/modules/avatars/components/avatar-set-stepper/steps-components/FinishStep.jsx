@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { useIntl } from 'react-intl';
+import { useIntl, FormattedMessage } from 'react-intl';
 import PropTypes from 'prop-types';
 import { CardGrid, Collapsible, Stepper } from '@openedx/paragon';
 
@@ -9,6 +9,7 @@ import moduleMessages from '../../../i18n';
 import { sortByDate } from '../../../utils';
 import { STEPPER_STEPS } from '../constants';
 import StepFooter from './StepFooter';
+import BoldSpan from './BoldSpan';
 
 const FinishStep = ({
   currentStep,
@@ -77,6 +78,12 @@ const FinishStep = ({
         <h2 className="my-4">
           {intl.formatMessage(moduleMessages.avatarSetStepperFinishStepTitle)}
         </h2>
+        <FormattedMessage
+          id="modules.avatars.avatar-set.stepper.step.finish.support-text-1"
+          tagName="p"
+          defaultMessage="Review your avatar set. Use <span>Previous</span> to go back and make changes, or click <span>Finish</span> to finalize your avatar set."
+          values={{ span: BoldSpan }}
+        />
         {sortedAvatarsMemoized.length > 0 && (
           <CardGrid
             columnSizes={{ xs: 12, lg: 6, xl: 4 }}

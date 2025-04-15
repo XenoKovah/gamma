@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { useIntl } from 'react-intl';
+import { useIntl, FormattedMessage } from 'react-intl';
 import { Formik } from 'formik';
 import PropTypes from 'prop-types';
 import { Stepper, Button, CardGrid } from '@openedx/paragon';
@@ -9,8 +9,11 @@ import { useAvatarsContext } from '../../../context/AvatarsContext';
 import { convertImageToBase64 } from '../../../data';
 import { STEPPER_STEPS } from '../constants';
 import AvatarStageImage from './AvatarStageImage';
-import { DEFAULT_AVATAR_DATA, MIN_AVATARS_COUNT, MAX_AVATARS_COUNT } from './constants';
+import {
+  DEFAULT_AVATAR_DATA, MIN_AVATARS_COUNT, MAX_AVATARS_COUNT, MAX_IMAGE_SIZE,
+} from './constants';
 import StepFooter from './StepFooter';
+import BoldSpan from './BoldSpan';
 
 import moduleMessages from '../../../i18n';
 
@@ -85,8 +88,24 @@ const EvolutionStep = ({
                 {intl.formatMessage(moduleMessages.avatarSetStepperEvolutionStepTitle)}
               </h2>
               <p>
-                {intl.formatMessage(moduleMessages.avatarSetStepperEvolutionDescription)}
+                {intl.formatMessage(moduleMessages.avatarSetStepperEvolutionDescription, {
+                  minCount: MIN_AVATARS_COUNT,
+                  maxCount: MAX_AVATARS_COUNT,
+                  maxImgSize: Math.round(MAX_IMAGE_SIZE / (1024 * 1024)), // Convert bytes to MB
+                })}
               </p>
+              <FormattedMessage
+                id="modules.avatars.avatar-set.stepper.step.evolution.support.text-1"
+                tagName="p"
+                defaultMessage="Click <span>Next</span> to save your uploads to the avatar set. If you leave the page without clicking <span>Next</span>, your images won't be saved."
+                values={{ span: BoldSpan }}
+              />
+              <FormattedMessage
+                id="modules.avatars.avatar-set.stepper.step.evolution.support.text-2"
+                tagName="p"
+                defaultMessage="If you add a new stage but don't upload an image, <span>Next</span> will remain disabled. To proceed, either upload an image or click <span>Remove</span> to delete the empty stage."
+                values={{ span: BoldSpan }}
+              />
               <CardGrid
                 columnSizes={{ xs: 12, lg: 6, xl: 4 }}
                 hasEqualColumnHeights

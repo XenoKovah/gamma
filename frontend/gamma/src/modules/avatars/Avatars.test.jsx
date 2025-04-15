@@ -244,8 +244,18 @@ describe('Avatars', () => {
           const avatarSetStepper = getByRole('dialog');
 
           within(avatarSetStepper).getByText(moduleMessages.avatarSetStepperTitle.defaultMessage);
-          within(avatarSetStepper).getByText(moduleMessages.avatarSetStepperBtnStatefulDefaultText.defaultMessage);
-          within(avatarSetStepper).getByText(moduleMessages.avatarSetStepperCloseBtnTitle.defaultMessage);
+          within(avatarSetStepper).getByRole('button', {
+            name: moduleMessages.avatarSetStepperBtnStatefulDefaultText.defaultMessage,
+          });
+          within(avatarSetStepper).getByRole('button', {
+            name: moduleMessages.avatarSetStepperCloseBtnTitle.defaultMessage,
+          });
+          expect(within(avatarSetStepper)
+            .getAllByText(/If you click/i)).toHaveLength(2);
+          expect(within(avatarSetStepper)
+            .getByText(/your changes will be saved and you'll move to the next step/i)).toBeInTheDocument();
+          expect(within(avatarSetStepper)
+            .getByText(/your input will not be saved/i)).toBeInTheDocument();
 
           // Steps
           within(avatarSetStepper).getByText(moduleMessages.avatarSetStepperEvolutionStepTitle.defaultMessage);
@@ -269,7 +279,6 @@ describe('Avatars', () => {
 
         await waitFor(() => {
           const avatarSetStepper = getByRole('dialog');
-          within(avatarSetStepper).getByText(moduleMessages.avatarSetStepperTitleStepDescription.defaultMessage);
 
           const titleInput = within(avatarSetStepper).getByLabelText(
             moduleMessages.avatarSetStepperTitleStepInputTitleLabel.defaultMessage,
@@ -312,7 +321,9 @@ describe('Avatars', () => {
           ).not.toBeInTheDocument();
 
           const nextBtn = within(avatarSetStepper)
-            .getByText(moduleMessages.avatarSetStepperBtnStatefulDefaultText.defaultMessage);
+            .getByRole('button', {
+              name: moduleMessages.avatarSetStepperBtnStatefulDefaultText.defaultMessage,
+            });
           userEvent.click(nextBtn);
         });
 

@@ -95,12 +95,16 @@ describe('FinishStep', () => {
     });
   });
 
-  it('navigates to the previous step when clicking the back button', () => {
-    const { getByRole } = renderComponent();
+  it('check support text and navigates to the previous step when clicking the back button', () => {
+    const { getByRole, getByText } = renderComponent();
 
     userEvent.click(getByRole('button', {
       name: moduleMessages.avatarSetStepperPreviousBtnTitle.defaultMessage,
     }));
+
+    expect(getByText(/Review your avatar set. Use/i)).toBeInTheDocument();
+    expect(getByText(/to go back and make changes, or click/i)).toBeInTheDocument();
+    expect(getByText(/to finalize your avatar set./i)).toBeInTheDocument();
 
     expect(mockSetCurrentStep).toHaveBeenCalledWith(STEPPER_STEPS.avatars);
   });

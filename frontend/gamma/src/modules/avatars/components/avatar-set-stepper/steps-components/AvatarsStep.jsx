@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { useIntl } from 'react-intl';
+import { useIntl, FormattedMessage } from 'react-intl';
 import PropTypes from 'prop-types';
 import {
   Stepper, CardGrid, useToggle,
@@ -16,7 +16,7 @@ import {
   MAX_AVATARS_COUNT, MIN_AVATARS_COUNT, ACCEPTED_IMAGE_FORMATS,
 } from './constants';
 import StepFooter from './StepFooter';
-
+import BoldSpan from './BoldSpan';
 import moduleMessages from '../../../i18n';
 
 const AvatarsStep = ({
@@ -118,6 +118,19 @@ const AvatarsStep = ({
             variant="info"
           />
         )}
+        <p>{intl.formatMessage(moduleMessages.avatarSetStepperAvatarsStepSupportText1)}</p>
+        <FormattedMessage
+          id="modules.avatars.avatar-set.stepper.step.avatars.support-text-2"
+          tagName="p"
+          defaultMessage="Click <span>Edit</span> under each avatar to open settings. Remember to click <span>Save</span> to keep your changes."
+          values={{ span: BoldSpan }}
+        />
+        <FormattedMessage
+          id="modules.avatars.avatar-set.stepper.step.avatars.support-text-3"
+          tagName="p"
+          defaultMessage="If you delete an avatar evolution stage here and have fewer than two stages left, you will not be able to continue. Use <span>Previous</span> to go back and upload at least two evolution stages."
+          values={{ span: BoldSpan }}
+        />
         {selectedAvatarSet?.avatars?.length > 0 && (
           <CardGrid columnSizes={{ xs: 12, lg: 6, xl: 4 }} hasEqualColumnHeights>
             {sortedAvatars.map(({ id, title, image }) => (

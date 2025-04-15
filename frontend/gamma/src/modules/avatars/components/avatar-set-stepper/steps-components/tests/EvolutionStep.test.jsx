@@ -59,7 +59,7 @@ describe('EvolutionStep', () => {
   );
 
   it('renders EvolutionStep component with form elements', () => {
-    const { getByRole } = renderComponent();
+    const { getByRole, getByText } = renderComponent();
 
     expect(
       getByRole('heading', { name: moduleMessages.avatarSetStepperEvolutionStepTitle.defaultMessage }),
@@ -67,6 +67,12 @@ describe('EvolutionStep', () => {
     expect(
       getByRole('button', { name: moduleMessages.avatarSetStepperEvolutionAddStageBtn.defaultMessage }),
     ).toBeInTheDocument();
+
+    expect(getByText(/to save your uploads to the avatar set. If you leave the page without clicking/i)).toBeInTheDocument();
+    expect(getByText(/your images won't be saved/i)).toBeInTheDocument();
+    expect(getByText(/If you add a new stage but don't upload an image,/i)).toBeInTheDocument();
+    expect(getByText(/will remain disabled. To proceed, either upload an image or click/i)).toBeInTheDocument();
+    expect(getByText(/to delete the empty stage/i)).toBeInTheDocument();
   });
 
   it('allows adding a new avatar stage and uploading an image to Stage 1', async () => {

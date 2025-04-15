@@ -186,6 +186,11 @@ const messages = defineMessages({
     defaultMessage: 'Concluir',
     description: 'Título da etapa de conclusão no assistente de conjunto de avatares.',
   },
+  avatarSetStepperFinishStepSupportText1: {
+    id: 'modules.avatars.avatar-set.stepper.step.finish.support-text-1',
+    defaultMessage: 'Reveja o seu conjunto de avatares. Utilize <span>Anterior</span> para voltar atrás e fazer alterações, ou clique em <span>Concluir</span> para guardar o seu conjunto de avatares.',
+    description: 'Primeiro texto de apoio para o passo de conclusão no assistente de criação de conjunto de avatares.',
+  },
   avatarCardRuleSectionTitle: {
     id: 'modules.avatars.avatar-set.card.rule.subsection.title',
     defaultMessage: 'Regra {count}',
@@ -226,6 +231,21 @@ const messages = defineMessages({
     defaultMessage: 'Avatares',
     description: 'Título da etapa de avatares no assistente de conjunto de avatares.',
   },
+  avatarSetStepperAvatarsStepSupportText1: {
+    id: 'modules.avatars.avatar-set.stepper.step.avatars.support-text-1',
+    defaultMessage: 'Edite cada etapa do avatar para definir o seu título, descrição e regra de evolução. Estes serão visíveis para os utilizadores.',
+    description: 'Primeiro texto de suporte para o passo dos avatares no assistente de conjunto de avatares.',
+  },
+  avatarSetStepperAvatarsStepSupportText2: {
+    id: 'modules.avatars.avatar-set.stepper.step.avatars.support-text-2',
+    defaultMessage: 'Clique em <span>Editar</span> sob cada avatar para abrir as configurações. Não se esqueça de clicar em <span>Guardar</span> para guardar as alterações.',
+    description: 'Segundo texto de suporte para o passo dos avatares no assistente de conjunto de avatares.',
+  },
+  avatarSetStepperAvatarsStepSupportText3: {
+    id: 'modules.avatars.avatar-set.stepper.step.avatars.support-text-3',
+    defaultMessage: 'Se remover uma etapa de evolução do avatar aqui e ficarem menos de duas etapas, não poderá continuar. Use o botão <span>Anterior</span> para voltar atrás e carregar pelo menos duas etapas de evolução.',
+    description: 'Terceiro texto de suporte para o passo dos avatares no assistente de conjunto de avatares.',
+  },
   avatarSetStepperEvolutionStepTitle: {
     id: 'modules.avatars.avatar-set.stepper.step.evolution.title',
     defaultMessage: 'Evolução',
@@ -236,10 +256,15 @@ const messages = defineMessages({
     defaultMessage: 'Título',
     description: 'Título da etapa de título no assistente de conjunto de avatares.',
   },
-  avatarSetStepperTitleStepDescription: {
-    id: 'modules.avatars.avatar-set.stepper.step.title.description',
-    defaultMessage: 'Por favor, insira o título do conjunto de avatares abaixo.',
-    description: 'Descrição da etapa de título no assistente.',
+  avatarSetStepperTitleStepSupportText1: {
+    id: 'modules.avatars.avatar-set.stepper.step.title.support-text-1',
+    defaultMessage: 'Se clicar em <span>Próximo</span>, as suas alterações serão guardadas e avançará para o passo seguinte.',
+    description: 'Primeiro texto de suporte para o passo do título no assistente de conjunto de avatares.',
+  },
+  avatarSetStepperTitleStepSupportText2: {
+    id: 'modules.avatars.avatar-set.stepper.step.title.support-text-2',
+    defaultMessage: 'Se clicar em <span>Fechar</span>, os seus dados não serão guardados.',
+    description: 'Segundo texto de suporte para o passo do título no assistente de conjunto de avatares.',
   },
   avatarSetStepperTitleStepInputTitleLabel: {
     id: 'modules.avatars.avatar-set.stepper.step.title.input.title.label',
@@ -253,11 +278,18 @@ const messages = defineMessages({
   },
   avatarSetStepperEvolutionDescription: {
     id: 'modules.avatars.avatar-set.stepper.step.evolution.description.text',
-    defaultMessage: `Faça o upload dos arquivos base para os estágios de evolução do avatar.
-O número mínimo de estágios de evolução é 2, e o máximo é 5.
-Certifique-se de que as imagens não incluam acessórios. Formato aceito: SVG.
-Tamanho máximo do arquivo: 20 MB.`,
+    defaultMessage: 'Carregue imagens SVG para as etapas de evolução do avatar (mínimo {minCount}, máximo {maxCount}). Tamanho máximo do ficheiro: {maxImgSize} MB. São necessárias pelo menos duas etapas com imagens carregadas para continuar.',
     description: 'Descrição da etapa de evolução no assistente de conjunto de avatares.',
+  },
+  avatarSetStepperEvolutionSupportText1: {
+    id: 'modules.avatars.avatar-set.stepper.step.evolution.support.text-1',
+    defaultMessage: 'Clique em <span>Próximo</span> para guardar os seus carregamentos no conjunto de avatares. Se sair da página sem clicar em <span>Próximo</span>, as suas imagens não serão guardadas.',
+    description: 'Primeiro texto de suporte para o passo de evolução no assistente de conjunto de avatares.',
+  },
+  avatarSetStepperEvolutionSupportText2: {
+    id: 'modules.avatars.avatar-set.stepper.step.evolution.support.text-2',
+    defaultMessage: 'Se adicionar uma nova etapa mas não carregar uma imagem, o botão <span>Seguinte</span> permanecerá desativado. Para continuar, carregue uma imagem ou clique em <span>Eliminar</span> para remover a etapa vazia.',
+    description: 'Segundo texto de suporte para o passo de evolução no assistente de conjunto de avatares.',
   },
   avatarSetStepperEvolutionRemoveAvatarBtn: {
     id: 'modules.avatars.avatar-set.stepper.step.evolution.button.remove-avatar.text',
