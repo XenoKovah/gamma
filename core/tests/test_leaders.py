@@ -5,6 +5,9 @@ from core.db.leaders import get_top10, get_tail_competitors
 from core.tests.utils.helpers import load_params_from_json
 
 
+pytestmark = pytest.mark.django_db
+
+
 @pytest.mark.parametrize(
     "entry",
     load_params_from_json("core/tests/resources/personalized_leaderboard_cases.json")

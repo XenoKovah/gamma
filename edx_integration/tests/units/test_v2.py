@@ -4,6 +4,9 @@ from django.conf import settings
 from edx_integration.api.v2.client import EdxNotificationClient
 
 
+pytestmark = pytest.mark.django_db
+
+
 @pytest.mark.unittests
 def test_edx_notification_client_init():
     test_key = "test_key"

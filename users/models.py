@@ -4,7 +4,9 @@ from typing import Dict, List
 from django.db import models
 from django.utils.translation import gettext as _
 
+from events.enums import RggInternalEventTypes
 from events.models import Event, EventConfiguration
+from events.utils import simulate_rgg_internal_event
 
 
 class GammaUser(models.Model):
@@ -113,6 +115,7 @@ class GammaUser(models.Model):
         self.update_user_chart(event_configuration)
         self.update_user_points(event_configuration.award)
         self.update_user_course_points(event)
+        simulate_rgg_internal_event(self, RggInternalEventTypes.RGG_POINTS_DISTRIBUTION.value)
 
 
 class GammaUserCoursePoints(models.Model):

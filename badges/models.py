@@ -1,6 +1,9 @@
+from django.contrib.contenttypes.fields import ContentType
 from django.db import models
 from django.utils.text import slugify
 
+from achievements.models import Achievement
+from users.models import GammaUser
 from core.mixins import TimestampModelMixin
 
 
@@ -30,3 +33,13 @@ class Badge(TimestampModelMixin, models.Model):
     def __str__(self):
         rules = ', '.join(str(rule.action) for rule in self.rules.all()) if self.rules.exists() else 'No rules'
         return f'Badge {self.title!r} with rules {rules}'
+
+    def has_achievement(self, user: GammaUser) -> bool:
+        """
+        Check whether badge has any linked achievement via its rules.
+        """
+        return Achievement.objects.filter(
+            user=user,
+            content_type=ContentType.objects.get_for_model(self),
+            object_id=self.id
+        ).exists()

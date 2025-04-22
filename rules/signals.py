@@ -2,12 +2,12 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from achievements.models import AchievementRule
-from events.models import Event
 from core.utils import get_gamification_backends
+from events.enums import RggInternalEventTypes
+from events.models import Event, EventConfiguration
+from rules.models import Rule
+from rules.services import RulesFilterService
 from users.models import GammaUser
-
-from .services import RulesFilterService
-from .models import Rule
 
 
 @receiver(post_save, sender=Event)
@@ -36,10 +36,9 @@ def process_event_creation(sender, instance, created, **kwargs):
     affected_rules = rule_filter.filter_rules(affected_rules_by_event)
 
     for rule in affected_rules:
-        achievements_to_update = rule.rule_achievements.filter(achievement__user=user).all()
-        is_achievement_exists = achievements_to_update.exists()
-
         for backend in get_gamification_backends():
-            backend.process_achievement(rule, event, user, is_achievement_exists)
+            backend.process_achievement(rule, event, user)
 
-    user.run_update_user_pipeline(event)
+    # To avoid recursion we limit the calls.
+    if not configuration in EventConfiguration.objects.filter(event_type__name__in=RggInternalEventTypes.get_all()):
+        user.run_update_user_pipeline(event)

@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from core.authentication import KeySecretAuthentication
 from core.utils import AppClientUtils
 
+from events.constants import TEMPORALLY_EXCLUDED_EVENT_TYPES
 from events.models import EventConfiguration
 
 from .serializers import AvailableActionsSerializer, EventSerializer
@@ -68,4 +69,10 @@ class AvailableActionsAPIView(generics.ListAPIView):
 
     model = EventConfiguration
     serializer_class = AvailableActionsSerializer
-    queryset = EventConfiguration.objects.all()
+
+    def get_queryset(self):
+        """
+        Returns a queryset of EventConfiguration objects, excluding Event Types
+        which is in TEMPORALLY_EXCLUDED_EVENT_TYPES.
+        """
+        return EventConfiguration.objects.exclude(event_type__name__in=TEMPORALLY_EXCLUDED_EVENT_TYPES)

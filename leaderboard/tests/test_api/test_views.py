@@ -12,6 +12,9 @@ from leaderboard.factories import LeaderboardRetrievingContextFactory
 from users.models import GammaUser
 
 
+pytestmark = pytest.mark.django_db
+
+
 class TestLeaderBoardView:
     @pytest.mark.django_db
     @patch("leaderboard.api.v0.views.LeaderBoardView._collect_response_data", Mock(return_value={}))

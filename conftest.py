@@ -22,6 +22,7 @@ from core.notif import push
 from core.notif.onesignal_provider import OneSignalServiceBuilder
 from core.notif.cfg import Provider, Config
 from core.notif.utils import get_format_func
+from events.enums import RggInternalEventTypes
 from events.factories import EventFactory, EventConfigurationFactory, EventTypeFactory
 from rules.factories import RuleFactory
 from users.factories import GammaUserCoursePointsFactory, GammaUserFactory
@@ -199,3 +200,16 @@ def temp_media_root(tmpdir_factory: pytest.TempdirFactory, settings: SettingsWra
     media_root = tmpdir_factory.mktemp("media_root")
     settings.MEDIA_ROOT = str(media_root)
     return media_root
+
+
+@pytest.fixture(autouse=True)
+def setup_rgg_internal_events(request, event_type_factory, event_configuration_factory):
+    """
+    Create internal EventType and EventConfiguration instances using factories.
+    """
+    if request.node.get_closest_marker('no_rgg_events'):
+        return
+
+    for event_name in RggInternalEventTypes.get_all():
+        event_type = event_type_factory(name=event_name)
+        event_configuration_factory(event_type=event_type)

@@ -8,6 +8,8 @@ gamma/media/
 *cache*
 *.log
 celerybeat-schedule
+celerybeat.pid
 coverage.xml
 dist/
 private.env
+**/.vscode/**

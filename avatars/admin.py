@@ -25,5 +25,5 @@ class AvatarSetAdmin(admin.ModelAdmin):
 
 @admin.register(UserAvatarConfig)
 class UserAvatarConfigAdmin(admin.ModelAdmin):
-    list_display = ('user', 'selected_avatar', 'avatar_set')
+    list_display = ('user', 'avatar_set')
     search_fields = ('user__username',)

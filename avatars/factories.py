@@ -65,7 +65,6 @@ class UserAvatarConfigFactory(factory.django.DjangoModelFactory):
     """
 
     user = factory.SubFactory('users.factories.GammaUserFactory')
-    selected_avatar = factory.SubFactory('avatars.factories.AvatarFactory')
     avatar_set = factory.SubFactory('avatars.factories.AvatarSetFactory')
 
     class Meta:

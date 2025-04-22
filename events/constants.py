@@ -13,3 +13,5 @@ COLOR_CHOOCES = (
 NOTIFICATION_MESSAGE_HELP_TEXT = """
 You can use {} to insert awarded points into correct place. e.g. Congrats! You've earned {} points for watching videos
 """
+
+TEMPORALLY_EXCLUDED_EVENT_TYPES = ('rgg_achievement_obtained', )

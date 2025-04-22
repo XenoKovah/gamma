@@ -1,24 +1,22 @@
 from rest_framework import serializers
 
-from django.contrib.contenttypes.models import ContentType
-
 from events.models import Event, EventConfiguration
+from events.utils import SchemaRenderer
 
 
 class AvailableActionsSerializer(serializers.ModelSerializer):
     event_name = serializers.CharField()
-    is_depends_on_achievement = serializers.SerializerMethodField()
+    schema = serializers.SerializerMethodField()
 
     class Meta:
         model = EventConfiguration
-        fields = ('id', 'event_name', 'title', 'is_depends_on_achievement')
+        fields = ('id', 'event_name', 'title', 'schema')
 
-    def get_is_depends_on_achievement(self, obj):
+    def get_schema(self, obj):
         """
-        Determines if the event produce dependencies on another object (Badge).
+        Get current schema for given Event Type.
         """
-        badge_content_type = ContentType.objects.get(model='badge')
-        return obj.is_depends_on_achievement and obj.content_type == badge_content_type
+        return SchemaRenderer().render_schema(event_type_name=obj.event_type.name)
 
 
 class EventConfigurationSerializer(serializers.ModelSerializer):

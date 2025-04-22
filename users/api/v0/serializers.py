@@ -7,24 +7,6 @@ from avatars.api.v0.serializers import AvatarSetSerializer, UserAvatarConfigSeri
 from avatars.models import AvatarSet, UserAvatarConfig
 from badges.api.v0.serializers import BadgeSerializer
 from badges.models import Badge
-from users.models import GammaUser
-
-
-class GammaUserInfoSerializer(serializers.Serializer):
-    """
-    Serializer for GammaUser information.
-    """
-
-    gamma_user_id = serializers.IntegerField(source='id')
-    user_avatar_config = serializers.SerializerMethodField()
-
-    def get_user_avatar_config(self, obj):
-        """
-        Get Gamma User Avatar Set info.
-        """
-        user_avatar_set = UserAvatarConfig.objects.filter(user_id=obj.id).first()
-
-        return UserAvatarConfigSerializer(user_avatar_set).data if user_avatar_set else None
 
 
 class UserGameProfileSerializer(serializers.Serializer):
@@ -33,7 +15,7 @@ class UserGameProfileSerializer(serializers.Serializer):
     """
 
     avatar_sets = serializers.SerializerMethodField()
-    gamma_user_info = serializers.SerializerMethodField()
+    user_avatar_config = serializers.SerializerMethodField()
     system_badges = serializers.SerializerMethodField()
     badges = serializers.SerializerMethodField()
 
@@ -49,11 +31,13 @@ class UserGameProfileSerializer(serializers.Serializer):
         avatar_sets = AvatarSet.objects.filter(is_draft=False).prefetch_related('avatars__rules')
         return AvatarSetSerializer(avatar_sets, many=True).data
 
-    def get_gamma_user_info(self, obj):
+    def get_user_avatar_config(self, obj):
         """
-        Get Gamma User profile info.
+        Get Gamma User avatar config.
         """
-        return GammaUserInfoSerializer(obj).data
+        if (config := UserAvatarConfig.objects.filter(user=obj).first()):
+            return UserAvatarConfigSerializer(config, context=self.context).data
+        return None
 
     def get_system_badges(self, obj):
         """

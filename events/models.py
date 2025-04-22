@@ -1,4 +1,5 @@
 from typing import List, Optional
+from uuid import uuid4
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -6,6 +7,7 @@ from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 
 from events.constants import COLOR_CHOOCES, NOTIFICATION_MESSAGE_HELP_TEXT
+from events.utils import uid_generator
 
 
 class EventType(models.Model):
@@ -30,7 +32,7 @@ class EventConfiguration(models.Model):
 
     event_type = models.OneToOneField('events.EventType', on_delete=models.CASCADE, related_name='configuration')
     title = models.CharField(max_length=32, blank=True)
-    
+
     is_depends_on_achievement = models.BooleanField(
         default=False,
         help_text=_('Indicates whether the event is used to validate achievement dependencies')
@@ -66,7 +68,7 @@ class EventConfiguration(models.Model):
         return list(queryset.values_list('event_type__name', flat=True))
 
     @classmethod
-    def available_event_based_names(cls) -> List[str]:
+    def available_common_event_names(cls) -> List[str]:
         """
         Return event names that are NOT used for achievement generation.
 
@@ -74,22 +76,13 @@ class EventConfiguration(models.Model):
         """
         return cls.all_event_names(False)
 
-    @classmethod
-    def available_achievement_based_names(cls) -> List[str]:
-        """
-        Return event names that ARE used for achievement generation with dependencies on the other achievements.
-
-        Example: 'rgg_badge_achieved', 'rgg_skin_achieved'.
-        """
-        return cls.all_event_names(True)
-
 
 class Event(models.Model):
     """
     Stores incoming event as history records.
     """
 
-    uid = models.CharField(max_length=255, null=False, blank=False)
+    uid = models.CharField(max_length=255, null=False, blank=False, default=uid_generator)
     signup_source = models.CharField(max_length=255, null=True, blank=True)
     username = models.CharField(max_length=255, null=False, blank=False, db_column='user_uid')
 
@@ -119,3 +112,10 @@ class Event(models.Model):
         if not event_name:
             raise ValueError('The event configuration is missing.')
         return event_name
+
+    @classmethod
+    def ensure_internal_event_is_created(cls, user: 'GammaUser', configuration: EventConfiguration):
+        """
+        Ensure an internal event is created for the given user and configuration.
+        """
+        return cls.objects.create(username=user.user_uid, configuration=configuration)

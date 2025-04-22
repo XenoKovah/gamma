@@ -1,5 +1,10 @@
+import pytest
+
 from core import db
 from core.data_models.models import AppClient
+
+
+pytestmark = pytest.mark.django_db
 
 
 def test_app_client_rewrite():

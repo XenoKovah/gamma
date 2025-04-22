@@ -4,6 +4,9 @@ from schematics.exceptions import DataError
 from core.notif.models import OneSignalNotif as Notif
 
 
+pytestmark = pytest.mark.django_db
+
+
 @pytest.mark.xfail(raises=DataError)
 @pytest.mark.unittests
 def test_use_user_ids_with_player_ids():

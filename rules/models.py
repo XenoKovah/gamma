@@ -26,7 +26,7 @@ class Rule(TimestampModelMixin, models.Model):
         return self.event_configuration.event_name in self.action
 
     @property
-    def achievement_content_type(self) -> str:
+    def event_content_type(self) -> str:
         """
         Return the content type (related to the dependent badges) of the event configuration.
         """

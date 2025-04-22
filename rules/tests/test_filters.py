@@ -99,7 +99,7 @@ def test_one_rule_based_on_filters_criteria(
     end,
     org,
     course,
-    expected_valid
+    expected_valid,
 ):
     filters = {}
 

@@ -53,6 +53,6 @@ class UserAvatarConfigViewSet(viewsets.ModelViewSet):
     """
     ViewSet for managing User Avatar Configurations.
     """
-    queryset = UserAvatarConfig.objects.all()
+    queryset = UserAvatarConfig.objects.select_related('user', 'avatar_set').all()
     serializer_class = UserAvatarConfigSerializer
     authentication_classes = (KeySecretAuthentication,)

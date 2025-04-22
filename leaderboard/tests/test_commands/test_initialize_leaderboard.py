@@ -10,6 +10,9 @@ from leaderboard.repository import RedisLeaderboardRepository
 from users.factories import GammaUserFactory
 
 
+pytestmark = pytest.mark.django_db
+
+
 @patch("leaderboard.management.commands.initialize_leaderboard.ScheduleLeaderboardsInitializationUseCase")
 @patch("leaderboard.management.commands.initialize_leaderboard.ORMLeaderboardMemberDataRepository")
 def test_handle_executes_schedule_leaderboards_initialization_use_case(

@@ -71,12 +71,12 @@ class TestAvatarSerializer:
             'rules': [
                 {
                     'action': {
-                        'problem_check': 2
+                        'problem_check': {'count': 2}
                     },
                 },
                 {
                     'action': {
-                        'problem_graded': 4
+                        'problem_graded': {'count': 4}
                     },
                 }
             ]
@@ -109,12 +109,12 @@ class TestAvatarSerializer:
             'rules': [
                 {
                     'action': {
-                        'problem_check': 2
+                        'problem_check': {'count': 2}
                     },
                 },
                 {
                     'action': {
-                        'problem_graded': 4
+                        'problem_graded': {'count': 4}
                     },
                 }
             ]

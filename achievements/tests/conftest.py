@@ -2,9 +2,7 @@ import pytest
 from django.contrib.contenttypes.models import ContentType
 from django.utils.timezone import now
 
-from achievements.services import RuleDependencyService
-
-from .constants import mock_event_based_name, mock_achievement_based_name
+from achievements.tests.constants import mock_event_based_name, mock_achievement_based_name
 
 
 @pytest.fixture
@@ -70,20 +68,3 @@ def mock_dependent_badge(badge_factory):
 @pytest.fixture
 def mock_action_achievement_based_dict(mock_dependent_badge):
     return {mock_achievement_based_name: mock_dependent_badge.id}
-
-
-@pytest.fixture
-def rule_dependency_service(
-    rule_factory, event_configuration_factory, event_factory, mock_action_event_based_dict, mock_filters_dict
-):
-    def _setup(rule=None, created_at=None, dependencies=None):
-        event_configuration = event_configuration_factory(event_type__name=mock_event_based_name)
-        current_event = event_factory(configuration=event_configuration)
-        rule = rule or rule_factory(
-            event_configuration=event_configuration,
-            action=mock_action_event_based_dict,
-            filters=mock_filters_dict
-        )
-        return RuleDependencyService(rule, created_at or now(), current_event, dependencies or {})
-
-    return _setup

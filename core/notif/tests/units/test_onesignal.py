@@ -7,6 +7,9 @@ from core.notif.cfg import Config, Provider
 from core.notif.models import OneSignalNotif as Notif
 
 
+pytestmark = pytest.mark.django_db
+
+
 cfg = {
     Config.ONE_SIGNAL_APP_AUTH_KEY: Config.ONE_SIGNAL_APP_AUTH_KEY,
     Config.ONE_SIGNAL_APP_ID: Config.ONE_SIGNAL_APP_ID,

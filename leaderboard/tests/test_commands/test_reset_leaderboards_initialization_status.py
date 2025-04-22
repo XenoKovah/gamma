@@ -1,9 +1,14 @@
+import pytest
+
 from unittest.mock import MagicMock, patch
 
 from django.core.management import call_command
 from redis import Redis
 
 from leaderboard.management.commands.reset_leaderboards_initialization_status import Command
+
+
+pytestmark = pytest.mark.django_db
 
 
 @patch(

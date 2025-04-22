@@ -1,8 +1,10 @@
 from datetime import datetime
 
 from rest_framework import serializers
+from schematics.exceptions import DataError
 
 from events.models import EventConfiguration
+from events.utils import SchemaRenderer
 
 from .constants import DATETIME_FORMAT
 from .models import Rule
@@ -57,6 +59,11 @@ class RuleSerializer(serializers.ModelSerializer):
     def validate_action(self, value):
         """
         Validate and process the action field.
+
+        Expected `action_value` for different Event Types:
+            - `rgg_points_distribution`: {'points': 30}
+            - `rgg_achievement_obtained`: {'dependent_object_id': 1, 'dependent_content_type': 'string'}
+            - default edX events: {'count': 5}
         """
         if not isinstance(value, dict) or len(value) != 1:
             raise serializers.ValidationError('Action must contain exactly one event type.')
@@ -69,9 +76,13 @@ class RuleSerializer(serializers.ModelSerializer):
                 f'Invalid event type {event_name!r} in action. Must match an existing EventConfiguration.'
             )
 
-        # TODO: currently explicitly coercion to the int.
-        # But the solution will be updated as part of a custom events feature.
-        return {event_name: int(action_value)}
+        try:
+            current_schema = SchemaRenderer().get_schema_for_event_type(event_name)(action_value)
+            current_schema.validate()
+        except DataError as exc:
+            raise serializers.ValidationError(f'Invalid action value {exc} for given Event Type: {event_name}')
+
+        return {event_name: action_value}
 
     def validate_filters(self, value):
         """

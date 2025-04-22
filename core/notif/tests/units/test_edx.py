@@ -9,6 +9,9 @@ from django.test import override_settings
 from core.notif.cfg import Config, Provider, MESSAGE
 
 
+pytestmark = pytest.mark.django_db
+
+
 PATH_AUTHORIZE         = "core.notif.edx_provider.EdxServiceBuilder.authorize"
 PATH_CREATE_BASE_NOTIF = "core.notif.edx_provider.EdxService._create_base_notif"
 PATH_EDX_CLIENT        = "core.notif.edx_provider.EdxNotificationClient"

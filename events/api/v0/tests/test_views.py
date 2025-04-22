@@ -22,8 +22,7 @@ class TestEventsAPI:
 
         assert response.status_code == 201
 
-        event = Event.objects.last()
-        assert Event.objects.count() == 1
+        event = Event.objects.get(course_id=event_request_data.get('course_id'))
 
         assert event.course_id == event_request_data['course_id']
         assert event.uid == event_request_data['uid']
@@ -65,6 +64,7 @@ class TestEventsAPI:
         assert 'The fields uid, client, username must make a unique set.' in response_json.get('non_field_errors')
 
 
+@pytest.mark.no_rgg_events
 class TestAvailableActionsAPI:
     """
     Test suite for get list of available actions to setup rules.
@@ -73,14 +73,28 @@ class TestAvailableActionsAPI:
     endpoint = reverse_lazy('available-actions')
 
     @pytest.mark.parametrize(
-        'event_name, is_depends_on_achievement, title',
+        'event_name, expected_schema, title',
         [
-            ('rgg_badge_achieved', False, 'Dependent award for course enroll'),
-            ('stop_video', True, 'Award for stopping video'),
+            (
+                'problem_graded',
+                {'field': 'count', 'title': 'Number of repetitions required', 'type': 'integer', 'required': True},
+                'Award for problem graded'
+            ),
+            (
+                'stop_video',
+                {'field': 'count', 'title': 'Number of repetitions required', 'type': 'integer', 'required': True},
+                'Award for stopping video'
+            ),
+            (
+                'rgg_points_distribution',
+                {'field': 'points', 'title': 'Number of points required', 'type': 'integer', 'required': True},
+                'Award for points distribution'
+            ),
         ],
         ids=[
-            'Passed: Dependent event',
+            'Passed: edX event',
             'Passed: Common external event',
+            'Passed: Points distribution'
         ]
     )
     def test_get_available_actions(
@@ -88,12 +102,11 @@ class TestAvailableActionsAPI:
         client,
         event_configuration_factory,
         event_name,
-        is_depends_on_achievement,
+        expected_schema,
         title
     ):
         event_configuration = event_configuration_factory(
             event_type__name=event_name,
-            is_depends_on_achievement=is_depends_on_achievement,
             title=title,
         )
 
@@ -104,6 +117,6 @@ class TestAvailableActionsAPI:
         assert response.json() == [{
             'event_name': event_configuration.event_name,
             'id': event_configuration.id,
-            'is_depends_on_achievement': event_configuration.is_depends_on_achievement,
             'title': event_configuration.title,
+            'schema': [expected_schema]
         }]

@@ -11,6 +11,9 @@ from users.models import GammaUser
 from users.factories import GammaUserCoursePointsFactory, GammaUserFactory
 
 
+pytestmark = pytest.mark.django_db
+
+
 class TestTaskInitializeLeaderboards:
     @patch("leaderboard.tasks.usecases.InitializeLeaderboardsUseCase")
     @patch("leaderboard.tasks.repository.ORMLeaderboardMemberDataRepository")

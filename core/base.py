@@ -12,10 +12,22 @@ class AchievementBackend(ABC):
     NAME = None
 
     @abstractmethod
-    def process_achievement(self, rule: Rule, event: Event, user: GammaUser, is_achievement_exists: bool) -> None:
+    def process_achievement(self, rule: Rule, event: Event, user: GammaUser) -> None:
         """
         Check whether create or update draft achievements for a given rule and event based on current backend.
 
         Iterates over chosen backend by affected rules and creates achievement with related rules.
         """
         pass
+
+
+class UseCase(ABC):
+    """
+    Represent the abstract Use Case.
+    """
+
+    @abstractmethod
+    def execute(self, *args, **kwargs):
+        """
+        Execute Use Case business logic.
+        """
