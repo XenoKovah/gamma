@@ -41,9 +41,10 @@ const EvolutionStep = ({
   const handleAvatarSetSubmit = async (values) => {
     try {
       const updatedAvatars = await Promise.all(
-        values.avatars.map(async (avatar) => ({
+        values.avatars.map(async (avatar, index) => ({
           ...avatar,
           image: await convertImageToBase64(avatar.image),
+          stage: index,
         })),
       );
 

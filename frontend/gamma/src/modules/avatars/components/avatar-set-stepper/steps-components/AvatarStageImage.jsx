@@ -40,6 +40,11 @@ const AvatarStageImage = ({
     }
   }, [index, setFieldValue, values.avatars, intl]);
 
+  const handleRemoveAvatarStage = () => {
+    closeDeletionAlertModal();
+    onRemove();
+  };
+
   return (
     <div className="avatar-stage-image">
       <h3 className="avatar-stage-image-title">{avatarStageTitle}</h3>
@@ -47,7 +52,7 @@ const AvatarStageImage = ({
         title={intl.formatMessage(moduleMessages.confirmAvatarStageDeletionModalTitle)}
         isOpen={isDeletionAlertModalOpen}
         onClose={closeDeletionAlertModal}
-        onDelete={onRemove}
+        onDelete={handleRemoveAvatarStage}
         description={intl.formatMessage(moduleMessages.confirmAvatarStageDeletionModalDescription)}
       />
       {values.avatars[index]?.image ? (

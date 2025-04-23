@@ -46,9 +46,9 @@ const ManageEntityModal = ({
         imageSize: intl.formatMessage(messages.modalEntityValidationImageSizeText),
       },
       count: {
-        countRequired: intl.formatMessage(messages.modalEntityValidationActionCountRequiredText),
-        countPositive: intl.formatMessage(messages.modalEntityValidationActionCountPositiveNumberText),
-        countInt: intl.formatMessage(messages.modalEntityValidationActionCountNumberText),
+        countRequired: intl.formatMessage(messages.modalEntityValidationActionRequiredText),
+        countPositive: intl.formatMessage(messages.modalEntityValidationActionPositiveNumberText),
+        countInt: intl.formatMessage(messages.modalEntityValidationActionNumberText),
       },
       descriptionRequired: intl.formatMessage(messages.modalEntityValidationDescriptionRequiredText),
       descriptionMaxLength: intl.formatMessage(messages.modalEntityValidationDescriptionMaxLengthText),

@@ -1,17 +1,5 @@
 import { capitalizeFirstLetter } from '../../../../utils';
 
-export const getActionConfig = (actionsData) => ({
-  eventType: {
-    type: 'select',
-    labelKey: 'eventType',
-    options: [...actionsData],
-  },
-  count: {
-    type: 'number',
-    labelKey: 'count',
-  },
-});
-
 export const getFilterConfig = (coursesData, organizationsData, messages) => ({
   course: {
     as: 'select',

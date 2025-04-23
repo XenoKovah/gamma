@@ -256,20 +256,20 @@ const messages = defineMessages({
     defaultMessage: 'Event type is required',
     description: 'Validation message when the event type is missing.',
   },
-  modalEntityValidationActionCountRequiredText: {
-    id: 'generic.modal.entity.action.count.validation.required.text',
-    defaultMessage: 'Count is required',
-    description: 'Validation message when the count is missing.',
+  modalEntityValidationActionRequiredText: {
+    id: 'generic.modal.entity.action.validation.required.text',
+    defaultMessage: 'This field is required',
+    description: 'Validation message when the action is missing.',
   },
-  modalEntityValidationActionCountPositiveNumberText: {
-    id: 'generic.modal.entity.action.count.validation.positive-number.text',
-    defaultMessage: 'Count must be a positive number',
-    description: 'Validation message when the count is not a positive number.',
+  modalEntityValidationActionPositiveNumberText: {
+    id: 'generic.modal.entity.action.validation.positive-number.text',
+    defaultMessage: 'This field must be a positive number',
+    description: 'Validation message when the action is not a positive number.',
   },
-  modalEntityValidationActionCountNumberText: {
-    id: 'generic.modal.entity.action.count.validation.int.text',
-    defaultMessage: 'Count must be an integer',
-    description: 'Validation message when the count is not an integer.',
+  modalEntityValidationActionNumberText: {
+    id: 'generic.modal.entity.action.validation.number.text',
+    defaultMessage: 'This field must be a number',
+    description: 'Validation message when the action is not a number.',
   },
   modalEntityValidationStartDateRequiredText: {
     id: 'generic.modal.entity.interval.validation.start-date.required.text',

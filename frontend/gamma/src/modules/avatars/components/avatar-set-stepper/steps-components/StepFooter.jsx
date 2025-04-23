@@ -45,7 +45,7 @@ const StepFooter = ({
 
 StepFooter.propTypes = {
   prevBtnText: PropTypes.string.isRequired,
-  prevBtnOnClick: PropTypes.func.isRequired,
+  prevBtnOnClick: PropTypes.func,
   nextBtnText: PropTypes.string,
   nextBtnOnClick: PropTypes.func,
   submitFn: PropTypes.func,
@@ -77,6 +77,7 @@ StepFooter.defaultProps = {
   },
   closeBtnOnClick: undefined,
   isFirstStep: false,
+  prevBtnOnClick: () => {},
 };
 
 export default StepFooter;

@@ -256,20 +256,20 @@ const messages = defineMessages({
     defaultMessage: 'Тип події є обов’язковим',
     description: 'Повідомлення про помилку, якщо тип події не вказано.',
   },
-  modalEntityValidationActionCountRequiredText: {
-    id: 'generic.modal.entity.action.count.validation.required.text',
-    defaultMessage: 'Кількість є обов’язковою',
-    description: 'Повідомлення про помилку, якщо кількість не вказана.',
+  modalEntityValidationActionRequiredText: {
+    id: 'generic.modal.entity.action.validation.required.text',
+    defaultMessage: 'Це поле є обов’язковим',
+    description: 'Повідомлення про помилку, якщо дія не вказана.',
   },
-  modalEntityValidationActionCountPositiveNumberText: {
-    id: 'generic.modal.entity.action.count.validation.positive-number.text',
-    defaultMessage: 'Кількість повинна бути додатним числом',
-    description: 'Повідомлення про помилку, якщо кількість не є додатним числом.',
+  modalEntityValidationActionPositiveNumberText: {
+    id: 'generic.modal.entity.action.validation.positive-number.text',
+    defaultMessage: 'Це поле повинно бути додатним числом',
+    description: 'Повідомлення про помилку, якщо дія не є додатним числом.',
   },
-  modalEntityValidationActionCountNumberText: {
-    id: 'generic.modal.entity.action.count.validation.int.text',
-    defaultMessage: 'Кількість повинна бути цілим числом',
-    description: 'Повідомлення про помилку, якщо кількість не є цілим числом.',
+  modalEntityValidationActionNumberText: {
+    id: 'generic.modal.entity.action.validation.number.text',
+    defaultMessage: 'Це поле повинно бути числом',
+    description: 'Повідомлення про помилку, якщо дія не є числом.',
   },
   modalEntityValidationStartDateRequiredText: {
     id: 'generic.modal.entity.interval.validation.start-date.required.text',

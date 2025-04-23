@@ -71,10 +71,12 @@ export const convertImageToBase64 = async (image) => {
  */
 export const transformActions = (rules) => rules.map((rule) => {
   if (rule.action && typeof rule.action === 'object') {
-    const { id, eventType, count } = rule.action;
+    const {
+      id, eventType, count, points,
+    } = rule.action;
     return {
       ...rule,
-      action: { [eventType]: count },
+      action: { [eventType]: { [count ? 'count' : 'points']: count || points } },
       eventConfiguration: id ?? rule.eventConfiguration ?? null,
     };
   }
@@ -137,7 +139,7 @@ export const reverseTransformActions = (rules) => rules.map((rule) => {
   if (rule.action && typeof rule.action === 'object') {
     const [eventType, count] = Object.entries(rule.action)[0] || [];
     return eventType
-      ? { ...rule, action: { eventType, count }, eventConfiguration: rule.eventConfiguration ?? null }
+      ? { ...rule, action: { eventType, ...count }, eventConfiguration: rule.eventConfiguration ?? null }
       : rule;
   }
   return rule;

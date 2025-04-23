@@ -24,9 +24,9 @@ describe('EntityInfo', () => {
       imageSize: messages.modalEntityValidationImageSizeText.defaultMessage,
     },
     count: {
-      countRequired: messages.modalEntityValidationActionCountRequiredText.defaultMessage,
-      countPositive: messages.modalEntityValidationActionCountPositiveNumberText.defaultMessage,
-      countInt: messages.modalEntityValidationActionCountNumberText.defaultMessage,
+      countRequired: messages.modalEntityValidationActionRequiredText.defaultMessage,
+      countPositive: messages.modalEntityValidationActionPositiveNumberText.defaultMessage,
+      countInt: messages.modalEntityValidationActionNumberText.defaultMessage,
     },
     descriptionRequired: messages.modalEntityValidationDescriptionRequiredText.defaultMessage,
     descriptionMaxLength: messages.modalEntityValidationDescriptionMaxLengthText.defaultMessage,

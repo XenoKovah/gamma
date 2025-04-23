@@ -19,9 +19,9 @@ describe('getValidationSchema', () => {
       imageSize: genericMessages.modalEntityValidationImageSizeText.defaultMessage,
     },
     count: {
-      countRequired: genericMessages.modalEntityValidationActionCountRequiredText.defaultMessage,
-      countPositive: genericMessages.modalEntityValidationActionCountPositiveNumberText.defaultMessage,
-      countInt: genericMessages.modalEntityValidationActionCountNumberText.defaultMessage,
+      countRequired: genericMessages.modalEntityValidationActionRequiredText.defaultMessage,
+      countPositive: genericMessages.modalEntityValidationActionPositiveNumberText.defaultMessage,
+      countInt: genericMessages.modalEntityValidationActionNumberText.defaultMessage,
     },
     descriptionRequired: genericMessages.modalEntityValidationDescriptionRequiredText.defaultMessage,
     descriptionMaxLength: genericMessages.modalEntityValidationDescriptionMaxLengthText.defaultMessage,

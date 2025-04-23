@@ -53,13 +53,13 @@ describe('Utility functions', () => {
     it('should transform actions correctly', () => {
       const rules = [{ action: { eventType: 'click', count: 2 } }];
       const transformed = transformActions(rules);
-      expect(transformed).toEqual([{ action: { click: 2 }, eventConfiguration: null }]);
+      expect(transformed).toEqual([{ action: { click: { count: 2 } }, eventConfiguration: null }]);
     });
 
     it('should reverse transform actions correctly', () => {
       const rules = [{ action: { click: 2 } }];
       const reversed = reverseTransformActions(rules);
-      expect(reversed).toEqual([{ action: { eventType: 'click', count: 2 }, eventConfiguration: null }]);
+      expect(reversed).toEqual([{ action: { eventType: 'click' }, eventConfiguration: null }]);
     });
   });
 
@@ -67,7 +67,7 @@ describe('Utility functions', () => {
     it('should remove temp IDs and transform actions', () => {
       const data = { rules: [{ action: { eventType: 'click', count: 2 } }] };
       const transformed = preparePayload(data);
-      expect(transformed).toEqual({ rules: [{ action: { click: 2 }, eventConfiguration: null }] });
+      expect(transformed).toEqual({ rules: [{ action: { click: { count: 2 } }, eventConfiguration: null }] });
     });
   });
 
@@ -111,7 +111,7 @@ describe('Utility functions', () => {
       const result = processReceivedAvatarSets(avatarSets);
       expect(result).toEqual([{
         avatars: [{
-          rules: [{ action: { eventType: 'click', count: 2 }, eventConfiguration: null }],
+          rules: [{ action: { eventType: 'click' }, eventConfiguration: null }],
         }],
       }]);
     });

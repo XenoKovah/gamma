@@ -61,12 +61,47 @@ export const getValidationSchema = (messages, entityData) => yup.object().shape(
       yup.object().shape({
         action: yup.object().shape({
           eventType: yup.string().required(messages.eventTypeRequired),
-          count: yup
-            .number()
-            .required(messages.count.countRequired)
-            .positive(messages.count.countPositive)
-            .integer(messages.count.countInt),
-        }),
+          id: yup.number().nullable(),
+          count: yup.number().nullable(),
+          points: yup.number().nullable(),
+        })
+          .test('action-value-required', messages.count.countRequired, (value) => {
+            if (!value.eventType) {
+              return true;
+            }
+
+            const hasValidCount = value.count != null && value.count !== '';
+            const hasValidPoints = value.points != null && value.points !== '';
+
+            return hasValidCount || hasValidPoints;
+          })
+          .test('action-value-positive', messages.count.countPositive, (value) => {
+            if (!value.eventType) {
+              return true;
+            }
+
+            const count = Number(value.count);
+            const points = Number(value.points);
+
+            const isCountValid = !value.count || count > 0;
+            const isPointsValid = !value.points || points > 0;
+
+            return isCountValid && isPointsValid;
+          })
+          .test('action-value-integer', messages.count.countInt, (value) => {
+            if (!value.eventType) {
+              return true;
+            }
+
+            const count = Number(value.count);
+            const points = Number(value.points);
+
+            const isCountInteger = !value.count || Number.isInteger(count);
+            const isPointsInteger = !value.points || Number.isInteger(points);
+
+            return isCountInteger && isPointsInteger;
+          }),
+        filters: yup.object(),
       }),
     )
     .min(1),

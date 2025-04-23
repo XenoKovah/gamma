@@ -256,20 +256,20 @@ const messages = defineMessages({
     defaultMessage: 'Tipo de evento é obrigatório',
     description: 'Mensagem de validação quando o tipo de evento está em falta.',
   },
-  modalEntityValidationActionCountRequiredText: {
-    id: 'generic.modal.entity.action.count.validation.required.text',
-    defaultMessage: 'Contagem é obrigatória',
-    description: 'Mensagem de validação quando a contagem está em falta.',
+  modalEntityValidationActionRequiredText: {
+    id: 'generic.modal.entity.action.validation.required.text',
+    defaultMessage: 'Este campo é obrigatório',
+    description: 'Mensagem de validação quando a ação está em falta.',
   },
-  modalEntityValidationActionCountPositiveNumberText: {
-    id: 'generic.modal.entity.action.count.validation.positive-number.text',
-    defaultMessage: 'A contagem deve ser um número positivo',
-    description: 'Mensagem de validação quando a contagem não é um número positivo.',
+  modalEntityValidationActionPositiveNumberText: {
+    id: 'generic.modal.entity.action.validation.positive-number.text',
+    defaultMessage: 'Este campo deve ser um número positivo',
+    description: 'Mensagem de validação quando a ação não é um número positivo.',
   },
-  modalEntityValidationActionCountNumberText: {
-    id: 'generic.modal.entity.action.count.validation.int.text',
-    defaultMessage: 'A contagem deve ser um número inteiro',
-    description: 'Mensagem de validação quando a contagem não é um número inteiro.',
+  modalEntityValidationActionNumberText: {
+    id: 'generic.modal.entity.action.validation.number.text',
+    defaultMessage: 'Este campo deve ser um número',
+    description: 'Mensagem de validação quando a ação não é um número.',
   },
   modalEntityValidationStartDateRequiredText: {
     id: 'generic.modal.entity.interval.validation.start-date.required.text',

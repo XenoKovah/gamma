@@ -20,7 +20,7 @@ const EntityRules = ({
 
   const handleAddNewRule = useCallback(() => {
     setFieldValue('rules', [...values.rules, {
-      id: uuidv4(), // Temporary ID, overridden by the PK (Primary key) from the BE
+      id: uuidv4(), // TODO:Temporary ID, overridden by the PK (Primary key) from the BE
       action: {},
       filters: {},
     }]);

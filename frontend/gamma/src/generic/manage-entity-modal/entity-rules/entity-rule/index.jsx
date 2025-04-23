@@ -10,8 +10,9 @@ import { DATE_TYPES } from '../../constants';
 import IntervalDatePicker from './interval-date-picker';
 import FilterInputController from './FilterInputController';
 import SelectFilters from './SelectFilters';
-import ActionField from './ActionField';
-import { getActionConfig, getFilterConfig } from './entityConfigs';
+import EventTypeSelect from './EventTypeSelect';
+import DynamicActionInput from './DynamicActionInput';
+import { getFilterConfig } from './entityConfigs';
 
 const EntityRule = ({
   rule,
@@ -21,9 +22,7 @@ const EntityRule = ({
   removeRule,
 }) => {
   const intl = useIntl();
-  const {
-    values, touched, handleBlur, errors, setFieldValue,
-  } = useFormikContext();
+  const { touched, errors, setFieldValue } = useFormikContext();
 
   const filterRefs = useRef({});
   const startDateRef = useRef(null);
@@ -45,8 +44,6 @@ const EntityRule = ({
       end: intl.formatMessage(messages.modalEntityRulesIntervalEndLabelText),
     },
   };
-
-  const memoizedActionConfig = useMemo(() => getActionConfig(data.actions), []);
 
   const memoizedFilterConfig = useMemo(() => getFilterConfig(data.courses, data.organizations, translations), [
     data.courses,
@@ -72,22 +69,15 @@ const EntityRule = ({
       <h4 className="entity-rule-title mb-3">
         {intl.formatMessage(messages.modalEntityRulesActionHeadingTitle)}
       </h4>
-
-      {Object.entries(memoizedActionConfig).map(([key, config]) => (
-        <ActionField
-          key={key}
-          ruleIndex={ruleIndex}
-          name={key}
-          type={config.type}
-          values={values}
-          touched={touched}
-          errors={errors}
-          setFieldValue={setFieldValue}
-          handleBlur={handleBlur}
-          label={translations[config.labelKey]}
-          options={config.options || []}
-        />
-      ))}
+      <EventTypeSelect
+        ruleIndex={ruleIndex}
+        translations={translations}
+        data={data}
+      />
+      <DynamicActionInput
+        ruleIndex={ruleIndex}
+        data={data}
+      />
       {hasFilters && (
         <>
           <h2 className="entity-rule-title h4 mb-3">
