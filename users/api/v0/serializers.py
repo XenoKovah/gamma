@@ -7,13 +7,20 @@ from avatars.api.v0.serializers import AvatarSetSerializer, UserAvatarConfigSeri
 from avatars.models import AvatarSet, UserAvatarConfig
 from badges.api.v0.serializers import BadgeSerializer
 from badges.models import Badge
+from users.models import GammaUser
+
+
+class GammaUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GammaUser
+        fields = ('id', 'user_uid', 'username', 'signup_source')
 
 
 class UserGameProfileSerializer(serializers.Serializer):
     """
     Serializer for User Game Profile.
     """
-
+    user_profile = serializers.SerializerMethodField()
     avatar_sets = serializers.SerializerMethodField()
     user_avatar_config = serializers.SerializerMethodField()
     system_badges = serializers.SerializerMethodField()
@@ -23,6 +30,13 @@ class UserGameProfileSerializer(serializers.Serializer):
     chart = serializers.JSONField()
     progress = serializers.JSONField()
     signup_source = serializers.CharField(allow_null=True)
+
+    def get_user_profile(self, obj):
+        """
+        Retrieve or create a GammaUser based on the user_uid.
+        """
+        gamma_user = GammaUser.ensure_gamma_user_is_created(obj.user_uid)
+        return GammaUserSerializer(gamma_user).data
 
     def get_avatar_sets(self, obj):
         """

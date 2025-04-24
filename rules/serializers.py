@@ -53,7 +53,7 @@ class RuleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Rule
-        fields = ('id', 'event_configuration', 'action', 'filters', 'created_at')
+        fields = ('id', 'action', 'filters', 'created_at')
         read_only_fields = ('created_at',)
 
     def validate_action(self, value):

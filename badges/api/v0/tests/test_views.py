@@ -15,7 +15,7 @@ class TestBadgeViewSet:
         assert response.status_code == status.HTTP_200_OK
         assert len(response.json()) == 3
 
-    def test_get_badge_list(self, client, badge_factory):
+    def test_get_badge_detail(self, client, badge_factory):
         badge = badge_factory()
         url = reverse_lazy('badge-detail', kwargs={'pk': badge.id})
         response = client.get(url)
