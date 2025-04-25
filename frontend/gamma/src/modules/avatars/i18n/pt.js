@@ -291,10 +291,10 @@ const messages = defineMessages({
     defaultMessage: 'Se adicionar uma nova etapa mas não carregar uma imagem, o botão <span>Seguinte</span> permanecerá desativado. Para continuar, carregue uma imagem ou clique em <span>Eliminar</span> para remover a etapa vazia.',
     description: 'Segundo texto de suporte para o passo de evolução no assistente de conjunto de avatares.',
   },
-  avatarSetStepperEvolutionRemoveAvatarBtn: {
-    id: 'modules.avatars.avatar-set.stepper.step.evolution.button.remove-avatar.text',
-    defaultMessage: 'Remover',
-    description: 'Texto do botão para remover avatar na etapa de evolução.',
+  avatarSetStepperEvolutionDeleteAvatarBtn: {
+    id: 'modules.avatars.avatar-set.stepper.step.evolution.button.delete-avatar.text',
+    defaultMessage: 'Excluir',
+    description: 'Texto do botão para excluir avatar na etapa de evolução.',
   },
   avatarSetStepperEvolutionAvatarStageTitle: {
     id: 'modules.avatars.avatar-set.stepper.step.evolution.avatar.stage.title',

@@ -291,8 +291,8 @@ const messages = defineMessages({
     defaultMessage: 'Якщо ви додаєте новий етап, але не завантажуєте зображення, кнопка <span>Далі</span> залишатиметься недоступною. Щоб продовжити, завантажте зображення або натисніть <span>Видалити</span>, щоб видалити порожній етап.',
     description: 'Другий допоміжний текст для кроку еволюції в майстрі набору аватарів.',
   },
-  avatarSetStepperEvolutionRemoveAvatarBtn: {
-    id: 'modules.avatars.avatar-set.stepper.step.evolution.button.remove-avatar.text',
+  avatarSetStepperEvolutionDeleteAvatarBtn: {
+    id: 'modules.avatars.avatar-set.stepper.step.evolution.button.delete-avatar.text',
     defaultMessage: 'Видалити',
     description: 'Текст кнопки для видалення аватара на кроці еволюції в майстрі набору аватарів.',
   },

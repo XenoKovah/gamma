@@ -256,10 +256,10 @@ const messages = defineMessages({
     defaultMessage: 'Upload SVG images for the avatar\'s evolution stages (minimum {minCount}, maximum {maxCount}). Max file size: {maxImgSize} MB. At least two stages with uploaded images are required to continue.',
     description: 'The description for the evolution step in the avatar set stepper.',
   },
-  avatarSetStepperEvolutionRemoveAvatarBtn: {
-    id: 'modules.avatars.avatar-set.stepper.step.evolution.button.remove-avatar.text',
-    defaultMessage: 'Remove',
-    description: 'The text for the button to remove an avatar in the evolution step of the avatar set stepper.',
+  avatarSetStepperEvolutionDeleteAvatarBtn: {
+    id: 'modules.avatars.avatar-set.stepper.step.evolution.button.delete-avatar.text',
+    defaultMessage: 'Delete',
+    description: 'The text for the button to delete an avatar in the evolution step of the avatar set stepper.',
   },
   avatarSetStepperEvolutionAvatarStageTitle: {
     id: 'modules.avatars.avatar-set.stepper.step.evolution.avatar.stage.title',

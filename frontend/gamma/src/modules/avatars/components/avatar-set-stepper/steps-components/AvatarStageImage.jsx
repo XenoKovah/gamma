@@ -77,7 +77,7 @@ const AvatarStageImage = ({
         block
         size="sm"
       >
-        {intl.formatMessage(moduleMessages.avatarSetStepperEvolutionRemoveAvatarBtn)}
+        {intl.formatMessage(moduleMessages.avatarSetStepperEvolutionDeleteAvatarBtn)}
       </Button>
     </div>
   );

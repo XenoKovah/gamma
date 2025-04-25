@@ -16,14 +16,14 @@ const StepFooter = ({
     <ActionRow className="avatar-stepper-action-row justify-content-between">
       <Stack direction="horizontal" gap={2}>
         {closeBtnOnClick && (
-          <Button variant="outline-primary" onClick={closeBtnOnClick}>
+          <Button className="mb-0" variant="outline-primary" onClick={closeBtnOnClick}>
             {intl.formatMessage(messages.avatarSetStepperCloseBtnTitle)}
           </Button>
         )}
       </Stack>
       <Stack direction="horizontal" gap={2}>
         {!isFirstStep && (
-          <Button variant="outline-primary" onClick={prevBtnOnClick}>
+          <Button className="mb-0" variant="outline-primary" onClick={prevBtnOnClick}>
             {prevBtnText}
           </Button>
         )}

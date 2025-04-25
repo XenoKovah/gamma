@@ -47,12 +47,12 @@ const Card = ({
       <BaseCard.Footer>
         <ActionRow>
           {prevBtnTitle && (
-            <Button variant="tertiary" block onClick={onPrevBtnClick}>
+            <Button className="my-0" variant="outline-secondary" block onClick={onPrevBtnClick}>
               {prevBtnTitle}
             </Button>
           )}
           {nextBtnTitle && (
-            <Button className="mt-0" block onClick={onNextBtnClick}>
+            <Button className="my-0" block onClick={onNextBtnClick}>
               {nextBtnTitle}
             </Button>
           )}

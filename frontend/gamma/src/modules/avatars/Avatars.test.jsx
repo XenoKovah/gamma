@@ -479,7 +479,7 @@ describe('Avatars', () => {
           expect(within(avatarSetStepper)
             .getByText(genericMessages.pgnDropzoneDefaultContentLabel.defaultMessage)).toBeInTheDocument();
           expect(within(avatarSetStepper).getByRole('button', {
-            name: moduleMessages.avatarSetStepperEvolutionRemoveAvatarBtn.defaultMessage,
+            name: moduleMessages.avatarSetStepperEvolutionDeleteAvatarBtn.defaultMessage,
           })).toBeInTheDocument();
         });
       });
@@ -529,7 +529,7 @@ describe('Avatars', () => {
         await waitFor(() => {
           const avatarSetStepper = getByRole('dialog');
           const removeEvolutionStageBtn = within(avatarSetStepper)
-            .getByRole('button', { name: moduleMessages.avatarSetStepperEvolutionRemoveAvatarBtn.defaultMessage });
+            .getByRole('button', { name: moduleMessages.avatarSetStepperEvolutionDeleteAvatarBtn.defaultMessage });
 
           expect(within(avatarSetStepper).getAllByTestId('dropzone-container')).toHaveLength(1);
 

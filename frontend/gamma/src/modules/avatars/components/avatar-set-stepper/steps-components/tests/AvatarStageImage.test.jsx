@@ -64,7 +64,7 @@ describe('AvatarStageImage', () => {
     const { getByRole, getByText } = renderComponent();
 
     const removeButton = getByRole('button', {
-      name: moduleMessages.avatarSetStepperEvolutionRemoveAvatarBtn.defaultMessage,
+      name: moduleMessages.avatarSetStepperEvolutionDeleteAvatarBtn.defaultMessage,
     });
     userEvent.click(removeButton);
 
@@ -80,7 +80,7 @@ describe('AvatarStageImage', () => {
     const { getByRole } = renderComponent();
 
     const removeButton = getByRole('button', {
-      name: moduleMessages.avatarSetStepperEvolutionRemoveAvatarBtn.defaultMessage,
+      name: moduleMessages.avatarSetStepperEvolutionDeleteAvatarBtn.defaultMessage,
     });
     userEvent.click(removeButton);
 
@@ -94,7 +94,7 @@ describe('AvatarStageImage', () => {
     const { getByRole, getByText, queryByText } = renderComponent();
 
     const removeButton = getByRole('button', {
-      name: moduleMessages.avatarSetStepperEvolutionRemoveAvatarBtn.defaultMessage,
+      name: moduleMessages.avatarSetStepperEvolutionDeleteAvatarBtn.defaultMessage,
     });
     userEvent.click(removeButton);
 

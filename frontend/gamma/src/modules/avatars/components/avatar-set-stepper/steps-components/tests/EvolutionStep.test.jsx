@@ -150,7 +150,7 @@ describe('EvolutionStep', () => {
 
     await waitFor(() => {
       const removeButton = getByRole('button', {
-        name: moduleMessages.avatarSetStepperEvolutionRemoveAvatarBtn.defaultMessage,
+        name: moduleMessages.avatarSetStepperEvolutionDeleteAvatarBtn.defaultMessage,
       });
       userEvent.click(removeButton);
     });
