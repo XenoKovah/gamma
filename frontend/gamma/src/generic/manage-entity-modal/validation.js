@@ -1,6 +1,7 @@
 import * as yup from 'yup';
 
 import { capitalizeFirstLetter } from '../../utils';
+import { MAX_IMAGE_SIZE } from './constants';
 
 /**
  * Returns a Yup validation schema for entity creation or updating.
@@ -52,7 +53,7 @@ export const getValidationSchema = (messages, entityData) => yup.object().shape(
     .test(
       'fileSize',
       messages.image.imageSize,
-      (value) => typeof value === 'string' || (value instanceof File && value.size <= 2 * 1024 * 1024),
+      (value) => typeof value === 'string' || (value instanceof File && value.size <= MAX_IMAGE_SIZE * 1024 * 1024), // 20MB
     ),
 
   rules: yup

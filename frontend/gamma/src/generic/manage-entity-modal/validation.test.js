@@ -1,9 +1,9 @@
 import * as yup from 'yup';
 
 import { capitalizeFirstLetter } from '../../utils';
-import { getValidationSchema, validateFilters } from './validation';
-
 import genericMessages from '../../i18n';
+import { getValidationSchema, validateFilters } from './validation';
+import { MAX_IMAGE_SIZE } from './constants';
 
 describe('getValidationSchema', () => {
   const messages = {
@@ -81,8 +81,11 @@ describe('getValidationSchema', () => {
 
   it('fails when image is too large', async () => {
     const schema = getValidationSchema(messages, { slug: 'valid-slug' });
+    const largeFileSize = MAX_IMAGE_SIZE + 1;
 
-    const largeFile = new File([new Blob([new Uint8Array(2.5 * 1024 * 1024)])], 'large.png', { type: 'image/png' });
+    const largeFile = new File([
+      new Blob([new Uint8Array(largeFileSize * 1024 * 1024)]),
+    ], 'large.png', { type: 'image/png' });
 
     const invalidData = { ...validData, image: largeFile };
 

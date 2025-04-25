@@ -7,6 +7,7 @@ import {
 import { useFormikContext } from 'formik';
 
 import messages from '../../../i18n';
+import { MAX_IMAGE_SIZE } from '../constants';
 
 const EntityImage = ({ imagePreview, handleImageUpload, acceptedImageFormats }) => {
   const intl = useIntl();
@@ -73,7 +74,9 @@ const EntityImage = ({ imagePreview, handleImageUpload, acceptedImageFormats }) 
           </Button>
         </Form.Label>
 
-        {errors.image === intl.formatMessage(messages.modalEntityValidationImageSizeText) && (
+        {errors.image === intl.formatMessage(messages.modalEntityValidationImageSizeText, {
+          maxSize: MAX_IMAGE_SIZE,
+        }) && (
           <Form.Control.Feedback type="invalid" className="manage-entity-modal-feedback mt-1">
             {errors.image}
           </Form.Control.Feedback>

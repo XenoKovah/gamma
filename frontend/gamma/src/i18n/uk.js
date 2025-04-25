@@ -123,7 +123,7 @@ const messages = defineMessages({
   },
   modalEntityValidationImageSizeText: {
     id: 'generic.modal.entity.validation.image.size',
-    defaultMessage: 'Розмір файлу має бути менше 2МБ',
+    defaultMessage: 'Розмір файлу має бути менше {maxSize}МБ',
     description: 'Повідомлення про помилку, якщо зображення перевищує обмеження за розміром файлу.',
   },
   modalEntityImageHeadingText: {

@@ -10,7 +10,9 @@ import EntityImage from './entity-image';
 import EntityInfo from './entity-info';
 import EntityRules from './entity-rules';
 import { getValidationSchema, validateFilters } from './validation';
-import { DEFAULT_FORM_VALUES, DEFAULT_ACCEPTED_IMAGE_FORMATS } from './constants';
+import {
+  DEFAULT_FORM_VALUES, DEFAULT_ACCEPTED_IMAGE_FORMATS, MAX_IMAGE_SIZE,
+} from './constants';
 
 const ManageEntityModal = ({
   data,
@@ -43,7 +45,7 @@ const ManageEntityModal = ({
       },
       image: {
         imageRequired: intl.formatMessage(messages.modalEntityValidationImageRequiredText),
-        imageSize: intl.formatMessage(messages.modalEntityValidationImageSizeText),
+        imageSize: intl.formatMessage(messages.modalEntityValidationImageSizeText, { maxSize: MAX_IMAGE_SIZE }),
       },
       count: {
         countRequired: intl.formatMessage(messages.modalEntityValidationActionRequiredText),

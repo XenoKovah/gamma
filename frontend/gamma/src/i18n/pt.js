@@ -123,7 +123,7 @@ const messages = defineMessages({
   },
   modalEntityValidationImageSizeText: {
     id: 'generic.modal.entity.validation.image.size',
-    defaultMessage: 'O tamanho do ficheiro deve ser inferior a 2MB',
+    defaultMessage: 'O tamanho do ficheiro deve ser inferior a {maxSize}MB',
     description: 'Mensagem de validação quando uma imagem carregada excede o limite de tamanho de ficheiro.',
   },
   modalEntityImageHeadingText: {
