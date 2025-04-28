@@ -14,6 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 
+from auth_backends.urls import oauth2_urlpatterns
 from django.conf import settings
 from django.urls import include, path
 from django.conf.urls.static import static
@@ -25,7 +26,7 @@ from core.views import DashboardView, logout_view
 from gamma.views import GammaView
 
 
-urlpatterns = [
+urlpatterns = oauth2_urlpatterns + [
     # Dashboard page (will be redirected to `/gamma/avatars/`)
     path('', DashboardView.as_view()),
 

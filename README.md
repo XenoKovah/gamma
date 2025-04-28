@@ -75,7 +75,24 @@ FEATURES:
         IGNORED_EVENT_TYPES: []
 ```
 6. The same for the `edx-platform/cms/envs/devstack-experimental.yml`
-7. Restart `lms` and `studio` (`make lms-restart && make studio-restart`)
+7. Configure SSO with Gamma on LMS side: create a gamma service user and a Django OAuth Toolkit Application instance in 
+LMS container:
+
+```
+./manage.py lms manage_user rgg_worker rgg_worker@openedx --staff --superuser --unusable-password
+
+./manage.py lms create_dot_application \
+  --grant-type authorization-code \
+  --redirect-uris "http://<LOCAL_IP_ADDRESS>:9000/complete/edx-oauth2/" \
+  --client-id <rgg_dot_app_client_id> \
+  --client-secret <rgg_dot_app_client_secret> \
+  --scopes user_id \
+  --skip-authorization \
+  --update \
+  rgg-sso \
+  rgg_worker
+```
+8. Restart `lms` and `studio` (`make lms-restart && make studio-restart`)
 
 For staging/production usage
 ---
@@ -115,6 +132,13 @@ REACT_APP_LOCALHOST=
 EDX_LMS_BASE_URL=<edx_lms_base_url>
 # For local deployment the default setting is EDX_API_KEY="PUT_YOUR_API_KEY_HERE"
 EDX_API_KEY=<edx_api_key>
+
+# SSO with LMS setup
+OAUTH2_PROVIDER_URL=<edx_lms_base_url>/oauth2
+SOCIAL_AUTH_EDX_OAUTH2_KEY=<rgg_dot_app_client_id>
+SOCIAL_AUTH_EDX_OAUTH2_SECRET=<rgg_dot_app_client_secret>
+SOCIAL_AUTH_EDX_OAUTH2_URL_ROOT=<edx_lms_base_url>
+SOCIAL_AUTH_EDX_OAUTH2_LOGOUT_URL=<edx_lms_base_url>/logout
 ```
 
 ### For local installation:

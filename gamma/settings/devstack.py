@@ -24,3 +24,5 @@ WEBPACK_LOADER['DEFAULT'].update({
     'CACHE': not DEBUG,
     'STATS_FILE': path.join(ROOT_DIR, 'frontend', 'gamma', 'webpack-stats-dev.json')
 })
+
+SOCIAL_AUTH_REDIRECT_IS_HTTPS = False

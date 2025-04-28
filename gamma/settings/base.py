@@ -29,6 +29,9 @@ INSTALLED_APPS = [
     # Django Rest Framework
     'rest_framework',
 
+    # SSO apps
+    'social_django',
+
     # Local apps
     'users',
     'core',
@@ -234,3 +237,37 @@ ONESIGNAL_NOTIFICATION_ENABLED = strtobool(environ.get('ONESIGNAL_NOTIFICATION_E
 EDX_NOTIF_FORMAT_FUNC = environ.get('EDX_NOTIF_FORMAT_FUNC', 'core.notif.formatters.json_formatter')
 
 LEADERBOARD_INITIALIZATION_BATCH_SIZE = environ.get('LEADERBOARD_INITIALIZATION_BATCH_SIZE', 100)
+
+AUTHENTICATION_BACKENDS = (
+    'auth_backends.backends.EdXOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+)
+SOCIAL_AUTH_STRATEGY = 'auth_backends.strategies.EdxDjangoStrategy'
+LOGIN_REDIRECT_URL = '/gamma/badges/'
+
+LOGIN_URL = '/login/'
+LOGOUT_URL = '/logout/'
+OAUTH2_PROVIDER_URL = environ.get('OAUTH2_PROVIDER_URL', 'http://localhost:8080/oauth2')
+SOCIAL_AUTH_EDX_OAUTH2_KEY = environ.get('SOCIAL_AUTH_EDX_OAUTH2_KEY', 'rgg-key-sso')
+SOCIAL_AUTH_EDX_OAUTH2_SECRET = environ.get('SOCIAL_AUTH_EDX_OAUTH2_SECRET', 'rgg-secret-sso')
+SOCIAL_AUTH_EDX_OAUTH2_URL_ROOT = environ.get('SOCIAL_AUTH_EDX_OAUTH2_URL_ROOT', 'http://localhost:8080')
+SOCIAL_AUTH_EDX_OAUTH2_LOGOUT_URL = environ.get('SOCIAL_AUTH_EDX_OAUTH2_LOGOUT_URL', 'http://localhost:8080/logout')
+
+SOCIAL_AUTH_PIPELINE = (
+    # This first block is a copy of the default pipelines from auth_backends.strategies.EdxDjangoStrategy.
+    # We can't import that module here to reference the default set directly (circular dependencies), so we just
+    # duplicate it.
+    'social_core.pipeline.social_auth.social_details',
+    'social_core.pipeline.social_auth.social_uid',
+    'social_core.pipeline.social_auth.auth_allowed',
+    'social_core.pipeline.social_auth.social_user',
+    'social_core.pipeline.user.get_username',
+    'social_core.pipeline.user.create_user',
+
+    # Gamma-specific pipeline
+    'gamma.pipeline.ensure_user_is_synchronized',
+
+    'social_core.pipeline.social_auth.associate_user',
+    'social_core.pipeline.social_auth.load_extra_data',
+    'social_core.pipeline.user.user_details',
+)
