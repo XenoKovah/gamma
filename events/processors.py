@@ -142,8 +142,19 @@ class CommonEventProcessor(BaseEventProcessor):
         """
         passed_frequency_filter = self._check_frequency_fit(achievement_rule.rule.filters, progress.current)
         event_count = progress.by_event.get('count', 0) + 1 if passed_frequency_filter else 1
-        is_achieved = event_count >= int(progress.action['count'])
+        raw_progress_count = progress.action.get('count')
 
+        try:
+            progress_count = int(raw_progress_count)
+        except (TypeError, ValueError):
+            logger.warning(
+                'The progress count of %s rule cannot be processed: %s',
+                achievement_rule,
+                raw_progress_count
+            )
+            raise AchievementRuleProcessingException
+
+        is_achieved = event_count >= progress_count
         updated_progress = types.GeneralProgress(
             goal=progress.action['count'],
             last_updated=event.created_at.isoformat(),
@@ -236,8 +247,19 @@ class RggPointsDistributionProcessor(BaseEventProcessor):
         Process the event and updates the dependencies with points distribution.
         """
         points = user.points
-        is_achieved = points >= progress.action['points']
+        raw_progress_points = progress.action.get('points')
 
+        try:
+            progress_points = int(raw_progress_points)
+        except (TypeError, ValueError):
+            logger.warning(
+                'The progress points of %s rule cannot be processed: %s',
+                achievement_rule,
+                raw_progress_points
+            )
+            raise AchievementRuleProcessingException
+
+        is_achieved = points >= progress_points
         updated_progress = types.GeneralProgress(
             goal=progress.action['points'],
             last_updated=event.created_at.isoformat(),

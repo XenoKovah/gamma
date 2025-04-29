@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from events.models import Event, EventConfiguration
+from events.models import Event, EventConfiguration, EventType
 from events.utils import SchemaRenderer
 
 
@@ -29,6 +29,37 @@ class EventConfigurationSerializer(serializers.ModelSerializer):
     class Meta:
         model = EventConfiguration
         fields = ('event_type', 'title', 'award', 'color', 'notification_message')
+
+    def to_internal_value(self, data):
+        """
+        Allow passing either an ID or a full object.
+
+        Resolve to an EventConfiguration instance or create new one.
+        """
+        if isinstance(data, int):
+            try:
+                return EventConfiguration.objects.get(id=data)
+            except EventConfiguration.DoesNotExist:
+                raise serializers.ValidationError('EventConfiguration with this ID does not exist.')
+
+        elif isinstance(data, dict):
+            event_type_name = data.get('event_type')
+            if not event_type_name:
+                raise serializers.ValidationError({'event_type': 'This field is required.'})
+
+            try:
+                event_type_obj = EventType.objects.get(name=event_type_name)
+            except EventType.DoesNotExist:
+                raise serializers.ValidationError({'event_type': f'No such event_type: {event_type_name}'})
+
+            data.update({'event_type': event_type_obj.id})
+            instance, _ = EventConfiguration.objects.get_or_create(**data)
+            return instance
+
+        elif isinstance(data, EventConfiguration):
+            return data
+        else:
+            raise serializers.ValidationError('Invalid event_configuration input.')
 
 
 class EventSerializer(serializers.ModelSerializer):

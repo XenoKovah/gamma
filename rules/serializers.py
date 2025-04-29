@@ -3,6 +3,7 @@ from datetime import datetime
 from rest_framework import serializers
 from schematics.exceptions import DataError
 
+from events.api.v0.serializers import EventConfigurationSerializer
 from events.models import EventConfiguration
 from events.utils import SchemaRenderer
 
@@ -50,10 +51,11 @@ class RuleSerializer(serializers.ModelSerializer):
 
     action = serializers.JSONField()
     filters = FiltersSerializer(required=False, allow_null=True)
+    event_configuration = EventConfigurationSerializer()
 
     class Meta:
         model = Rule
-        fields = ('id', 'action', 'filters', 'created_at')
+        fields = ('id', 'event_configuration', 'action', 'filters', 'created_at')
         read_only_fields = ('created_at',)
 
     def validate_action(self, value):

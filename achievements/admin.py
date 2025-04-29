@@ -20,5 +20,11 @@ class AchievementAdmin(admin.ModelAdmin):
         """
         Display a human-readable status of whether all related rules are completed.
         """
-        return 'Completed' if obj.all_rules_completed else 'In Progress'
+        if obj.all_rules_completed:
+            return 'Completed'
+
+        if obj.achievement_rules.filter(status=AchievementRule.Statuses.FAILED).exists():
+            return 'Failed'
+
+        return 'In Progress'
     all_rules_completed_status.short_description = 'Rules Completion Status'
