@@ -1,7 +1,9 @@
 from django.views.generic import TemplateView
 
+from core.mixins import AdminPermissionMixin
 
-class GammaView(TemplateView):
+
+class GammaView(AdminPermissionMixin, TemplateView):
     """
     View for rendering the Gamma React application.
 

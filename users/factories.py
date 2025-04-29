@@ -1,10 +1,25 @@
 import faker
 import factory
 from factory.django import DjangoModelFactory
+from django.contrib.auth.models import User
 
 from users.models import GammaUser, GammaUserCoursePoints
 
 fake = faker.Faker()
+
+
+class UserFactory(factory.django.DjangoModelFactory):
+    """
+    Factory for creating Django User instances.
+    """
+    class Meta:
+        model = User
+
+    username = factory.Sequence(lambda n: f'user{n}')
+    password = factory.PostGenerationMethodCall('set_password', 'password')
+    is_active = True
+    is_staff = False
+    is_superuser = False
 
 
 class GammaUserFactory(DjangoModelFactory):

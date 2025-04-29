@@ -25,7 +25,7 @@ from core.notif.utils import get_format_func
 from events.enums import RggInternalEventTypes
 from events.factories import EventFactory, EventConfigurationFactory, EventTypeFactory
 from rules.factories import RuleFactory
-from users.factories import GammaUserCoursePointsFactory, GammaUserFactory
+from users.factories import GammaUserCoursePointsFactory, GammaUserFactory, UserFactory
 
 
 register(AchievementFactory)
@@ -39,6 +39,7 @@ register(GammaUserCoursePointsFactory)
 register(GammaUserFactory)
 register(RuleFactory)
 register(UserAvatarConfigFactory)
+register(UserFactory)
 
 
 @pytest.fixture(scope='function')
