@@ -34,6 +34,7 @@ const EventTypeSelect = ({ ruleIndex, translations, data }) => {
       <Form.Control
         as="select"
         className="mr-0"
+        data-testid="event-type-select"
         name={`rules.${ruleIndex}.action.eventType`}
         value={values.rules?.[ruleIndex]?.action?.eventType ?? ''}
         onChange={handleChange}

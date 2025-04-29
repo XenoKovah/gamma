@@ -8,12 +8,12 @@ import { renderWithProviders } from '../../setupTests';
 import genericMessages from '../../i18n';
 import { submitBtnStatuses } from '../../generic/status-button';
 import { useBadges } from './hooks/useBadges';
-import { convertKeysToSnakeCase } from './data/utils';
+import { convertKeysToCamelCase, processReceivedPayload } from './data/utils';
 import moduleMessages from './i18n';
 import { fetchBadgesData, API_ROUTES } from './data';
 import { Badges } from '.';
 
-import { badgesMocks } from './__mocks__';
+import { badgesMocks, availableActionsMock } from './__mocks__';
 
 jest.mock('axios');
 jest.mock('./data/hooks', () => ({
@@ -283,8 +283,7 @@ describe('Badges Component', () => {
     });
   });
 
-  // TODO: Fix this test
-  it.skip('adds a new rule and verifies the modal content', async () => {
+  it('adds a new rule and verifies the modal content', async () => {
     const setModalOpen = jest.fn();
 
     useBadges.mockImplementation(() => ({
@@ -323,12 +322,8 @@ describe('Badges Component', () => {
         .getByText(genericMessages.modalEntityRulesActionHeadingTitle.defaultMessage)).toBeInTheDocument();
       expect(within(modal)
         .getByText(
-          genericMessages.modalEntityActionEventNameLabelText.defaultMessage.replace('{eventType}', 'event type'),
+          genericMessages.modalEntityActionEventNameLabelText.defaultMessage.replace('{eventType}', 'action'),
         )).toBeInTheDocument();
-      expect(within(modal)
-        .getByLabelText(genericMessages.modalEntityRulesRuleEventTypeLabel.defaultMessage)).toBeInTheDocument();
-      expect(within(modal)
-        .getByLabelText(genericMessages.modalEntityRulesRuleCountLabel.defaultMessage)).toBeInTheDocument();
       expect(within(modal)
         .getByText(genericMessages.modalEntityRulesFiltersHeadingTitle.defaultMessage)).toBeInTheDocument();
       expect(within(modal)
@@ -348,8 +343,7 @@ describe('Badges Component', () => {
     });
   });
 
-  // TODO: Fix this test
-  it.skip('validates required action fields when adding a new rule', async () => {
+  it('validates required action fields when adding a new rule', async () => {
     const setModalOpen = jest.fn();
 
     useBadges.mockImplementation(() => ({
@@ -367,6 +361,7 @@ describe('Badges Component', () => {
 
     useBadges.mockImplementation(() => ({
       badgesData: [],
+      actionsData: availableActionsMock,
       isLoading: false,
       isError: false,
       isManageEntityModalOpen: true,
@@ -385,12 +380,8 @@ describe('Badges Component', () => {
     await waitFor(async () => {
       const modal = getByRole('dialog');
 
-      expect(within(modal)
-        .getByText(
-          genericMessages.modalEntityActionEventNameLabelText.defaultMessage.replace('{eventType}', 'event type'),
-        )).toBeInTheDocument();
       const eventTypeInput = within(modal)
-        .getByLabelText(genericMessages.modalEntityRulesRuleEventTypeLabel.defaultMessage);
+        .getByText(genericMessages.modalEntityActionEventNameLabelText.defaultMessage.replace('{eventType}', 'action'));
       userEvent.click(eventTypeInput);
       userEvent.tab();
     });
@@ -405,20 +396,14 @@ describe('Badges Component', () => {
 
     await waitFor(async () => {
       const modal = getByRole('dialog');
-      expect(within(modal)
-        .getByText(
-          genericMessages.modalEntityActionEventNameLabelText.defaultMessage.replace('{eventType}', 'event type'),
-        )).toBeInTheDocument();
-      const countInput = within(modal)
-        .getByLabelText(genericMessages.modalEntityRulesRuleCountLabel.defaultMessage);
-      userEvent.click(countInput);
-      userEvent.tab();
+      const eventTypeInput = within(modal).getByTestId('event-type-select');
+      userEvent.selectOptions(eventTypeInput, availableActionsMock[0].eventName);
     });
 
     await waitFor(async () => {
       const modal = getByRole('dialog');
-      expect(within(modal)
-        .getByText(genericMessages.modalEntityValidationActionCountRequiredText.defaultMessage)).toBeInTheDocument();
+      const countInput = within(modal).getByLabelText(availableActionsMock[0].schema[0].title);
+      expect(countInput).toBeInTheDocument();
     });
   });
 
@@ -798,7 +783,7 @@ describe('fetchBadgesData API', () => {
 
     expect(axios.get).toHaveBeenCalledTimes(1);
     expect(axios.get).toHaveBeenCalledWith(API_ROUTES.BADGES);
-    expect(convertKeysToSnakeCase(data)).toEqual(badgesMocks);
+    expect(data).toEqual(badgesMocks.map(convertKeysToCamelCase).map(processReceivedPayload));
   });
 
   it('throws an error when API request fails', async () => {

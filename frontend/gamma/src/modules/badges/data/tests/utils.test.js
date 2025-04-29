@@ -48,8 +48,8 @@ describe('transformActions & reverseTransformActions', () => {
   it('should transform actions correctly', () => {
     const transformed = transformActions(rules);
     expect(transformed).toEqual([
-      { id: 1, action: { click: 5 }, eventConfiguration: null },
-      { id: 2, action: { hover: 2 }, eventConfiguration: null },
+      { id: 1, action: { click: { count: 5 } }, eventConfiguration: null },
+      { id: 2, action: { hover: { count: 2 } }, eventConfiguration: null },
     ]);
   });
 
@@ -70,7 +70,7 @@ describe('preparePayload & processReceivedPayload', () => {
   it('should prepare the payload correctly', () => {
     const result = preparePayload(inputData);
     expect(result).toEqual({
-      rules: [{ id: 1, action: { click: 3 }, eventConfiguration: null }],
+      rules: [{ id: 1, action: { click: { count: 3 } }, eventConfiguration: null }],
     });
   });
 

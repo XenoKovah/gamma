@@ -27,23 +27,56 @@ export const fileToBase64 = (file) => new Promise((resolve, reject) => {
 });
 
 /**
- * Transforms the `action` object in each rule by making `eventType` the key and `count` its value.
+ * Converts a value to a number if possible, otherwise returns undefined.
  *
- * @param {Array<{ action?: {
- *  eventType: string,
- *  count: string | number
- * }, [key: string]: any }>} rules - The array of rules to transform.
- * @returns {Array<{ action: {
- *  [key: string]: string | number },
- *  [key: string]: any
- * }>} - The transformed rules array.
+ * @param {*} value - The value to convert to a number
+ * @returns {number|undefined} The converted number if the value can be converted,
+ *                            undefined if the value is undefined, null, or cannot be converted to a number
  */
+export const toNumberOrUndefined = (value) => (
+  value !== undefined && value !== null && !Number.isNaN(Number(value)) ? Number(value) : undefined);
+
+/**
+ * Transforms an array of rules by restructuring their action objects into a specific format.
+ * For rules with an action object, it converts from:
+ * { id, eventType, count, points } format
+ * to:
+ * { [eventType]: { count: value } } or { [eventType]: { points: value } } format
+ *
+ * @param {Array<{
+*   action?: {
+*     id?: string|number,
+*     eventType: string,
+*     count?: number,
+*     points?: number
+*   },
+*   eventConfiguration?: any,
+*   [key: string]: any
+* }>} rules - Array of rule objects to transform
+*
+* @returns {Array<{
+*   action?: {
+*     [eventType: string]: {
+*       count?: number,
+*       points?: number
+*     }
+*   },
+*   eventConfiguration: any|null,
+*   [key: string]: any
+* }>} Transformed array of rules with restructured action objects
+*/
 export const transformActions = (rules) => rules.map((rule) => {
   if (rule.action && typeof rule.action === 'object') {
-    const { id, eventType, count } = rule.action;
+    const {
+      id, eventType, count, points,
+    } = rule.action;
     return {
       ...rule,
-      action: { [eventType]: count },
+      action: {
+        [eventType]: {
+          [count ? 'count' : 'points']: toNumberOrUndefined(count) || toNumberOrUndefined(points),
+        },
+      },
       eventConfiguration: id ?? rule.eventConfiguration ?? null,
     };
   }
@@ -51,19 +84,42 @@ export const transformActions = (rules) => rules.map((rule) => {
 });
 
 /**
- * Reverses the transformation applied by `transformActions`, converting the `action` object
- * back into `{ eventType, count }` format.
+ * Reverses the transformation applied by `transformActions`, converting the nested action object
+ * back to a flat structure. Transforms from:
+ * { [eventType]: { count: value } } or { [eventType]: { points: value } }
+ * to:
+ * { eventType, count, points } format
  *
- * @param {Array<{ action: { [key: string]: string | number },
-* [key: string]: any }>} rules - The array of transformed rules.
-* @returns {Array<{ action?: { eventType: string, count: string | number },
-* [key: string]: any }>} - The restored rules array.
-*/
+ * @param {Array<{
+*   action?: {
+  *     [eventType: string]: {
+  *       count?: number,
+  *       points?: number
+  *     }
+  *   },
+  *   eventConfiguration?: any,
+  *   [key: string]: any
+  * }>} rules - Array of rules with nested action objects to transform
+  *
+  * @returns {Array<{
+  *   action?: {
+  *     eventType: string,
+  *     count?: number,
+  *     points?: number
+  *   },
+  *   eventConfiguration: any|null,
+  *   [key: string]: any
+  * }>} Transformed array of rules with flattened action objects
+  */
 export const reverseTransformActions = (rules) => rules.map((rule) => {
   if (rule.action && typeof rule.action === 'object') {
-    const [eventType, count] = Object.entries(rule.action)[0] || [];
+    const [eventType, measurement] = Object.entries(rule.action)[0] || [];
     return eventType
-      ? { ...rule, action: { eventType, count }, eventConfiguration: rule.eventConfiguration ?? null }
+      ? {
+        ...rule,
+        action: { eventType, ...measurement },
+        eventConfiguration: rule.eventConfiguration ?? null,
+      }
       : rule;
   }
   return rule;

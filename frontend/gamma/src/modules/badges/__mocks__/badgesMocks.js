@@ -9,10 +9,7 @@ module.exports = [
     rules: [
       {
         id: 1,
-        action: {
-          count: 'test',
-          eventType: 'count',
-        },
+        action: { eventType: 'rgg_points_distribution', count: 20 },
         event_configuration: null,
         filters: {
           test: 'test',
@@ -30,10 +27,7 @@ module.exports = [
     rules: [
       {
         id: 1,
-        action: {
-          count: 'test',
-          eventType: 'count',
-        },
+        action: { eventType: 'rgg_points_distribution', count: 20 },
         event_configuration: null,
         filters: {
           test: 'test',

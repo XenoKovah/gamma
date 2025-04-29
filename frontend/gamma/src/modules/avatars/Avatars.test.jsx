@@ -1032,7 +1032,7 @@ describe('Avatars', () => {
           image: '',
           rules: {
             id: 17,
-            action: { eventType: 'badge', count: 20 },
+            action: { eventType: 'rgg_points_distribution', count: 20 },
             filters: {},
             created_at: '2025-03-10T12:07:59.431440Z',
           },

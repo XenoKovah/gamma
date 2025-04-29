@@ -55,12 +55,12 @@ describe('EntityRule', () => {
     expect(getByText(genericMessages.modalEntityRulesActionHeadingTitle.defaultMessage)).toBeInTheDocument();
   });
 
-  // TODO: Fix this test
-  it.skip('renders action fields based on available actions', () => {
-    const { getByLabelText } = renderComponent();
+  it('renders action fields based on available actions', () => {
+    const { getByText } = renderComponent();
 
-    expect(getByLabelText(genericMessages.modalEntityRulesRuleEventTypeLabel.defaultMessage)).toBeInTheDocument();
-    expect(getByLabelText(genericMessages.modalEntityRulesRuleCountLabel.defaultMessage)).toBeInTheDocument();
+    expect(getByText(
+      genericMessages.modalEntityActionEventNameLabelText.defaultMessage.replace('{eventType}', 'action'),
+    )).toBeInTheDocument();
   });
 
   it('removes a filter when remove filter button is clicked', () => {

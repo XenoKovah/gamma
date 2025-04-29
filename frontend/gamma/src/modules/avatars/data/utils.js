@@ -58,16 +58,29 @@ export const convertImageToBase64 = async (image) => {
 };
 
 /**
- * Transforms the `action` object in each rule by making `eventType` the key and `count` its value.
+ * Converts a value to a number if possible, otherwise returns undefined.
  *
- * @param {Array<{ action?: {
- *  eventType: string,
- *  count: string | number
- * }, [key: string]: any }>} rules - The array of rules to transform.
- * @returns {Array<{ action: {
- *  [key: string]: string | number },
- *  [key: string]: any
- * }>} - The transformed rules array.
+ * @param {*} value - The value to convert to a number
+ * @returns {number|undefined} The converted number if the value can be converted,
+ *                            undefined if the value is undefined, null, or cannot be converted to a number
+ */
+export const toNumberOrUndefined = (value) => (
+  value !== undefined && value !== null && !Number.isNaN(Number(value)) ? Number(value) : undefined);
+
+/**
+ * Transforms an array of rules by converting their action properties into a specific format.
+ * For each rule with an action object, it restructures the action based on eventType, count, and points.
+ *
+ * @param {Array<Object>} rules - The array of rules to transform
+ * @param {Object} [rules[].action] - The action object within each rule
+ * @param {string} [rules[].action.id] - The action's ID
+ * @param {string} [rules[].action.eventType] - The type of event for the action
+ * @param {number} [rules[].action.count] - The count value for the action
+ * @param {number} [rules[].action.points] - The points value for the action
+ * @param {*} [rules[].eventConfiguration] - The existing event configuration
+ *
+ * @returns {Array<Object>} An array of transformed rules where each action is converted to the format:
+ *                         { [eventType]: { count?: number, points?: number } }
  */
 export const transformActions = (rules) => rules.map((rule) => {
   if (rule.action && typeof rule.action === 'object') {
@@ -76,7 +89,11 @@ export const transformActions = (rules) => rules.map((rule) => {
     } = rule.action;
     return {
       ...rule,
-      action: { [eventType]: { [count ? 'count' : 'points']: count || points } },
+      action: {
+        [eventType]: {
+          [count ? 'count' : 'points']: toNumberOrUndefined(count) || toNumberOrUndefined(points),
+        },
+      },
       eventConfiguration: id ?? rule.eventConfiguration ?? null,
     };
   }
@@ -127,19 +144,42 @@ export const toCamelCase = (str) => str.replace(/_([a-z])/g, (_, letter) => lett
 export const toSnakeCase = (str) => str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
 
 /**
- * Reverses the transformation applied by `transformActions`, converting the `action` object
- * back into `{ eventType, count }` format.
+ * Reverses the transformation applied by `transformActions`, converting the nested action object
+ * back to a flat structure. Transforms from:
+ * { [eventType]: { count: value } } or { [eventType]: { points: value } }
+ * to:
+ * { eventType, count, points } format
  *
- * @param {Array<{ action: { [key: string]: string | number },
-* [key: string]: any }>} rules - The array of transformed rules.
-* @returns {Array<{ action?: { eventType: string, count: string | number },
-* [key: string]: any }>} - The restored rules array.
+ * @param {Array<{
+*   action?: {
+*     [eventType: string]: {
+*       count?: number,
+*       points?: number
+*     }
+*   },
+*   eventConfiguration?: any,
+*   [key: string]: any
+* }>} rules - Array of rules with nested action objects to transform
+*
+* @returns {Array<{
+*   action?: {
+*     eventType: string,
+*     count?: number,
+*     points?: number
+*   },
+*   eventConfiguration: any|null,
+*   [key: string]: any
+* }>} Transformed array of rules with flattened action objects
 */
 export const reverseTransformActions = (rules) => rules.map((rule) => {
   if (rule.action && typeof rule.action === 'object') {
-    const [eventType, count] = Object.entries(rule.action)[0] || [];
+    const [eventType, measurement] = Object.entries(rule.action)[0] || [];
     return eventType
-      ? { ...rule, action: { eventType, ...count }, eventConfiguration: rule.eventConfiguration ?? null }
+      ? {
+        ...rule,
+        action: { eventType, ...measurement },
+        eventConfiguration: rule.eventConfiguration ?? null,
+      }
       : rule;
   }
   return rule;
