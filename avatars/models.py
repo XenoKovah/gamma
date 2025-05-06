@@ -101,6 +101,9 @@ class UserAvatarConfig(models.Model):
                     filter=Q(
                         rules__rule_achievements__achievement__user=self.user,
                         rules__rule_achievements__status=AchievementRule.Statuses.COMPLETED,
+                        rules__rule_achievements__achievement__object_id__in=self.avatar_set.avatars.values_list(
+                            'id', flat=True
+                        ),
                     ),
                     distinct=True
                 ),
