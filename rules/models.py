@@ -1,8 +1,36 @@
 from typing import Any
 
 from django.db import models
+from django.db.models import Exists, OuterRef, QuerySet
 
+from achievements.models import AchievementRule
 from core.mixins import TimestampModelMixin
+from events.models import EventConfiguration
+from users.models import GammaUser
+
+
+class RuleQuerySet(models.QuerySet):
+    """
+    Extend queryset manager with rule specific methods.
+    """
+
+    def not_completed_by_user(self, configuration: EventConfiguration, user: GammaUser) -> QuerySet['Rule']:
+        """
+        Filter a list of objects associated with the event configuration that the specified user has not yet completed.
+        """
+        completed_subquery = AchievementRule.objects.filter(
+            rule=OuterRef('pk'),
+            achievement__user=user,
+            status=AchievementRule.Statuses.COMPLETED,
+        )
+
+        return self.filter(
+            event_configuration=configuration
+        ).annotate(
+            user_has_completed=Exists(completed_subquery)
+        ).filter(
+            user_has_completed=False
+        )
 
 
 class Rule(TimestampModelMixin, models.Model):
@@ -14,6 +42,8 @@ class Rule(TimestampModelMixin, models.Model):
     )
     action = models.JSONField(default=dict)
     filters = models.JSONField(default=dict)
+
+    objects = RuleQuerySet.as_manager()
 
     def __str__(self):
         return f'Rule for {self.action!r}'

@@ -25,13 +25,7 @@ def process_event_creation(sender, instance, created, **kwargs):
     configuration = event.configuration
     user = GammaUser.ensure_gamma_user_is_created(user_uid=event.username)
 
-    affected_rules_by_event = Rule.objects.filter(
-        event_configuration=configuration
-    ).exclude(
-        rule_achievements__achievement__user=user,
-        rule_achievements__status=AchievementRule.Statuses.COMPLETED
-    ).prefetch_related('rule_achievements')
-
+    affected_rules_by_event = Rule.objects.not_completed_by_user(configuration, user)
     rule_filter = RulesFilterService(event)
     affected_rules = rule_filter.filter_rules(affected_rules_by_event)
 
