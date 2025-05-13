@@ -5,6 +5,8 @@ Versions follows PEP440 version scheme.
 
 [Unreleased]
 ************
+* docs: [NAU-365] Update technical documentation
+* feat: [NAU-530] Performance page doesn't render with failed achievements
 * refactor: [NAU-507] Repository cleanup
 * test: [NAU-415] Rewrite tests for achievements processing
 * fix: achievement processing for users
