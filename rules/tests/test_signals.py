@@ -3,13 +3,14 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
+from events.enums import RggInternalEventTypes
+from events.models import Event
 from events.factories import EventFactory
 from users.factories import GammaUserFactory
 
 pytestmark = pytest.mark.django_db
 
 
-@pytest.mark.skip(reason='Temporarily skipped due to refactoring')
 @pytest.mark.enable_signals
 def test_process_event_creation_with_backends(
     rule_factory,
@@ -26,9 +27,15 @@ def test_process_event_creation_with_backends(
 
     mock_rules_filter.filter_rules.return_value = [rule]
 
-    event = event_factory(configuration=rule.event_configuration, username=user.user_uid)
+    edx_event = event_factory(configuration=rule.event_configuration, username=user.user_uid)
+    rgg_internal_event = Event.objects.filter(
+        username=user.user_uid, configuration__event_type__name=RggInternalEventTypes.RGG_POINTS_DISTRIBUTION.value
+    ).first()
 
-    mock_gamification_backends.process_achievement.assert_called_once_with(rule, event, user, False)
+    mock_gamification_backends.process_achievement.call_args_list[0].assert_called_once_with(rule, edx_event, user)
+    mock_gamification_backends.process_achievement.call_args_list[1].assert_called_once_with(
+        rule, rgg_internal_event, user
+    )
 
 
 @pytest.mark.enable_signals

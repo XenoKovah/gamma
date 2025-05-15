@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 import pytest
 
 from django.contrib.contenttypes.models import ContentType
@@ -10,11 +11,7 @@ from events.factories import EventConfigurationFactory, EventFactory, EventTypeF
 from events.models import Event, EventConfiguration
 from rules.factories import RuleFactory
 from rules.models import Rule
-
-
-pytestmark = [
-    pytest.mark.skip(reason='Temporarily skipped due to refactoring')
-]
+from users.models import GammaUser
 
 
 @pytest.mark.django_db
@@ -23,12 +20,14 @@ def setup_event_configuration(
     event_configuration_factory: EventConfigurationFactory,
     content_type: ContentType = None,
     is_depends_on_achievement: bool = False,
-    event_type_name: str = 'rgg.badge_acquired',
+    event_type_name: str = 'edx_bookmark_added',
+    award: int = 1,
 ) -> EventConfiguration:
     event_configuration = event_configuration_factory(
         event_type=event_type_factory(name=event_type_name),
         is_depends_on_achievement=is_depends_on_achievement,
         content_type=content_type,
+        award=award
     )
     return event_configuration
 
@@ -37,9 +36,13 @@ def setup_event_configuration(
 def setup_rules(
     rule_factory: RuleFactory,
     event_configuration: EventConfiguration,
-    action: dict,
-    filters: dict
+    action: Optional[dict] = None,
+    filters: Optional[dict] = None
 ) -> Rule:
+    if action is None:
+        action = {}
+    if filters is None:
+        filters = {}
     rules = rule_factory(
         event_configuration=event_configuration,
         action=action,
@@ -68,613 +71,495 @@ def imitate_signal_dispatch(
 
 
 @pytest.mark.django_db
-def test_non_dependent_badge_receive(
+def test_receiving_badge_one_rule_one_event(
     badge_factory: BadgeFactory,
     event_factory: EventFactory,
     event_type_factory: EventTypeFactory,
     event_configuration_factory: EventConfigurationFactory,
     rule_factory: RuleFactory
-):
-    event_configuration = setup_event_configuration(
-        event_type_factory,
-        event_configuration_factory,
-        event_type_name='edx.course_enroll_event'
-    )
-    rules = setup_rules(
-        rule_factory,
-        event_configuration,
-        action={
-            'edx.course_enroll_event': 1
-        },
-        filters={'fake_filter': 0}
-    )
-
-    badge = setup_badge(badge_factory, [rules])
-
-    event = imitate_signal_dispatch(event_factory, event_configuration)
-
-    achievement = Achievement.objects.all()
-    achievement_rules = AchievementRule.objects.all()
+) -> None:
+    event_configuration = setup_event_configuration(event_type_factory, event_configuration_factory)
+    rules = setup_rules(rule_factory, event_configuration, action={'edx_bookmark_added': {'count': 1}})
+    setup_badge(badge_factory, [rules])
 
     date = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
     expected_gamma_user_chart = {
-        str(event.event_name): {'title': f'{event_configuration.title}', 'points': event_configuration.award}
+        'edx_bookmark_added': {'title': f'{event_configuration.title}', 'points': 1}
     }
     expected_gamma_user_progress = {
         str(date.year): [
-            {'date': date.isoformat(), 'points': event_configuration.award}
+            {'date': date.isoformat(), 'points': 1}
         ]
     }
 
-    assert achievement.count() == 1
-    assert achievement_rules.count() == 1
-
-    assert achievement.first().content_type == ContentType.objects.get_for_model(Badge)
-    assert achievement.first().content_object == badge
-
-    assert achievement_rules.first().rule == rules
-    assert achievement_rules.first().achievement == achievement.first()
-    assert len(achievement_rules.first().dependencies['events']) == 1
-    assert achievement_rules.first().dependencies['events'][event.event_name]['count'] == 1
-    assert achievement_rules.first().dependencies['events'][event.event_name]['goal'] == 1
-    assert achievement_rules.first().points == event.configuration.award
-    assert achievement_rules.first().status == AchievementRule.Statuses.COMPLETED
-
-    assert achievement.first().user.user_uid == event.username
-    assert achievement.first().user.points == event.configuration.award
-    assert achievement.first().user.chart == expected_gamma_user_chart
-    assert achievement.first().user.progress == expected_gamma_user_progress
-
-
-@pytest.mark.django_db
-def test_non_dependent_badge_requires_three_events(
-    badge_factory: BadgeFactory,
-    event_factory: EventFactory,
-    event_type_factory: EventTypeFactory,
-    event_configuration_factory: EventConfigurationFactory,
-    rule_factory: RuleFactory
-):
-    event_configuration = setup_event_configuration(
-        event_type_factory,
-        event_configuration_factory,
-        event_type_name='edx.course_enroll_event'
-    )
-    rules = setup_rules(
-        rule_factory,
-        event_configuration,
-        action={
-            'edx.course_enroll_event': 3
-        },
-        filters={'fake_filter': 0}
-    )
-
-    badge = setup_badge(badge_factory, [rules])
-    date = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-
-    # first event processing and checking states
-    event1 = imitate_signal_dispatch(event_factory, event_configuration)
-
-    expected_gamma_user_chart = {
-        str(event_configuration.event_name): {
-            'title': f'{event_configuration.title}', 'points': event_configuration.award
-        }
-    }
-    expected_gamma_user_progress = {
-        str(date.year): [
-            {'date': date.isoformat(), 'points': event_configuration.award}
-        ]
-    }
-
-    achievement = Achievement.objects.first()
-    achievement_rules = AchievementRule.objects.first()
-
-    assert achievement.content_object == badge
-
-    assert achievement_rules.rule == rules
-    assert achievement_rules.achievement == achievement
-    assert len(achievement_rules.dependencies['events']) == 1
-    assert achievement_rules.dependencies['events'][event_configuration.event_name]['count'] == 1
-    assert achievement_rules.dependencies['events'][event_configuration.event_name]['goal'] == 3
-    assert achievement_rules.points == event_configuration.award
-    assert achievement_rules.status == AchievementRule.Statuses.ACTIVE
-
-    assert achievement.user.user_uid == event1.username
-    assert achievement.user.points == event_configuration.award
-    assert achievement.user.chart == expected_gamma_user_chart
-    assert achievement.user.progress == expected_gamma_user_progress
-
-    # second event processing and checking states
-    event2 = imitate_signal_dispatch(event_factory, event_configuration)
-
-    expected_gamma_user_chart = {
-        str(event_configuration.event_name): {
-            'title': f'{event_configuration.title}', 'points': event_configuration.award * 2
-        }
-    }
-    expected_gamma_user_progress = {
-        str(date.year): [
-            {'date': date.isoformat(), 'points': event_configuration.award * 2}
-        ]
-    }
-
-    achievement.refresh_from_db()
-    achievement_rules.refresh_from_db()
-    achievement.user.refresh_from_db()
-
-    assert achievement.content_object == badge
-
-    assert achievement_rules.rule == rules
-    assert achievement_rules.achievement == achievement
-    assert len(achievement_rules.dependencies['events']) == 1
-    assert achievement_rules.dependencies['events'][event_configuration.event_name]['count'] == 2
-    assert achievement_rules.dependencies['events'][event_configuration.event_name]['goal'] == 3
-    assert achievement_rules.points == event_configuration.award
-    assert achievement_rules.status == AchievementRule.Statuses.ACTIVE
-
-    assert achievement.user.user_uid == event2.username
-    assert achievement.user.points == event_configuration.award * 2
-    assert achievement.user.chart == expected_gamma_user_chart
-    assert achievement.user.progress == expected_gamma_user_progress
-
-    # third event processing and checking states
-    event3 = imitate_signal_dispatch(event_factory, event_configuration)
-    expected_gamma_user_chart = {
-        str(event_configuration.event_name): {
-            'title': f'{event_configuration.title}', 'points': event_configuration.award * 3
-        }
-    }
-    expected_gamma_user_progress = {
-        str(date.year): [
-            {'date': date.isoformat(), 'points': event_configuration.award * 3}
-        ]
-    }
-
-    achievement.refresh_from_db()
-    achievement_rules.refresh_from_db()
-    achievement.user.refresh_from_db()
-
-    assert achievement.content_object == badge
-
-    assert achievement_rules.rule == rules
-    assert achievement_rules.achievement == achievement
-    assert len(achievement_rules.dependencies['events']) == 1
-    assert achievement_rules.dependencies['events'][event_configuration.event_name]['count'] == 3
-    assert achievement_rules.dependencies['events'][event_configuration.event_name]['goal'] == 3
-    assert achievement_rules.points == event_configuration.award
-    assert achievement_rules.status == AchievementRule.Statuses.COMPLETED
-
-    assert achievement.user.user_uid == event3.username
-    assert achievement.user.points == event_configuration.award * 3
-    assert achievement.user.chart == expected_gamma_user_chart
-    assert achievement.user.progress == expected_gamma_user_progress
-
-
-@pytest.mark.django_db
-def test_non_dependent_badge_requires_different_events(
-    badge_factory: BadgeFactory,
-    event_factory: EventFactory,
-    event_type_factory: EventTypeFactory,
-    event_configuration_factory: EventConfigurationFactory,
-    rule_factory: RuleFactory
-):
-    event_configuration_1 = setup_event_configuration(
-        event_type_factory,
-        event_configuration_factory,
-        event_type_name='edx.course_enroll_event'
-    )
-    rule_1 = setup_rules(
-        rule_factory,
-        event_configuration_1,
-        action={
-            'edx.course_enroll_event': 2
-        },
-        filters={'fake_filter': 0}
-    )
-
-    event_configuration_2 = setup_event_configuration(
-        event_type_factory,
-        event_configuration_factory,
-        event_type_name='edx.bookmark_added'
-    )
-    rule_2 = setup_rules(
-        rule_factory,
-        event_configuration_2,
-        action={
-            'edx.bookmark_added': 2
-        },
-        filters={'fake_filter': 0}
-    )
-
-    badge = setup_badge(badge_factory, [rule_1, rule_2])
-    date = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-
-    # first event `edx.course_enroll_event` processing and checking states
-    course_enroll_event_1 = imitate_signal_dispatch(event_factory, event_configuration_1)
-
-    expected_gamma_user_chart = {
-        str(event_configuration_1.event_name): {
-            'title': f'{event_configuration_1.title}', 'points': event_configuration_1.award
-        }
-    }
-    expected_gamma_user_progress = {
-        str(date.year): [
-            {'date': date.isoformat(), 'points': event_configuration_1.award}
-        ]
-    }
-
-    achievement = Achievement.objects.first()
-    achievement_rules_1 = AchievementRule.objects.first()
-    achievement_rules_2 = AchievementRule.objects.last()
-    achievement.user.refresh_from_db()
-
-    assert achievement.content_object == badge
-
-    assert achievement_rules_1.rule == rule_1
-    assert achievement_rules_2.rule == rule_2
-    assert achievement_rules_1.achievement == achievement
-    assert achievement_rules_2.achievement == achievement
-    assert len(achievement_rules_1.dependencies['events']) == 1
-    assert len(achievement_rules_2.dependencies['events']) == 1
-    assert achievement_rules_1.dependencies['events'][event_configuration_1.event_name]['count'] == 1
-    assert achievement_rules_1.dependencies['events'][event_configuration_1.event_name]['goal'] == 2
-    assert achievement_rules_2.dependencies['events'][event_configuration_2.event_name]['count'] == 0
-    assert achievement_rules_2.dependencies['events'][event_configuration_2.event_name]['goal'] == 2
-
-    assert achievement_rules_1.points == event_configuration_1.award
-    assert achievement_rules_1.status == AchievementRule.Statuses.ACTIVE
-    assert achievement_rules_2.points == event_configuration_2.award
-    assert achievement_rules_2.status == AchievementRule.Statuses.ACTIVE
-
-    assert achievement.user.user_uid == course_enroll_event_1.username
-    assert achievement.user.points == event_configuration_1.award
-    assert achievement.user.chart == expected_gamma_user_chart
-    assert achievement.user.progress == expected_gamma_user_progress
-
-    # second event `edx.bookmark_added` processing and checking states
-    bookmark_added_event_1 = imitate_signal_dispatch(event_factory, event_configuration_2)
-
-    expected_gamma_user_chart.update(
-        {
-            str(event_configuration_2.event_name): {
-                'title': f'{event_configuration_2.title}', 'points': event_configuration_2.award
-            }
-        }
-    )
-    expected_gamma_user_progress.update(
-        {
-            str(date.year): [
-                {'date': date.isoformat(), 'points': event_configuration_1.award + event_configuration_2.award}
-            ]
-        }
-    )
-
-    achievement.refresh_from_db()
-    achievement_rules_1.refresh_from_db()
-    achievement_rules_2.refresh_from_db()
-
-    assert achievement.content_object == badge
-
-    assert achievement_rules_1.rule == rule_1
-    assert achievement_rules_2.rule == rule_2
-    assert achievement_rules_1.achievement == achievement
-    assert achievement_rules_2.achievement == achievement
-    assert len(achievement_rules_1.dependencies['events']) == 1
-    assert len(achievement_rules_2.dependencies['events']) == 1
-    assert achievement_rules_1.dependencies['events'][event_configuration_1.event_name]['count'] == 1
-    assert achievement_rules_1.dependencies['events'][event_configuration_1.event_name]['goal'] == 2
-    assert achievement_rules_2.dependencies['events'][event_configuration_2.event_name]['count'] == 1
-    assert achievement_rules_2.dependencies['events'][event_configuration_2.event_name]['goal'] == 2
-
-    assert achievement_rules_1.points == event_configuration_1.award
-    assert achievement_rules_1.status == AchievementRule.Statuses.ACTIVE
-    assert achievement_rules_2.points == event_configuration_2.award
-    assert achievement_rules_2.status == AchievementRule.Statuses.ACTIVE
-
-    assert achievement.user.user_uid == bookmark_added_event_1.username
-    assert achievement.user.points == event_configuration_1.award + event_configuration_2.award
-    assert achievement.user.chart == expected_gamma_user_chart
-    assert achievement.user.progress == expected_gamma_user_progress
-
-    # third event `edx.course_enroll_event` processing and checking states
-    course_enroll_event_2 = imitate_signal_dispatch(event_factory, event_configuration_1)
-
-    expected_gamma_user_chart.update(
-        {
-            str(event_configuration_1.event_name): {
-                'title': f'{event_configuration_1.title}', 'points': event_configuration_1.award * 2
-            }
-        }
-    )
-    expected_gamma_user_progress.update(
-        {
-            str(date.year): [
-                {'date': date.isoformat(), 'points': event_configuration_1.award * 2 + event_configuration_2.award}
-            ]
-        }
-    )
-
-    achievement.refresh_from_db()
-    achievement_rules_1.refresh_from_db()
-    achievement_rules_2.refresh_from_db()
-
-    assert achievement.content_object == badge
-
-    assert achievement_rules_1.rule == rule_1
-    assert achievement_rules_2.rule == rule_2
-    assert achievement_rules_1.achievement == achievement
-    assert achievement_rules_2.achievement == achievement
-    assert len(achievement_rules_1.dependencies['events']) == 1
-    assert len(achievement_rules_2.dependencies['events']) == 1
-    assert achievement_rules_1.dependencies['events'][event_configuration_1.event_name]['count'] == 2
-    assert achievement_rules_1.dependencies['events'][event_configuration_1.event_name]['goal'] == 2
-    assert achievement_rules_2.dependencies['events'][event_configuration_2.event_name]['count'] == 1
-    assert achievement_rules_2.dependencies['events'][event_configuration_2.event_name]['goal'] == 2
-
-    assert achievement_rules_1.points == event_configuration_1.award
-    assert achievement_rules_1.status == AchievementRule.Statuses.COMPLETED
-    assert achievement_rules_2.points == event_configuration_2.award
-    assert achievement_rules_2.status == AchievementRule.Statuses.ACTIVE
-
-    assert achievement.user.user_uid == course_enroll_event_2.username
-    assert achievement.user.points == event_configuration_1.award * 2 + event_configuration_2.award
-    assert achievement.user.chart == expected_gamma_user_chart
-    assert achievement.user.progress == expected_gamma_user_progress
-
-    # fourth event `edx.bookmark_added` processing and checking states
-    bookmark_added_event_2 = imitate_signal_dispatch(event_factory, event_configuration_2)
-
-    expected_gamma_user_chart.update(
-        {
-            str(event_configuration_2.event_name): {
-                'title': f'{event_configuration_2.title}', 'points': event_configuration_2.award * 2
-            }
-        }
-    )
-    expected_gamma_user_progress.update(
-        {
-            str(date.year): [
-                {'date': date.isoformat(), 'points': event_configuration_1.award * 2 + event_configuration_2.award * 2}
-            ]
-        }
-    )
-
-    achievement.refresh_from_db()
-    achievement_rules_1.refresh_from_db()
-    achievement_rules_2.refresh_from_db()
-
-    assert achievement.content_object == badge
-
-    assert achievement_rules_1.rule == rule_1
-    assert achievement_rules_2.rule == rule_2
-    assert achievement_rules_1.achievement == achievement
-    assert achievement_rules_2.achievement == achievement
-    assert len(achievement_rules_1.dependencies['events']) == 1
-    assert len(achievement_rules_2.dependencies['events']) == 1
-    assert achievement_rules_1.dependencies['events'][event_configuration_1.event_name]['count'] == 2
-    assert achievement_rules_1.dependencies['events'][event_configuration_1.event_name]['goal'] == 2
-    assert achievement_rules_2.dependencies['events'][event_configuration_2.event_name]['count'] == 2
-    assert achievement_rules_2.dependencies['events'][event_configuration_2.event_name]['goal'] == 2
-
-    assert achievement_rules_1.points == event_configuration_1.award
-    assert achievement_rules_1.status == AchievementRule.Statuses.COMPLETED
-    assert achievement_rules_2.points == event_configuration_2.award
-    assert achievement_rules_2.status == AchievementRule.Statuses.COMPLETED
-
-    assert achievement.user.user_uid == bookmark_added_event_2.username
-    assert achievement.user.points == event_configuration_1.award * 2 + event_configuration_2.award * 2
-    assert achievement.user.chart == expected_gamma_user_chart
-    assert achievement.user.progress == expected_gamma_user_progress
-
-
-@pytest.mark.django_db
-def test_processing_dependent_badges(
-    badge_factory: BadgeFactory,
-    event_factory: EventFactory,
-    event_type_factory: EventTypeFactory,
-    event_configuration_factory: EventConfigurationFactory,
-    rule_factory: RuleFactory
-):
-    event_configuration_1 = setup_event_configuration(
-        event_type_factory,
-        event_configuration_factory,
-        event_type_name='edx.course_enroll_event'
-    )
-    rule_1 = setup_rules(
-        rule_factory,
-        event_configuration_1,
-        action={
-            'edx.course_enroll_event': 1
-        },
-        filters={'fake_filter': 0}
-    )
-    badge_level_1 = setup_badge(badge_factory, [rule_1])
-
-    event_configuration_2 = setup_event_configuration(
-        event_type_factory,
-        event_configuration_factory,
-        event_type_name='gamma.badge_level_1',
-        is_depends_on_achievement=True,
-        content_type=ContentType.objects.get_for_model(Badge)
-    )
-    rule_2 = setup_rules(
-        rule_factory,
-        event_configuration_2,
-        action={
-            'gamma.badge_level_1': badge_level_1.id
-        },
-        filters={'fake_filter': 0}
-    )
-
-    event_configuration_3 = setup_event_configuration(
-        event_type_factory,
-        event_configuration_factory,
-        event_type_name='edx.bookmark_added'
-    )
-    rule_3 = setup_rules(
-        rule_factory,
-        event_configuration_3,
-        action={
-            'edx.bookmark_added': 1
-        },
-        filters={'fake_filter': 0}
-    )
-    badge_level_2 = setup_badge(badge_factory, [rule_2, rule_3])
-
-    # first event `edx.course_enroll_event` processing and checking states
-    imitate_signal_dispatch(event_factory, event_configuration_1)
+    imitate_signal_dispatch(event_factory, event_configuration)
 
     achievements = Achievement.objects.all()
-    achievement_rules = AchievementRule.objects.all()
 
-    assert len(achievements) == 1
-    assert len(achievement_rules) == 1
+    # Achievements states
+    assert achievements.count() == 1
+    assert achievements[0].achievement_dependencies[0]['is_achieved'] is True
+    assert achievements[0].achievement_dependencies[0]['events']['edx_bookmark_added']['goal'] == 1
+    assert achievements[0].achievement_dependencies[0]['events']['edx_bookmark_added']['count'] == 1
+    assert achievements[0].all_rules_completed is True
 
-    assert achievements[0].content_object == badge_level_1
-    assert achievement_rules[0].dependencies['events'][event_configuration_1.event_name]['count'] == 1
-    assert achievement_rules[0].dependencies['events'][event_configuration_1.event_name]['goal'] == 1
-    assert achievement_rules[0].status == AchievementRule.Statuses.COMPLETED
+    # Gamma User states
+    gamma_user = GammaUser.objects.get(user_uid='test_gamma_user')
 
-    # second event `gamma.badge_level_1` processing and checking states
-    imitate_signal_dispatch(event_factory, event_configuration_2)
-
-    achievement_badge_level_1 = Achievement.objects.first()
-    achievement_badge_level_2 = Achievement.objects.last()
-    achievement_rules_badge_level_1 = AchievementRule.objects.filter(achievement=achievement_badge_level_1).first()
-    achievement_rules_badge_level_2 = AchievementRule.objects.filter(achievement=achievement_badge_level_2)
-
-    assert achievement_badge_level_1.content_object == badge_level_1
-    assert achievement_badge_level_2.content_object == badge_level_2
-
-    assert achievement_rules_badge_level_1.dependencies['events'][event_configuration_1.event_name]['count'] == 1
-    assert achievement_rules_badge_level_1.dependencies['events'][event_configuration_1.event_name]['goal'] == 1
-    assert achievement_rules_badge_level_1.status == AchievementRule.Statuses.COMPLETED
-
-    assert achievement_rules_badge_level_2[0].status == AchievementRule.Statuses.COMPLETED
-
-    assert achievement_rules_badge_level_2[1].dependencies['events'][event_configuration_3.event_name]['count'] == 0
-    assert achievement_rules_badge_level_2[1].dependencies['events'][event_configuration_3.event_name]['goal'] == 1
-    assert achievement_rules_badge_level_2[1].status == AchievementRule.Statuses.ACTIVE
-
-    # third event `edx.bookmark_added` processing and checking states
-    imitate_signal_dispatch(event_factory, event_configuration_3)
-
-    achievement_badge_level_1.refresh_from_db()
-    achievement_badge_level_2.refresh_from_db()
-    achievement_rules_badge_level_1 = AchievementRule.objects.filter(achievement=achievement_badge_level_1).first()
-    achievement_rules_badge_level_2 = AchievementRule.objects.filter(achievement=achievement_badge_level_2)
-
-    assert achievement_badge_level_1.content_object == badge_level_1
-    assert achievement_badge_level_2.content_object == badge_level_2
-
-    assert achievement_rules_badge_level_1.dependencies['events'][event_configuration_1.event_name]['count'] == 1
-    assert achievement_rules_badge_level_1.dependencies['events'][event_configuration_1.event_name]['goal'] == 1
-    assert achievement_rules_badge_level_1.status == AchievementRule.Statuses.COMPLETED
-
-    assert achievement_rules_badge_level_2[0].status == AchievementRule.Statuses.COMPLETED
-
-    assert achievement_rules_badge_level_2[1].dependencies['events'][event_configuration_3.event_name]['count'] == 1
-    assert achievement_rules_badge_level_2[1].dependencies['events'][event_configuration_3.event_name]['goal'] == 1
-    assert achievement_rules_badge_level_2[1].status == AchievementRule.Statuses.COMPLETED
+    assert gamma_user.points == 1
+    assert gamma_user.chart == expected_gamma_user_chart
+    assert gamma_user.progress == expected_gamma_user_progress
 
 
 @pytest.mark.django_db
-def test_processing_dependent_badges_with_arbitrary_events_receiving(
+@pytest.mark.parametrize('signals_count,expected_status,expected_count,expected_goal,user_points', [
+    (1, False, 1, 3, 1),
+    (2, False, 2, 3, 2),
+    (3, True, 3, 3, 3),
+])
+def test_receiving_badge_one_rule_required_tree_events(
+    signals_count: int,
+    expected_status: bool,
+    expected_count: int,
+    expected_goal: int,
+    user_points: int,
     badge_factory: BadgeFactory,
     event_factory: EventFactory,
     event_type_factory: EventTypeFactory,
     event_configuration_factory: EventConfigurationFactory,
     rule_factory: RuleFactory
-):
-    event_configuration_1 = setup_event_configuration(
-        event_type_factory,
-        event_configuration_factory,
-        event_type_name='edx.course_enroll_event'
-    )
-    rule_1 = setup_rules(
-        rule_factory,
-        event_configuration_1,
-        action={
-            'edx.course_enroll_event': 1
-        },
-        filters={'fake_filter': 0}
-    )
-    badge_level_1 = setup_badge(badge_factory, [rule_1])
+) -> None:
+    """
+    Test Badge with one rule receiving.
 
-    event_configuration_2 = setup_event_configuration(
-        event_type_factory,
-        event_configuration_factory,
-        event_type_name='gamma.badge_level_1',
-        is_depends_on_achievement=True,
-        content_type=ContentType.objects.get_for_model(Badge)
-    )
-    rule_2 = setup_rules(
-        rule_factory,
-        event_configuration_2,
-        action={
-            'gamma.badge_level_1': badge_level_1.id
-        },
-        filters={'fake_filter': 0}
-    )
+    Badge's details:
+        - Badge requires 3 `edx_bookmark_added` events;
+    """
+    event_configuration = setup_event_configuration(event_type_factory, event_configuration_factory)
+    rules = setup_rules(rule_factory, event_configuration, action={'edx_bookmark_added': {'count': 3}})
+    setup_badge(badge_factory, [rules])
 
-    event_configuration_3 = setup_event_configuration(
-        event_type_factory,
-        event_configuration_factory,
-        event_type_name='edx.bookmark_added'
-    )
-    rule_3 = setup_rules(
-        rule_factory,
-        event_configuration_3,
-        action={
-            'edx.bookmark_added': 1
-        },
-        filters={'fake_filter': 0}
-    )
-    badge_level_2 = setup_badge(badge_factory, [rule_2, rule_3])
+    date = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    expected_gamma_user_chart = {
+        'edx_bookmark_added': {'title': f'{event_configuration.title}', 'points': user_points}
+    }
+    expected_gamma_user_progress = {
+        str(date.year): [
+            {'date': date.isoformat(), 'points': user_points}
+        ]
+    }
 
-    event_configuration_4 = setup_event_configuration(
-        event_type_factory,
-        event_configuration_factory,
-        event_type_name='gamma.badge_level_2',
-        is_depends_on_achievement=True,
-        content_type=ContentType.objects.get_for_model(Badge)
-    )
-    rule_4 = setup_rules(
-        rule_factory,
-        event_configuration_4,
-        action={
-            'gamma.badge_level_2': badge_level_2.id
-        },
-        filters={'fake_filter': 0}
-    )
-
-    badge_level_3 = setup_badge(badge_factory, [rule_4])
-
-    # try to process `gamma.badge_level_2` with uncompleted previous rules
-    # which "Is depends on achievement"
-    # we can't receive this `badge_level_3` Achievement
-    imitate_signal_dispatch(event_factory, event_configuration_4)
+    for signal in range(signals_count):
+        imitate_signal_dispatch(event_factory, event_configuration)
 
     achievements = Achievement.objects.all()
-    achievement_rules = AchievementRule.objects.all()
 
-    assert len(achievements) == 1
-    assert len(achievement_rules) == 1
+    # Achievements states
+    assert achievements.count() == 1
+    assert achievements[0].achievement_dependencies[0]['is_achieved'] is expected_status
+    assert achievements[0].achievement_dependencies[0]['events']['edx_bookmark_added']['goal'] == expected_goal
+    assert achievements[0].achievement_dependencies[0]['events']['edx_bookmark_added']['count'] == expected_count
+    assert achievements[0].all_rules_completed is expected_status
 
-    assert achievements[0].content_object == badge_level_3
-    assert achievement_rules[0].status == AchievementRule.Statuses.ACTIVE
+    # Gamma User states
+    gamma_user = GammaUser.objects.get(user_uid='test_gamma_user')
 
-    # dispatch signals step by step
-    imitate_signal_dispatch(event_factory, event_configuration_1)
-    imitate_signal_dispatch(event_factory, event_configuration_2)
-    imitate_signal_dispatch(event_factory, event_configuration_3)
+    assert gamma_user.points == user_points
+    assert gamma_user.chart == expected_gamma_user_chart
+    assert gamma_user.progress == expected_gamma_user_progress
 
-    achievement_rules_for_badge_level_3 = AchievementRule.objects.first()
-    assert achievement_rules_for_badge_level_3.status == AchievementRule.Statuses.ACTIVE
 
-    # dispatch `gamma.badge_level_2` signal again after dependent achievements received
-    imitate_signal_dispatch(event_factory, event_configuration_4)
+@pytest.mark.django_db
+@pytest.mark.parametrize('signals_count,expected_status,all_rules_status,expected_count,expected_goal,user_points', [
+    (1, (True, False, False), False, (1, 1, 1), (1, 3, 5), 3),
+    (2, (True, False, False), False, (1, 2, 2), (1, 3, 5), 6),
+    (3, (True, True, False), False, (1, 3, 3), (1, 3, 5), 9),
+    (4, (True, True, False), False, (1, 3, 4), (1, 3, 5), 12),
+    (5, (True, True, True), True, (1, 3, 5), (1, 3, 5), 15),
+])
+def test_receiving_badge_multiple_rules_required_multiple_events(
+    signals_count: int,
+    expected_status: bool,
+    all_rules_status: bool,
+    expected_count: int,
+    expected_goal: int,
+    user_points: int,
+    badge_factory: BadgeFactory,
+    event_factory: EventFactory,
+    event_type_factory: EventTypeFactory,
+    event_configuration_factory: EventConfigurationFactory,
+    rule_factory: RuleFactory
+) -> None:
+    """
+    Test Badge with multiple rules receiving.
 
-    achievement_rules = AchievementRule.objects.all()
+    Badge's details:
+        - Badge requires 1 `edx_bookmark_added` event;
+        - Badge requires 3 `edx_course_enrollment_activated` events;
+        - Badge requires 5 `problem_graded` events;
+    """
+    event_types = ('edx_bookmark_added', 'edx_course_enrollment_activated', 'problem_graded')
+    event_configuration1 = setup_event_configuration(event_type_factory, event_configuration_factory)
+    event_configuration2 = setup_event_configuration(
+        event_type_factory, event_configuration_factory, event_type_name='edx_course_enrollment_activated'
+    )
+    event_configuration3 = setup_event_configuration(
+        event_type_factory, event_configuration_factory, event_type_name='problem_graded'
+    )
+    rule1 = setup_rules(rule_factory, event_configuration1, action={'edx_bookmark_added': {'count': 1}})
+    rule2 = setup_rules(rule_factory, event_configuration2, action={'edx_course_enrollment_activated': {'count': 3}})
+    rule3 = setup_rules(rule_factory, event_configuration3, action={'problem_graded': {'count': 5}})
+    setup_badge(badge_factory, [rule1, rule2, rule3])
 
-    for achievement_rule in achievement_rules:
-        assert achievement_rule.status == AchievementRule.Statuses.COMPLETED
+    date = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    expected_gamma_user_chart = {
+        'edx_bookmark_added': {'title': f'{event_configuration1.title}', 'points': user_points / 3},
+        'edx_course_enrollment_activated': {'title': f'{event_configuration2.title}', 'points': user_points / 3},
+        'problem_graded': {'title': f'{event_configuration3.title}', 'points': user_points / 3}
+    }
+    expected_gamma_user_progress = {
+        str(date.year): [
+            {'date': date.isoformat(), 'points': user_points}
+        ]
+    }
+
+    for signal in range(signals_count):
+        imitate_signal_dispatch(event_factory, event_configuration1)
+        imitate_signal_dispatch(event_factory, event_configuration2)
+        imitate_signal_dispatch(event_factory, event_configuration3)
+
+    achievements = Achievement.objects.all()
+
+    # Achievements states
+    assert achievements.count() == 1
+    assert achievements[0].all_rules_completed is all_rules_status
+
+    for counter, dependency in enumerate(achievements[0].achievement_dependencies):
+        assert dependency['is_achieved'] is expected_status[counter]
+        assert dependency['events'][event_types[counter]]['goal'] == expected_goal[counter]
+        assert dependency['events'][event_types[counter]]['count'] == expected_count[counter]
+
+    # Gamma User states
+    gamma_user = GammaUser.objects.get(user_uid='test_gamma_user')
+
+    assert gamma_user.points == user_points
+    assert gamma_user.chart == expected_gamma_user_chart
+    assert gamma_user.progress == expected_gamma_user_progress
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize('signals_count,expected_status,all_rules_status,expected_count,expected_goal,user_points', [
+    (1, (True, False, False), (True, False, False), (1, 1, 1), (1, 3, 5), 1),
+    (2, (True, False, False), (True, False, False), (1, 2, 2), (1, 3, 5), 2),
+    (3, (True, True, False), (True, True, False), (1, 3, 3), (1, 3, 5), 3),
+    (4, (True, True, False), (True, True, False), (1, 3, 4), (1, 3, 5), 4),
+    (5, (True, True, True), (True, True, True), (1, 3, 5), (1, 3, 5), 5),
+])
+def test_receiving_multiple_badges_with_one_rule_for_each(
+    signals_count: int,
+    expected_status: bool,
+    all_rules_status: bool,
+    expected_count: int,
+    expected_goal: int,
+    user_points: int,
+    badge_factory: BadgeFactory,
+    event_factory: EventFactory,
+    event_type_factory: EventTypeFactory,
+    event_configuration_factory: EventConfigurationFactory,
+    rule_factory: RuleFactory
+) -> None:
+    """
+    Test multiple Badges receiving.
+
+    Badges details:
+        - Badge 1 requires 1 `edx_bookmark_added` event;
+        - Badge 2 requires 3 `edx_bookmark_added` events;
+        - Badge 3 requires 5 `edx_bookmark_added` events;
+    """
+    event_configuration = setup_event_configuration(event_type_factory, event_configuration_factory)
+    rule1 = setup_rules(rule_factory, event_configuration, action={'edx_bookmark_added': {'count': 1}})
+    rule2 = setup_rules(rule_factory, event_configuration, action={'edx_bookmark_added': {'count': 3}})
+    rule3 = setup_rules(rule_factory, event_configuration, action={'edx_bookmark_added': {'count': 5}})
+    setup_badge(badge_factory, [rule1])
+    setup_badge(badge_factory, [rule2])
+    setup_badge(badge_factory, [rule3])
+
+    date = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    expected_gamma_user_chart = {
+        'edx_bookmark_added': {'title': f'{event_configuration.title}', 'points': user_points}
+    }
+    expected_gamma_user_progress = {
+        str(date.year): [
+            {'date': date.isoformat(), 'points': user_points}
+        ]
+    }
+
+    for signal in range(signals_count):
+        imitate_signal_dispatch(event_factory, event_configuration)
+
+    achievements = Achievement.objects.all()
+
+    # Achievements states
+    assert achievements.count() == 3
+
+    for counter, achievement in enumerate(achievements):
+        assert achievement.achievement_dependencies[0]['is_achieved'] is expected_status[counter]
+        assert (
+            achievement.achievement_dependencies[0]['events']['edx_bookmark_added']['goal']
+            == expected_goal[counter]
+        )
+        assert (
+            achievement.achievement_dependencies[0]['events']['edx_bookmark_added']['count']
+            == expected_count[counter]
+        )
+        assert achievement.all_rules_completed is all_rules_status[counter]
+
+    # Gamma User states
+    gamma_user = GammaUser.objects.get(user_uid='test_gamma_user')
+
+    assert gamma_user.points == user_points
+    assert gamma_user.chart == expected_gamma_user_chart
+    assert gamma_user.progress == expected_gamma_user_progress
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize('signals_count,expected_status,all_rules_status,expected_count,expected_goal,user_points', [
+    (
+        1,
+        ((True, True, True), (False, False, False), (False, False, False)),
+        (True, False, False),
+        ((1, 1, 1), (1, 1, 1), (1, 1, 1)),
+        ((1, 1, 1), (3, 3, 3), (5, 5, 5)),
+        3
+    ),
+    (
+        2,
+        ((True, True, True), (False, False, False), (False, False, False)),
+        (True, False, False),
+        ((1, 1, 1), (2, 2, 2), (2, 2, 2)),
+        ((1, 1, 1), (3, 3, 3), (5, 5, 5)),
+        6
+    ),
+    (
+        3,
+        ((True, True, True), (True, True, True), (False, False, False)),
+        (True, True, False),
+        ((1, 1, 1), (3, 3, 3), (3, 3, 3)),
+        ((1, 1, 1), (3, 3, 3), (5, 5, 5)),
+        9
+    ),
+    (
+        4,
+        ((True, True, True), (True, True, True), (False, False, False)),
+        (True, True, False),
+        ((1, 1, 1), (3, 3, 3), (4, 4, 4)),
+        ((1, 1, 1), (3, 3, 3), (5, 5, 5)),
+        12
+    ),
+    (
+        5,
+        ((True, True, True), (True, True, True), (True, True, True)),
+        (True, True, True),
+        ((1, 1, 1), (3, 3, 3), (5, 5, 5)),
+        ((1, 1, 1), (3, 3, 3), (5, 5, 5)),
+        15
+    ),
+])
+def test_receiving_multiple_badges_with_multiple_rules_for_each(
+    signals_count: int,
+    expected_status: bool,
+    all_rules_status: bool,
+    expected_count: int,
+    expected_goal: int,
+    user_points: int,
+    badge_factory: BadgeFactory,
+    event_factory: EventFactory,
+    event_type_factory: EventTypeFactory,
+    event_configuration_factory: EventConfigurationFactory,
+    rule_factory: RuleFactory
+) -> None:
+    """
+    Test multiple Badges with multiple rules receiving.
+
+    Badges details:
+        - Badge 1 requires ony by one events: `edx_course_enrollment_activated`,
+            `edx_bookmark_added`, `problem_graded`;
+        - Badge 2 requires three by three events: `edx_course_enrollment_activated`,
+            `edx_bookmark_added`, `problem_graded`;
+        - Badge 3 requires five by five events: `edx_course_enrollment_activated`,
+            `edx_bookmark_added`, `problem_graded`;
+    """
+    event_types = ('edx_course_enrollment_activated', 'edx_bookmark_added', 'problem_graded')
+    event_configuration_bookmark = setup_event_configuration(event_type_factory, event_configuration_factory)
+    event_configuration_enrollment = setup_event_configuration(
+        event_type_factory, event_configuration_factory, event_type_name='edx_course_enrollment_activated'
+    )
+    event_configuration_problem_graded = setup_event_configuration(
+        event_type_factory, event_configuration_factory, event_type_name='problem_graded'
+    )
+
+    rule_enrollment_1 = setup_rules(
+        rule_factory, event_configuration_enrollment, action={'edx_course_enrollment_activated': {'count': 1}}
+    )
+    rule_enrollment_3 = setup_rules(
+        rule_factory, event_configuration_enrollment, action={'edx_course_enrollment_activated': {'count': 3}}
+    )
+    rule_enrollment_5 = setup_rules(
+        rule_factory, event_configuration_enrollment, action={'edx_course_enrollment_activated': {'count': 5}}
+    )
+    rule_bookmark_1 = setup_rules(
+        rule_factory, event_configuration_bookmark, action={'edx_bookmark_added': {'count': 1}}
+    )
+    rule_bookmark_3 = setup_rules(
+        rule_factory, event_configuration_bookmark, action={'edx_bookmark_added': {'count': 3}}
+    )
+    rule_bookmark_5 = setup_rules(
+        rule_factory, event_configuration_bookmark, action={'edx_bookmark_added': {'count': 5}}
+    )
+    rule_problem_graded_1 = setup_rules(
+        rule_factory, event_configuration_problem_graded, action={'problem_graded': {'count': 1}}
+    )
+    rule_problem_graded_3 = setup_rules(
+        rule_factory, event_configuration_problem_graded, action={'problem_graded': {'count': 3}}
+    )
+    rule_problem_graded_5 = setup_rules(
+        rule_factory, event_configuration_problem_graded, action={'problem_graded': {'count': 5}}
+    )
+
+    setup_badge(badge_factory, [rule_enrollment_1, rule_bookmark_1, rule_problem_graded_1])
+    setup_badge(badge_factory, [rule_enrollment_3, rule_bookmark_3, rule_problem_graded_3])
+    setup_badge(badge_factory, [rule_enrollment_5, rule_bookmark_5, rule_problem_graded_5])
+
+    date = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    expected_gamma_user_chart = {
+        'edx_course_enrollment_activated': {
+            'title': f'{event_configuration_enrollment.title}', 'points': user_points / 3
+        },
+        'edx_bookmark_added': {'title': f'{event_configuration_bookmark.title}', 'points': user_points / 3},
+        'problem_graded': {'title': f'{event_configuration_problem_graded.title}', 'points': user_points / 3}
+    }
+    expected_gamma_user_progress = {
+        str(date.year): [
+            {'date': date.isoformat(), 'points': user_points}
+        ]
+    }
+
+    for signal in range(signals_count):
+        imitate_signal_dispatch(event_factory, event_configuration_enrollment)
+        imitate_signal_dispatch(event_factory, event_configuration_bookmark)
+        imitate_signal_dispatch(event_factory, event_configuration_problem_graded)
+
+    achievements = Achievement.objects.all()
+
+    # Achievements states
+    assert achievements.count() == 3
+
+    for i, achievement in enumerate(achievements):
+        assert achievement.all_rules_completed is all_rules_status[i]
+
+        for j, dependency in enumerate(achievement.achievement_dependencies):
+            assert dependency['is_achieved'] is expected_status[i][j]
+            assert dependency['events'][event_types[j]]['goal'] == expected_goal[i][j]
+            assert dependency['events'][event_types[j]]['count'] == expected_count[i][j]
+
+    # Gamma User states
+    gamma_user = GammaUser.objects.get(user_uid='test_gamma_user')
+
+    assert gamma_user.points == user_points
+    assert gamma_user.chart == expected_gamma_user_chart
+    assert gamma_user.progress == expected_gamma_user_progress
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize('signals_count,expected_status,all_rules_status,expected_count,expected_goal,user_points', [
+    (1, (True, False, False), (True, False, False), (1, 1, 1), (1, 3, 5), 1),
+    (2, (True, False, False), (True, False, False), (1, 2, 2), (1, 3, 5), 2),
+    (3, (True, True, False), (True, True, False), (1, 3, 3), (1, 3, 5), 3),
+    (4, (True, True, False), (True, True, False), (1, 3, 4), (1, 3, 5), 4),
+    (5, (True, True, True), (True, True, True), (1, 3, 5), (1, 3, 5), 5),
+])
+def test_receiving_multiple_badges_for_two_users(
+    signals_count: int,
+    expected_status: bool,
+    all_rules_status: bool,
+    expected_count: int,
+    expected_goal: int,
+    user_points: int,
+    badge_factory: BadgeFactory,
+    event_factory: EventFactory,
+    event_type_factory: EventTypeFactory,
+    event_configuration_factory: EventConfigurationFactory,
+    rule_factory: RuleFactory
+) -> None:
+    """
+    Test multiple Badges receiving.
+
+    Badges details:
+        - Badge 1 requires 1 `edx_bookmark_added` event;
+        - Badge 2 requires 3 `edx_bookmark_added` events;
+        - Badge 3 requires 5 `edx_bookmark_added` events;
+    """
+    event_configuration = setup_event_configuration(event_type_factory, event_configuration_factory)
+    rule1 = setup_rules(rule_factory, event_configuration, action={'edx_bookmark_added': {'count': 1}})
+    rule2 = setup_rules(rule_factory, event_configuration, action={'edx_bookmark_added': {'count': 3}})
+    rule3 = setup_rules(rule_factory, event_configuration, action={'edx_bookmark_added': {'count': 5}})
+    setup_badge(badge_factory, [rule1])
+    setup_badge(badge_factory, [rule2])
+    setup_badge(badge_factory, [rule3])
+    first_user = 'first_user'
+    second_user = 'second_user'
+
+    date = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    expected_gamma_user_chart = {
+        'edx_bookmark_added': {'title': f'{event_configuration.title}', 'points': user_points}
+    }
+    expected_gamma_user_progress = {
+        str(date.year): [
+            {'date': date.isoformat(), 'points': user_points}
+        ]
+    }
+
+    for signal in range(signals_count):
+        imitate_signal_dispatch(event_factory, event_configuration, username=first_user)
+        imitate_signal_dispatch(event_factory, event_configuration, username=second_user)
+
+    achievements_first_user = Achievement.objects.filter(user__user_uid=first_user)
+    achievements_second_user = Achievement.objects.filter(user__user_uid=second_user)
+
+    # Achievements states for the `first_user`
+    assert achievements_first_user.count() == 3
+
+    for counter, achievement in enumerate(achievements_first_user):
+        assert achievement.achievement_dependencies[0]['is_achieved'] is expected_status[counter]
+        assert (
+            achievement.achievement_dependencies[0]['events']['edx_bookmark_added']['goal']
+            == expected_goal[counter]
+        )
+        assert (
+            achievement.achievement_dependencies[0]['events']['edx_bookmark_added']['count']
+            == expected_count[counter]
+        )
+        assert achievement.all_rules_completed is all_rules_status[counter]
+
+    # Achievements states for the `second_user`
+    assert achievements_first_user.count() == 3
+
+    for counter, achievement in enumerate(achievements_second_user):
+        assert achievement.achievement_dependencies[0]['is_achieved'] is expected_status[counter]
+        assert (
+            achievement.achievement_dependencies[0]['events']['edx_bookmark_added']['goal']
+            == expected_goal[counter]
+        )
+        assert (
+            achievement.achievement_dependencies[0]['events']['edx_bookmark_added']['count']
+            == expected_count[counter]
+        )
+        assert achievement.all_rules_completed is all_rules_status[counter]
+
+    # Gamma User states
+    gamma_users = GammaUser.objects.all()
+
+    for gamma_user in gamma_users:
+        assert gamma_user.points == user_points
+        assert gamma_user.chart == expected_gamma_user_chart
+        assert gamma_user.progress == expected_gamma_user_progress

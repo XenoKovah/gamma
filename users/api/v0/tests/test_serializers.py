@@ -12,7 +12,6 @@ class TestUserGameProfileSerializer:
     Test Case for the testing UserGameProfileSerializer.
     """
 
-    @pytest.mark.skip(reason='Temporarily skipped due to refactoring')
     def test_serialized_data(
         self,
         avatar_set_factory,
@@ -37,6 +36,12 @@ class TestUserGameProfileSerializer:
         )
 
         expected_data = {
+            'user_profile': {
+                'id': user.id,
+                'user_uid': user.user_uid,
+                'username': user.username,
+                'signup_source': user.signup_source
+            },
             'avatar_sets': [
                 OrderedDict([
                     ('id', avatar_set.id),
