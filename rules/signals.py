@@ -1,9 +1,7 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from achievements.models import AchievementRule
 from core.utils import get_gamification_backends
-from events.enums import RggInternalEventTypes
 from events.models import Event, EventConfiguration
 from rules.models import Rule
 from rules.services import RulesFilterService
@@ -33,6 +31,6 @@ def process_event_creation(sender, instance, created, **kwargs):
         for backend in get_gamification_backends():
             backend.process_achievement(rule, event, user)
 
-    # To avoid recursion we limit the calls.
-    if not configuration in EventConfiguration.objects.filter(event_type__name__in=RggInternalEventTypes.get_all()):
+    # To avoid recursion we limit the calls only for common events.
+    if configuration.event_name in EventConfiguration.common_event_names():
         user.run_update_user_pipeline(event)

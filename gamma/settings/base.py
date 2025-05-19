@@ -1,8 +1,4 @@
-import os
-from os import environ, path
-from distutils.util import strtobool
-
-from django.utils.translation import ugettext_lazy as _
+from os import path
 
 from .edx_platform import *  # pylint: disable=wildcard-import
 
@@ -33,21 +29,19 @@ INSTALLED_APPS = [
     'social_django',
 
     # Local apps
-    'users',
-    'core',
     'achievements',
-    'api',
-    'googlecharts',
     'avatars',
+    'badges',
+    'core',
+    'courseware',
+    'events',
+    'googlecharts',
+    'leaderboard',
+    'rules',
+    'users',
 
     'corsheaders',
-
     'webpack_loader',
-    'events',
-    'rules',
-
-    'badges',
-    'leaderboard',
 ]
 
 
@@ -129,15 +123,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
-
-LANGUAGES = (
-    ('en', _('English')),
-    ('zh-cn', _('Chinese (China)')),
-)
-
-LOCALE_PATHS = (
-    os.path.join(BASE_DIR, 'locale'),
-)
 
 STATIC_URL = '/static/'
 STATIC_ROOT = path.join(BASE_DIR, 'static')
@@ -230,11 +215,6 @@ WEBPACK_LOADER = {
         'IGNORE': [r'.+\.hot-update.js', r'.+\.map']
     }
 }
-
-STORE_RELATIVE_URLS            = strtobool(environ.get('STORE_RELATIVE_URLS', 'True'))
-ONESIGNAL_NOTIFICATION_ENABLED = strtobool(environ.get('ONESIGNAL_NOTIFICATION_ENABLED', 'False'))
-
-EDX_NOTIF_FORMAT_FUNC = environ.get('EDX_NOTIF_FORMAT_FUNC', 'core.notif.formatters.json_formatter')
 
 LEADERBOARD_INITIALIZATION_BATCH_SIZE = environ.get('LEADERBOARD_INITIALIZATION_BATCH_SIZE', 100)
 

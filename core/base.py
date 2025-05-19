@@ -9,7 +9,6 @@ class AchievementBackend(ABC):
     """
     Represents abstract class for achievement backends.
     """
-    NAME = None
 
     @abstractmethod
     def process_achievement(self, rule: Rule, event: Event, user: GammaUser) -> None:

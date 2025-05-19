@@ -19,8 +19,6 @@ class BadgeBackend(AchievementBackend):
     Define methods for creating draft achievements tied to specific badges based on rules and events.
     """
 
-    NAME = 'badge'
-
     def process_achievement(self, rule: Rule, event: Event, user: GammaUser):
         badges = Badge.objects.filter(rules=rule).prefetch_related('rules')
 

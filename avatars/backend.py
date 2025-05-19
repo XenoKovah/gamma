@@ -21,8 +21,6 @@ class AvatarBackend(AchievementBackend):
     Define methods for creating draft achievements tied to specific avatars based on rules and events.
     """
 
-    NAME = 'avatar'
-
     def process_achievement(self, rule: Rule, event: Event, user: GammaUser):
         avatars = Avatar.objects.filter(rules=rule).prefetch_related('rules')
 

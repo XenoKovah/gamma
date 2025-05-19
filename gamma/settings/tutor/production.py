@@ -1,10 +1,6 @@
 from ..production import *
 
 
-
-# hardcoded for gammification dashboard and leaderboard to properly use the media urls
-STORE_RELATIVE_URLS = False
-
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
@@ -28,14 +24,7 @@ CACHES = {
     }
 }
 
-MONGO_URL = "mongodb://mongodb:27017/"
-MONGO_DATABASE = "gamma_data"
-
 EDX_LMS_BASE_URL = "http://lms:8000"
 EDX_API_KEY = "ktS2WdkPHgwyf4cq8yhujhvx"
 
 CELERY_BROKER_URL = "redis://redis:6379/3"
-
-
-
-

@@ -1,12 +1,10 @@
 from typing import List, Optional
-from uuid import uuid4
 
-from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 
-from events.constants import COLOR_CHOOCES, NOTIFICATION_MESSAGE_HELP_TEXT
+from events.enums import RggInternalEventTypes
 from events.utils import uid_generator
 
 
@@ -33,20 +31,7 @@ class EventConfiguration(models.Model):
     event_type = models.OneToOneField('events.EventType', on_delete=models.CASCADE, related_name='configuration')
     title = models.CharField(max_length=32, blank=True)
 
-    is_depends_on_achievement = models.BooleanField(
-        default=False,
-        help_text=_('Indicates whether the event is used to validate achievement dependencies')
-    )
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True, blank=True)
-
-    # TODO: Should be refactored as part of user's avatar.
     award = models.PositiveSmallIntegerField(verbose_name=_('Points to award'))
-    color = models.PositiveSmallIntegerField(choices=COLOR_CHOOCES, default=1)
-    notification_message = models.CharField(
-        max_length=128,
-        default=_('You have got {} point.'),
-        help_text=_(NOTIFICATION_MESSAGE_HELP_TEXT)
-    )
 
     def __str__(self):
         return f'Configuration for event {self.event_type.name!r}'
@@ -56,25 +41,40 @@ class EventConfiguration(models.Model):
         return self.event_type.name
 
     @classmethod
-    def all_event_names(cls, is_achievement_dependent: Optional[bool] = None) -> List[str]:
+    def _get_event_names(cls, internal_only: Optional[bool] = None) -> List[str]:
         """
-        Returns all available event names.
+        Retrieve a list of event names filtered by their internal status.
         """
-        queryset = cls.objects.all()
+        internal_events = RggInternalEventTypes.get_all()
+        qs = cls.objects.all()
 
-        if is_achievement_dependent is not None:
-            queryset = queryset.filter(is_depends_on_achievement=is_achievement_dependent)
+        if internal_only is True:
+            qs = qs.filter(event_type__name__in=internal_events)
+        elif internal_only is False:
+            qs = qs.exclude(event_type__name__in=internal_events)
 
-        return list(queryset.values_list('event_type__name', flat=True))
+        return list(qs.values_list('event_type__name', flat=True))
 
     @classmethod
-    def available_common_event_names(cls) -> List[str]:
+    def all_event_names(cls) -> List[str]:
         """
-        Return event names that are NOT used for achievement generation.
+        Return all event names.
+        """
+        return cls._get_event_names()
 
-        Example: 'edx_course_enrollment_activated', 'edx_bookmark_added'.
+    @classmethod
+    def rgg_internal_event_names(cls) -> List[str]:
         """
-        return cls.all_event_names(False)
+        Return only internal rgg event names.
+        """
+        return cls._get_event_names(internal_only=True)
+
+    @classmethod
+    def common_event_names(cls) -> List[str]:
+        """
+        Return only common edx event names.
+        """
+        return cls._get_event_names(internal_only=False)
 
 
 class Event(models.Model):

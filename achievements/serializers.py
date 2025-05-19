@@ -3,6 +3,7 @@ from rest_framework import serializers
 from achievements.models import Achievement
 from badges.models import Badge
 
+
 class AchievementDetailSerializer(serializers.ModelSerializer):
     """
     Serializer for receiving achievement details.

@@ -16,11 +16,10 @@ Including another URLconf
 
 from auth_backends.urls import oauth2_urlpatterns
 from django.conf import settings
-from django.urls import include, path
 from django.conf.urls.static import static
-from django.views.generic.base import TemplateView
-from django.views.i18n import JavaScriptCatalog
 from django.contrib import admin
+from django.urls import include, path
+from django.views.i18n import JavaScriptCatalog
 
 from core.views import DashboardView, logout_view
 from gamma.views import GammaView
@@ -30,6 +29,8 @@ urlpatterns = oauth2_urlpatterns + [
     # Dashboard page (will be redirected to `/gamma/avatars/`)
     path('', DashboardView.as_view()),
 
+    path('logout/', logout_view, name='logout'),
+
     # Native admin page
     path('admin/', admin.site.urls),
 
@@ -38,20 +39,13 @@ urlpatterns = oauth2_urlpatterns + [
     # Django Rest Framework
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
-    path('logout/', logout_view, name='logout'),
-
-    # API
-    path('api/', include(('api.urls', 'api'), namespace='api')),
-
-    path('badges/', TemplateView.as_view(template_name='badges.html')),
-
-    path('api/', include('badges.urls')),
-    path('api/', include('events.urls')),
-    path('api/', include('avatars.urls')),
-    path('api/', include('users.urls')),
-    path('api/', include('leaderboard.urls')),
+    path('', include('avatars.urls')),
+    path('', include('badges.urls')),
+    path('', include('courseware.urls')),
+    path('', include('events.urls')),
+    path('', include('leaderboard.urls')),
+    path('', include('users.urls')),
 
     # Gamma React routes
     path('gamma/<path:subpath>/', GammaView.as_view(), name='gamma_react_app'),
-
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

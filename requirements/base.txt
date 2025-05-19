@@ -3,7 +3,6 @@ Django>=3.2,<4.0
 djangorestframework==3.14.0
 django-cors-headers==3.2.0
 
-pymongo==3.10.1
 motor==2.1.0
 dnspython3==1.15.0
 psycopg2-binary==2.9.7
@@ -17,7 +16,6 @@ django-google-charts==0.1.1
 django-qsstats-magic==1.0.0
 drf-extra-fields==3.7.0
 
-
 python-dateutil==2.8.1
 
 gunicorn==20.0.4
@@ -26,7 +24,6 @@ uvicorn==0.10.8
 requests==2.22.0
 
 django-redis-cache==2.1.0
-mongo-tools==0.0.2
 
 awesome-slugify==1.6.5
 
@@ -34,10 +31,6 @@ awesome-slugify==1.6.5
 django-webpack-loader==0.6.0
 
 schematics~=2.1.0
-
-# push providers
-onesignal-sdk==1.1.0
-
 
 # sentry
 sentry-sdk==0.15.1

@@ -123,11 +123,6 @@ DB_PORT=5432
 # For devstack use DJANGO_SETTINGS_MODULE=gamma.settings.devstack
 DJANGO_SETTINGS_MODULE=gamma.settings.production
 
-# React
-# Optional react backend base url
-# For local deployment we can use REACT_APP_LOCALHOST=http://0.0.0.0:9000
-REACT_APP_LOCALHOST=
-
 # EDX integrarion
 EDX_LMS_BASE_URL=<edx_lms_base_url>
 # For local deployment the default setting is EDX_API_KEY="PUT_YOUR_API_KEY_HERE"
@@ -147,40 +142,6 @@ IP address in the EDX_LMS_BASE_URL setting must be your private IP address. You 
 here: https://www.avg.com/en/signal/find-ip-address. For example, the value may be http://192.168.140.191:18000.  
 Note that the private ip can be changed because it is issued by a router, so it will be necessary to change this setting
 in the future.
-
-Run loadtests
----
-
-1. export all needed env variables:
-```
-export APP_KEY=****************
-export APP_SECRET=****************
-export EVENT_TYPE=edx_bookmark_added
-```
-
-2. Create virtualenv
-```
-mkvirtualenv gamma --python=python3.8
-pip install -r requirements/test.txt
-```
-
-Currently only one event type is supported.
-
-3. Run locust
-```
-locust --host=http://localhost:9000 -f loadtests/locustfile.py
-```
-
-or use Makefile
-
-```
-make loadtests
-```
-
-4. Open url http://localhost:8089
-
-5. Start tests
-
 
 Run Python tests for Local Development
 ---

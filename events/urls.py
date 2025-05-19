@@ -1,5 +1,6 @@
-from django.urls import path, include
+from django.urls import include, path
 
+app_name = 'events'
 urlpatterns = [
-    path('v0/', include('events.api.v0.urls')),
+    path('api/', include(('events.api.urls', 'events'), namespace='api')),
 ]

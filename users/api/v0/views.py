@@ -1,14 +1,16 @@
 from rest_framework import status
 from rest_framework.views import APIView
+from rest_framework.request import Request
 from rest_framework.response import Response
 
 from core.authentication import KeySecretAuthentication
-from core.utils import AppClientUtils
 from users.api.v0.serializers import UserGameProfileSerializer
 from users.models import GammaUser
+from users.serializers import GammaUsersSignupSourceSerializer
+from users.usecases import SignupSourceUpdateUseCase
 
 
-class UserGameProfileView(APIView, AppClientUtils):
+class UserGameProfileView(APIView):
     """
     User's Game Profile API view.
     """
@@ -26,3 +28,17 @@ class UserGameProfileView(APIView, AppClientUtils):
         serializer = UserGameProfileSerializer(instance=gamma_user, context={'user_uid': user_uid})
 
         return Response(serializer.data)
+
+
+class SignupSourceUpdateView(APIView):
+    """
+    Gamma users signup source bulk update API view.
+    """
+
+    def post(self, request: Request) -> Response:
+        serializer = GammaUsersSignupSourceSerializer(data=request.data)
+        serializer.is_valid()
+
+        updated_user_count = SignupSourceUpdateUseCase().execute(serializer.validated_data)
+
+        return Response({'count': updated_user_count}, status=status.HTTP_200_OK)

@@ -55,13 +55,6 @@ class Rule(TimestampModelMixin, models.Model):
         """
         return self.event_configuration.event_name in self.action
 
-    @property
-    def event_content_type(self) -> str:
-        """
-        Return the content type (related to the dependent badges) of the event configuration.
-        """
-        return self.event_configuration.content_type
-
     @classmethod
     def ensure_rule_is_created_from_data(cls, rule_data):
         """

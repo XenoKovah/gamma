@@ -33,7 +33,7 @@ class EventProcessorFactory:
         if event_name in TRACKING_EVENT_PROCESSORS_MAP:
             return TRACKING_EVENT_PROCESSORS_MAP[event_name]()
 
-        if event_name in EventConfiguration.available_common_event_names():
+        if event_name in EventConfiguration.common_event_names():
             return CommonEventProcessor()
 
         raise ValueError(f'Unknown event: {event_name}.')
@@ -60,7 +60,6 @@ class BaseEventProcessor(ABC):
 
         It can be customized for a specific event.
         """
-        pass
 
     def can_process(self, action: dict) -> bool:
         """

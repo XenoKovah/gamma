@@ -56,7 +56,6 @@ class AvatarSet(TimestampModelMixin, models.Model):
 
     title = models.CharField(max_length=255, null=True, blank=True, verbose_name=_('Avatar Set Title'))
     avatars = models.ManyToManyField(Avatar, blank=True, verbose_name=_('Avatars'))
-    use_in_courses = models.JSONField(default=list)
     is_draft = models.BooleanField(default=True)
 
     def __str__(self):

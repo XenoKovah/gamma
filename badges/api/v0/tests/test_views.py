@@ -10,14 +10,14 @@ class TestBadgeViewSet:
 
     def test_get_badge_list(self, client, badge_factory):
         badge_factory.create_batch(3)
-        response = client.get(reverse_lazy('badge-list'))
+        response = client.get(reverse_lazy('badges:api:v0:badge-list'))
 
         assert response.status_code == status.HTTP_200_OK
         assert len(response.json()) == 3
 
     def test_get_badge_detail(self, client, badge_factory):
         badge = badge_factory()
-        url = reverse_lazy('badge-detail', kwargs={'pk': badge.id})
+        url = reverse_lazy('badges:api:v0:badge-detail', kwargs={'pk': badge.id})
         response = client.get(url)
 
         assert response.status_code == status.HTTP_200_OK

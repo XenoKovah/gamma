@@ -30,9 +30,6 @@ module.exports = [
         ],
       },
     ],
-    use_in_courses: [
-      'test',
-    ],
     is_draft: true,
     created_at: '2025-03-10T20:21:48.787907Z',
   },
@@ -53,9 +50,6 @@ module.exports = [
           },
         ],
       },
-    ],
-    use_in_courses: [
-      'test',
     ],
     is_draft: true,
     created_at: '2025-03-11T20:21:48.787907Z',
@@ -78,9 +72,6 @@ module.exports = [
         ],
       },
     ],
-    use_in_courses: [
-      'test',
-    ],
     is_draft: true,
     created_at: '2025-03-12T20:21:48.787907Z',
   },
@@ -102,9 +93,6 @@ module.exports = [
         ],
       },
     ],
-    use_in_courses: [
-      'test',
-    ],
     is_draft: true,
     created_at: '2025-03-13T20:21:48.787907Z',
   },
@@ -112,9 +100,6 @@ module.exports = [
     id: 16,
     title: 'Avatar Set 5',
     avatars: [],
-    use_in_courses: [
-      'test',
-    ],
     is_draft: true,
     created_at: '2025-03-14T20:21:48.787907Z',
   },
@@ -135,9 +120,6 @@ module.exports = [
           },
         ],
       },
-    ],
-    use_in_courses: [
-      'test',
     ],
     is_draft: true,
     created_at: '2025-03-15T20:21:48.787907Z',
@@ -160,9 +142,6 @@ module.exports = [
         ],
       },
     ],
-    use_in_courses: [
-      'test',
-    ],
     is_draft: true,
     created_at: '2025-03-16T20:21:48.787907Z',
   },
@@ -170,9 +149,6 @@ module.exports = [
     id: 19,
     title: 'Avatar Set 8',
     avatars: [],
-    use_in_courses: [
-      'Avatar Set 1',
-    ],
     is_draft: true,
     created_at: '2025-03-17T20:21:48.787907Z',
   },

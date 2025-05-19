@@ -40,7 +40,7 @@ class TestUserGameProfileSerializer:
                 'id': user.id,
                 'user_uid': user.user_uid,
                 'username': user.username,
-                'signup_source': user.signup_source
+                'signup_source': user.signup_source,
             },
             'avatar_sets': [
                 OrderedDict([
@@ -67,7 +67,6 @@ class TestUserGameProfileSerializer:
                              ('created_at', avatar_stage_2.created_at.isoformat().replace('+00:00', 'Z'))
                          ])
                      ]),
-                    ('use_in_courses', avatar_set.use_in_courses),
                     ('is_draft', avatar_set.is_draft),
                     ('created_at', avatar_set.created_at.isoformat().replace('+00:00', 'Z'))
                 ])

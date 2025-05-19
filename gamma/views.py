@@ -14,4 +14,5 @@ class GammaView(AdminPermissionMixin, TemplateView):
     Attributes:
         template_name (str): The path to the template containing the React application.
     """
+
     template_name = 'gamma-app/gamma.html'

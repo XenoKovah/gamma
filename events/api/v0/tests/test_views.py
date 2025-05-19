@@ -2,7 +2,6 @@ import pytest
 from django.urls import reverse_lazy
 from rest_framework import status
 
-from core.utils import AppClientUtils
 from events.models import Event
 
 pytestmark = pytest.mark.django_db
@@ -13,7 +12,7 @@ class TestEventsAPI:
     Test suite for creating an event via the 'EventsAPIView' view.
     """
 
-    endpoint = reverse_lazy('events')
+    endpoint = reverse_lazy('events:api:v0:events')
 
     def test_create_event_valid(self, auth_client, event_request_data):
         response = auth_client.post(self.endpoint, event_request_data)
@@ -48,8 +47,9 @@ class TestEventsAPI:
     def test_create_event_already_exists(self, auth_client, event_request_data, event_factory, mocker):
         mock_client_uid = 'mock_client_uid'
 
-        mock_app_client = mocker.MagicMock(uid=mock_client_uid)
-        mocker.patch.object(AppClientUtils, 'get_app_client', return_value=mock_app_client)
+        mock_app_client = mocker.MagicMock()
+        mock_app_client.name = mock_client_uid
+        mocker.patch('core.authentication.AppClient.objects.get', return_value=mock_app_client)
 
         event = event_factory(client=mock_client_uid)
         event_request_data['uid'] = event.uid
@@ -70,7 +70,7 @@ class TestAvailableActionsAPI:
     Test suite for get list of available actions to setup rules.
     """
 
-    endpoint = reverse_lazy('available-actions')
+    endpoint = reverse_lazy('events:api:v0:available-actions')
 
     @pytest.mark.parametrize(
         'event_name, expected_schema, title',

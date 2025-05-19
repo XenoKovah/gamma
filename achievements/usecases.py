@@ -126,12 +126,10 @@ class CreateUserAchievementBasedOnEventUseCase(UseCase):
         """
         Create a single achievement rule and check if it should be marked as completed.
         """
-        event_configuration = EventConfiguration.objects.get(id=rule.event_configuration_id)
         return AchievementRule.objects.create(
             achievement=achievement,
             rule=rule,
             status=AchievementRule.Statuses.ACTIVE,
-            points=event_configuration.award,
             dependencies={},
         )
 

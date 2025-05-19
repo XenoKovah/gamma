@@ -95,12 +95,8 @@ Tests:
     - master
     - merge_requests
   variables:
-    MONGO_URL: mongodb://mongodb:27017/
-    MONGO_DATABASE: gamma_data_test
     DJANGO_SETTINGS_MODULE: gamma.settings.test
   services:
-    - name: mongo:4.4
-      alias: mongodb
     - name: redis:latest
       alias: redis
   before_script: []

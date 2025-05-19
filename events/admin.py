@@ -31,8 +31,7 @@ class EventConfigurationAdmin(admin.ModelAdmin):
     Admin configuration for EventConfiguration model.
     """
 
-    # TODO: the previous implementation used 'EventConfigurationForm' to create a new instance.
-    list_display = ('event_type', 'title', 'award', 'is_depends_on_achievement')
+    list_display = ('event_type', 'title', 'award')
     search_fields = ('event_type__name', 'title')
 
     def get_form(self, request, obj=None, **kwargs):

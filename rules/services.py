@@ -23,7 +23,7 @@ class RulesFilterService:
     def filter_rules(self, rules: Sequence[Rule]) -> Sequence[Rule]:
         """
         Filter out the rules that do not meet the event.
-        
+
         The type of event must be relevant, i.e., the actions of the rules must refer to the corresponding event.
         """
         return [

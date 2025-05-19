@@ -7,6 +7,7 @@ class BadgeAdmin(admin.ModelAdmin):
     """
     Admin interface for the Badge model.
     """
+
     list_display = ('title', 'is_active', 'slug', 'rule_actions', 'id')
     search_fields = ('title', 'slug',)
     list_filter = ('is_active',)

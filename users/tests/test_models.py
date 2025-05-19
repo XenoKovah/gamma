@@ -1,9 +1,9 @@
-import pytest
 from datetime import datetime
 from typing import Type
 from unittest.mock import Mock, patch
 
 import factory
+import pytest
 from django.db.models import signals
 
 from events.factories import EventConfigurationFactory, EventFactory

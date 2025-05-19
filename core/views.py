@@ -1,6 +1,6 @@
-from django.views.generic import View
 from django.contrib.auth import logout
 from django.http import HttpResponseForbidden, HttpResponseRedirect
+from django.views.generic import View
 
 
 def logout_view(request):

@@ -331,7 +331,6 @@ describe('Avatars', () => {
           id: avatarSetsMocks.length + 1,
           title: 'Test avatar set 1',
           avatars: [],
-          use_in_courses: [],
           is_draft: true,
         };
 
@@ -412,7 +411,6 @@ describe('Avatars', () => {
           id: avatarSetsMocks.length + 1,
           title,
           avatars: [],
-          use_in_courses: [],
           is_draft: true,
         };
 
@@ -562,7 +560,6 @@ describe('Avatars', () => {
           id: avatarSetsMocks.length + 1,
           title: 'Test avatar set 1',
           avatars: [{ title: 'Avatar', description: 'Some description', image: '' }],
-          use_in_courses: [],
           is_draft: true,
         };
 
@@ -608,7 +605,6 @@ describe('Avatars', () => {
         id: avatarSetsMocks.length + 1,
         title: 'Test avatar set 1',
         avatars: [{ title: 'Avatar', description: 'Some description', image: '' }],
-        use_in_courses: [],
         is_draft: true,
       };
 
@@ -659,7 +655,6 @@ describe('Avatars', () => {
           id: avatarSetsMocks.length + 1,
           title,
           avatars: [],
-          use_in_courses: [],
           is_draft: true,
         };
 
@@ -1037,7 +1032,6 @@ describe('Avatars', () => {
             created_at: '2025-03-10T12:07:59.431440Z',
           },
         }],
-        use_in_courses: [],
         is_draft: true,
       };
 
@@ -1108,7 +1102,6 @@ describe('Avatars', () => {
           id: avatarSetsMocks.length + 1,
           title,
           avatars: [],
-          use_in_courses: [],
           is_draft: true,
         };
 

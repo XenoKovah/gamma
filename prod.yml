@@ -31,7 +31,6 @@ services:
     expose:
       - "8000"
     links:
-      - mongo
       - postgres
       - celery
     labels:
@@ -79,13 +78,6 @@ services:
       - rabbit
       - redis
 
-  mongo:
-    restart: unless-stopped
-    container_name: gamma_mongo
-    image: mongo:4.2
-    volumes:
-      - mongo_db:/data/db
-
   postgres:
     restart: unless-stopped
     container_name: gamma_postgres
@@ -108,6 +100,5 @@ services:
 
 volumes:
   pg_db:
-  mongo_db:
   static_files:
   media_files:

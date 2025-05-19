@@ -2,9 +2,7 @@ from datetime import datetime
 from typing import Optional
 import pytest
 
-from django.contrib.contenttypes.models import ContentType
-
-from achievements.models import Achievement, AchievementRule
+from achievements.models import Achievement
 from badges.factories import BadgeFactory
 from badges.models import Badge
 from events.factories import EventConfigurationFactory, EventFactory, EventTypeFactory
@@ -18,15 +16,11 @@ from users.models import GammaUser
 def setup_event_configuration(
     event_type_factory: EventTypeFactory,
     event_configuration_factory: EventConfigurationFactory,
-    content_type: ContentType = None,
-    is_depends_on_achievement: bool = False,
     event_type_name: str = 'edx_bookmark_added',
     award: int = 1,
 ) -> EventConfiguration:
     event_configuration = event_configuration_factory(
         event_type=event_type_factory(name=event_type_name),
-        is_depends_on_achievement=is_depends_on_achievement,
-        content_type=content_type,
         award=award
     )
     return event_configuration
@@ -36,13 +30,9 @@ def setup_event_configuration(
 def setup_rules(
     rule_factory: RuleFactory,
     event_configuration: EventConfiguration,
-    action: Optional[dict] = None,
-    filters: Optional[dict] = None
+    action: Optional[dict] = {},
+    filters: Optional[dict] = {}
 ) -> Rule:
-    if action is None:
-        action = {}
-    if filters is None:
-        filters = {}
     rules = rule_factory(
         event_configuration=event_configuration,
         action=action,

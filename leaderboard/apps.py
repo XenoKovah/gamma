@@ -10,4 +10,4 @@ class LeaderboardConfig(AppConfig):
     name = "leaderboard"
 
     def ready(self) -> None:
-        import leaderboard.handlers
+        import leaderboard.handlers  # pylint: disable=import-outside-toplevel, unused-import

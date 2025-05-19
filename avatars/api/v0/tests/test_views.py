@@ -29,7 +29,7 @@ class TestAvatarSetFinishAction:
         return avatar_set
 
     def test_finish_avatar_set_success(self, client, valid_avatar_set):
-        url = reverse('avatar_set-finish-avatar-set', kwargs={'pk': valid_avatar_set.id})
+        url = reverse('avatars:api:v0:avatar_set-finish-avatar-set', kwargs={'pk': valid_avatar_set.id})
         response = client.patch(url)
 
         valid_avatar_set.refresh_from_db()
@@ -39,7 +39,7 @@ class TestAvatarSetFinishAction:
         assert valid_avatar_set.is_draft is False
 
     def test_finish_avatar_set_failure(self, client, invalid_avatar_set):
-        url = reverse('avatar_set-finish-avatar-set', kwargs={'pk': invalid_avatar_set.id})
+        url = reverse('avatars:api:v0:avatar_set-finish-avatar-set', kwargs={'pk': invalid_avatar_set.id})
         response = client.patch(url)
 
         invalid_avatar_set.refresh_from_db()
@@ -55,19 +55,19 @@ class TestUserAvatarConfigViewSet:
     Test case for the testing AvatarConfigViewSet.
     """
 
-    def test_valid_key_secret_authentication(self, live_server, client):
-        url = live_server + reverse('user_avatar_config-list')
+    def test_valid_key_secret_authentication(self, live_server, client, app_client):
+        url = live_server + reverse('avatars:api:v0:user_avatar_config-list')
 
         response = client.get(
             url,
-            HTTP_APP_KEY='key',
-            HTTP_APP_SECRET='secret'
+            HTTP_APP_KEY=app_client.key,
+            HTTP_APP_SECRET=app_client.secret,
         )
 
         assert response.status_code == status.HTTP_200_OK
 
     def test_invalid_key_secret_authentication(self, live_server, client):
-        url = live_server + reverse('user_avatar_config-list')
+        url = live_server + reverse('avatars:api:v0:user_avatar_config-list')
 
         response = client.get(url)
 

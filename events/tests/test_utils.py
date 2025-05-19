@@ -1,9 +1,8 @@
 import pytest
 from schematics.types import IntType, StringType
 
-from events.utils import SchemaRenderer
 from events.schemas import CountActionSchema, RggPointDistributionSchema
-
+from events.utils import SchemaRenderer
 
 pytestmark = pytest.mark.django_db
 

@@ -1,5 +1,7 @@
-from django.urls import path, include
+from django.urls import include, path
 
+
+app_name = 'badges'
 urlpatterns = [
-    path('v0/', include('badges.api.v0.urls')),
+    path('api/', include(('badges.api.urls', 'badges'), namespace='api')),
 ]

@@ -90,7 +90,6 @@ class AchievementRule(models.Model):
             'Tracks the current progress for external events and achievement dependencies based on rules action'
         )
     )
-    points = models.IntegerField(null=True, blank=True)
 
     class Meta:
         unique_together = ('achievement', 'rule')

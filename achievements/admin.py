@@ -6,7 +6,7 @@ from achievements.models import Achievement, AchievementRule
 class AchievementRuleInline(admin.TabularInline):
     model = AchievementRule
     extra = 1  # Number of empty rows to display
-    fields = ('rule', 'status', 'created_at', 'dependencies', 'points')
+    fields = ('rule', 'status', 'created_at', 'dependencies')
     readonly_fields = ('created_at',)
 
 

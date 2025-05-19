@@ -3,7 +3,6 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from core.authentication import KeySecretAuthentication
-from core.utils import AppClientUtils
 
 from events.constants import TEMPORALLY_EXCLUDED_EVENT_TYPES
 from events.models import EventConfiguration
@@ -11,7 +10,7 @@ from events.models import EventConfiguration
 from .serializers import AvailableActionsSerializer, EventSerializer
 
 
-class EventsAPIView(APIView, AppClientUtils):
+class EventsAPIView(APIView):
     """
     API endpoint to handle event creation.
 
@@ -38,9 +37,7 @@ class EventsAPIView(APIView, AppClientUtils):
             "configuration": {
                 "event_type": "edx_bookmark_added",
                 "title": "Bookmark added",
-                "award": 10,
-                "color": 1,
-                "notification_message": "You have got {} point."
+                "award": 10
             }
         }
 
@@ -53,7 +50,8 @@ class EventsAPIView(APIView, AppClientUtils):
     serializer_class = EventSerializer
 
     def post(self, request, *args, **kwargs):
-        data = self.update_data_with_client_uid()
+        data = request.data.copy()
+        data.update({'client': request.client.name})
 
         serializer = self.serializer_class(data=data)
         serializer.is_valid(raise_exception=True)

@@ -6,4 +6,4 @@ class RulesConfig(AppConfig):
     name = 'rules'
 
     def ready(self):
-        import rules.signals
+        import rules.signals  # pylint: disable=import-outside-toplevel, unused-import

@@ -104,7 +104,7 @@ class AvatarSetSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AvatarSet
-        fields = ('id', 'title', 'avatars', 'use_in_courses', 'is_draft', 'created_at')
+        fields = ('id', 'title', 'avatars', 'is_draft', 'created_at')
         read_only_fields = ('created_at',)
 
     def create(self, validated_data):

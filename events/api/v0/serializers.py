@@ -28,7 +28,7 @@ class EventConfigurationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = EventConfiguration
-        fields = ('event_type', 'title', 'award', 'color', 'notification_message')
+        fields = ('event_type', 'title', 'award')
 
     def to_internal_value(self, data):
         """

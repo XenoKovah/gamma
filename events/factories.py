@@ -1,8 +1,5 @@
 import factory
-from django.contrib.contenttypes.models import ContentType
 from django.utils.timezone import now
-
-from badges.models import Badge
 
 
 class EventTypeFactory(factory.django.DjangoModelFactory):
@@ -27,13 +24,6 @@ class EventConfigurationFactory(factory.django.DjangoModelFactory):
     event_type = factory.SubFactory(EventTypeFactory)
     title = factory.Faker('sentence', nb_words=4)
     award = factory.Faker('random_int', min=1, max=100)
-    color = factory.Faker('random_element', elements=[1, 2, 3])
-    notification_message = factory.LazyAttribute(lambda o: f'You have got {o.award} points.')
-    is_depends_on_achievement = False
-
-    @factory.lazy_attribute
-    def content_type(self):
-        return ContentType.objects.get_for_model(Badge)
 
 
 class EventFactory(factory.django.DjangoModelFactory):

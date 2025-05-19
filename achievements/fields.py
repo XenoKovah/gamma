@@ -9,6 +9,8 @@ from django.db.models import ImageField
 from slugify import Slugify
 
 
+# The class is kept for backward compatibility. It's used in old migrations
+# and its deletion can break them.
 class CustomImageField(ImageField):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

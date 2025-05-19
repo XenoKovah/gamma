@@ -29,7 +29,7 @@ endif
 
 
 .PHONY: shell dev.up start debug build .build .migrate \
-		.static .stop .rm test version loadtests test-shell
+		.static .stop .rm test version test-shell
 
 
 shell: ${PRIVATE_ENV}
@@ -71,7 +71,7 @@ rm:
 	@$(DOCKER_COMPOSE) -f $(DOCKERCOMPOSE_PATH) rm
 
 jest:	# run react tests
-	npm run test ${REACT_APP_PATH}
+	cd ${REACT_APP_PATH} && npm run test ${REACT_APP_PATH}
 
 test:
 	@$(DOCKER_COMPOSE) -f docker-compose-test.yml run --rm dashboard \
@@ -80,7 +80,6 @@ test:
 			find . | grep -E \"(__pycache__|\.pyc|\.pyo$\)\" | xargs rm -rf && \
 			DJANGO_SETTINGS_MODULE=gamma.settings.test \
 			PYTHONBREAKPOINT=ipdb.set_trace \
-			MONGO_DATABASE=gamma_data_test \
 			pytest -W ignore -s -vv --pdb $(path) && \
 			coverage xml && \
 			diff-cover coverage.xml --fail-under=60 \
@@ -89,13 +88,33 @@ test:
 test-shell:
 	@$(DOCKER_COMPOSE) -f docker-compose-test.yml run --rm dashboard bash
 
-loadtests:
-	locust --host=http://localhost:9000 -f loadtests/locustfile.py
-
 quality-py:
 	pycodestyle . --format=pylint
-	pylint -f colorized -r y gamma/* api/* achievements/* core/* edx_integration/* loadtests/*
-	pydocstyle -v gamma/* api/* achievements/* core/* edx_integration/* loadtests/*
+	pylint -f colorized \
+		-r y \
+		gamma/* \
+		achievements/* \
+		avatars/* \
+		badges/* \
+		core/* \
+		courseware/* \
+		edx_integration/* \
+		events/* \
+		leaderboard/* \
+		rules/* \
+		users/*
+	pydocstyle -v \
+		gamma/* \
+		achievements/* \
+		avatars/* \
+		badges/* \
+		core/* \
+		courseware/* \
+		edx_integration/* \
+		events/* \
+		leaderboard/* \
+		rules/* \
+		users/*
 
 version:
 	echo "Tagged release $(VERSION)\n" > Changelog-$(VERSION).txt

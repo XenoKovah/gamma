@@ -1,5 +1,7 @@
-from django.urls import path, include
+from django.urls import include, path
 
+
+app_name = 'leaderboard'
 urlpatterns = [
-    path("v0/", include("leaderboard.api.v0.urls")),
+    path('api/', include(('leaderboard.api.urls', 'leaderboard'), namespace='api')),
 ]

@@ -1,6 +1,6 @@
 from rest_framework import authentication, exceptions
 
-from core import db
+from core.models import AppClient
 
 
 class KeySecretAuthentication(authentication.BaseAuthentication):
@@ -18,7 +18,9 @@ class KeySecretAuthentication(authentication.BaseAuthentication):
         if not (key and secret):
             raise exceptions.AuthenticationFailed('Please provide APP_KEY and APP_SECRET')
 
-        if not (app_client := db.clients.read_one(key, secret)):  # pylint: disable=superfluous-parens
+        try:
+            app_client = AppClient.objects.get(key=key, secret=secret)
+        except AppClient.DoesNotExist:
             raise exceptions.AuthenticationFailed('Please provide a valid APP_KEY and APP_SECRET')
 
         # Adding client for event tracking

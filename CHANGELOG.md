@@ -5,11 +5,84 @@ Versions follows PEP440 version scheme.
 
 [Unreleased]
 ************
-
-gamma-core 3.7.0 (2025-02-13)
----
-
-* build: fix ReactTests pipeline OOMKilled error
+* refactor: [NAU-507] Repository cleanup
+* test: [NAU-415] Rewrite tests for achievements processing
+* fix: achievement processing for users
+* fix: [NAU-509] Fix getting last achieved avatar
+* feat: [NAU-457] Changed logout url for Gamma settings header
+* fix: event configuration issue 
+* feat: [NAU-457] Implement permissions
+* chore: [NAU-474, NAU-472] Corrected Delete buttons on Avatar and Badges pages
+* fix: [NAU-376] Fixed image size validation
+* fix: assign user avatar issue
+* test: [NAU-465] User config is tested
+* feat: [NAU-465] Extend rules with new actions
+* fix: change user config serializer
+* feat: [NAU-449] Extend rules with new actions
+* feat: [NAU-432] Implement internal events management commands
+* fix: [NAU-289] Redirect broken links
+* feat: [NAU-320] Added deletion confirmation modal for evolution step
+* chore: [NAU-316] Added support text for avatar stepper
+* feat: [NAU-419] SSO with edX is set up
+* fix: [NAU-426] Handle non existent content type
+* fix: [NAU-417] Badges list retrieving error is fixed
+* feat: [NAU-315] Added close button for Avatar stepper
+* feat: [NAU-356] get Points and Charts form MySQL
+* feat: [NAU-396] Leaderboards initialization is improved
+* feat: [NAU-368] Changed slug behavior inside Manage entity modal
+* feat: [NAU-404] Course leaderboard implementation
+* feat: [NAU-397] Apply s2s requests for Avatars Config
+* feat: [NAU-340] Updated achievements serializer
+* feat: [NAU-388] Gamma user score by course persisting is implemented
+* feat: [NAU-314] Added translations for Portuguese
+* fix: [NAU-332] Get rid of filters for avatar
+* feat: [NAU-357] Leaderboard refactoring
+* feat: [NAU-339] Receive badges from SQL
+* fix: [NAU-375] Fix rewriting badge images
+* chore: [NAU-336, NAU-366] Added UI/UX improvements and hasFilters for EntityRules component
+* feat: [NAU-329] Add avatars to game profile response
+* fix: [NAU-321, NAU-331] Fixed modal title, toast delay and some refactoring
+* feat: [NAU-312] Create new gamma-profile endpoint
+* fix: [NAU-305] Fixed avatar duplication
+* chore: [NAU-286, NAU-287, NAU-290] Corrected some tests and refactoring
+* feat: improved display of student avatar
+* fix: update rules serializers with event configuration
+* feat: [NAU-293] Added event_configuration for Avatar rule
+* chore: [NAU-293] Replaced rule actions endpoint
+* temp: student experience with avatars
+* feat: [NAU-286, NAU-286-290, NAU-286-287] Edit functional for Avatar set stepper 
+* feat: [NAU-285] Implement finish step in avatars setup
+* feat: [NAU-347] Refactor previous event processing implementation
+* feat: [NAU-284] Implement finish AvatarSet API
+* feat: [NAU-276] Created Avatars stepper step
+* docs: [NAU-282] Document the logic of the achievements earning
+* refactor: [NAU-264] Apply TDD for achievement processing
+* feat: [NAU-275] Created Evolution stepper step
+* feat: [NAU-274] Created Title stepper step
+* feat: [NAU-257] Implement Avatar backend
+* feat: [NAU-273] Connect Avatar sets API and implement deletion
+* feat: [NAU-210] Edit badges modal
+* feat: [NAU-258] Created base Avatars structure
+* refactor: [NAU-260] Fronted translations refactoring
+* feat: [NAU-256] Implement Avatar API View
+* feat: [NAU-255] Implement AvatarSet API
+* refactor: [NAU-253] Refactor Avatar models
+* feat: [NAU-250, NAU-251] Create API for actions and badge serializer refactoring
+* feat: [NAU-209] Added rules form set, header and footer
+* feat: [NAU-208] Added BadgeModal React component
+* feat: [NAU-160] Added BadgesList React component
+* feat: [NAU-207] Added generic React components
+* feat: [NAU-204] Added Loader React component
+* feat: [NAU-203] Added SubHeader React component
+* feat: [NAU-195] Rules refactoring with updating 
+* feat: [NAU-199] Configured CI for React, translations for modules, Django routing
+* feat: [NAU-194] Frontend application structure updating
+* feat: [NAU-142] Rules refactoring
+* refactor: [NAU-159] Users app refactoring
+* fix: [NAU-150] Migration is missing for events
+* feat: [NAU-143] Draft Avatar solution implementation
+* feat: [NAU-150] Create API for events
+* feat: Project skeleton is prepared for refactoring
 * feat: [RGOeX-26916] add s3 requirements
 
 gamma-core 3.6.1 (2023-08-20)

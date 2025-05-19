@@ -40,7 +40,6 @@ class AvatarSetFactory(factory.django.DjangoModelFactory):
 
     title = factory.Faker('sentence', nb_words=4)
     is_draft = factory.Faker('boolean')
-    use_in_courses = factory.LazyFunction(lambda: ['course_1', 'course_2'])
 
     @factory.post_generation
     def avatars(self, create, extracted, **kwargs):
