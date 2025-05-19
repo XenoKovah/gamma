@@ -1,4 +1,4 @@
-from typing import Dict, TypedDict
+from typing import Dict, TypedDict, Union
 
 
 class GeneralProgress(TypedDict):
@@ -28,25 +28,9 @@ class AchievementObtainedProgress(TypedDict):
     dependent_object_id: int
 
 
-class CommonEventDependencies(AchievedConditionMixin):
+class EventDependencies(AchievedConditionMixin):
     """
     Represent dependencies for common events.
     """
 
-    events: Dict[str, GeneralProgress]
-
-
-class PointsDistributionEventDependencies(TypedDict, AchievedConditionMixin):
-    """
-    Represent dependencies for points distribution events.
-    """
-
-    points: Dict[str, GeneralProgress]
-
-
-class AchievementObtainedDependencies(TypedDict, AchievedConditionMixin):
-    """
-    Represent dependencies for obtained achievement events.
-    """
-
-    achievements: Dict[str, AchievementObtainedProgress]
+    events: Dict[str, Union[GeneralProgress, AchievementObtainedProgress]]

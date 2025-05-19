@@ -3,7 +3,7 @@ import logging
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
 from functools import lru_cache
-from typing import Any, Dict, Optional, Type, Union
+from typing import Any, Dict, Optional, Type
 
 from schematics.exceptions import DataError
 from schematics.models import Model
@@ -44,8 +44,8 @@ class BaseEventProcessor(ABC):
     Abstract class for event processing strategies.
     """
 
-    DEPENDENCY_KEY_NAME: Optional[str] = None
     ACTION_SCHEMA: Optional[Type[Model]] = None
+    DEPENDENCY_KEY_NAME = 'events'
 
     @abstractmethod
     def _process(
@@ -54,7 +54,7 @@ class BaseEventProcessor(ABC):
         achievement_rule: Optional[AchievementRule] = None,
         user: Optional[GammaUser] = None,
         event: Optional[Event] = None,
-    ) -> Union[types.CommonEventDependencies]:
+    ) -> types.EventDependencies:
         """
         Process an event and update dependencies accordingly for achievement rule.
 
@@ -85,7 +85,7 @@ class BaseEventProcessor(ABC):
         achievement_rule: AchievementRule,
         user: GammaUser,
         event: Event
-    ) -> types.CommonEventDependencies:
+    ) -> types.EventDependencies:
         """
         Process an event and calculates dependencies for the given achievement rule.
         """
@@ -108,10 +108,10 @@ class BaseEventProcessor(ABC):
         """
         Initialize and return the necessary data for event processing needed for achievement dependency.
         """
+        event_name = achievement_rule.rule.event_configuration.event_name
         dependencies = copy.deepcopy(achievement_rule.dependencies or {})
         current_dependency = dependencies.setdefault(self.DEPENDENCY_KEY_NAME, {})
-        progress_by_event = current_dependency.get(event.event_name, {})
-        event_name = event.event_name
+        progress_by_event = current_dependency.get(event_name, {})
         action = achievement_rule.rule.action.get(event_name)
 
         return EventProgress(current_dependency, progress_by_event, event_name, action)
@@ -126,7 +126,6 @@ class CommonEventProcessor(BaseEventProcessor):
     By inheriting a class it is possible to change the behavior for event processing.
     """
 
-    DEPENDENCY_KEY_NAME = 'events'
     ACTION_SCHEMA = schemas.CountActionSchema
 
     def _process(
@@ -135,12 +134,17 @@ class CommonEventProcessor(BaseEventProcessor):
         achievement_rule: AchievementRule,
         user: GammaUser,
         event: Event,
-    ) -> types.CommonEventDependencies:
+    ) -> types.EventDependencies:
         """
         Process an event and return updated dependencies.
         """
         passed_frequency_filter = self._check_frequency_fit(achievement_rule.rule.filters, progress.current)
-        event_count = progress.by_event.get('count', 0) + 1 if passed_frequency_filter else 1
+        event_count = progress.by_event.get('count', 0)
+
+        if event.event_name == progress.event_name:
+            event_count = event_count + 1 if passed_frequency_filter else 1
+            progress.by_event['count'] = event_count
+
         raw_progress_count = progress.action.get('count')
 
         try:
@@ -160,7 +164,7 @@ class CommonEventProcessor(BaseEventProcessor):
             count=event_count,
         )
 
-        return types.CommonEventDependencies(events={progress.event_name: updated_progress}, is_achieved=is_achieved)
+        return types.EventDependencies(events={progress.event_name: updated_progress}, is_achieved=is_achieved)
 
     def _check_frequency_fit(self, filters: Optional[Dict[str, Any]], progress: Dict[str, Any]) -> bool:
         """
@@ -205,7 +209,6 @@ class RggAchievementObtainedProcessor(BaseEventProcessor):
     Processor for handling achievement obtained events in the RGG system.
     """
 
-    DEPENDENCY_KEY_NAME = 'achievements'
     ACTION_SCHEMA = schemas.RggAchievementObtainedSchema
 
     def _process(
@@ -214,15 +217,15 @@ class RggAchievementObtainedProcessor(BaseEventProcessor):
         achievement_rule: AchievementRule,
         user: GammaUser,
         event: Event,
-    ) -> types.AchievementObtainedDependencies:
+    ) -> types.EventDependencies:
         """
         Process the event and updates the dependencies to achievements obtaining.
         """
         is_achieved = Achievement.objects.filter(user=user, object_id=progress.action['dependent_object_id']).exists()
         updated_progress = types.AchievementObtainedProgress(**progress.action)
 
-        return types.AchievementObtainedDependencies(
-            achievements={progress.event_name: updated_progress},
+        return types.EventDependencies(
+            events={progress.event_name: updated_progress},
             is_achieved=is_achieved
         )
 
@@ -232,7 +235,6 @@ class RggPointsDistributionProcessor(BaseEventProcessor):
     Processor for handling points distribution events in the RGG system.
     """
 
-    DEPENDENCY_KEY_NAME = 'points'
     ACTION_SCHEMA = schemas.RggPointDistributionSchema
 
     def _process(
@@ -241,7 +243,7 @@ class RggPointsDistributionProcessor(BaseEventProcessor):
         achievement_rule: AchievementRule,
         user: GammaUser,
         event: Event
-    ) -> types.PointsDistributionEventDependencies:
+    ) -> types.EventDependencies:
         """
         Process the event and updates the dependencies with points distribution.
         """
@@ -265,8 +267,8 @@ class RggPointsDistributionProcessor(BaseEventProcessor):
             count=points,
         )
 
-        return types.PointsDistributionEventDependencies(
-            points={progress.event_name: updated_progress},
+        return types.EventDependencies(
+            events={progress.event_name: updated_progress},
             is_achieved=is_achieved
         )
 

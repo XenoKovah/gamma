@@ -158,11 +158,11 @@ def test_five_stages_avatar_set_one_point_per_stage(
     for stage, achievement in enumerate(achievements):
         assert achievement.achievement_dependencies[0]['is_achieved'] == expected_statuses[stage]
         assert (
-            achievement.achievement_dependencies[0]['points']['rgg_points_distribution']['goal']
+            achievement.achievement_dependencies[0]['events']['rgg_points_distribution']['goal']
             == expected_goals[stage]
         )
         assert (
-            achievement.achievement_dependencies[0]['points']['rgg_points_distribution']['count']
+            achievement.achievement_dependencies[0]['events']['rgg_points_distribution']['count']
             == expected_counts[stage]
         )
 
@@ -242,11 +242,11 @@ def test_three_stages_avatar_set_tree_points_per_stage(
     for stage, achievement in enumerate(achievements):
         assert achievement.achievement_dependencies[0]['is_achieved'] == expected_statuses[stage]
         assert (
-            achievement.achievement_dependencies[0]['points']['rgg_points_distribution']['goal']
+            achievement.achievement_dependencies[0]['events']['rgg_points_distribution']['goal']
             == expected_goals[stage]
         )
         assert (
-            achievement.achievement_dependencies[0]['points']['rgg_points_distribution']['count']
+            achievement.achievement_dependencies[0]['events']['rgg_points_distribution']['count']
             == expected_counts[stage]
         )
 
@@ -342,11 +342,11 @@ def test_three_stages_avatar_set_six_points_per_stage_different_events(
     for stage, achievement in enumerate(achievements):
         assert achievement.achievement_dependencies[0]['is_achieved'] == expected_statuses[stage]
         assert (
-            achievement.achievement_dependencies[0]['points']['rgg_points_distribution']['goal']
+            achievement.achievement_dependencies[0]['events']['rgg_points_distribution']['goal']
             == expected_goals[stage]
         )
         assert (
-            achievement.achievement_dependencies[0]['points']['rgg_points_distribution']['count']
+            achievement.achievement_dependencies[0]['events']['rgg_points_distribution']['count']
             == expected_counts[stage]
         )
 
@@ -501,11 +501,11 @@ def test_parallel_receiving_achievements_in_two_avatar_sets(
     for stage, achievement in enumerate(achievements_set1):
         assert achievement.achievement_dependencies[0]['is_achieved'] == expected_statuses[0][stage]
         assert (
-            achievement.achievement_dependencies[0]['points']['rgg_points_distribution']['goal']
+            achievement.achievement_dependencies[0]['events']['rgg_points_distribution']['goal']
             == expected_goals[0][stage]
         )
         assert (
-            achievement.achievement_dependencies[0]['points']['rgg_points_distribution']['count']
+            achievement.achievement_dependencies[0]['events']['rgg_points_distribution']['count']
             == expected_counts[0][stage]
         )
 
@@ -513,11 +513,11 @@ def test_parallel_receiving_achievements_in_two_avatar_sets(
     for stage, achievement in enumerate(achievements_set2):
         assert achievement.achievement_dependencies[0]['is_achieved'] == expected_statuses[1][stage]
         assert (
-            achievement.achievement_dependencies[0]['points']['rgg_points_distribution']['goal']
+            achievement.achievement_dependencies[0]['events']['rgg_points_distribution']['goal']
             == expected_goals[1][stage]
         )
         assert (
-            achievement.achievement_dependencies[0]['points']['rgg_points_distribution']['count']
+            achievement.achievement_dependencies[0]['events']['rgg_points_distribution']['count']
             == expected_counts[1][stage]
         )
 
@@ -598,11 +598,11 @@ def test_five_stages_avatar_set_receiving_two_gamma_users(
     for stage, achievement in enumerate(achievements_first_user):
         assert achievement.achievement_dependencies[0]['is_achieved'] == expected_statuses[stage]
         assert (
-            achievement.achievement_dependencies[0]['points']['rgg_points_distribution']['goal']
+            achievement.achievement_dependencies[0]['events']['rgg_points_distribution']['goal']
             == expected_goals[stage]
         )
         assert (
-            achievement.achievement_dependencies[0]['points']['rgg_points_distribution']['count']
+            achievement.achievement_dependencies[0]['events']['rgg_points_distribution']['count']
             == expected_counts[stage]
         )
 
@@ -610,11 +610,11 @@ def test_five_stages_avatar_set_receiving_two_gamma_users(
     for stage, achievement in enumerate(achievements_first_user):
         assert achievement.achievement_dependencies[0]['is_achieved'] == expected_statuses[stage]
         assert (
-            achievement.achievement_dependencies[0]['points']['rgg_points_distribution']['goal']
+            achievement.achievement_dependencies[0]['events']['rgg_points_distribution']['goal']
             == expected_goals[stage]
         )
         assert (
-            achievement.achievement_dependencies[0]['points']['rgg_points_distribution']['count']
+            achievement.achievement_dependencies[0]['events']['rgg_points_distribution']['count']
             == expected_counts[stage]
         )
 

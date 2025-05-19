@@ -12,6 +12,16 @@ const EventTypeSelect = ({ ruleIndex, translations, data }) => {
     values, touched, handleBlur, errors, setFieldValue,
   } = useFormikContext();
 
+  const selectedEventType = values.rules?.[ruleIndex]?.action?.eventType ?? '';
+  const existingEventTypes = values.rules
+    ?.map((rule, idx) => idx !== ruleIndex && rule.action?.eventType)
+    .filter(Boolean);
+
+  // Filter out actions already used by other rules.
+  const filteredActions = data.actions.filter(
+    action => !existingEventTypes.includes(action.eventName) || action.eventName === selectedEventType,
+  );
+
   const isEventTypesFieldTouched = touched.rules?.[ruleIndex]?.action?.eventType;
   const eventTypesFieldError = errors.rules?.[ruleIndex]?.action?.eventType;
 
@@ -36,7 +46,7 @@ const EventTypeSelect = ({ ruleIndex, translations, data }) => {
         className="mr-0"
         data-testid="event-type-select"
         name={`rules.${ruleIndex}.action.eventType`}
-        value={values.rules?.[ruleIndex]?.action?.eventType ?? ''}
+        value={selectedEventType}
         onChange={handleChange}
         onBlur={handleBlur}
         isInvalid={isEventTypesFieldTouched && !!eventTypesFieldError}
@@ -47,7 +57,7 @@ const EventTypeSelect = ({ ruleIndex, translations, data }) => {
             { eventType: translations.action.toLowerCase() },
           )}
         </option>
-        {data.actions.map((action) => (
+        {filteredActions.map((action) => (
           <option key={action.id} value={action.eventName}>
             {action.title}
           </option>

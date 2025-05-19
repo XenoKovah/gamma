@@ -9,13 +9,9 @@ from avatars.models import Avatar
 from badges.models import Badge
 from core.base import UseCase
 from events.enums import RggInternalEventTypes
-from events.models import Event, EventConfiguration
+from events.models import Event
 from events.processors import EventProcessorFactory
-from events.types import (
-    AchievementObtainedDependencies,
-    CommonEventDependencies,
-    PointsDistributionEventDependencies
-)
+from events.types import EventDependencies
 from events.utils import simulate_rgg_internal_event
 from rules.models import Rule
 from users.models import GammaUser
@@ -27,12 +23,13 @@ def calculate_rule_dependencies_for_user_based_on_event(
     achievement_rule: AchievementRule,
     user: GammaUser,
     event: Event,
-) -> Union[AchievementObtainedDependencies, CommonEventDependencies, PointsDistributionEventDependencies]:
+) -> EventDependencies:
     """
     Process and return the event dependencies for the given rule.
     """
     try:
-        event_processor = EventProcessorFactory.get_processor(event.event_name)
+        rule_event_name = achievement_rule.rule.event_configuration.event_name
+        event_processor = EventProcessorFactory.get_processor(rule_event_name)
         return event_processor.process(achievement_rule, user, event)
     except AchievementRuleProcessingException:
         raise
@@ -105,20 +102,21 @@ class CreateUserAchievementBasedOnEventUseCase(UseCase):
         # TODO: processing isn't optimized, but are necessary for unambiguous processing of achievement rules.
         achievement_rules = [self._create_achievement_rule(achievement, rule) for rule in instance.rules.all()]
         for achievement_rule in achievement_rules:
-            if achievement_rule.rule.event_configuration == event.configuration:
-                try:
-                    achievement_rule.dependencies = calculate_rule_dependencies_for_user_based_on_event(
-                        achievement_rule, user, event
-                    )
-                except AchievementRuleProcessingException:
-                    logger.warning(
-                        'Failed to calculate dependencies for rule %s of achievement %s for user %s.',
-                        achievement_rule.rule,
-                        achievement.id,
-                        user,
-                    )
-                    achievement_rule.status = AchievementRule.Statuses.FAILED
-                    achievement_rule.dependencies = {}
+            try:
+                achievement_rule.dependencies = calculate_rule_dependencies_for_user_based_on_event(
+                    achievement_rule,
+                    user,
+                    event
+                )
+            except AchievementRuleProcessingException:
+                logger.warning(
+                    'Failed to calculate dependencies for rule %s of achievement %s for user %s.',
+                    achievement_rule.rule,
+                    achievement.id,
+                    user,
+                )
+                achievement_rule.status = AchievementRule.Statuses.FAILED
+                achievement_rule.dependencies = {}
 
         AchievementRule.objects.bulk_update(achievement_rules, ('dependencies', 'status'))
 
