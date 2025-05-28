@@ -5,6 +5,7 @@ Versions follows PEP440 version scheme.
 
 [Unreleased]
 ************
+* fix: [NAU-535, NAU-536, NAU-533] Correct calculation badges with points rule
 * docs: [NAU-365] Update technical documentation
 * feat: [NAU-530] Performance page doesn't render with failed achievements
 * refactor: [NAU-507] Repository cleanup

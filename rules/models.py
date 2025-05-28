@@ -1,9 +1,8 @@
 from typing import Any
 
 from django.db import models
-from django.db.models import Exists, OuterRef, QuerySet
 
-from achievements.models import AchievementRule
+from achievements.models import Achievement, AchievementRule
 from core.mixins import TimestampModelMixin
 from events.models import EventConfiguration
 from users.models import GammaUser
@@ -14,22 +13,22 @@ class RuleQuerySet(models.QuerySet):
     Extend queryset manager with rule specific methods.
     """
 
-    def not_completed_by_user(self, configuration: EventConfiguration, user: GammaUser) -> QuerySet['Rule']:
+    def not_completed_by_user(self, configuration: EventConfiguration, user: GammaUser) -> models.QuerySet['Rule']:
         """
-        Filter a list of objects associated with the event configuration that the specified user has not yet completed.
+        Filter only not completed or has not started yet rules.
         """
-        completed_subquery = AchievementRule.objects.filter(
-            rule=OuterRef('pk'),
-            achievement__user=user,
-            status=AchievementRule.Statuses.COMPLETED,
-        )
+        # All AchievementRules for this user and rule.
+        user_achievements = AchievementRule.objects.filter(rule=models.OuterRef('pk'), achievement__user=user)
 
-        return self.filter(
-            event_configuration=configuration
-        ).annotate(
-            user_has_completed=Exists(completed_subquery)
-        ).filter(
-            user_has_completed=False
+        # Subset of user's AchievementRules that are incomplete.
+        not_completed_achievements = user_achievements.exclude(status=AchievementRule.Statuses.COMPLETED)
+
+        return (
+            self.filter(event_configuration=configuration)
+                .annotate(
+                    has_any=models.Exists(user_achievements),
+                    has_not_completed=models.Exists(not_completed_achievements))
+                .filter(models.Q(has_not_completed=True) | models.Q(has_any=False))
         )
 
 

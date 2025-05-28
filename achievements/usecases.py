@@ -160,13 +160,16 @@ class UpdateUserAchievementBasedOnEventUseCase(UseCase):
         Check whether the rules are ready for completion and updates their status accordingly.
         """
         content_type = ContentType.objects.get_for_model(type(instance))
-        return Achievement.objects.get(
+        achievement, _ = Achievement.objects.update_or_create(
             user=user,
             content_type=content_type,
             object_id=instance.id,
-            title=instance.title,
-            description=instance.description,
+            defaults={
+                'title': instance.title,
+                'description': instance.description,
+            }
         )
+        return achievement
 
     def _update_rules_for_achievement(
         self,

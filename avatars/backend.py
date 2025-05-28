@@ -22,7 +22,7 @@ class AvatarBackend(AchievementBackend):
     """
 
     def process_achievement(self, rule: Rule, event: Event, user: GammaUser):
-        avatars = Avatar.objects.filter(rules=rule).prefetch_related('rules')
+        avatars = Avatar.objects.filter(avatarset__is_draft=False, rules=rule).prefetch_related('rules')
 
         if not avatars.exists():
             return

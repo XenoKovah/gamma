@@ -20,7 +20,7 @@ class BadgeBackend(AchievementBackend):
     """
 
     def process_achievement(self, rule: Rule, event: Event, user: GammaUser):
-        badges = Badge.objects.filter(rules=rule).prefetch_related('rules')
+        badges = Badge.objects.filter(rules=rule, is_active=True).prefetch_related('rules')
 
         if not badges.exists():
             return
