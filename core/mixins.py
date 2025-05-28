@@ -1,3 +1,5 @@
+from typing import List
+
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import redirect_to_login
 from django.db import models
@@ -54,3 +56,27 @@ class AdminPermissionMixin(LoginRequiredMixin, UserPassesTestMixin):
         if not self.request.user.is_authenticated:
             return redirect_to_login(self.request.get_full_path(), self.get_login_url())
         return HttpResponseForbidden(ADMIN_PERMISSIONS_RESTRICTION)
+
+
+class EventTypeMixin:
+    """
+    Mixin for the Event Types choices.
+    """
+
+    def __init__(self, value: str, title: str, *args):
+        self._value_ = value
+        self._title = title
+        if args:
+            self._award = args[0]
+
+    @property
+    def title(self) -> str:
+        return self._title
+
+    @property
+    def award(self) -> int:
+        return getattr(self, '_award', 0)
+
+    @classmethod
+    def get_all(cls) -> List[str]:
+        return [e.value for e in cls]
