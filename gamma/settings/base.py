@@ -1,6 +1,7 @@
 from os import path
 
 from .edx_platform import *  # pylint: disable=wildcard-import
+from .logging import LOGGING  # pylint: disable=unused-import
 
 
 BASE_DIR = path.dirname(path.dirname(path.abspath(__file__)))
