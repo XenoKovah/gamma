@@ -5,6 +5,8 @@ Versions follows PEP440 version scheme.
 
 [Unreleased]
 ************
+
+* feat: [NAU-534] Corrected rules validation
 * feat: [NAU-541] Setup logging (local + on environment)
 * feat: [NAU-521] Create data migration for edX common events
 * fix: [NAU-535, NAU-536, NAU-533] Correct calculation badges with points rule
@@ -15,7 +17,7 @@ Versions follows PEP440 version scheme.
 * fix: achievement processing for users
 * fix: [NAU-509] Fix getting last achieved avatar
 * feat: [NAU-457] Changed logout url for Gamma settings header
-* fix: event configuration issue 
+* fix: event configuration issue
 * feat: [NAU-457] Implement permissions
 * chore: [NAU-474, NAU-472] Corrected Delete buttons on Avatar and Badges pages
 * fix: [NAU-376] Fixed image size validation
@@ -55,7 +57,7 @@ Versions follows PEP440 version scheme.
 * feat: [NAU-293] Added event_configuration for Avatar rule
 * chore: [NAU-293] Replaced rule actions endpoint
 * temp: student experience with avatars
-* feat: [NAU-286, NAU-286-290, NAU-286-287] Edit functional for Avatar set stepper 
+* feat: [NAU-286, NAU-286-290, NAU-286-287] Edit functional for Avatar set stepper
 * feat: [NAU-285] Implement finish step in avatars setup
 * feat: [NAU-347] Refactor previous event processing implementation
 * feat: [NAU-284] Implement finish AvatarSet API
@@ -79,7 +81,7 @@ Versions follows PEP440 version scheme.
 * feat: [NAU-207] Added generic React components
 * feat: [NAU-204] Added Loader React component
 * feat: [NAU-203] Added SubHeader React component
-* feat: [NAU-195] Rules refactoring with updating 
+* feat: [NAU-195] Rules refactoring with updating
 * feat: [NAU-199] Configured CI for React, translations for modules, Django routing
 * feat: [NAU-194] Frontend application structure updating
 * feat: [NAU-142] Rules refactoring

@@ -16,11 +16,13 @@ const EntityRules = ({
   rulesContainerRef,
 }) => {
   const intl = useIntl();
-  const { values, setFieldValue } = useFormikContext();
+  const {
+    values, setFieldValue, setTouched, touched,
+  } = useFormikContext();
 
   const handleAddNewRule = useCallback(() => {
     setFieldValue('rules', [...values.rules, {
-      id: uuidv4(), // TODO:Temporary ID, overridden by the PK (Primary key) from the BE
+      id: uuidv4(),
       action: {},
       filters: {},
     }]);
@@ -31,9 +33,13 @@ const EntityRules = ({
     });
   }, [setFieldValue, values.rules]);
 
-  const handleRemoveRule = useCallback((index) => {
+  const handleRemoveRule = (index) => {
     setFieldValue('rules', values.rules.filter((_, i) => i !== index));
-  }, [setFieldValue, values.rules]);
+    setTouched({
+      ...touched,
+      rules: touched.rules?.filter((_, i) => i !== index),
+    });
+  };
 
   return (
     <>

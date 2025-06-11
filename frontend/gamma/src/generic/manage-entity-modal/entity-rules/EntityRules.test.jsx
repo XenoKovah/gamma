@@ -76,10 +76,13 @@ describe('EntityRules', () => {
     expect(mockSetFieldValue).toHaveBeenCalledWith('rules', expect.any(Array));
   });
 
-  it('calls setFieldValue when removing a rule', () => {
+  it('calls setFieldValue and setTouched when removing a rule', () => {
+    const mockSetTouched = jest.fn();
     useFormikContext.mockReturnValue({
       values: { rules: [{ tempId: '1' }, { tempId: '2' }] },
       setFieldValue: mockSetFieldValue,
+      setTouched: mockSetTouched,
+      touched: { rules: [true, true] },
     });
 
     EntityRule.mockImplementation(({ removeRule, ruleIndex }) => (
@@ -91,9 +94,12 @@ describe('EntityRules', () => {
     const { getAllByTestId } = renderComponent();
 
     const removeButtons = getAllByTestId('remove-rule-btn');
-    userEvent.click(removeButtons[0]);
+    userEvent.click(removeButtons[1]);
 
-    expect(mockSetFieldValue).toHaveBeenCalledWith('rules', expect.any(Array));
+    expect(mockSetFieldValue).toHaveBeenCalledWith('rules', [{ tempId: '1' }]);
+    expect(mockSetTouched).toHaveBeenCalledWith({
+      rules: [true],
+    });
   });
 
   it('adds a new rule with correct structure when add button is clicked', () => {
@@ -121,9 +127,12 @@ describe('EntityRules', () => {
   });
 
   it('removes the correct rule when remove button is clicked', () => {
+    const mockSetTouched = jest.fn();
     useFormikContext.mockReturnValue({
       values: { rules: [{ tempId: '1' }, { tempId: '2' }] },
       setFieldValue: mockSetFieldValue,
+      setTouched: mockSetTouched,
+      touched: { rules: [true, true] },
     });
 
     EntityRule.mockImplementation(({ removeRule, ruleIndex }) => (
@@ -138,6 +147,9 @@ describe('EntityRules', () => {
     userEvent.click(removeButtons[1]);
 
     expect(mockSetFieldValue).toHaveBeenCalledWith('rules', [{ tempId: '1' }]);
+    expect(mockSetTouched).toHaveBeenCalledWith({
+      rules: [true],
+    });
   });
 
   it('scrolls to the last rule when a new rule is added', async () => {
