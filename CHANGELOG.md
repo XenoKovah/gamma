@@ -6,6 +6,7 @@ Versions follows PEP440 version scheme.
 [Unreleased]
 ************
 
+* fix: [TEA-176] Avatar for user is not available after completing task
 * feat: [NAU-534] Corrected rules validation
 * feat: [NAU-541] Setup logging (local + on environment)
 * feat: [NAU-521] Create data migration for edX common events

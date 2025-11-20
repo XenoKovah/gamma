@@ -81,7 +81,7 @@ class UserAvatarConfig(models.Model):
         verbose_name = _('User Avatar Config')
         verbose_name_plural = _('User Avatar Configs')
 
-    def get_last_achieved_avatar(self) -> Optional[QuerySet['Avatar']]:
+    def get_last_achieved_avatar(self) -> Optional['Avatar']:
         """
         Return the Avatar in this set with the highest `stage` the user has actually unlocked.
 
@@ -96,7 +96,7 @@ class UserAvatarConfig(models.Model):
             .annotate(
                 total_rules=Count('rules', distinct=True),
                 completed_rules=Count(
-                    'rules__rule_achievements',
+                    'rules',
                     filter=Q(
                         rules__rule_achievements__achievement__user=self.user,
                         rules__rule_achievements__status=AchievementRule.Statuses.COMPLETED,
