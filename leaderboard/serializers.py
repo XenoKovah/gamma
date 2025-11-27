@@ -47,4 +47,4 @@ class LeaderboardMemberSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = GammaUser
-        fields = ("user_uid", "signup_source", "badges")
+        fields = ("user_uid", "signup_source", "badges", "is_demo_user")

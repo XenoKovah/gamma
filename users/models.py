@@ -22,6 +22,8 @@ class GammaUser(models.Model):
     chart = models.JSONField(default=dict, blank=True)
     progress = models.JSONField(default=dict, blank=True)
 
+    is_demo_user = models.BooleanField(default=False)
+
     class Meta:
         verbose_name = _('Gamma User')
         verbose_name_plural = _('Gamma Users')

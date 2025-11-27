@@ -25,5 +25,7 @@ LOGGING = {
             'level': 'INFO',
             'propagate': True,
         },
+        'users.services.importers': {'handlers': ['console'], 'level': 'INFO', 'propagate': False},
+        'badges.services.importers': {'handlers': ['console'], 'level': 'INFO', 'propagate': False},
     },
 }
