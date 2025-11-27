@@ -10,12 +10,20 @@ from badges.services import BadgeCSVImportService
 class Command(BaseCommand):
     """CLI entry for the badges importer."""
 
-    help = "Import badges from a CSV file."
+    help = """
+    Import badges from a CSV file.
+
+    CSV columns (comma separated):
+        slug,image,title
+
+    Field notes:
+        slug    badge slug
+        image   path to image
+        title   badge title
+    """
 
     def add_arguments(self, parser: CommandParser) -> None:
-        parser.add_argument(
-            "csv_path", type=Path, help="Absolute or relative path to the CSV payload."
-        )
+        parser.add_argument("csv_path", type=Path, help="Absolute or relative path to the CSV payload.")
         parser.add_argument(
             "--dry-run",
             action="store_true",

@@ -24,9 +24,7 @@ class Command(BaseCommand):
     """
 
     def add_arguments(self, parser: CommandParser) -> None:
-        parser.add_argument(
-            "csv_path", type=Path, help="Absolute or relative path to the CSV payload."
-        )
+        parser.add_argument("csv_path", type=Path, help="Absolute or relative path to the CSV payload.")
         parser.add_argument(
             "--dry-run",
             action="store_true",

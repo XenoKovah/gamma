@@ -21,14 +21,16 @@ from rules.models import Rule
 logger = logging.getLogger(__name__)
 
 
+EVENT_TYPE_NAME = "mock-eventtype"
+BADGES_START_COLUMN = 3  # zero-based index
+
+
 class CSVImportService:
     """Import Gamma users, course points, and badge achievements from CSV rows."""
 
     def __init__(self, *, dry_run: bool) -> None:
         self.dry_run = dry_run
-        self.stats = (
-            Counter()
-        )  # tracks rows, users_created, users_updated, course_links, badges_awarded
+        self.stats = Counter()
         self._badge_cache: Dict[str, Badge] = {}
         self._rule_cache: Dict[str, Rule] = {}
         self._badge_content_type = ContentType.objects.get_for_model(Badge)
@@ -36,13 +38,9 @@ class CSVImportService:
 
     def run(self, csv_path: Path) -> None:
         """Execute the CSV import routine."""
-        logger.info(
-            "Starting Gamma CSV import path=%s dry_run=%s", csv_path, self.dry_run
-        )
-
+        logger.info("Starting Gamma CSV import path=%s dry_run=%s", csv_path, self.dry_run)
         for line_no, row in self._iterate_rows(csv_path):
             self._process_row(line_no, row)
-
         logger.info(
             "Import finished rows=%s users_created=%s users_updated=%s course_links=%s badges_awarded=%s dry_run=%s",
             self.stats["rows"],
@@ -54,16 +52,15 @@ class CSVImportService:
         )
 
     def _iterate_rows(self, csv_path: Path) -> Iterator[Tuple[int, Dict[str, str]]]:
-        """Iterate over CSV rows and yield `(line_number, data)` tuples."""
         with csv_path.open(mode="r", encoding="utf-8", newline="") as csv_file:
             self._reader = csv.DictReader(csv_file)
-            badge_names = self._reader.fieldnames[3:]
+            badge_names = self._reader.fieldnames[BADGES_START_COLUMN:]
             try:
                 self._validate_badge_names(badge_names)
             except ValueError as e:
                 logger.error("Badge validation error: %s", e)
                 return
-            for line_no, row in enumerate(self._reader, start=2):  # header = line 1
+            for line_no, row in enumerate(self._reader, start=2):  # 1=header
                 yield line_no, row
 
     def _process_row(self, line_no: int, row: Dict[str, str]) -> None:
@@ -74,9 +71,7 @@ class CSVImportService:
         try:
             points = int(row.get("points", 0))
         except ValueError:
-            logger.warning(
-                "Skipping line %s: invalid points value %r", line_no, row.get("points")
-            )
+            logger.warning("Skipping line %s: invalid points value %r", line_no, row.get("points"))
             return
 
         if not user_uid:
@@ -125,24 +120,18 @@ class CSVImportService:
 
     def _validate_badge_names(self, badge_names: List[str]) -> List[str]:
         """Ensure all badge names from CSV exist in the database."""
-        found_badges = Badge.objects.filter(title__in=badge_names).values_list(
-            "title", flat=True
-        )
+        found_badges = Badge.objects.filter(title__in=badge_names).values_list("title", flat=True)
         if found_badges.count() != len(badge_names):
             missing = set(badge_names) - set(found_badges)
-            raise ValueError(
-                f"The following badges are missing in the database: {', '.join(missing)}"
-            )
+            raise ValueError(f"The following badges are missing in the database: {', '.join(missing)}")
         return badge_names
 
-    def _sync_badges(
-        self, user: GammaUser, row: Dict[str, str], course_id: Optional[str]
-    ) -> int:
+    def _sync_badges(self, user: GammaUser, row: Dict[str, str], course_id: Optional[str]) -> int:
         """Assign badges marked in the CSV row to the user."""
         awarded = 0
-        for badge_name in self._reader.fieldnames[3:]:
+        for badge_name in self._reader.fieldnames[BADGES_START_COLUMN:]:
             raw_value = row.get(badge_name)
-            if raw_value == "":
+            if raw_value in (None, ""):
                 continue
 
             try:
@@ -158,13 +147,11 @@ class CSVImportService:
             badge = self._get_badge(badge_name)
 
             if not badge:
-                logger.warning(
-                    "Badge %s not found. Skipping user %s.", badge_name, user.user_uid
-                )
+                logger.warning("Badge %s not found. Skipping user %s.", badge_name, user.user_uid)
                 continue
 
             if not should_assign:
-                # value = 0, remove achievement if it exists
+                # Is value explicitly, 0 then remove the achievement if it exists
                 achievements = Achievement.objects.filter(object_id=badge.id, user=user)
                 achievements.delete()
                 continue
@@ -182,7 +169,8 @@ class CSVImportService:
                 awarded += 1
 
             if course_id:
-                # If course id provided, link achievement to course via AchievementRule
+                # If course_id provided, link achievement to course via AchievementRule
+                # the course_id must equal the rule's filters `course`
                 AchievementRule.objects.get_or_create(
                     status="completed",
                     achievement=achievement,
@@ -196,23 +184,19 @@ class CSVImportService:
 
     def _get_badge(self, badge_name: str) -> Optional[Badge]:
         """Fetch badge instance by title with basic caching."""
-        cache_key = badge_name.lower()
+        cache_key = badge_name
         if cache_key not in self._badge_cache:
-            self._badge_cache[cache_key] = Badge.objects.filter(
-                title__iexact=badge_name
-            ).first()
+            self._badge_cache[cache_key] = Badge.objects.filter(title__iexact=badge_name).first()
         return self._badge_cache[cache_key]
 
     def _get_rule(self, course_id: str) -> Rule:
         """Fetch or create a Rule instance for the given course_id with caching."""
         if course_id not in self._rule_cache:
-            eventtype, _ = EventType.objects.get_or_create(name="mock-eventtype")
-            eventtype_config, _ = EventConfiguration.objects.get_or_create(
-                event_type=eventtype, defaults={"award": 0}
-            )
+            eventtype, _ = EventType.objects.get_or_create(name=EVENT_TYPE_NAME)
+            eventtype_config, _ = EventConfiguration.objects.get_or_create(event_type=eventtype, defaults={"award": 0})
             rule, _ = Rule.objects.get_or_create(
                 event_configuration=eventtype_config,
-                action={"mock-eventtype": {"count": 1}},
+                action={EVENT_TYPE_NAME: {"count": 1}},
                 filters={"course": course_id},
             )
             self._rule_cache[course_id] = rule

@@ -21,9 +21,7 @@ class BadgeCSVImportService:
         self.dry_run = dry_run
 
     def run(self, csv_path: Path) -> None:
-        logger.info(
-            "Starting Badge CSV import path=%s dry_run=%s", csv_path, self.dry_run
-        )
+        logger.info("Starting Badge CSV import path=%s dry_run=%s", csv_path, self.dry_run)
         for index, row in self._iterate_rows(csv_path):
             self._process_row(index, row)
         logger.info("Badge CSV import completed dry_run=%s", self.dry_run)
@@ -52,9 +50,7 @@ class BadgeCSVImportService:
             return
 
         if not image_path.exists():
-            logger.warning(
-                "Skipping line %s: badge image does not exist (%s)", line_no, image_path
-            )
+            logger.warning("Skipping line %s: badge image does not exist (%s)", line_no, image_path)
             return
 
         defaults = {
