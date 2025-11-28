@@ -56,7 +56,8 @@
             }
           ]
         }
-      ]
+      ],
+      "is_demo_user": false
     }
   },
   {
@@ -71,7 +72,8 @@
     "expected_serialization_result": {
       "user_uid": "user_uid_2",
       "signup_source": "main",
-      "badges": []
+      "badges": [],
+      "is_demo_user": false
     }
   },
   {
@@ -161,7 +163,8 @@
     "expected_serialization_result": {
       "user_uid": "user_uid_3",
       "signup_source": "RG",
-      "badges": []
+      "badges": [],
+      "is_demo_user": false
     }
   },
   {
@@ -277,7 +280,8 @@
             }
           ]
         }
-      ]
+      ],
+      "is_demo_user": false
     }
   },
   {
@@ -409,7 +413,8 @@
             }
           ]
         }
-      ]
+      ],
+      "is_demo_user": false
     }
   },
   {
@@ -452,7 +457,8 @@
     "expected_serialization_result": {
       "user_uid": "user_uid_6",
       "signup_source": "RG",
-      "badges": []
+      "badges": [],
+      "is_demo_user": false
     }
   },
   {
@@ -495,7 +501,8 @@
     "expected_serialization_result": {
       "user_uid": "user_uid_7",
       "signup_source": "main",
-      "badges": []
+      "badges": [],
+      "is_demo_user": false
     }
   },
   {
@@ -555,7 +562,8 @@
             }
           ]
         }
-      ]
+      ],
+      "is_demo_user": false
     }
   },
   {
@@ -644,7 +652,8 @@
             }
           ]
         }
-      ]
+      ],
+      "is_demo_user": false
     }
   },
   {
@@ -707,7 +716,8 @@
     "expected_serialization_result": {
       "user_uid": "user_uid_10",
       "signup_source": "RG",
-      "badges": []
+      "badges": [],
+      "is_demo_user": false
     }
   },
   {
@@ -750,7 +760,8 @@
     "expected_serialization_result": {
       "user_uid": "user_uid_11",
       "signup_source": "RG",
-      "badges": []
+      "badges": [],
+      "is_demo_user": false
     }
   }
 ]

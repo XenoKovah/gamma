@@ -47,25 +47,25 @@
         "expected_rank": 11,
         "signup_source": "main",
         "expected_top10": [
-            { "user_uid": "user_uid_1", "signup_source": "main", "points": 30, "badges": [] },
-            { "user_uid": "user_uid_2", "signup_source": "main", "points": 29, "badges": [] },
-            { "user_uid": "user_uid_3", "signup_source": "main", "points": 28, "badges": [] },
-            { "user_uid": "user_uid_4", "signup_source": "main", "points": 27, "badges": [] },
-            { "user_uid": "user_uid_5", "signup_source": "main", "points": 26, "badges": [] },
-            { "user_uid": "user_uid_6", "signup_source": "main", "points": 25, "badges": [] },
-            { "user_uid": "user_uid_7", "signup_source": "main", "points": 24, "badges": [] },
-            { "user_uid": "user_uid_8", "signup_source": "main", "points": 23, "badges": [] },
-            { "user_uid": "user_uid_9", "signup_source": "main", "points": 22, "badges": [] },
-            { "user_uid": "user_uid_10", "signup_source": "main", "points": 21, "badges": [] }
+            { "user_uid": "user_uid_1", "signup_source": "main", "points": 30, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_2", "signup_source": "main", "points": 29, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_3", "signup_source": "main", "points": 28, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_4", "signup_source": "main", "points": 27, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_5", "signup_source": "main", "points": 26, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_6", "signup_source": "main", "points": 25, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_7", "signup_source": "main", "points": 24, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_8", "signup_source": "main", "points": 23, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_9", "signup_source": "main", "points": 22, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_10", "signup_source": "main", "points": 21, "badges": [], "is_demo_user": false }
         ],
         "expected_competitors": [
-            { "user_uid": "user_uid_7", "signup_source": "main", "points": 24, "badges": [] },
-            { "user_uid": "user_uid_8", "signup_source": "main", "points": 23, "badges": [] },
-            { "user_uid": "user_uid_9", "signup_source": "main", "points": 22, "badges": [] },
-            { "user_uid": "user_uid_10", "signup_source": "main", "points": 21, "badges": [] },
-            { "user_uid": "current_user", "signup_source": "main", "points": 19, "badges": [] },
-            { "user_uid": "user_uid_24", "signup_source": "main", "points": 19, "badges": [] },
-            { "user_uid": "user_uid_23", "signup_source": "main", "points": 19, "badges": [] }
+            { "user_uid": "user_uid_7", "signup_source": "main", "points": 24, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_8", "signup_source": "main", "points": 23, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_9", "signup_source": "main", "points": 22, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_10", "signup_source": "main", "points": 21, "badges": [], "is_demo_user": false },
+            { "user_uid": "current_user", "signup_source": "main", "points": 19, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_24", "signup_source": "main", "points": 19, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_23", "signup_source": "main", "points": 19, "badges": [], "is_demo_user": false }
         ]
     },
 
@@ -109,16 +109,16 @@
         "expected_rank": 1,
         "signup_source": "main",
         "expected_top10": [
-            { "user_uid": "current_user", "signup_source": "main", "points": 19, "badges": [] },
-            { "user_uid": "user_uid_9", "signup_source": "main", "points": 19, "badges": [] },
-            { "user_uid": "user_uid_8", "signup_source": "main", "points": 19, "badges": [] },
-            { "user_uid": "user_uid_7", "signup_source": "main", "points": 19, "badges": [] },
-            { "user_uid": "user_uid_6", "signup_source": "main", "points": 19, "badges": [] },
-            { "user_uid": "user_uid_5", "signup_source": "main", "points": 19, "badges": [] },
-            { "user_uid": "user_uid_4", "signup_source": "main", "points": 19, "badges": [] },
-            { "user_uid": "user_uid_30", "signup_source": "main", "points": 19, "badges": [] },
-            { "user_uid": "user_uid_3", "signup_source": "main", "points": 19, "badges": [] },
-            { "user_uid": "user_uid_29", "signup_source": "main", "points": 19, "badges": [] }
+            { "user_uid": "current_user", "signup_source": "main", "points": 19, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_9", "signup_source": "main", "points": 19, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_8", "signup_source": "main", "points": 19, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_7", "signup_source": "main", "points": 19, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_6", "signup_source": "main", "points": 19, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_5", "signup_source": "main", "points": 19, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_4", "signup_source": "main", "points": 19, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_30", "signup_source": "main", "points": 19, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_3", "signup_source": "main", "points": 19, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_29", "signup_source": "main", "points": 19, "badges": [], "is_demo_user": false }
         ],
         "expected_competitors": []
     },
@@ -141,14 +141,14 @@
         "expected_rank": null,
         "signup_source": "main",
         "expected_top10": [
-            { "user_uid": "user_uid_8", "signup_source": "main", "points": 19, "badges": [] },
-            { "user_uid": "user_uid_7", "signup_source": "main", "points": 19, "badges": [] },
-            { "user_uid": "user_uid_6", "signup_source": "main", "points": 19, "badges": [] },
-            { "user_uid": "user_uid_5", "signup_source": "main", "points": 19, "badges": [] },
-            { "user_uid": "user_uid_4", "signup_source": "main", "points": 19, "badges": [] },
-            { "user_uid": "user_uid_3", "signup_source": "main", "points": 19, "badges": [] },
-            { "user_uid": "user_uid_2", "signup_source": "main", "points": 19, "badges": [] },
-            { "user_uid": "user_uid_1", "signup_source": "main", "points": 19, "badges": [] }
+            { "user_uid": "user_uid_8", "signup_source": "main", "points": 19, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_7", "signup_source": "main", "points": 19, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_6", "signup_source": "main", "points": 19, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_5", "signup_source": "main", "points": 19, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_4", "signup_source": "main", "points": 19, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_3", "signup_source": "main", "points": 19, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_2", "signup_source": "main", "points": 19, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_1", "signup_source": "main", "points": 19, "badges": [], "is_demo_user": false }
         ],
         "expected_competitors": []
     },
@@ -213,25 +213,25 @@
         "expected_rank": 22,
         "signup_source": "main",
         "expected_top10": [
-            { "user_uid": "user_uid_1", "signup_source": "main", "points": 30, "badges": [] },
-            { "user_uid": "user_uid_2", "signup_source": "main", "points": 29, "badges": [] },
-            { "user_uid": "user_uid_3", "signup_source": "main", "points": 28, "badges": [] },
-            { "user_uid": "user_uid_4", "signup_source": "main", "points": 27, "badges": [] },
-            { "user_uid": "user_uid_5", "signup_source": "main", "points": 26, "badges": [] },
-            { "user_uid": "user_uid_6", "signup_source": "main", "points": 25, "badges": [] },
-            { "user_uid": "user_uid_7", "signup_source": "main", "points": 24, "badges": [] },
-            { "user_uid": "user_uid_8", "signup_source": "main", "points": 23, "badges": [] },
-            { "user_uid": "user_uid_9", "signup_source": "main", "points": 22, "badges": [] },
-            { "user_uid": "user_uid_10", "signup_source": "main", "points": 21, "badges": [] }
+            { "user_uid": "user_uid_1", "signup_source": "main", "points": 30, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_2", "signup_source": "main", "points": 29, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_3", "signup_source": "main", "points": 28, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_4", "signup_source": "main", "points": 27, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_5", "signup_source": "main", "points": 26, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_6", "signup_source": "main", "points": 25, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_7", "signup_source": "main", "points": 24, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_8", "signup_source": "main", "points": 23, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_9", "signup_source": "main", "points": 22, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_10", "signup_source": "main", "points": 21, "badges": [], "is_demo_user": false }
         ],
         "expected_competitors": [
-            { "user_uid": "user_uid_19", "signup_source": "main", "points": 15, "badges": [] },
-            { "user_uid": "user_uid_18", "signup_source": "main", "points": 15, "badges": [] },
-            { "user_uid": "user_uid_17", "signup_source": "main", "points": 15, "badges": [] },
-            { "user_uid": "user_uid_16", "signup_source": "main", "points": 15, "badges": [] },
-            { "user_uid": "current_user", "signup_source": "main", "points": 10, "badges": [] },
-            { "user_uid": "user_uid_28", "signup_source": "main", "points": 10, "badges": [] },
-            { "user_uid": "user_uid_27", "signup_source": "main", "points": 10, "badges": [] }
+            { "user_uid": "user_uid_19", "signup_source": "main", "points": 15, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_18", "signup_source": "main", "points": 15, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_17", "signup_source": "main", "points": 15, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_16", "signup_source": "main", "points": 15, "badges": [], "is_demo_user": false },
+            { "user_uid": "current_user", "signup_source": "main", "points": 10, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_28", "signup_source": "main", "points": 10, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_27", "signup_source": "main", "points": 10, "badges": [], "is_demo_user": false }
         ]
     },
 
@@ -267,16 +267,16 @@
         "expected_rank": null,
         "signup_source": "main",
         "expected_top10": [
-            { "user_uid": "user_uid_1", "signup_source": "main", "points": 30, "badges": [] },
-            { "user_uid": "user_uid_2", "signup_source": "main", "points": 29, "badges": [] },
-            { "user_uid": "user_uid_3", "signup_source": "main", "points": 28, "badges": [] },
-            { "user_uid": "user_uid_4", "signup_source": "main", "points": 27, "badges": [] },
-            { "user_uid": "user_uid_5", "signup_source": "main", "points": 26, "badges": [] },
-            { "user_uid": "user_uid_6", "signup_source": "main", "points": 25, "badges": [] },
-            { "user_uid": "user_uid_9", "signup_source": "main", "points": 15, "badges": [] },
-            { "user_uid": "user_uid_8", "signup_source": "main", "points": 15, "badges": [] },
-            { "user_uid": "user_uid_7", "signup_source": "main", "points": 15, "badges": [] },
-            { "user_uid": "user_uid_22", "signup_source": "main", "points": 15, "badges": [] }
+            { "user_uid": "user_uid_1", "signup_source": "main", "points": 30, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_2", "signup_source": "main", "points": 29, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_3", "signup_source": "main", "points": 28, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_4", "signup_source": "main", "points": 27, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_5", "signup_source": "main", "points": 26, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_6", "signup_source": "main", "points": 25, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_9", "signup_source": "main", "points": 15, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_8", "signup_source": "main", "points": 15, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_7", "signup_source": "main", "points": 15, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_22", "signup_source": "main", "points": 15, "badges": [], "is_demo_user": false }
         ],
         "expected_competitors": []
     },
@@ -300,15 +300,15 @@
         "expected_rank": null,
         "signup_source": "main",
         "expected_top10": [
-            { "user_uid": "user_uid_1", "signup_source": "main", "points": 30, "badges": [] },
-            { "user_uid": "user_uid_2", "signup_source": "main", "points": 29, "badges": [] },
-            { "user_uid": "user_uid_3", "signup_source": "main", "points": 28, "badges": [] },
-            { "user_uid": "user_uid_4", "signup_source": "main", "points": 27, "badges": [] },
-            { "user_uid": "user_uid_5", "signup_source": "main", "points": 26, "badges": [] },
-            { "user_uid": "user_uid_6", "signup_source": "main", "points": 25, "badges": [] },
-            { "user_uid": "user_uid_7", "signup_source": "main", "points": 24, "badges": [] },
-            { "user_uid": "user_uid_8", "signup_source": "main", "points": 23, "badges": [] },
-            { "user_uid": "user_uid_9", "signup_source": "main", "points": 22, "badges": [] }
+            { "user_uid": "user_uid_1", "signup_source": "main", "points": 30, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_2", "signup_source": "main", "points": 29, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_3", "signup_source": "main", "points": 28, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_4", "signup_source": "main", "points": 27, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_5", "signup_source": "main", "points": 26, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_6", "signup_source": "main", "points": 25, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_7", "signup_source": "main", "points": 24, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_8", "signup_source": "main", "points": 23, "badges": [], "is_demo_user": false },
+            { "user_uid": "user_uid_9", "signup_source": "main", "points": 22, "badges": [], "is_demo_user": false }
 
         ],
         "expected_competitors": []
