@@ -77,6 +77,10 @@ class AchievementRule(models.Model):
         on_delete=models.CASCADE,
         related_name='achievement_rules',
     )
+
+    # TODO: Restrict rule creation with the same action for one achievement.
+    # Now it is possible to create multiple rules with the same action from Admin panel.
+    # e.g. {'rgg_points_distribution': {'points': 100}}, {'rgg_points_distribution': {'points': 200}}
     rule = models.ForeignKey(
         'rules.Rule',
         on_delete=models.CASCADE,

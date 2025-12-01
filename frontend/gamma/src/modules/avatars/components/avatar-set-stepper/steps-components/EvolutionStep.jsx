@@ -44,7 +44,7 @@ const EvolutionStep = ({
         values.avatars.map(async (avatar, index) => ({
           ...avatar,
           image: await convertImageToBase64(avatar.image),
-          stage: index,
+          stage: index + 1,
         })),
       );
 

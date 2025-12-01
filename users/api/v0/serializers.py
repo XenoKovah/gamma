@@ -9,6 +9,9 @@ from badges.api.v0.serializers import BadgeSerializer
 from badges.models import Badge
 from users.models import GammaUser
 
+from avatars.api.v0.serializers import AvatarProgressSerializer
+from achievements.services.progress import AvatarProgressService
+
 
 class GammaUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -25,6 +28,7 @@ class UserGameProfileSerializer(serializers.Serializer):
     user_avatar_config = serializers.SerializerMethodField()
     system_badges = serializers.SerializerMethodField()
     badges = serializers.SerializerMethodField()
+    avatar_progress = serializers.SerializerMethodField()
 
     points = serializers.IntegerField()
     chart = serializers.JSONField()
@@ -70,3 +74,13 @@ class UserGameProfileSerializer(serializers.Serializer):
         )
 
         return AchievementDetailSerializer(received_user_badges, many=True).data
+
+    def get_avatar_progress(self, obj):
+        """
+        Get avatar progress data.
+        """
+        if (config := UserAvatarConfig.objects.filter(user=obj).first()):
+            service = AvatarProgressService(config)
+            progress = service.calculate_progress()
+            return AvatarProgressSerializer(progress).data
+        return None

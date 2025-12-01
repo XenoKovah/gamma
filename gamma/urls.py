@@ -20,10 +20,29 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 from django.views.i18n import JavaScriptCatalog
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
 
 from core.views import DashboardView, logout_view
 from gamma.views import GammaView
 
+
+schema_view = get_schema_view(
+   openapi.Info(
+      title='Gamma API',
+      default_version='v0',
+      description='Gamma API documentation',
+      license=openapi.License(name='BSD License'),
+   ),
+   public=True,
+)
+
+# Group swagger/openapi endpoints together for clarity and re-use
+swagger_urlpatterns = [
+    path('swagger.<format>/', schema_view.without_ui(cache_timeout=0), name='schema-json'),
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+]
 
 urlpatterns = oauth2_urlpatterns + [
     # Dashboard page (will be redirected to `/gamma/avatars/`)
@@ -48,4 +67,4 @@ urlpatterns = oauth2_urlpatterns + [
 
     # Gamma React routes
     path('gamma/<path:subpath>/', GammaView.as_view(), name='gamma_react_app'),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] + swagger_urlpatterns + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

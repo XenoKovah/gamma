@@ -12,7 +12,6 @@ from avatars.constants import (
     AVATAR_STAGES_ERROR,
     AVATAR_TITLE_ERROR,
     INVALID_FILE_FORMAT,
-    SVG_EXTENSION
 )
 from avatars.factories import AvatarFactory, AvatarSetFactory
 from avatars.models import Avatar, AvatarSet

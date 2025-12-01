@@ -4,6 +4,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from drf_extra_fields.fields import Base64FileField
 from rest_framework import serializers
 
+from achievements.services.progress import AvatarProgressService
 from avatars.constants import (
     AVATAR_SET_DUPLICATE_TITLE_ERROR,
     AVATAR_SET_TITLE_ERROR,
@@ -181,5 +182,17 @@ class UserAvatarConfigSerializer(serializers.ModelSerializer):
         """
         Get last achieved avatar.
         """
-        last = instance.get_last_achieved_avatar()
+        progress = AvatarProgressService(instance)
+        last = progress.resolve_current()
         return AvatarSerializer(last, context=self.context).data if last else None
+
+
+class AvatarProgressSerializer(serializers.Serializer):
+    """
+    Serializer for user avatar progress.
+    """
+
+    current_points = serializers.IntegerField()
+    required_points = serializers.IntegerField()
+    current_avatar = serializers.DictField(allow_null=True)
+    next_avatar = serializers.DictField(allow_null=True)

@@ -1,12 +1,9 @@
-from typing import Optional
-
 from django.contrib.contenttypes.fields import ContentType
-from django.core.validators import FileExtensionValidator
+from django.core.validators import FileExtensionValidator, MinValueValidator
 from django.db import models
-from django.db.models import Count, F, Q, QuerySet
 from django.utils.translation import ugettext_lazy as _
 
-from achievements.models import Achievement, AchievementRule
+from achievements.models import Achievement
 from core.mixins import TimestampModelMixin
 from users.models import GammaUser
 
@@ -23,8 +20,13 @@ class Avatar(TimestampModelMixin, models.Model):
         validators=[FileExtensionValidator(allowed_extensions=['svg'])],
     )
     rules = models.ManyToManyField('rules.Rule', blank=True)
-
-    stage = models.PositiveIntegerField(blank=True, null=True, default=None)
+    stage = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        default=1,
+        verbose_name=_('Avatar Stage'),
+        validators=[MinValueValidator(1)],
+    )
 
     def __str__(self):
         rules = ', '.join(str(rule.action) for rule in self.rules.all()) if self.rules.exists() else 'No rules'
@@ -80,35 +82,3 @@ class UserAvatarConfig(models.Model):
     class Meta:
         verbose_name = _('User Avatar Config')
         verbose_name_plural = _('User Avatar Configs')
-
-    def get_last_achieved_avatar(self) -> Optional['Avatar']:
-        """
-        Return the Avatar in this set with the highest `stage` the user has actually unlocked.
-
-        All achievement rule must be complete.
-        If none are achieved, returns None.
-        """
-        if not self.avatar_set_id or not self.user_id:
-            return None
-
-        avatars = (
-            self.avatar_set.avatars
-            .annotate(
-                total_rules=Count('rules', distinct=True),
-                completed_rules=Count(
-                    'rules',
-                    filter=Q(
-                        rules__rule_achievements__achievement__user=self.user,
-                        rules__rule_achievements__status=AchievementRule.Statuses.COMPLETED,
-                        rules__rule_achievements__achievement__object_id__in=self.avatar_set.avatars.values_list(
-                            'id', flat=True
-                        ),
-                    ),
-                    distinct=True
-                ),
-            )
-            .filter(total_rules=F('completed_rules'))
-            .order_by('-stage')
-        )
-
-        return avatars.first()

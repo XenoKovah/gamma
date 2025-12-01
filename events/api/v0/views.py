@@ -1,13 +1,19 @@
+from django.db.models import QuerySet
+from django.utils.decorators import method_decorator
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 from rest_framework import generics, status
-from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
+from achievements.enums import AchievementTypes
 from core.authentication import KeySecretAuthentication
-
-from events.constants import TEMPORALLY_EXCLUDED_EVENT_TYPES
 from events.models import EventConfiguration
+from events.services import get_event_configuration_service
 
 from .serializers import AvailableActionsSerializer, EventSerializer
+
+EVENTS_API_TAG = 'Events'
 
 
 class EventsAPIView(APIView):
@@ -49,6 +55,11 @@ class EventsAPIView(APIView):
     authentication_classes = (KeySecretAuthentication,)
     serializer_class = EventSerializer
 
+    @swagger_auto_schema(
+        tags=[EVENTS_API_TAG],
+        operation_summary='Create an event',
+        operation_description='Create an Event record from incoming event payloads.',
+    )
     def post(self, request, *args, **kwargs):
         data = request.data.copy()
         data.update({'client': request.client.name})
@@ -60,6 +71,26 @@ class EventsAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
+@method_decorator(
+    name='get',
+    decorator=swagger_auto_schema(
+        tags=[EVENTS_API_TAG],
+        operation_summary='List available event actions',
+        operation_description=(
+            'Return EventConfiguration objects, optionally filtered by `achievement_type` query parameter.'
+        ),
+        manual_parameters=[
+            openapi.Parameter(
+                'achievement_type',
+                openapi.IN_QUERY,
+                type=openapi.TYPE_STRING,
+                required=False,
+                enum=AchievementTypes.get_all(),
+            )
+        ],
+        responses={200: openapi.Response('OK', AvailableActionsSerializer(many=True))}
+    ),
+)
 class AvailableActionsAPIView(generics.ListAPIView):
     """
     API endpoint to show all configured event types.
@@ -68,9 +99,19 @@ class AvailableActionsAPIView(generics.ListAPIView):
     model = EventConfiguration
     serializer_class = AvailableActionsSerializer
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[EventConfiguration]:
         """
-        Returns a queryset of EventConfiguration objects, excluding Event Types
-        which is in TEMPORALLY_EXCLUDED_EVENT_TYPES.
+        Return available actions based on EventConfiguration.
+
+        If 'achievement_type' query param is provided, filter configurations accordingly.
         """
-        return EventConfiguration.objects.exclude(event_type__name__in=TEMPORALLY_EXCLUDED_EVENT_TYPES)
+        achievement_type = self.request.query_params.get('achievement_type')
+        if not achievement_type:
+            return get_event_configuration_service().get_available()
+
+        try:
+            achievement_type = AchievementTypes.from_value(achievement_type)
+        except ValueError:
+            return EventConfiguration.objects.none()
+
+        return get_event_configuration_service(achievement_type).get_available()
