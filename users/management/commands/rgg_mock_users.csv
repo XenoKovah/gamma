@@ -1,0 +1,11 @@
+user_uid,points,course_id,TestBadge1,TestBadge2,TestBadge3,TestBadge4
+test_user_010,9000,,1,1,1,1
+test_user_009,8000,,1,1,1,1
+test_user_008,7000,,1,1,1,1
+test_user_007,6000,,1,1,1,0
+test_user_006,5000,,1,1,1,0
+test_user_005,4000,,1,1,1,0
+test_user_004,3000,,1,1,0,0
+test_user_003,2000,,1,0,0,0
+test_user_002,1000,,1,0,0,0
+test_user_001,0,,0,0,0,0

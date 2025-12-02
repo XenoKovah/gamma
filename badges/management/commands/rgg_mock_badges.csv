@@ -1,0 +1,5 @@
+slug,image,title
+test-badge1,badges/management/commands/test-badge-1.png,TestBadge1
+test-badge2,badges/management/commands/test-badge-2.png,TestBadge2
+test-badge3,badges/management/commands/test-badge-3.jpeg,TestBadge3
+test-badge4,badges/management/commands/test-badge-4.jpeg,TestBadge4
