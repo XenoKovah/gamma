@@ -8,3 +8,6 @@ AVATAR_SET_DUPLICATE_TITLE_ERROR = 'An Avatar Set with this Title already exists
 AVATAR_SHOULD_CONTAINS_AT_LEAST_ONE_RULE = 'At least one rule should be setup for the Avatar.'
 AVATAR_SET_FINISH_SUCCESS = 'AvatarSet has been finished successfully.'
 AVATAR_SET_FINISH_FAILURE = 'AvatarSet must contain at least two avatars before finishing.'
+
+AVATAR_STAGES_MIN = 2
+AVATAR_STAGES_MAX = 5

@@ -2,12 +2,12 @@
 Events service logic.
 """
 
-from typing import Optional, Set, Tuple
+from typing import Optional, Set, Tuple, Union
 
 from django.db.models import QuerySet
 
 from achievements.enums import AchievementTypes
-from events.enums import RggInternalEventTypes
+from events.enums import EdxCommonEventTypes, RggInternalEventTypes
 from events.models import EventConfiguration
 
 
@@ -82,6 +82,21 @@ class EventConfigurationService:
 
         return EventConfiguration.objects.all()
 
+    def is_allowed(self, event_configuration_name: Union[RggInternalEventTypes, EdxCommonEventTypes]) -> bool:
+        """
+        Check whether the event type name is allowed for the current achievement type.
+        """
+        if not isinstance(event_configuration_name, (RggInternalEventTypes, EdxCommonEventTypes)):
+            return
+
+        value = event_configuration_name.value
+        allowed = self.get_allowed()
+        excluded = self.get_excluded()
+
+        if allowed is not None:
+            return value in allowed and value not in excluded
+
+        return value not in excluded
 
 def get_event_configuration_service(achievement_type: Optional[AchievementTypes] = None) -> EventConfigurationService:
     """

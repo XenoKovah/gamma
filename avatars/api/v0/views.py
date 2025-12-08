@@ -10,7 +10,7 @@ from avatars.api.v0.serializers import (
     AvatarSetSerializer,
     UserAvatarConfigSerializer,
 )
-from avatars.constants import AVATAR_SET_FINISH_FAILURE, AVATAR_SET_FINISH_SUCCESS
+from avatars.constants import AVATAR_SET_FINISH_FAILURE, AVATAR_SET_FINISH_SUCCESS, AVATAR_STAGES_MIN
 from avatars.models import Avatar, AvatarSet, UserAvatarConfig
 from core.authentication import KeySecretAuthentication
 from core.mixins import AdminUserPermissionMixin
@@ -33,7 +33,7 @@ class AvatarSetViewSet(AdminUserPermissionMixin, viewsets.ModelViewSet):
         """
         avatar_set = self.get_object()
 
-        if avatar_set.avatars.count() < 2:
+        if avatar_set.avatars.count() < AVATAR_STAGES_MIN:
             return Response(
                 {'error': AVATAR_SET_FINISH_FAILURE},
                 status=status.HTTP_400_BAD_REQUEST,
