@@ -96,17 +96,20 @@ Tests:
     - merge_requests
   variables:
     DJANGO_SETTINGS_MODULE: gamma.settings.test
+    GIT_DEPTH: 0
   services:
     - name: redis:latest
       alias: redis
-  before_script: []
+  before_script:
+    - git fetch origin $CI_DEFAULT_BRANCH
   script:
-    - pytest && coverage xml && diff-cover coverage.xml --fail-under=60
+    - pytest && coverage xml && diff-cover coverage.xml --compare-branch=origin/$CI_DEFAULT_BRANCH --fail-under=60
 
 Tag:
   stage: tag
   tags:
     - dind
+  image: docker:28.5.2
   only:
     - master
   script:
@@ -120,6 +123,7 @@ Cleanup:
   stage: cleanup
   tags:
     - dind
+  image: docker:28.5.2
   only:
     - master
     - merge_requests

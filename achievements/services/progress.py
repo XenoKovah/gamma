@@ -138,3 +138,10 @@ class AvatarProgressService(BaseProgressService):
                 except (TypeError, ValueError):
                     continue
         return total_points
+
+
+def get_avatar_progress_service(config: UserAvatarConfig) -> AvatarProgressService:
+    """
+    Factory method to get AvatarProgressService instance.
+    """
+    return AvatarProgressService(config=config)

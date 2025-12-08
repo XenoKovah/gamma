@@ -54,7 +54,7 @@ class TestUserGameProfileSerializer:
                              ('description', avatar_stage_1.description),
                              ('image', avatar_stage_1.image.url),
                              ('rules', []),
-                             ('stage', None),
+                             ('stage', avatar_stage_1.stage),
                              ('created_at', avatar_stage_1.created_at.isoformat().replace('+00:00', 'Z'))
                          ]),
                          OrderedDict([
@@ -63,7 +63,7 @@ class TestUserGameProfileSerializer:
                              ('description', avatar_stage_2.description),
                              ('image', avatar_stage_2.image.url),
                              ('rules', []),
-                             ('stage', None),
+                             ('stage', avatar_stage_2.stage),
                              ('created_at', avatar_stage_2.created_at.isoformat().replace('+00:00', 'Z'))
                          ])
                      ]),
@@ -81,7 +81,7 @@ class TestUserGameProfileSerializer:
                     ('description', avatar_stage_1.description),
                     ('image', avatar_stage_1.image.url),
                     ('rules', []),
-                    ('stage', None),
+                    ('stage', avatar_stage_1.stage),
                     ('created_at', avatar_stage_1.created_at.isoformat().replace('+00:00', 'Z'))
                 ]),
             },
@@ -109,10 +109,22 @@ class TestUserGameProfileSerializer:
                     ('is_active', badge.is_active)
                 ])
             ],
+            'avatar_progress': {
+                'current_points': user.points,
+                'required_points': 0,
+                'current_avatar': {
+                    'id': avatar_stage_1.id,
+                    'title': avatar_stage_1.title,
+                    'stage': avatar_stage_1.stage,
+                    'image': avatar_stage_1.image.url,
+                    'description': avatar_stage_1.description,
+                },
+                'next_avatar': None,
+            },
             'points': 100,
             'chart': {},
             'progress': {},
-            'signup_source': None
+            'signup_source': None,
         }
 
         serializer = UserGameProfileSerializer(user)

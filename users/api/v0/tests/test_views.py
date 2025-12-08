@@ -23,6 +23,7 @@ def test_user_game_profile_successful(live_server, auth_client):
         'chart',
         'progress',
         'signup_source',
+        'avatar_progress',
     }
 
     assert response.status_code == status.HTTP_200_OK
