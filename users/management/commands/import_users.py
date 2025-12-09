@@ -4,11 +4,13 @@ from pathlib import Path
 
 from django.core.management.base import BaseCommand, CommandParser
 
-from users.services import CSVImportService
+from users.services import UserCSVImportService
 
 
 class Command(BaseCommand):
-    """CLI entry for the Gamma entities importer."""
+    """
+    CLI entry for the Gamma entities importer.
+    """
 
     help = """
     Import Gamma users, badges, and related points from a CSV file.
@@ -30,13 +32,19 @@ class Command(BaseCommand):
             action="store_true",
             help="Validate and log actions without touching the database.",
         )
+        parser.add_argument(
+            "--delete",
+            action="store_true",
+            help="Delete users specified in the CSV by `user_uid`.",
+        )
 
     def handle(self, *unused_args, **options):
         csv_path: Path = options["csv_path"].expanduser().resolve()
         dry_run: bool = options["dry_run"]
+        delete: bool = options["delete"]
 
         if not csv_path.exists():
             raise FileNotFoundError(f"CSV file not found: {csv_path}")
 
-        import_service = CSVImportService(dry_run=dry_run)
+        import_service = UserCSVImportService(dry_run=dry_run, delete=delete)
         import_service.run(csv_path)

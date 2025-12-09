@@ -1,3 +1,3 @@
 """Users service utilities."""
 
-from .importers import CSVImportService
+from .importers import UserCSVImportService
