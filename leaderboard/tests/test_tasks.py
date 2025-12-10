@@ -8,7 +8,7 @@ from core.tests.utils.helpers import load_params_from_json
 from leaderboard import tasks
 from leaderboard.repository import RedisLeaderboardRepository, RedisLeaderboardsPendingUpdateRepository
 from users.models import GammaUser
-from users.factories import GammaUserCoursePointsFactory, GammaUserFactory
+from users.tests.factories import GammaUserCoursePointsFactory, GammaUserFactory
 
 
 pytestmark = pytest.mark.django_db

@@ -6,8 +6,8 @@ import factory
 import pytest
 from django.db.models import signals
 
-from events.factories import EventConfigurationFactory, EventFactory
-from users.factories import GammaUserCoursePointsFactory, GammaUserFactory
+from events.tests.factories import EventConfigurationFactory, EventFactory
+from users.tests.factories import GammaUserCoursePointsFactory, GammaUserFactory
 from users.models import GammaUserCoursePoints
 
 

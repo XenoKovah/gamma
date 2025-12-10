@@ -13,10 +13,10 @@ from avatars.constants import (
     AVATAR_TITLE_ERROR,
     INVALID_FILE_FORMAT,
 )
-from avatars.factories import AvatarFactory, AvatarSetFactory
+from avatars.tests.factories import AvatarFactory, AvatarSetFactory
 from avatars.models import Avatar, AvatarSet
-from events.factories import EventFactory, EventTypeFactory
-from rules.factories import RuleFactory
+from events.tests.factories import EventFactory, EventTypeFactory
+from rules.tests.factories import RuleFactory
 
 
 @pytest.mark.django_db

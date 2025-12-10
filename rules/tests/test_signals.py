@@ -5,8 +5,8 @@ import pytest
 
 from events.enums import RggInternalEventTypes
 from events.models import Event
-from events.factories import EventFactory
-from users.factories import GammaUserFactory
+from events.tests.factories import EventFactory
+from users.tests.factories import GammaUserFactory
 
 pytestmark = pytest.mark.django_db
 

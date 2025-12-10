@@ -8,7 +8,7 @@ from leaderboard import usecases
 from leaderboard.dataclasses import LeaderboardRetrievingContext
 from leaderboard.entity import LeaderboardMember
 from leaderboard.repository import ORMLeaderboardMemberDataRepository, RedisLeaderboardRepository
-from users.factories import GammaUserFactory
+from users.tests.factories import GammaUserFactory
 
 
 class TestGetPersonalizedLeaderboardUseCase:

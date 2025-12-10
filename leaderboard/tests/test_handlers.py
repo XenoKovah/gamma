@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from django.db import transaction
 
-from users.factories import GammaUserFactory
+from users.tests.factories import GammaUserFactory
 
 
 class TestLeaderboardsUserDataUpdateEnqueuing:

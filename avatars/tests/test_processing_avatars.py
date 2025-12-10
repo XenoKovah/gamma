@@ -4,12 +4,12 @@ import pytest
 
 from achievements.models import Achievement
 from achievements.services.progress import get_avatar_progress_service
-from avatars.factories import AvatarFactory, AvatarSetFactory, UserAvatarConfigFactory
+from avatars.tests.factories import AvatarFactory, AvatarSetFactory, UserAvatarConfigFactory
 from avatars.models import Avatar, AvatarSet
 from events.enums import RggInternalEventTypes
-from events.factories import EventConfigurationFactory, EventFactory, EventTypeFactory
+from events.tests.factories import EventConfigurationFactory, EventFactory, EventTypeFactory
 from events.models import Event, EventConfiguration
-from rules.factories import RuleFactory
+from rules.tests.factories import RuleFactory
 from rules.models import Rule
 from users.models import GammaUser
 

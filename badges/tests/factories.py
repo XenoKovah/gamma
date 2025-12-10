@@ -1,18 +1,20 @@
 import factory
 from django.utils.text import slugify
+from pytest_factoryboy import register
 
 
+@register
 class BadgeFactory(factory.django.DjangoModelFactory):
     """
     Factory for the Badge model.
     """
 
     class Meta:
-        model = 'badges.Badge'
+        model = "badges.Badge"
 
-    title = factory.Faker('sentence', nb_words=3)
-    description = factory.Faker('paragraph', nb_sentences=2)
-    image = factory.django.ImageField(color='blue')
+    title = factory.Faker("sentence", nb_words=3)
+    description = factory.Faker("paragraph", nb_sentences=2)
+    image = factory.django.ImageField(color="blue")
     is_active = True
     slug = factory.LazyAttribute(lambda obj: slugify(obj.title))
 

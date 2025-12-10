@@ -1,10 +1,4 @@
 import pytest
-from pytest_factoryboy import register
-
-from events.factories import EventRequestDataFactory
-
-
-register(EventRequestDataFactory)
 
 
 @pytest.fixture

@@ -3,11 +3,11 @@ from typing import Optional
 import pytest
 
 from achievements.models import Achievement
-from badges.factories import BadgeFactory
+from badges.tests.factories import BadgeFactory
 from badges.models import Badge
-from events.factories import EventConfigurationFactory, EventFactory, EventTypeFactory
+from events.tests.factories import EventConfigurationFactory, EventFactory, EventTypeFactory
 from events.models import Event, EventConfiguration
-from rules.factories import RuleFactory
+from rules.tests.factories import RuleFactory
 from rules.models import Rule
 from users.models import GammaUser
 

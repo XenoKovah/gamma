@@ -14,6 +14,7 @@ class TestUserGameProfileSerializer:
 
     def test_serialized_data(
         self,
+        avatar_factory,
         avatar_set_factory,
         gamma_user_factory,
         badge_factory,
@@ -22,9 +23,10 @@ class TestUserGameProfileSerializer:
     ):
         user = gamma_user_factory()
         badge = badge_factory()
-        avatar_set = avatar_set_factory(is_draft=False)
-        avatar_stage_1 = avatar_set.avatars.first()
-        avatar_stage_2 = avatar_set.avatars.last()
+
+        avatar_stage_1 = avatar_factory(stage=1)
+        avatar_stage_2 = avatar_factory(stage=2)
+        avatar_set = avatar_set_factory(is_draft=False, avatars=[avatar_stage_1, avatar_stage_2])
         user_avatar_config = user_avatar_config_factory(user=user, avatar_set=avatar_set)
 
         achievement_factory(
@@ -76,13 +78,13 @@ class TestUserGameProfileSerializer:
                 'user': user.id,
                 'avatar_set': avatar_set.id,
                 'avatar': OrderedDict([
-                    ('id', avatar_stage_1.id),
-                    ('title', avatar_stage_1.title),
-                    ('description', avatar_stage_1.description),
-                    ('image', avatar_stage_1.image.url),
+                    ('id', avatar_stage_2.id),
+                    ('title', avatar_stage_2.title),
+                    ('description', avatar_stage_2.description),
+                    ('image', avatar_stage_2.image.url),
                     ('rules', []),
-                    ('stage', avatar_stage_1.stage),
-                    ('created_at', avatar_stage_1.created_at.isoformat().replace('+00:00', 'Z'))
+                    ('stage', avatar_stage_2.stage),
+                    ('created_at', avatar_stage_2.created_at.isoformat().replace('+00:00', 'Z'))
                 ]),
             },
             'system_badges': [
@@ -113,11 +115,11 @@ class TestUserGameProfileSerializer:
                 'current_points': user.points,
                 'required_points': 0,
                 'current_avatar': {
-                    'id': avatar_stage_1.id,
-                    'title': avatar_stage_1.title,
-                    'stage': avatar_stage_1.stage,
-                    'image': avatar_stage_1.image.url,
-                    'description': avatar_stage_1.description,
+                    'id': avatar_stage_2.id,
+                    'title': avatar_stage_2.title,
+                    'stage': avatar_stage_2.stage,
+                    'image': avatar_stage_2.image.url,
+                    'description': avatar_stage_2.description,
                 },
                 'next_avatar': None,
             },

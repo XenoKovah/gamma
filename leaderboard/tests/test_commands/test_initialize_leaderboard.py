@@ -7,7 +7,7 @@ from redis import Redis
 
 from leaderboard.management.commands.initialize_leaderboard import Command
 from leaderboard.repository import RedisLeaderboardRepository
-from users.factories import GammaUserFactory
+from users.tests.factories import GammaUserFactory
 
 
 pytestmark = pytest.mark.django_db

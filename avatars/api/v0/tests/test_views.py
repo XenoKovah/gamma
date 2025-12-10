@@ -4,7 +4,7 @@ from django.urls import reverse
 from rest_framework import status
 
 from avatars.constants import AVATAR_SET_FINISH_FAILURE, AVATAR_SET_FINISH_SUCCESS
-from avatars.factories import AvatarFactory, AvatarSetFactory
+from avatars.tests.factories import AvatarFactory, AvatarSetFactory
 
 
 @pytest.mark.django_db

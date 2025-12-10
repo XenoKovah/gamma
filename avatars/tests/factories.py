@@ -1,19 +1,22 @@
 import factory
 from django.core.files.uploadedfile import SimpleUploadedFile
+from pytest_factoryboy import register
 
 from avatars.models import Avatar, AvatarSet, UserAvatarConfig
 
 
+@register
 class AvatarFactory(factory.django.DjangoModelFactory):
     """
     Factory for creating Avatar instances.
     """
 
-    title = factory.Faker('sentence', nb_words=3)
-    description = factory.Faker('text', max_nb_chars=100)
+    title = factory.Faker("sentence", nb_words=3)
+    description = factory.Faker("text", max_nb_chars=100)
     image = factory.LazyAttribute(
-        lambda _: SimpleUploadedFile('test_avatar.svg', b'<svg></svg>', content_type='image/svg+xml')
+        lambda _: SimpleUploadedFile("test_avatar.svg", b"<svg></svg>", content_type="image/svg+xml")
     )
+    stage = factory.Faker("random_int", min=1, max=5)
 
     @factory.post_generation
     def set_rules(self, create, extracted, **kwargs):
@@ -33,13 +36,14 @@ class AvatarFactory(factory.django.DjangoModelFactory):
         model = Avatar
 
 
+@register
 class AvatarSetFactory(factory.django.DjangoModelFactory):
     """
     Factory for creating AvatarSet instances.
     """
 
-    title = factory.Faker('sentence', nb_words=4)
-    is_draft = factory.Faker('boolean')
+    title = factory.Faker("sentence", nb_words=4)
+    is_draft = factory.Faker("boolean")
 
     @factory.post_generation
     def avatars(self, create, extracted, **kwargs):
@@ -58,13 +62,14 @@ class AvatarSetFactory(factory.django.DjangoModelFactory):
         model = AvatarSet
 
 
+@register
 class UserAvatarConfigFactory(factory.django.DjangoModelFactory):
     """
     Factory for creating UserAvatarConfig instances.
     """
 
-    user = factory.SubFactory('users.factories.GammaUserFactory')
-    avatar_set = factory.SubFactory('avatars.factories.AvatarSetFactory')
+    user = factory.SubFactory("users.tests.factories.GammaUserFactory")
+    avatar_set = factory.SubFactory("avatars.tests.factories.AvatarSetFactory")
 
     class Meta:
         model = UserAvatarConfig

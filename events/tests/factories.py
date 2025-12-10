@@ -1,7 +1,9 @@
 import factory
 from django.utils.timezone import now
+from pytest_factoryboy import register
 
 
+@register
 class EventTypeFactory(factory.django.DjangoModelFactory):
     """
     Factory for EventType model.
@@ -13,6 +15,7 @@ class EventTypeFactory(factory.django.DjangoModelFactory):
     name = factory.Faker('word')
 
 
+@register
 class EventConfigurationFactory(factory.django.DjangoModelFactory):
     """
     Factory for EventConfiguration model.
@@ -26,6 +29,7 @@ class EventConfigurationFactory(factory.django.DjangoModelFactory):
     award = factory.Faker('random_int', min=1, max=100)
 
 
+@register
 class EventFactory(factory.django.DjangoModelFactory):
     """
     Factory for Event model.
@@ -44,6 +48,7 @@ class EventFactory(factory.django.DjangoModelFactory):
     course_id = factory.LazyAttribute(lambda c: f'course-v1:{c.org}+1+1')
 
 
+@register
 class EventRequestDataFactory(factory.Factory):
     class Meta:
         model = dict

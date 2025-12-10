@@ -2,43 +2,28 @@ import random
 import string
 
 import pytest
-from pytest_django.fixtures import SettingsWrapper
-from pytest_factoryboy import register
 from django.core.cache import cache
+from pytest_django.fixtures import SettingsWrapper
 from redis import Redis
 from rest_framework.test import APIClient
 
-from achievements.tests.factories import AchievementFactory, AchievementRuleFactory
-from avatars.factories import AvatarSetFactory, UserAvatarConfigFactory
-from badges.factories import BadgeFactory
+from achievements.tests.conftest import *
+from avatars.tests.conftest import *
+from badges.tests.conftest import *
 from core.models import AppClient
 from events.enums import RggInternalEventTypes
-from events.factories import EventFactory, EventConfigurationFactory, EventTypeFactory
-from rules.factories import RuleFactory
-from users.factories import GammaUserCoursePointsFactory, GammaUserFactory, UserFactory
+from events.tests.conftest import *
+from rules.tests.conftest import *
+from users.tests.conftest import *
 
 
-register(AchievementFactory)
-register(AchievementRuleFactory)
-register(AvatarSetFactory)
-register(BadgeFactory)
-register(EventFactory)
-register(EventTypeFactory)
-register(EventConfigurationFactory)
-register(GammaUserCoursePointsFactory)
-register(GammaUserFactory)
-register(RuleFactory)
-register(UserAvatarConfigFactory)
-register(UserFactory)
-
-
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def rand_str():
     chars = string.ascii_uppercase + string.digits
-    return ''.join(random.choice(chars) for _ in range(10))
+    return "".join(random.choice(chars) for _ in range(10))
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def app_client(rand_str):
     app_cl = AppClient(name=rand_str)
     app_cl.save()
@@ -48,7 +33,7 @@ def app_client(rand_str):
 @pytest.fixture
 def client():
     client = APIClient()
-    client.credentials(HTTP_CONTENT_TYPE='application/json')
+    client.credentials(HTTP_CONTENT_TYPE="application/json")
     return client
 
 
@@ -56,9 +41,7 @@ def client():
 def auth_client(app_client):
     client = APIClient()
     client.credentials(
-        HTTP_APP_KEY=app_client.key,
-        HTTP_APP_SECRET=app_client.secret,
-        HTTP_CONTENT_TYPE='application/json'
+        HTTP_APP_KEY=app_client.key, HTTP_APP_SECRET=app_client.secret, HTTP_CONTENT_TYPE="application/json"
     )
     return client
 
@@ -103,7 +86,7 @@ def setup_rgg_internal_events(request, event_type_factory, event_configuration_f
     """
     Create internal EventType and EventConfiguration instances using factories.
     """
-    if request.node.get_closest_marker('no_rgg_events'):
+    if request.node.get_closest_marker("no_rgg_events"):
         return
 
     for event_name in RggInternalEventTypes.get_all():

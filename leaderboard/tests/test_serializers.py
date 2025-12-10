@@ -5,12 +5,12 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from achievements.tests.factories import AchievementFactory, AchievementRuleFactory
-from badges.factories import BadgeFactory
+from badges.tests.factories import BadgeFactory
 from core.tests.utils.helpers import load_params_from_json
 from leaderboard.dataclasses import LeaderboardRetrievingContext
 from leaderboard.serializers import LeaderboardMemberSerializer
-from rules.factories import RuleFactory
-from users.factories import GammaUserFactory
+from rules.tests.factories import RuleFactory
+from users.tests.factories import GammaUserFactory
 
 
 @pytest.mark.django_db
