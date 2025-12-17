@@ -16,7 +16,7 @@ class TestAvatarProgressServiceInit:
     def test_init_handles_missing_avatar_set(self, user_avatar_config_without_avatar_set):
         config = user_avatar_config_without_avatar_set()
 
-        service = get_avatar_progress_service(config)
+        service = get_avatar_progress_service(username=config.user.user_uid, config=config)
 
         assert service.avatar_set is None
 
@@ -54,6 +54,20 @@ class TestCalculateProgress:
         result = service.calculate_progress()
 
         assert result["current_avatar"] is None
+
+    def test_returns_max_required_points(self, avatar_progress_service):
+        service = avatar_progress_service(stages=3, points_per_stage=50)
+
+        result = service.calculate_progress()
+
+        assert result['max_required_points'] == 150
+
+    def test_max_required_points_equals_last_avatar_points(self, avatar_progress_service):
+        service = avatar_progress_service(stages=5, points_per_stage=100)
+
+        result = service.calculate_progress()
+
+        assert result['max_required_points'] == 500
 
 
 @pytest.mark.django_db
@@ -131,6 +145,43 @@ class TestResolveNext:
         result = service.resolve_next()
 
         assert result is None
+
+
+@pytest.mark.django_db
+class TestResolveLast:
+    """
+    Tests for resolve_last method.
+    """
+
+    def test_returns_none_when_no_avatar_set(self, avatar_progress_service_without_avatar_set):
+        service = avatar_progress_service_without_avatar_set()
+
+        result = service.resolve_last()
+
+        assert result is None
+
+    def test_returns_none_when_empty_avatar_set(self, avatar_progress_service_with_empty_set):
+        service = avatar_progress_service_with_empty_set()
+
+        result = service.resolve_last()
+
+        assert result is None
+
+    def test_returns_highest_stage_avatar(self, avatar_progress_service):
+        service = avatar_progress_service(stages=5, points_per_stage=50)
+
+        result = service.resolve_last()
+
+        assert result is not None
+        assert result.stage == 5
+
+    def test_returns_highest_stage_with_three_stages(self, avatar_progress_service):
+        service = avatar_progress_service(stages=3, points_per_stage=100)
+
+        result = service.resolve_last()
+
+        assert result is not None
+        assert result.stage == 3
 
 
 @pytest.mark.django_db

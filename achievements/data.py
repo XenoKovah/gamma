@@ -8,7 +8,8 @@ from typing import Optional, Dict
 
 @dataclass
 class AvatarProgressResult:
-    current_points: int
-    required_points: int
-    current_avatar: Optional[Dict]
-    next_avatar: Optional[Dict]
+    current_points: int = 0
+    required_points: int = 0
+    current_avatar: Optional[Dict] = None
+    next_avatar: Optional[Dict] = None
+    max_required_points: int = 0

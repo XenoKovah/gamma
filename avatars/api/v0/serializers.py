@@ -182,7 +182,8 @@ class UserAvatarConfigSerializer(serializers.ModelSerializer):
         """
         Get last achieved avatar.
         """
-        progress = AvatarProgressService(instance)
+        username = getattr(getattr(instance, 'user', None), 'user_uid', '')
+        progress = AvatarProgressService(username=username, config=instance)
         last = progress.resolve_current()
         return AvatarSerializer(last, context=self.context).data if last else None
 
@@ -194,5 +195,6 @@ class AvatarProgressSerializer(serializers.Serializer):
 
     current_points = serializers.IntegerField()
     required_points = serializers.IntegerField()
+    max_required_points = serializers.IntegerField()
     current_avatar = serializers.DictField(allow_null=True)
     next_avatar = serializers.DictField(allow_null=True)

@@ -15,7 +15,7 @@ def avatar_progress_service(user_avatar_config_with_stages):
             points_per_stage=points_per_stage,
             **kwargs,
         )
-        return get_avatar_progress_service(config)
+        return get_avatar_progress_service(username=config.user.user_uid, config=config)
 
     return _create
 
@@ -28,7 +28,7 @@ def avatar_progress_service_without_avatar_set(user_avatar_config_without_avatar
 
     def _create(user_points=100, **kwargs):
         config = user_avatar_config_without_avatar_set(user_points=user_points, **kwargs)
-        return get_avatar_progress_service(config)
+        return get_avatar_progress_service(username=config.user.user_uid, config=config)
 
     return _create
 
@@ -41,7 +41,7 @@ def avatar_progress_service_with_empty_set(user_avatar_config_with_empty_avatar_
 
     def _create(user_points=100, **kwargs):
         config = user_avatar_config_with_empty_avatar_set(user_points=user_points, **kwargs)
-        return get_avatar_progress_service(config)
+        return get_avatar_progress_service(username=config.user.user_uid, config=config)
 
     return _create
 
@@ -59,6 +59,6 @@ def avatar_progress_service_with_completed_stages(user_with_completed_avatar_sta
             points_per_stage=points_per_stage,
             completed_stages=completed_stages,
         )
-        return get_avatar_progress_service(config)
+        return get_avatar_progress_service(username=config.user.user_uid, config=config)
 
     return _create

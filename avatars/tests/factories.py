@@ -53,7 +53,7 @@ class AvatarSetFactory(factory.django.DjangoModelFactory):
         if not create:
             return
 
-        if extracted:
+        if extracted is not None:
             self.avatars.set(extracted)
         else:
             self.avatars.set(AvatarFactory.create_batch(2))

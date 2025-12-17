@@ -80,7 +80,7 @@ class UserGameProfileSerializer(serializers.Serializer):
         Get avatar progress data.
         """
         if (config := UserAvatarConfig.objects.filter(user=obj).first()):
-            service = AvatarProgressService(config)
+            service = AvatarProgressService(username=getattr(obj, 'user_uid', ''), config=config)
             progress = service.calculate_progress()
             return AvatarProgressSerializer(progress).data
         return None

@@ -114,6 +114,7 @@ class TestUserGameProfileSerializer:
             'avatar_progress': {
                 'current_points': user.points,
                 'required_points': 0,
+                'max_required_points': 0,
                 'current_avatar': {
                     'id': avatar_stage_2.id,
                     'title': avatar_stage_2.title,

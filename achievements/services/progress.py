@@ -6,18 +6,19 @@ from __future__ import annotations
 
 import logging
 from dataclasses import asdict
-from typing import TYPE_CHECKING, Any, Dict, Optional
+from typing import Any, Dict, Optional, TYPE_CHECKING
 
 from django.db.models import Count, F, Q
 
 from achievements.models import AchievementRule
 from achievements.services.base import BaseProgressService
-from avatars.data import AvatarProgressResult
-from avatars.models import Avatar
+from achievements.data import AvatarProgressResult
+from avatars.models import UserAvatarConfig
 from events.enums import RggInternalEventTypes
 
 if TYPE_CHECKING:
-    from avatars.models import Avatar, UserAvatarConfig
+    from avatars.models import Avatar
+
 
 logger = logging.getLogger(__name__)
 
@@ -27,25 +28,37 @@ class AvatarProgressService(BaseProgressService):
     Avatar-specific progress service.
     """
 
-    def __init__(self, config: UserAvatarConfig) -> None:
-        self.config = config
-        self.user = getattr(config, 'user', None)
-        self.avatar_set = getattr(config, 'avatar_set', None)
+    def __init__(self, username: str, config: Optional[UserAvatarConfig] = None) -> None:
+        if config is not None and isinstance(config, UserAvatarConfig):
+            self.config = config
+        else:
+            self.config = (
+                UserAvatarConfig.objects.select_related('user', 'avatar_set')
+                .prefetch_related('avatar_set__avatars__rules')
+                .get(user__user_uid=username)
+            )
+
+        self.user = getattr(self.config, 'user', None)
+        self.avatar_set = getattr(self.config, 'avatar_set', None)
 
     def calculate_progress(self) -> Dict:
         """
         Calculate the current user's progress towards unlocking their avatar.
         """
         current_avatar = self.resolve_current()
-        next_avatar = self.resolve_next()
+        next_avatar = self.resolve_next(last_achieved=current_avatar)
 
         current_points = getattr(self.user, 'points', 0)
         required_points_for_avatar = self._get_required_points_for_avatar(next_avatar)
+
+        last_avatar = self.resolve_last()
+        max_required_points = self._get_required_points_for_avatar(last_avatar)
 
         return asdict(
             AvatarProgressResult(
                 current_points=current_points,
                 required_points=required_points_for_avatar,
+                max_required_points=max_required_points,
                 current_avatar=self._serialize_target(current_avatar),
                 next_avatar=self._serialize_target(next_avatar),
             )
@@ -92,6 +105,20 @@ class AvatarProgressService(BaseProgressService):
 
         return avatars.filter(stage__gt=last_avatar.stage).first()
 
+    def resolve_last(self) -> Optional[Avatar]:
+        """
+        Return the last avatar in the avatar set (the one with the highest stage).
+        """
+        if not self.avatar_set:
+            return None
+
+        return (
+            self.avatar_set.avatars
+            .exclude(stage__isnull=True)
+            .order_by('-stage')
+            .first()
+        )
+
     @staticmethod
     def build_empty_progress() -> AvatarProgressResult:
         """
@@ -100,6 +127,7 @@ class AvatarProgressService(BaseProgressService):
         return AvatarProgressResult(
             current_points=0,
             required_points=0,
+            max_required_points=0,
             current_avatar=None,
             next_avatar=None,
         )
@@ -140,8 +168,11 @@ class AvatarProgressService(BaseProgressService):
         return total_points
 
 
-def get_avatar_progress_service(config: UserAvatarConfig) -> AvatarProgressService:
+def get_avatar_progress_service(
+    username: Optional[str] = None,
+    config: Optional[UserAvatarConfig] = None,
+) -> AvatarProgressService:
     """
     Factory method to get AvatarProgressService instance.
     """
-    return AvatarProgressService(config=config)
+    return AvatarProgressService(username=username, config=config)

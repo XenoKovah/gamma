@@ -1,9 +1,10 @@
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
+from rest_framework.views import APIView
 from rest_framework.response import Response
 
-from achievements.services.progress import AvatarProgressService
+from achievements.services.progress import get_avatar_progress_service
 from avatars.api.v0.serializers import (
     AvatarProgressSerializer,
     AvatarSerializer,
@@ -69,21 +70,26 @@ class UserAvatarConfigViewSet(viewsets.ModelViewSet):
     serializer_class = UserAvatarConfigSerializer
     authentication_classes = (KeySecretAuthentication,)
 
+
+class AvatarProgressView(APIView):
+    authentication_classes = (KeySecretAuthentication,)
+
     @swagger_auto_schema(
-        method='get',
-        operation_summary='Get avatar progress for a configuration.',
-        operation_description=(
-            'Calculate progress data for the avatar associated with the specified UserAvatarConfig.'
-        ),
+        operation_summary='Get avatar progress by username.',
+        operation_description='Calculate progress data for the avatar associated with the specified username.',
         responses={
             200: AvatarProgressSerializer,
+            404: 'UserAvatarConfig not found',
         },
         tags=[AVATARS_API_TAG],
     )
-    @action(detail=True, methods=['get'], url_path='progress')
-    def get_progress(self, request, pk=None):
-        config = self.get_object()
-        service = AvatarProgressService(config)
-        progress = service.calculate_progress()
-        serializer = AvatarProgressSerializer(progress)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    def get(self, request, username: str):
+        try:
+            progress = get_avatar_progress_service(username=username).calculate_progress()
+        except UserAvatarConfig.DoesNotExist:
+            return Response(
+                {'error': f'UserAvatarConfig not found for user: `{username}`'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        return Response(AvatarProgressSerializer(progress).data, status=status.HTTP_200_OK)

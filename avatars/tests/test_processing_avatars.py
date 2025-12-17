@@ -712,7 +712,10 @@ def test_get_last_achieved_user_avatar_in_three_avatar_sets(
     for stage, avatar_set in zip(expected_stages_for_set, (avatar_set1, avatar_set2, avatar_set3)):
         user_avatar_config.avatar_set = avatar_set
         user_avatar_config.save()
-        current_avatar = get_avatar_progress_service(user_avatar_config).resolve_current()
+        current_avatar = get_avatar_progress_service(
+            username=gamma_user.user_uid,
+            config=user_avatar_config,
+        ).resolve_current()
         current_stage = getattr(current_avatar, 'stage') if current_avatar else None
 
         assert current_stage == stage
