@@ -6,6 +6,12 @@ Versions follows PEP440 version scheme.
 [Unreleased]
 ************
 
+* feat: [NAU-584] Update available action API endpoint
+* feat: avatar progress extra
+* chore: [NAU-606] Unit tests for avatar progress
+* feat: [NAU-598] Create preset for default avatar
+* chore: resolve failed test state in coverage report
+* feat: [NAU-570] Implement API - Get Avatar Progress
 * fix: [TEA-176] Avatar for user is not available after completing task
 * feat: [NAU-534] Corrected rules validation
 * feat: [NAU-541] Setup logging (local + on environment)
