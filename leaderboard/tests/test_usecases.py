@@ -8,7 +8,7 @@ from leaderboard import usecases
 from leaderboard.dataclasses import LeaderboardRetrievingContext
 from leaderboard.entity import LeaderboardMember
 from leaderboard.repository import ORMLeaderboardMemberDataRepository, RedisLeaderboardRepository
-from users.factories import GammaUserFactory
+from users.factories import GammaUserCoursePointsFactory, GammaUserFactory
 
 
 class TestGetPersonalizedLeaderboardUseCase:
@@ -206,3 +206,72 @@ class TestGetPersonalizedLeaderboardUseCase:
         tail_competitors = usecase._get_tail_competitors(current_user, "leaderboard:main")
 
         assert len(tail_competitors) == entry["expected_length"]
+
+
+class TestRemoveUserFromLeaderboardsUseCase:
+    @pytest.mark.django_db
+    def test_user_is_removed_from_general_leaderboard(
+        self,
+        gamma_user_factory: Type[GammaUserFactory],
+    ) -> None:
+        user_uid = "test_user"
+        signup_source = "main"
+        gamma_user_factory(user_uid=user_uid, signup_source=signup_source, points=100)
+
+        call_command("initialize_leaderboard")
+
+        repository = RedisLeaderboardRepository()
+        assert repository.get_or_init_user_score(user_uid, "leaderboard:main") == 100.0
+
+        usecases.RemoveUserFromLeaderboardsUseCase(repository).execute(
+            user_uid, signup_source, []
+        )
+
+        # After removal, user should not exist in leaderboard (re-init sets score to 0)
+        assert repository.get_or_init_user_score(user_uid, "leaderboard:main") == 0.0
+
+    @pytest.mark.django_db
+    def test_user_is_removed_from_course_leaderboards(
+        self,
+        gamma_user_factory: Type[GammaUserFactory],
+        gamma_user_course_points_factory: Type[GammaUserCoursePointsFactory],
+    ) -> None:
+        user_uid = "test_user"
+        signup_source = "main"
+        gamma_user = gamma_user_factory(user_uid=user_uid, signup_source=signup_source, points=100)
+        gamma_user_course_points_factory(gamma_user=gamma_user, course_id="course-1", points=50)
+        gamma_user_course_points_factory(gamma_user=gamma_user, course_id="course-2", points=30)
+
+        call_command("initialize_leaderboard")
+
+        repository = RedisLeaderboardRepository()
+        assert repository.get_or_init_user_score(user_uid, "leaderboard:main:course-1") == 50.0
+        assert repository.get_or_init_user_score(user_uid, "leaderboard:main:course-2") == 30.0
+
+        usecases.RemoveUserFromLeaderboardsUseCase(repository).execute(
+            user_uid, signup_source, ["course-1", "course-2"]
+        )
+
+        # After removal, user should not exist in course leaderboards
+        assert repository.get_or_init_user_score(user_uid, "leaderboard:main:course-1") == 0.0
+        assert repository.get_or_init_user_score(user_uid, "leaderboard:main:course-2") == 0.0
+
+    @pytest.mark.django_db
+    def test_user_without_signup_source_is_removed_from_main_leaderboard(
+        self,
+        gamma_user_factory: Type[GammaUserFactory],
+    ) -> None:
+        user_uid = "test_user"
+        gamma_user_factory(user_uid=user_uid, signup_source=None, points=100)
+
+        call_command("initialize_leaderboard")
+
+        repository = RedisLeaderboardRepository()
+        assert repository.get_or_init_user_score(user_uid, "leaderboard:main") == 100.0
+
+        # When signup_source is None, should fall back to main
+        usecases.RemoveUserFromLeaderboardsUseCase(repository).execute(
+            user_uid, None, []
+        )
+
+        assert repository.get_or_init_user_score(user_uid, "leaderboard:main") == 0.0
