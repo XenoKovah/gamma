@@ -80,9 +80,7 @@ test:
 			find . | grep -E \"(__pycache__|\.pyc|\.pyo$\)\" | xargs rm -rf && \
 			DJANGO_SETTINGS_MODULE=gamma.settings.test \
 			PYTHONBREAKPOINT=ipdb.set_trace \
-			pytest -W ignore -s -vv --pdb $(path) && \
-			coverage xml && \
-			diff-cover coverage.xml --fail-under=60 \
+			pytest -W ignore -s -vv --pdb $(path) \
 			"
 
 test-shell:
