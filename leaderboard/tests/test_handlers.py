@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from django.db import transaction
 
-from users.factories import GammaUserFactory
+from users.factories import GammaUserFactory, GammaUserCoursePointsFactory
 
 
 class TestLeaderboardsUserDataUpdateEnqueuing:
@@ -101,3 +101,106 @@ class TestLeaderboardsUserDataUpdateEnqueuing:
             gamma_user.save(update_fields=(field,))
 
         task_enqueue_leaderboards_user_data_update_mock.delay.assert_not_called()
+
+
+class TestLeaderboardsUserDeletion:
+    @pytest.mark.django_db(transaction=True)
+    @patch("leaderboard.tasks.task_remove_user_from_leaderboards")
+    def test_removal_task_is_scheduled_if_user_deletion_transaction_is_committed(
+        self,
+        task_remove_user_from_leaderboards_mock: MagicMock,
+        gamma_user_factory: Type[GammaUserFactory],
+    ) -> None:
+        """Test that deleting a GammaUser schedules the removal task after transaction commit."""
+        user_uid = "test_user"
+        signup_source = "test_source"
+        gamma_user = gamma_user_factory(user_uid=user_uid, signup_source=signup_source)
+
+        with transaction.atomic():
+            gamma_user.delete()
+
+        task_remove_user_from_leaderboards_mock.delay.assert_called_once_with(
+            user_uid, signup_source, []
+        )
+
+    @pytest.mark.django_db(transaction=True)
+    @patch("leaderboard.tasks.task_remove_user_from_leaderboards")
+    def test_removal_task_is_not_scheduled_if_user_deletion_transaction_is_not_committed(
+        self,
+        task_remove_user_from_leaderboards_mock: MagicMock,
+        gamma_user_factory: Type[GammaUserFactory],
+    ) -> None:
+        """Test that deleting a GammaUser does not schedule the removal task before transaction commit."""
+        gamma_user = gamma_user_factory(user_uid="test_user")
+
+        with transaction.atomic():
+            gamma_user.delete()
+
+            task_remove_user_from_leaderboards_mock.delay.assert_not_called()
+
+    @pytest.mark.django_db(transaction=True)
+    @patch("leaderboard.tasks.task_remove_user_from_leaderboards")
+    def test_removal_task_includes_course_ids_when_user_has_course_points(
+        self,
+        task_remove_user_from_leaderboards_mock: MagicMock,
+        gamma_user_factory: Type[GammaUserFactory],
+        gamma_user_course_points_factory: Type[GammaUserCoursePointsFactory],
+    ) -> None:
+        """Test that deleting a GammaUser with course points includes course IDs in the removal task."""
+        user_uid = "test_user"
+        signup_source = "main"
+        gamma_user = gamma_user_factory(user_uid=user_uid, signup_source=signup_source)
+
+        # Create course points for this user
+        course_1 = gamma_user_course_points_factory(gamma_user=gamma_user, course_id="course-1")
+        course_2 = gamma_user_course_points_factory(gamma_user=gamma_user, course_id="course-2")
+
+        with transaction.atomic():
+            gamma_user.delete()
+
+        # Verify the task was called with the correct course IDs
+        task_remove_user_from_leaderboards_mock.delay.assert_called_once()
+        call_args = task_remove_user_from_leaderboards_mock.delay.call_args[0]
+
+        assert call_args[0] == user_uid
+        assert call_args[1] == signup_source
+        assert set(call_args[2]) == {"course-1", "course-2"}
+
+    @pytest.mark.django_db(transaction=True)
+    @patch("leaderboard.tasks.task_remove_user_from_leaderboards")
+    def test_removal_task_is_not_called_on_transaction_rollback(
+        self,
+        task_remove_user_from_leaderboards_mock: MagicMock,
+        gamma_user_factory: Type[GammaUserFactory],
+    ) -> None:
+        """Test that the removal task is not called if the transaction is rolled back."""
+        gamma_user = gamma_user_factory(user_uid="test_user")
+
+        try:
+            with transaction.atomic():
+                gamma_user.delete()
+                # Force a rollback by raising an exception
+                raise Exception("Force rollback")
+        except Exception:
+            pass
+
+        # Verify the task was not called because the transaction was rolled back
+        task_remove_user_from_leaderboards_mock.delay.assert_not_called()
+
+    @pytest.mark.django_db(transaction=True)
+    @patch("leaderboard.tasks.task_remove_user_from_leaderboards")
+    def test_removal_task_handles_user_without_signup_source(
+        self,
+        task_remove_user_from_leaderboards_mock: MagicMock,
+        gamma_user_factory: Type[GammaUserFactory],
+    ) -> None:
+        """Test that deleting a GammaUser without signup_source still schedules the removal task."""
+        user_uid = "test_user"
+        gamma_user = gamma_user_factory(user_uid=user_uid, signup_source=None)
+
+        with transaction.atomic():
+            gamma_user.delete()
+
+        task_remove_user_from_leaderboards_mock.delay.assert_called_once_with(
+            user_uid, None, []
+        )
