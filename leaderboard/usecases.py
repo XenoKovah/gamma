@@ -406,3 +406,31 @@ class UpdateLeaderboardsUseCase:
         logger.info(f"Leaderboards updating is started for Gamma users {user_uids}.")
         LeaderboardsBuildingService(self._leaderboard_repository).build_all_leaderboards(leaderboards_data)
         logger.info(f"Leaderboards updating is finished for Gamma users {user_uids}.")
+
+
+class RemoveUserFromLeaderboardsUseCase:
+    """
+    Remove user from all leaderboards they belong to.
+
+    This is used when a GammaUser is deleted to clean up stale data from Redis.
+    """
+
+    def __init__(self, leaderboard_repository: LeaderboardRepository) -> None:
+        self._leaderboard_repository = leaderboard_repository
+
+    def execute(self, user_uid: str, signup_source: Optional[str], course_ids: List[str]) -> None:
+        effective_signup_source = signup_source or settings.MAIN_SIGNUP_SOURCE
+
+        # Remove from general leaderboard
+        general_leaderboard_id = GENERAL_LEADERBOARD_ID_TEMPLATE.format(user_signup_source=effective_signup_source)
+        self._leaderboard_repository.remove_user_from_leaderboard(user_uid, general_leaderboard_id)
+        logger.info(f"User {user_uid!r} removed from general leaderboard {general_leaderboard_id!r}.")
+
+        # Remove from course leaderboards
+        for course_id in course_ids:
+            course_leaderboard_id = COURSE_LEADERBOARD_ID_TEMPLATE.format(
+                user_signup_source=effective_signup_source,
+                course_id=course_id,
+            )
+            self._leaderboard_repository.remove_user_from_leaderboard(user_uid, course_leaderboard_id)
+            logger.info(f"User {user_uid!r} removed from course leaderboard {course_leaderboard_id!r}.")

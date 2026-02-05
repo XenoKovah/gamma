@@ -1,3 +1,5 @@
+from typing import List, Optional
+
 from celery import shared_task
 
 from leaderboard import repository, usecases
@@ -40,3 +42,22 @@ def task_update_leaderboards() -> None:
         leaderboard_member_data_repository,
         leaderboards_pending_update_repository,
     ).execute()
+
+
+@shared_task
+def task_remove_user_from_leaderboards(
+    user_uid: str,
+    signup_source: Optional[str],
+    course_ids: List[str],
+) -> None:
+    """
+    The task that removes user from all their leaderboards.
+
+    This is triggered when a GammaUser is deleted.
+    """
+    leaderboard_repository = repository.RedisLeaderboardRepository()
+    usecases.RemoveUserFromLeaderboardsUseCase(leaderboard_repository).execute(
+        user_uid,
+        signup_source,
+        course_ids,
+    )
