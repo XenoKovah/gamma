@@ -32,14 +32,36 @@ def task_enqueue_leaderboards_user_data_update(user_uid: str) -> None:
 def task_update_leaderboards() -> None:
     """
     The task that runs leaderboards update.
+
+    If leaderboards are not initialized or initialization is stuck,
+    automatically triggers recovery before attempting the update.
     """
-    leaderboard_repository = repository.RedisLeaderboardRepository()
     leaderboard_member_data_repository = repository.ORMLeaderboardMemberDataRepository()
+
+    if usecases.AutoRecoverLeaderboardsUseCase(leaderboard_member_data_repository).execute():
+        return
+
+    leaderboard_repository = repository.RedisLeaderboardRepository()
     leaderboards_pending_update_repository = repository.RedisLeaderboardsPendingUpdateRepository()
 
     usecases.UpdateLeaderboardsUseCase(
         leaderboard_repository,
         leaderboard_member_data_repository,
+        leaderboards_pending_update_repository,
+    ).execute()
+
+
+@shared_task
+def task_reconcile_leaderboards() -> None:
+    """
+    Periodic safety net: detect and re-enqueue users whose leaderboard scores
+    diverge from DB points (caused by lost enqueue events).
+    """
+    leaderboard_repository = repository.RedisLeaderboardRepository()
+    leaderboards_pending_update_repository = repository.RedisLeaderboardsPendingUpdateRepository()
+
+    usecases.ReconcileLeaderboardsUseCase(
+        leaderboard_repository,
         leaderboards_pending_update_repository,
     ).execute()
 

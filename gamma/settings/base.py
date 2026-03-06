@@ -187,7 +187,11 @@ CELERY_BEAT_SCHEDULE = {
     'update-leaderboard-every-minute': {
         'task': 'leaderboard.tasks.task_update_leaderboards',
         'schedule': 60,
-    }
+    },
+    'reconcile-leaderboards-hourly': {
+        'task': 'leaderboard.tasks.task_reconcile_leaderboards',
+        'schedule': 3600,
+    },
 }
 
 CACHES = {

@@ -165,17 +165,23 @@ class TestTaskUpdateLeaderboards:
     @patch("leaderboard.tasks.repository.RedisLeaderboardsPendingUpdateRepository")
     @patch("leaderboard.tasks.repository.ORMLeaderboardMemberDataRepository")
     @patch("leaderboard.tasks.repository.RedisLeaderboardRepository")
+    @patch("leaderboard.tasks.usecases.AutoRecoverLeaderboardsUseCase")
     def test_update_leaderboards_use_case_is_executed(
         self,
+        auto_recover_use_case_mock: MagicMock,
         redis_leaderboard_repository_mock: MagicMock,
         orm_leaderboard_member_data_repository_mock: MagicMock,
         redis_leaderboards_pending_update_repository_mock: MagicMock,
         update_leaderboards_use_case_mock: MagicMock,
     ) -> None:
+        auto_recover_use_case_mock.return_value.execute.return_value = False
+
         tasks.task_update_leaderboards()
 
+        auto_recover_use_case_mock.assert_called_once_with(
+            orm_leaderboard_member_data_repository_mock.return_value,
+        )
         redis_leaderboard_repository_mock.assert_called_once_with()
-        orm_leaderboard_member_data_repository_mock.assert_called_once_with()
         redis_leaderboards_pending_update_repository_mock.assert_called_once_with()
         update_leaderboards_use_case_mock.assert_called_once_with(
             redis_leaderboard_repository_mock.return_value,
@@ -183,6 +189,24 @@ class TestTaskUpdateLeaderboards:
             redis_leaderboards_pending_update_repository_mock.return_value,
         )
         update_leaderboards_use_case_mock.return_value.execute.assert_called_once_with()
+
+    @patch("leaderboard.tasks.usecases.UpdateLeaderboardsUseCase")
+    @patch("leaderboard.tasks.repository.ORMLeaderboardMemberDataRepository")
+    @patch("leaderboard.tasks.usecases.AutoRecoverLeaderboardsUseCase")
+    def test_update_is_skipped_when_auto_recovery_is_triggered(
+        self,
+        auto_recover_use_case_mock: MagicMock,
+        orm_leaderboard_member_data_repository_mock: MagicMock,
+        update_leaderboards_use_case_mock: MagicMock,
+    ) -> None:
+        auto_recover_use_case_mock.return_value.execute.return_value = True
+
+        tasks.task_update_leaderboards()
+
+        auto_recover_use_case_mock.assert_called_once_with(
+            orm_leaderboard_member_data_repository_mock.return_value,
+        )
+        update_leaderboards_use_case_mock.assert_not_called()
 
     @pytest.mark.django_db
     @pytest.mark.parametrize(
@@ -231,6 +255,27 @@ class TestTaskUpdateLeaderboards:
                 data_item["user_uid"],
                 data_item["leaderboard_id"],
             ) == data_item["score"]
+
+
+class TestTaskReconcileLeaderboards:
+    @patch("leaderboard.tasks.usecases.ReconcileLeaderboardsUseCase")
+    @patch("leaderboard.tasks.repository.RedisLeaderboardsPendingUpdateRepository")
+    @patch("leaderboard.tasks.repository.RedisLeaderboardRepository")
+    def test_reconcile_leaderboards_use_case_is_executed(
+        self,
+        redis_leaderboard_repository_mock: MagicMock,
+        redis_leaderboards_pending_update_repository_mock: MagicMock,
+        reconcile_leaderboards_use_case_mock: MagicMock,
+    ) -> None:
+        tasks.task_reconcile_leaderboards()
+
+        redis_leaderboard_repository_mock.assert_called_once_with()
+        redis_leaderboards_pending_update_repository_mock.assert_called_once_with()
+        reconcile_leaderboards_use_case_mock.assert_called_once_with(
+            redis_leaderboard_repository_mock.return_value,
+            redis_leaderboards_pending_update_repository_mock.return_value,
+        )
+        reconcile_leaderboards_use_case_mock.return_value.execute.assert_called_once_with()
 
 
 class TestTaskRemoveUserFromLeaderboards:

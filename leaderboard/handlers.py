@@ -1,3 +1,4 @@
+import logging
 from typing import Type
 
 from django.db import transaction
@@ -5,7 +6,28 @@ from django.db.models.signals import pre_delete, pre_save, post_delete
 from django.dispatch import receiver
 
 from leaderboard import tasks
+from leaderboard.enums import LeaderboardsInitializationStatus
 from users.models import GammaUser
+
+logger = logging.getLogger(__name__)
+
+
+def _safe_enqueue_leaderboard_update(user_uid: str) -> None:
+    """
+    Dispatch enqueue task with fallback to direct Redis write.
+    """
+    try:
+        tasks.task_enqueue_leaderboards_user_data_update.delay(user_uid)
+    except Exception:
+        logger.exception("Failed to dispatch leaderboard enqueue task for user %s, using direct fallback", user_uid)
+        try:
+            from leaderboard.utils import get_leaderboards_initialization_status
+            from leaderboard.repository import RedisLeaderboardsPendingUpdateRepository
+
+            if get_leaderboards_initialization_status() == LeaderboardsInitializationStatus.COMPLETED:
+                RedisLeaderboardsPendingUpdateRepository().schedule_user_leaderboards_update(user_uid)
+        except Exception:
+            logger.exception("Fallback enqueue also failed for user %s", user_uid)
 
 
 @receiver(pre_save, sender=GammaUser)
@@ -21,7 +43,7 @@ def enqueue_leaderboards_user_data_update(sender: Type[GammaUser], instance: Gam
     if instance.pk and "points" not in update_fields:
         return
 
-    transaction.on_commit(lambda: tasks.task_enqueue_leaderboards_user_data_update.delay(instance.user_uid))
+    transaction.on_commit(lambda: _safe_enqueue_leaderboard_update(instance.user_uid))
 
 
 @receiver(pre_delete, sender=GammaUser)

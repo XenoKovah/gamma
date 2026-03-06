@@ -1,4 +1,5 @@
 import logging
+import time
 from collections import defaultdict
 from typing import Callable, Dict, Generator, List, Optional, Tuple
 
@@ -8,6 +9,7 @@ from leaderboard.constants import (
     COURSE_LEADERBOARD_ID_TEMPLATE,
     GENERAL_LEADERBOARD_ID_TEMPLATE,
     LEADERBOARDS_INITIALIZATION_BATCHES_LEFT_COUNT_CACHE_KEY,
+    LEADERBOARDS_INITIALIZATION_STARTED_AT_CACHE_KEY,
 )
 from leaderboard.dataclasses import LeaderboardRetrievingContext
 from leaderboard.entity import LeaderboardMember, UserLeaderboardsData
@@ -17,7 +19,11 @@ from leaderboard.repository import (
     LeaderboardRepository,
     LeaderboardsPendingUpdateRepository,
 )
-from leaderboard.utils import get_leaderboards_initialization_status, get_redis_client
+from leaderboard.utils import (
+    get_leaderboards_initialization_status,
+    get_redis_client,
+    is_leaderboards_initialization_stuck,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -208,6 +214,7 @@ class ScheduleLeaderboardsInitializationUseCase:
         redis_client = get_redis_client()
         batches_count = users_count // batch_size + bool(users_count % batch_size)
         redis_client.set(LEADERBOARDS_INITIALIZATION_BATCHES_LEFT_COUNT_CACHE_KEY, batches_count)
+        redis_client.set(LEADERBOARDS_INITIALIZATION_STARTED_AT_CACHE_KEY, time.time())
 
         from leaderboard.tasks import task_initialize_leaderboards
 
@@ -406,6 +413,109 @@ class UpdateLeaderboardsUseCase:
         logger.info(f"Leaderboards updating is started for Gamma users {user_uids}.")
         LeaderboardsBuildingService(self._leaderboard_repository).build_all_leaderboards(leaderboards_data)
         logger.info(f"Leaderboards updating is finished for Gamma users {user_uids}.")
+
+
+class AutoRecoverLeaderboardsUseCase:
+    """
+    Automatically recover leaderboards when initialization is missing or stuck.
+
+    Handles two scenarios:
+    - NOT_STARTED: Redis was restarted or initialization was never run.
+    - IN_PROGRESS: A batch task failed and the counter never reached 0.
+
+    In both cases, resets the initialization status and schedules a fresh
+    initialization so that leaderboard updates can resume.
+    """
+
+    def __init__(self, leaderboard_member_data_repository: LeaderboardMemberDataRepository) -> None:
+        self._leaderboard_member_data_repository = leaderboard_member_data_repository
+
+    def execute(self) -> bool:
+        """
+        Attempt auto-recovery if needed.
+
+        Returns True if recovery was triggered, False otherwise.
+        """
+        status = get_leaderboards_initialization_status()
+
+        if status == LeaderboardsInitializationStatus.COMPLETED:
+            return False
+
+        if status == LeaderboardsInitializationStatus.IN_PROGRESS and not is_leaderboards_initialization_stuck():
+            return False
+
+        if status == LeaderboardsInitializationStatus.IN_PROGRESS:
+            logger.warning("Leaderboards initialization appears stuck. Resetting and re-initializing.")
+        else:
+            logger.warning("Leaderboards are not initialized. Scheduling automatic initialization.")
+
+        ResetLeaderboardsInitializationStatusUseCase().execute()
+        ScheduleLeaderboardsInitializationUseCase(self._leaderboard_member_data_repository).execute(
+            settings.LEADERBOARD_INITIALIZATION_BATCH_SIZE,
+        )
+        return True
+
+
+class ReconcileLeaderboardsUseCase:
+    """
+    Periodic safety net that detects stale leaderboard scores.
+
+    Compares each user's DB points with their Redis general leaderboard score.
+    Any mismatch means an update was lost (e.g. enqueue failed while Redis was down),
+    so the user is added to the pending update set for the next update cycle.
+    """
+
+    BATCH_SIZE = 500
+
+    def __init__(
+        self,
+        leaderboard_repository: LeaderboardRepository,
+        leaderboards_pending_update_repository: LeaderboardsPendingUpdateRepository,
+    ) -> None:
+        self._leaderboard_repository = leaderboard_repository
+        self._leaderboards_pending_update_repository = leaderboards_pending_update_repository
+
+    def execute(self) -> int:
+        """
+        Reconcile DB vs Redis and enqueue stale users.
+
+        Returns the number of stale users enqueued.
+        """
+        if get_leaderboards_initialization_status() != LeaderboardsInitializationStatus.COMPLETED:
+            logger.info("Leaderboards reconciliation skipped — initialization not completed.")
+            return 0
+
+        from users.models import GammaUser
+
+        redis_client = get_redis_client()
+        stale_count = 0
+
+        queryset = GammaUser.objects.order_by("pk").values_list(
+            "user_uid", "points", "signup_source",
+        )
+        total = queryset.count()
+
+        for offset in range(0, total, self.BATCH_SIZE):
+            batch = list(queryset[offset:offset + self.BATCH_SIZE])
+
+            for user_uid, db_points, signup_source in batch:
+                effective_source = signup_source or settings.MAIN_SIGNUP_SOURCE
+                leaderboard_id = GENERAL_LEADERBOARD_ID_TEMPLATE.format(user_signup_source=effective_source)
+                redis_score = redis_client.zscore(leaderboard_id, user_uid)
+
+                if redis_score is None or int(redis_score) != db_points:
+                    self._leaderboards_pending_update_repository.schedule_user_leaderboards_update(user_uid)
+                    stale_count += 1
+
+        if stale_count:
+            logger.warning(
+                "Leaderboards reconciliation found %d stale user(s) and enqueued them for update.",
+                stale_count
+            )
+        else:
+            logger.info("Leaderboards reconciliation completed — no stale data found.")
+
+        return stale_count
 
 
 class RemoveUserFromLeaderboardsUseCase:

@@ -4,7 +4,74 @@ from unittest.mock import MagicMock, patch
 import pytest
 from django.db import transaction
 
+from leaderboard.enums import LeaderboardsInitializationStatus
+from leaderboard.handlers import _safe_enqueue_leaderboard_update
 from users.factories import GammaUserFactory, GammaUserCoursePointsFactory
+
+
+class TestSafeEnqueueLeaderboardUpdate:
+    @pytest.mark.django_db
+    @patch("leaderboard.handlers.tasks.task_enqueue_leaderboards_user_data_update")
+    def test_dispatches_celery_task_on_success(self, mock_task: MagicMock) -> None:
+        _safe_enqueue_leaderboard_update("user-1")
+        mock_task.delay.assert_called_once_with("user-1")
+
+    @pytest.mark.django_db
+    @patch("leaderboard.handlers.tasks.task_enqueue_leaderboards_user_data_update")
+    @patch("leaderboard.repository.RedisLeaderboardsPendingUpdateRepository.schedule_user_leaderboards_update")
+    @patch(
+        "leaderboard.utils.get_leaderboards_initialization_status",
+        return_value=LeaderboardsInitializationStatus.COMPLETED,
+    )
+    def test_falls_back_to_direct_redis_write_on_celery_failure(
+        self,
+        mock_status: MagicMock,
+        mock_schedule: MagicMock,
+        mock_task: MagicMock,
+    ) -> None:
+        mock_task.delay.side_effect = ConnectionError("Redis broker down")
+
+        _safe_enqueue_leaderboard_update("user-1")
+
+        mock_schedule.assert_called_once_with("user-1")
+
+    @pytest.mark.django_db
+    @patch("leaderboard.handlers.tasks.task_enqueue_leaderboards_user_data_update")
+    @patch("leaderboard.repository.RedisLeaderboardsPendingUpdateRepository.schedule_user_leaderboards_update")
+    @patch(
+        "leaderboard.utils.get_leaderboards_initialization_status",
+        return_value=LeaderboardsInitializationStatus.IN_PROGRESS,
+    )
+    def test_skips_fallback_when_initialization_not_completed(
+        self,
+        mock_status: MagicMock,
+        mock_schedule: MagicMock,
+        mock_task: MagicMock,
+    ) -> None:
+        mock_task.delay.side_effect = ConnectionError("Redis broker down")
+
+        _safe_enqueue_leaderboard_update("user-1")
+
+        mock_schedule.assert_not_called()
+
+    @pytest.mark.django_db
+    @patch("leaderboard.handlers.tasks.task_enqueue_leaderboards_user_data_update")
+    @patch("leaderboard.repository.RedisLeaderboardsPendingUpdateRepository.schedule_user_leaderboards_update")
+    @patch(
+        "leaderboard.utils.get_leaderboards_initialization_status",
+        return_value=LeaderboardsInitializationStatus.COMPLETED,
+    )
+    def test_logs_and_swallows_when_both_paths_fail(
+        self,
+        mock_status: MagicMock,
+        mock_schedule: MagicMock,
+        mock_task: MagicMock,
+    ) -> None:
+        mock_task.delay.side_effect = ConnectionError("Redis broker down")
+        mock_schedule.side_effect = ConnectionError("Redis completely down")
+
+        # Should not raise
+        _safe_enqueue_leaderboard_update("user-1")
 
 
 class TestLeaderboardsUserDataUpdateEnqueuing:
@@ -111,7 +178,9 @@ class TestLeaderboardsUserDeletion:
         task_remove_user_from_leaderboards_mock: MagicMock,
         gamma_user_factory: Type[GammaUserFactory],
     ) -> None:
-        """Test that deleting a GammaUser schedules the removal task after transaction commit."""
+        """
+        Test that deleting a GammaUser schedules the removal task after transaction commit.
+        """
         user_uid = "test_user"
         signup_source = "test_source"
         gamma_user = gamma_user_factory(user_uid=user_uid, signup_source=signup_source)
@@ -130,7 +199,9 @@ class TestLeaderboardsUserDeletion:
         task_remove_user_from_leaderboards_mock: MagicMock,
         gamma_user_factory: Type[GammaUserFactory],
     ) -> None:
-        """Test that deleting a GammaUser does not schedule the removal task before transaction commit."""
+        """
+        Test that deleting a GammaUser does not schedule the removal task before transaction commit.
+        """
         gamma_user = gamma_user_factory(user_uid="test_user")
 
         with transaction.atomic():
@@ -146,7 +217,9 @@ class TestLeaderboardsUserDeletion:
         gamma_user_factory: Type[GammaUserFactory],
         gamma_user_course_points_factory: Type[GammaUserCoursePointsFactory],
     ) -> None:
-        """Test that deleting a GammaUser with course points includes course IDs in the removal task."""
+        """
+        Test that deleting a GammaUser with course points includes course IDs in the removal task.
+        """
         user_uid = "test_user"
         signup_source = "main"
         gamma_user = gamma_user_factory(user_uid=user_uid, signup_source=signup_source)
@@ -173,7 +246,9 @@ class TestLeaderboardsUserDeletion:
         task_remove_user_from_leaderboards_mock: MagicMock,
         gamma_user_factory: Type[GammaUserFactory],
     ) -> None:
-        """Test that the removal task is not called if the transaction is rolled back."""
+        """
+        Test that the removal task is not called if the transaction is rolled back.
+        """
         gamma_user = gamma_user_factory(user_uid="test_user")
 
         try:
@@ -194,7 +269,9 @@ class TestLeaderboardsUserDeletion:
         task_remove_user_from_leaderboards_mock: MagicMock,
         gamma_user_factory: Type[GammaUserFactory],
     ) -> None:
-        """Test that deleting a GammaUser without signup_source still schedules the removal task."""
+        """
+        Test that deleting a GammaUser without signup_source still schedules the removal task.
+        """
         user_uid = "test_user"
         gamma_user = gamma_user_factory(user_uid=user_uid, signup_source=None)
 
