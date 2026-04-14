@@ -89,6 +89,12 @@ class LeaderboardRepository(ABC):
         to the provided value.
         """
 
+    @abstractmethod
+    def remove_user_from_leaderboard(self, user_uid: str, leaderboard_id: str) -> None:
+        """
+        Remove user from the specified leaderboard.
+        """
+
 
 class RedisLeaderboardRepository(LeaderboardRepository):
     """
@@ -161,6 +167,9 @@ class RedisLeaderboardRepository(LeaderboardRepository):
     def add_leaderboard_data(self, data: Dict[str, int], leaderboard_id: str) -> None:
         if data:
             self._redis_client.zadd(leaderboard_id, data)
+
+    def remove_user_from_leaderboard(self, user_uid: str, leaderboard_id: str) -> None:
+        self._redis_client.zrem(leaderboard_id, user_uid)
 
     @staticmethod
     def _convert_to_leaderboard_member(data: Tuple[str, float]) -> LeaderboardMember:

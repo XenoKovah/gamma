@@ -165,17 +165,23 @@ class TestTaskUpdateLeaderboards:
     @patch("leaderboard.tasks.repository.RedisLeaderboardsPendingUpdateRepository")
     @patch("leaderboard.tasks.repository.ORMLeaderboardMemberDataRepository")
     @patch("leaderboard.tasks.repository.RedisLeaderboardRepository")
+    @patch("leaderboard.tasks.usecases.AutoRecoverLeaderboardsUseCase")
     def test_update_leaderboards_use_case_is_executed(
         self,
+        auto_recover_use_case_mock: MagicMock,
         redis_leaderboard_repository_mock: MagicMock,
         orm_leaderboard_member_data_repository_mock: MagicMock,
         redis_leaderboards_pending_update_repository_mock: MagicMock,
         update_leaderboards_use_case_mock: MagicMock,
     ) -> None:
+        auto_recover_use_case_mock.return_value.execute.return_value = False
+
         tasks.task_update_leaderboards()
 
+        auto_recover_use_case_mock.assert_called_once_with(
+            orm_leaderboard_member_data_repository_mock.return_value,
+        )
         redis_leaderboard_repository_mock.assert_called_once_with()
-        orm_leaderboard_member_data_repository_mock.assert_called_once_with()
         redis_leaderboards_pending_update_repository_mock.assert_called_once_with()
         update_leaderboards_use_case_mock.assert_called_once_with(
             redis_leaderboard_repository_mock.return_value,
@@ -183,6 +189,24 @@ class TestTaskUpdateLeaderboards:
             redis_leaderboards_pending_update_repository_mock.return_value,
         )
         update_leaderboards_use_case_mock.return_value.execute.assert_called_once_with()
+
+    @patch("leaderboard.tasks.usecases.UpdateLeaderboardsUseCase")
+    @patch("leaderboard.tasks.repository.ORMLeaderboardMemberDataRepository")
+    @patch("leaderboard.tasks.usecases.AutoRecoverLeaderboardsUseCase")
+    def test_update_is_skipped_when_auto_recovery_is_triggered(
+        self,
+        auto_recover_use_case_mock: MagicMock,
+        orm_leaderboard_member_data_repository_mock: MagicMock,
+        update_leaderboards_use_case_mock: MagicMock,
+    ) -> None:
+        auto_recover_use_case_mock.return_value.execute.return_value = True
+
+        tasks.task_update_leaderboards()
+
+        auto_recover_use_case_mock.assert_called_once_with(
+            orm_leaderboard_member_data_repository_mock.return_value,
+        )
+        update_leaderboards_use_case_mock.assert_not_called()
 
     @pytest.mark.django_db
     @pytest.mark.parametrize(
@@ -231,3 +255,106 @@ class TestTaskUpdateLeaderboards:
                 data_item["user_uid"],
                 data_item["leaderboard_id"],
             ) == data_item["score"]
+
+
+class TestTaskReconcileLeaderboards:
+    @patch("leaderboard.tasks.usecases.ReconcileLeaderboardsUseCase")
+    @patch("leaderboard.tasks.repository.RedisLeaderboardsPendingUpdateRepository")
+    @patch("leaderboard.tasks.repository.RedisLeaderboardRepository")
+    def test_reconcile_leaderboards_use_case_is_executed(
+        self,
+        redis_leaderboard_repository_mock: MagicMock,
+        redis_leaderboards_pending_update_repository_mock: MagicMock,
+        reconcile_leaderboards_use_case_mock: MagicMock,
+    ) -> None:
+        tasks.task_reconcile_leaderboards()
+
+        redis_leaderboard_repository_mock.assert_called_once_with()
+        redis_leaderboards_pending_update_repository_mock.assert_called_once_with()
+        reconcile_leaderboards_use_case_mock.assert_called_once_with(
+            redis_leaderboard_repository_mock.return_value,
+            redis_leaderboards_pending_update_repository_mock.return_value,
+        )
+        reconcile_leaderboards_use_case_mock.return_value.execute.assert_called_once_with()
+
+
+class TestTaskRemoveUserFromLeaderboards:
+    @patch("leaderboard.tasks.usecases.RemoveUserFromLeaderboardsUseCase")
+    @patch("leaderboard.tasks.repository.RedisLeaderboardRepository")
+    def test_remove_user_from_leaderboards_use_case_is_executed(
+        self,
+        redis_leaderboard_repository_mock: MagicMock,
+        remove_user_from_leaderboards_use_case_mock: MagicMock,
+    ) -> None:
+        user_uid = "test_user"
+        signup_source = "main"
+        course_ids = ["course-1", "course-2"]
+
+        tasks.task_remove_user_from_leaderboards(user_uid, signup_source, course_ids)
+
+        redis_leaderboard_repository_mock.assert_called_once_with()
+        remove_user_from_leaderboards_use_case_mock.assert_called_once_with(
+            redis_leaderboard_repository_mock.return_value,
+        )
+        remove_user_from_leaderboards_use_case_mock.return_value.execute.assert_called_once_with(
+            user_uid,
+            signup_source,
+            course_ids,
+        )
+
+    def test_user_is_removed_from_general_leaderboard(
+        self,
+        gamma_user_factory: Type[GammaUserFactory],
+    ) -> None:
+        user_uid = "test_user"
+        signup_source = "main"
+        gamma_user_factory(user_uid=user_uid, signup_source=signup_source, points=100)
+
+        tasks.task_initialize_leaderboards(0, 10)
+
+        repository = RedisLeaderboardRepository()
+        assert repository.get_or_init_user_score(user_uid, "leaderboard:main") == 100.0
+
+        tasks.task_remove_user_from_leaderboards(user_uid, signup_source, [])
+
+        # After removal, user should not exist in leaderboard (re-init sets score to 0)
+        assert repository.get_or_init_user_score(user_uid, "leaderboard:main") == 0.0
+
+    def test_user_is_removed_from_course_leaderboards(
+        self,
+        gamma_user_factory: Type[GammaUserFactory],
+        gamma_user_course_points_factory: Type[GammaUserCoursePointsFactory],
+    ) -> None:
+        user_uid = "test_user"
+        signup_source = "main"
+        gamma_user = gamma_user_factory(user_uid=user_uid, signup_source=signup_source, points=100)
+        gamma_user_course_points_factory(gamma_user=gamma_user, course_id="course-1", points=50)
+        gamma_user_course_points_factory(gamma_user=gamma_user, course_id="course-2", points=30)
+
+        tasks.task_initialize_leaderboards(0, 10)
+
+        repository = RedisLeaderboardRepository()
+        assert repository.get_or_init_user_score(user_uid, "leaderboard:main:course-1") == 50.0
+        assert repository.get_or_init_user_score(user_uid, "leaderboard:main:course-2") == 30.0
+
+        tasks.task_remove_user_from_leaderboards(user_uid, signup_source, ["course-1", "course-2"])
+
+        # After removal, user should not exist in leaderboards (re-init sets score to 0)
+        assert repository.get_or_init_user_score(user_uid, "leaderboard:main:course-1") == 0.0
+        assert repository.get_or_init_user_score(user_uid, "leaderboard:main:course-2") == 0.0
+
+    def test_user_without_signup_source_is_removed_from_main_leaderboard(
+        self,
+        gamma_user_factory: Type[GammaUserFactory],
+    ) -> None:
+        user_uid = "test_user"
+        gamma_user_factory(user_uid=user_uid, signup_source=None, points=100)
+
+        tasks.task_initialize_leaderboards(0, 10)
+
+        repository = RedisLeaderboardRepository()
+        assert repository.get_or_init_user_score(user_uid, "leaderboard:main") == 100.0
+
+        tasks.task_remove_user_from_leaderboards(user_uid, None, [])
+
+        assert repository.get_or_init_user_score(user_uid, "leaderboard:main") == 0.0
