@@ -6,34 +6,26 @@ Versions follows PEP440 version scheme.
 [Unreleased]
 ************
 
+## Fixed
 * fix: [TEA-176] Avatar for user is not available after completing task
+* fix: Leaderboard is not updated with points
+
+release/teak.1 (2025-06-11)
+---
+Also tagged as `release/teak-rc.1` (identical content).
+
+## Added
 * feat: [NAU-534] Corrected rules validation
 * feat: [NAU-541] Setup logging (local + on environment)
 * feat: [NAU-521] Create data migration for edX common events
-* fix: [NAU-535, NAU-536, NAU-533] Correct calculation badges with points rule
-* docs: [NAU-365] Update technical documentation
 * feat: [NAU-530] Performance page doesn't render with failed achievements
-* refactor: [NAU-507] Repository cleanup
-* test: [NAU-415] Rewrite tests for achievements processing
-* fix: achievement processing for users
-* fix: [NAU-509] Fix getting last achieved avatar
 * feat: [NAU-457] Changed logout url for Gamma settings header
-* fix: event configuration issue
 * feat: [NAU-457] Implement permissions
-* chore: [NAU-474, NAU-472] Corrected Delete buttons on Avatar and Badges pages
-* fix: [NAU-376] Fixed image size validation
-* fix: assign user avatar issue
-* test: [NAU-465] User config is tested
 * feat: [NAU-465] Extend rules with new actions
-* fix: change user config serializer
 * feat: [NAU-449] Extend rules with new actions
 * feat: [NAU-432] Implement internal events management commands
-* fix: [NAU-289] Redirect broken links
 * feat: [NAU-320] Added deletion confirmation modal for evolution step
-* chore: [NAU-316] Added support text for avatar stepper
 * feat: [NAU-419] SSO with edX is set up
-* fix: [NAU-426] Handle non existent content type
-* fix: [NAU-417] Badges list retrieving error is fixed
 * feat: [NAU-315] Added close button for Avatar stepper
 * feat: [NAU-356] get Points and Charts form MySQL
 * feat: [NAU-396] Leaderboards initialization is improved
@@ -43,38 +35,25 @@ Versions follows PEP440 version scheme.
 * feat: [NAU-340] Updated achievements serializer
 * feat: [NAU-388] Gamma user score by course persisting is implemented
 * feat: [NAU-314] Added translations for Portuguese
-* fix: [NAU-332] Get rid of filters for avatar
 * feat: [NAU-357] Leaderboard refactoring
 * feat: [NAU-339] Receive badges from SQL
-* fix: [NAU-375] Fix rewriting badge images
-* chore: [NAU-336, NAU-366] Added UI/UX improvements and hasFilters for EntityRules component
 * feat: [NAU-329] Add avatars to game profile response
-* fix: [NAU-321, NAU-331] Fixed modal title, toast delay and some refactoring
 * feat: [NAU-312] Create new gamma-profile endpoint
-* fix: [NAU-305] Fixed avatar duplication
-* chore: [NAU-286, NAU-287, NAU-290] Corrected some tests and refactoring
 * feat: improved display of student avatar
-* fix: update rules serializers with event configuration
 * feat: [NAU-293] Added event_configuration for Avatar rule
-* chore: [NAU-293] Replaced rule actions endpoint
-* temp: student experience with avatars
 * feat: [NAU-286, NAU-286-290, NAU-286-287] Edit functional for Avatar set stepper
 * feat: [NAU-285] Implement finish step in avatars setup
 * feat: [NAU-347] Refactor previous event processing implementation
 * feat: [NAU-284] Implement finish AvatarSet API
 * feat: [NAU-276] Created Avatars stepper step
-* docs: [NAU-282] Document the logic of the achievements earning
-* refactor: [NAU-264] Apply TDD for achievement processing
 * feat: [NAU-275] Created Evolution stepper step
 * feat: [NAU-274] Created Title stepper step
 * feat: [NAU-257] Implement Avatar backend
 * feat: [NAU-273] Connect Avatar sets API and implement deletion
 * feat: [NAU-210] Edit badges modal
 * feat: [NAU-258] Created base Avatars structure
-* refactor: [NAU-260] Fronted translations refactoring
 * feat: [NAU-256] Implement Avatar API View
 * feat: [NAU-255] Implement AvatarSet API
-* refactor: [NAU-253] Refactor Avatar models
 * feat: [NAU-250, NAU-251] Create API for actions and badge serializer refactoring
 * feat: [NAU-209] Added rules form set, header and footer
 * feat: [NAU-208] Added BadgeModal React component
@@ -86,12 +65,47 @@ Versions follows PEP440 version scheme.
 * feat: [NAU-199] Configured CI for React, translations for modules, Django routing
 * feat: [NAU-194] Frontend application structure updating
 * feat: [NAU-142] Rules refactoring
-* refactor: [NAU-159] Users app refactoring
-* fix: [NAU-150] Migration is missing for events
 * feat: [NAU-143] Draft Avatar solution implementation
 * feat: [NAU-150] Create API for events
 * feat: Project skeleton is prepared for refactoring
 * feat: [RGOeX-26916] add s3 requirements
+
+## Fixed
+* fix: [NAU-535, NAU-536, NAU-533] Correct calculation badges with points rule
+* fix: achievement processing for users
+* fix: [NAU-509] Fix getting last achieved avatar
+* fix: event configuration issue
+* fix: [NAU-376] Fixed image size validation
+* fix: assign user avatar issue
+* fix: change user config serializer
+* fix: [NAU-289] Redirect broken links
+* fix: [NAU-426] Handle non existent content type
+* fix: [NAU-417] Badges list retrieving error is fixed
+* fix: [NAU-332] Get rid of filters for avatar
+* fix: [NAU-375] Fix rewriting badge images
+* fix: [NAU-321, NAU-331] Fixed modal title, toast delay and some refactoring
+* fix: [NAU-305] Fixed avatar duplication
+* fix: update rules serializers with event configuration
+* fix: [NAU-150] Migration is missing for events
+
+## Maintenance
+* refactor: [NAU-507] Repository cleanup
+* test: [NAU-415] Rewrite tests for achievements processing
+* chore: [NAU-474, NAU-472] Corrected Delete buttons on Avatar and Badges pages
+* test: [NAU-465] User config is tested
+* chore: [NAU-316] Added support text for avatar stepper
+* chore: [NAU-336, NAU-366] Added UI/UX improvements and hasFilters for EntityRules component
+* chore: [NAU-286, NAU-287, NAU-290] Corrected some tests and refactoring
+* chore: [NAU-293] Replaced rule actions endpoint
+* temp: student experience with avatars
+* refactor: [NAU-264] Apply TDD for achievement processing
+* refactor: [NAU-260] Fronted translations refactoring
+* refactor: [NAU-253] Refactor Avatar models
+* refactor: [NAU-159] Users app refactoring
+
+## Docs
+* docs: [NAU-365] Update technical documentation
+* docs: [NAU-282] Document the logic of the achievements earning
 
 gamma-core 3.6.1 (2023-08-20)
 ---
