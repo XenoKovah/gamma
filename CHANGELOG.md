@@ -6,6 +6,10 @@ Versions follows PEP440 version scheme.
 [Unreleased]
 ************
 
+
+release/teak.2 (2026-05-22)
+---
+
 ## Fixed
 * fix: [TEA-176] Avatar for user is not available after completing task
 * fix: Leaderboard is not updated with points
