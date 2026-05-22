@@ -42,17 +42,46 @@ state based on the `leaderboards_initialization_batches_left` value:
 - 0: completed.
 
 If for any reason, this cache value is in inconsistent state (e.g., because of a
-batch initialization task failure or a Redis connection failure), you can run 
-`reset_leaderboards_initialization_status` management command to reset it and 
+batch initialization task failure or a Redis connection failure), you can run
+`reset_leaderboards_initialization_status` management command to reset it and
 run an initialization command again.
 
+#### Auto-recovery
+`AutoRecoverLeaderboardsUseCase` runs before every leaderboard update cycle
+(every minute). It detects two failure scenarios:
+- **NOT_STARTED** — Redis was restarted or initialization was never run.
+- **Stuck IN_PROGRESS** — a batch task failed and the counter never reached 0.
+  Considered stuck after `LEADERBOARDS_INITIALIZATION_TIMEOUT_SECONDS` (default
+  10 minutes) since the `leaderboards_initialization_started_at` timestamp.
+
+In both cases it resets the initialization status and schedules a fresh
+initialization automatically, without manual intervention.
+
 ### Leaderboards update
-During the work on the course, students progress is updated, so cached 
-leaderboards must be rebuilt. It would be inefficient to update them after 
+During the work on the course, students progress is updated, so cached
+leaderboards must be rebuilt. It would be inefficient to update them after
 each progress update event, so the Celery task that performs the recalculation
-for users whose points were updated are run by Celery Beat (by default, once 
+for users whose points were updated are run by Celery Beat (by default, once
 per minute, but it can be configured by `CELERY_BEAT_SCHEDULE` setting).
 The usernames of the users with updated progress are stored in Redis set with
-`pending_leaderboard_update` cache key, so the task takes from it, update 
+`pending_leaderboard_update` cache key, so the task takes from it, update
 leaderboard scores and empties the set.
 Leaderboards update is not run if leaderboards initialization was not completed.
+
+#### Resilient enqueue
+The `pre_save` signal on `GammaUser` dispatches a Celery task to add the user
+to the pending update set. If the Celery `.delay()` call fails (e.g. transient
+broker connection issue), a fallback writes directly to the Redis pending set
+via `RedisLeaderboardsPendingUpdateRepository.schedule_user_leaderboards_update`.
+Both the primary and fallback failures are logged and swallowed so the Django
+request is never broken by a leaderboard enqueue error.
+
+#### Periodic reconciliation
+As a safety net, `task_reconcile_leaderboards` runs hourly (configurable via
+`CELERY_BEAT_SCHEDULE`). It iterates all `GammaUser` records in batches and
+compares each user's DB points with their Redis general leaderboard score. Any
+mismatch (wrong score or user missing from Redis) causes the user to be added
+to the pending update set, so the next minute-level update cycle corrects it.
+This guarantees that even if both the Celery enqueue and the direct Redis
+fallback fail (e.g. Redis is temporarily down), stale data self-heals within
+at most one hour.

@@ -157,6 +157,15 @@ CELERY_DEFAULT_EXCHANGE = 'gamma'
 CELERY_DEFAULT_EXCHANGE_TYPE = 'direct'
 CELERY_DEFAULT_ROUTING_KEY = 'gamma'
 CELERY_QUEUES = {'gamma': {}}
+# Celery 4.3 with config_from_object(namespace='CELERY') does not map old-style
+# CELERY_DEFAULT_* settings to the new-style task_default_* accessors used by beat.
+# Both formats are needed so that all Celery components (worker, beat, router)
+# correctly route tasks to the 'gamma' queue.
+CELERY_TASK_DEFAULT_QUEUE = 'gamma'
+CELERY_TASK_DEFAULT_EXCHANGE = 'gamma'
+CELERY_TASK_DEFAULT_EXCHANGE_TYPE = 'direct'
+CELERY_TASK_DEFAULT_ROUTING_KEY = 'gamma'
+CELERY_TASK_QUEUES = {'gamma': {}}
 
 ENABLE_CORS_HEADERS = True
 CORS_ORIGIN_WHITELIST = [
@@ -187,7 +196,11 @@ CELERY_BEAT_SCHEDULE = {
     'update-leaderboard-every-minute': {
         'task': 'leaderboard.tasks.task_update_leaderboards',
         'schedule': 60,
-    }
+    },
+    'reconcile-leaderboards-hourly': {
+        'task': 'leaderboard.tasks.task_reconcile_leaderboards',
+        'schedule': 3600,
+    },
 }
 
 CACHES = {
