@@ -12,7 +12,7 @@ from core.authentication import KeySecretAuthentication
 from leaderboard.dataclasses import LeaderboardRetrievingContext
 from leaderboard.repository import ORMLeaderboardMemberDataRepository, RedisLeaderboardRepository
 from leaderboard.usecases import GetPersonalizedLeaderboardUseCase
-from users.models import GammaUser
+from users.models import GammaUser, GammaUserCoursePoints
 
 
 class LeaderBoardView(APIView):
@@ -251,3 +251,29 @@ class BadgeLeaderBoardView(APIView):
             member_data["points"] = points_by_uid.get(member_data["user_uid"], 0)
 
         return members_data
+
+
+class CoursePointsView(APIView):
+    """
+    Return per-course points for a given set of users.
+
+    The dashboard's course leaderboard uses this to rank certificate-earners by
+    their course points; the dashboard runs inside the LMS and cannot query the
+    Gamma database directly.
+    """
+
+    authentication_classes = (KeySecretAuthentication,)
+
+    def post(self, request):
+        course_id = request.data.get("course_id")
+        user_uids = request.data.get("user_uids") or []
+
+        if not course_id or not user_uids:
+            return Response({}, status=status.HTTP_200_OK)
+
+        points_by_uid = dict(
+            GammaUserCoursePoints.objects
+            .filter(course_id=course_id, gamma_user__user_uid__in=user_uids)
+            .values_list("gamma_user__user_uid", "points")
+        )
+        return Response(points_by_uid, status=status.HTTP_200_OK)
