@@ -7,7 +7,8 @@ from django.contrib.contenttypes.models import ContentType
 from pytest_mock.plugin import MockerFixture
 from rest_framework.test import APIClient
 
-from achievements.factories import AchievementFactory
+from achievements.factories import AchievementFactory, AchievementRuleFactory
+from achievements.models import AchievementRule
 from badges.factories import BadgeFactory
 from badges.models import Badge
 from leaderboard.api.v0.views import BadgeLeaderBoardView, LeaderBoardView
@@ -242,3 +243,56 @@ class TestBadgeLeaderBoardView:
         # Only the top 2 earners are serialized, but the rank reflects all earners.
         assert [member["user_uid"] for member in data["top10"]] == ["earner_2", "earner_1"]
         assert data["rank"] == 1
+
+    @staticmethod
+    def _add_progress(user, badge, badge_ct, goal, count):
+        """
+        Give ``user`` an in-progress (incomplete) achievement for ``badge``.
+        """
+        achievement = AchievementFactory(user=user, content_type=badge_ct, object_id=badge.id)
+        AchievementRuleFactory(
+            achievement=achievement,
+            status=AchievementRule.Statuses.ACTIVE,
+            dependencies={"is_achieved": False, "events": {"points": {"goal": goal, "count": count}}},
+        )
+
+    def test_in_progress_users_are_listed_separately_and_ranked_by_percent(self, auth_client: APIClient) -> None:
+        badge = BadgeFactory()
+        badge_ct = ContentType.objects.get_for_model(Badge)
+
+        # An earner stays in the completed list.
+        earner = GammaUserFactory(user_uid="earner", points=2000)
+        self._award_badge(earner, badge)
+
+        # Two users progressing toward a 1000-point goal (10% and 70%).
+        low = GammaUserFactory(user_uid="ip_low", points=100)
+        high = GammaUserFactory(user_uid="ip_high", points=700)
+        self._add_progress(low, badge, badge_ct, goal=1000, count=100)
+        self._add_progress(high, badge, badge_ct, goal=1000, count=700)
+
+        endpoint = f"/api/v0/leaderboard/badge/{badge.slug}?username=ip_high&signup_source=main"
+        response = auth_client.get(endpoint)
+
+        assert response.status_code == 200
+        data = response.json()
+        # Earner only in top10; in-progress users are a separate, percent-ranked list.
+        assert [member["user_uid"] for member in data["top10"]] == ["earner"]
+        assert [member["user_uid"] for member in data["in_progress"]] == ["ip_high", "ip_low"]
+        assert [member["progress_percent"] for member in data["in_progress"]] == [70, 10]
+        # The requesting user (ip_high) leads the in-progress list.
+        assert data["in_progress_rank"] == 1
+
+    def test_zero_progress_users_are_excluded_from_in_progress(self, auth_client: APIClient) -> None:
+        badge = BadgeFactory()
+        badge_ct = ContentType.objects.get_for_model(Badge)
+        user = GammaUserFactory(user_uid="no_progress", points=0)
+        self._add_progress(user, badge, badge_ct, goal=1000, count=0)
+
+        endpoint = f"/api/v0/leaderboard/badge/{badge.slug}?username=no_progress&signup_source=main"
+        response = auth_client.get(endpoint)
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["top10"] == []
+        assert data["in_progress"] == []
+        assert data["in_progress_rank"] is None
