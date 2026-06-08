@@ -1,4 +1,4 @@
-import { getCookieByName, capitalizeFirstLetter } from './utils';
+import { getCookieByName, capitalizeFirstLetter, sortAlphabetically } from './utils';
 
 describe('getCookieByName', () => {
   beforeEach(() => {
@@ -49,5 +49,29 @@ describe('capitalizeFirstLetter', () => {
   it('should handle single-letter strings', () => {
     expect(capitalizeFirstLetter('a')).toBe('A');
     expect(capitalizeFirstLetter('z')).toBe('Z');
+  });
+});
+
+describe('sortAlphabetically', () => {
+  it('should sort strings alphabetically', () => {
+    expect(sortAlphabetically(['banana', 'apple', 'cherry'])).toEqual(['apple', 'banana', 'cherry']);
+  });
+
+  it('should sort case-insensitively', () => {
+    expect(sortAlphabetically(['Zebra', 'apple', 'Banana'])).toEqual(['apple', 'Banana', 'Zebra']);
+  });
+
+  it('should sort numeric portions in natural order', () => {
+    expect(sortAlphabetically(['Dbg2011', 'Dbg1016', 'Dbg1012'])).toEqual(['Dbg1012', 'Dbg1016', 'Dbg2011']);
+  });
+
+  it('should not mutate the original array', () => {
+    const original = ['banana', 'apple'];
+    sortAlphabetically(original);
+    expect(original).toEqual(['banana', 'apple']);
+  });
+
+  it('should return an empty array when called with no arguments', () => {
+    expect(sortAlphabetically()).toEqual([]);
   });
 });

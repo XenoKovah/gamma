@@ -1,15 +1,15 @@
-import { capitalizeFirstLetter } from '../../../../utils';
+import { capitalizeFirstLetter, sortAlphabetically } from '../../../../utils';
 
 export const getFilterConfig = (coursesData, organizationsData, messages) => ({
   course: {
     as: 'select',
     placeholder: capitalizeFirstLetter('course'),
-    options: coursesData,
+    options: sortAlphabetically(coursesData),
   },
   org: {
     as: 'select',
     placeholder: messages.organizationTitle,
-    options: organizationsData,
+    options: sortAlphabetically(organizationsData),
   },
   frequency: {
     type: 'number',
