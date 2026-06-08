@@ -23,7 +23,7 @@ class Status(TimestampModelMixin, models.Model):
         help_text='Points threshold a learner must reach to attain this status.',
     )
     color = models.CharField(max_length=32, blank=True, default='')
-    image = models.ImageField(upload_to='uploads/statuses/', null=True, blank=True)
+    image = models.ImageField(upload_to='uploads/statuses/')
     is_active = models.BooleanField(default=True)
     slug = models.SlugField(max_length=255, null=True, blank=True)
 

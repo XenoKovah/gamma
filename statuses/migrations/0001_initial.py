@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
                 ('status_points', models.PositiveIntegerField(
                     help_text='Points threshold a learner must reach to attain this status.')),
                 ('color', models.CharField(blank=True, default='', max_length=32)),
-                ('image', models.ImageField(blank=True, null=True, upload_to='uploads/statuses/')),
+                ('image', models.ImageField(upload_to='uploads/statuses/')),
                 ('is_active', models.BooleanField(default=True)),
                 ('slug', models.SlugField(blank=True, max_length=255, null=True)),
             ],

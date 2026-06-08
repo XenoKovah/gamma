@@ -97,6 +97,7 @@ class TestUserGameProfileSerializer:
                     ('created_at', badge.created_at.isoformat().replace('+00:00', 'Z'))
                 ])
             ],
+            'system_statuses': [],
             'badges': [
                 OrderedDict([
                     ('title', badge.title),
@@ -119,3 +120,21 @@ class TestUserGameProfileSerializer:
         data = serializer.data
 
         assert expected_data == data
+
+    def test_serialized_data_includes_active_system_statuses(self, gamma_user_factory, status_factory):
+        """
+        system_statuses returns only active statuses, ordered by threshold, in the
+        shape the dashboard SliderStatusesBlock expects.
+        """
+        user = gamma_user_factory()
+        status_factory(title='Bronze', status_points=100, is_active=True)
+        status_factory(title='Gold', status_points=300, is_active=True)
+        status_factory(title='Hidden', status_points=200, is_active=False)
+
+        statuses = UserGameProfileSerializer(user).data['system_statuses']
+
+        assert [s['status_points'] for s in statuses] == [100, 300]
+        assert [s['title'] for s in statuses] == ['Bronze', 'Gold']
+        assert set(statuses[0].keys()) == {
+            'status_points', 'title', 'color', 'url', 'status_uid', 'active', 'slug',
+        }
