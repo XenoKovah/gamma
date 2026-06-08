@@ -17,6 +17,7 @@ const FilterInputController = forwardRef(({
   rule,
   ruleIndex,
   placeholder,
+  multiple,
   options = [],
 }, ref) => {
   const intl = useIntl();
@@ -27,6 +28,12 @@ const FilterInputController = forwardRef(({
 
   const fieldName = `rules.${ruleIndex}.filters.${filterKey}`;
   const fieldValue = rule.filters[filterKey] ?? '';
+  const isMulti = multiple && as === 'select';
+  // A multi-value filter (e.g. several accepted courses) is stored as an array, but a single
+  // selection stays a plain string so it remains identical to a legacy single-course filter.
+  const selectedValues = isMulti
+    ? (Array.isArray(fieldValue) ? fieldValue : (fieldValue && [fieldValue]) || [])
+    : fieldValue;
   const isFieldTouched = touched.rules?.[ruleIndex]?.filters?.[filterKey];
   const validationErrorText = errors.rules?.[ruleIndex]?.filters?.[filterKey];
 
@@ -46,6 +53,16 @@ const FilterInputController = forwardRef(({
     });
   }, [setTouched, ruleIndex, filterKey]);
 
+  const handleChange = useCallback((e) => {
+    if (isMulti) {
+      const values = Array.from(e.target.selectedOptions, (option) => option.value);
+      // 0 -> '' (so "required" validation still fires), 1 -> string (legacy), 2+ -> array (OR group).
+      setFieldValue(fieldName, values.length === 0 ? '' : (values.length === 1 ? values[0] : values));
+    } else {
+      setFieldValue(fieldName, e.target.value);
+    }
+  }, [isMulti, setFieldValue, fieldName]);
+
   const maxLength = useMemo(() => {
     if (isExtraSmall) {
       return Math.floor(window.innerWidth / CHARACTER_WIDTH_RATIO);
@@ -57,22 +74,25 @@ const FilterInputController = forwardRef(({
     <>
       <Form.Control
         ref={ref}
-        floatingLabel={label}
+        floatingLabel={isMulti ? undefined : label}
         name={name}
         placeholder={placeholder}
         className="entity-rule-filter-form-control mr-0"
         as={as}
         type={type}
-        value={fieldValue}
-        onChange={(e) => setFieldValue(fieldName, e.target.value)}
+        multiple={isMulti}
+        value={selectedValues}
+        onChange={handleChange}
         onBlur={handleBlur}
         isInvalid={isFieldTouched && !!validationErrorText}
       >
         {as === 'select' ? (
           <>
-            <option value="">
-              {intl.formatMessage(messages.modalEntityRulesFilterSelectTitle, { filterName: placeholder })}
-            </option>
+            {!isMulti && (
+              <option value="">
+                {intl.formatMessage(messages.modalEntityRulesFilterSelectTitle, { filterName: placeholder })}
+              </option>
+            )}
             {options.map((option) => {
               const truncatedOption = isExtraSmall && option.length > maxLength
                 ? `${option.slice(0, maxLength)}…`
@@ -87,6 +107,11 @@ const FilterInputController = forwardRef(({
           </>
         ) : null}
       </Form.Control>
+      {isMulti && (
+        <Form.Text className="mb-2">
+          Course — certificate in any of the selected courses (Ctrl/Cmd-click to choose several).
+        </Form.Text>
+      )}
       {isFieldTouched && validationErrorText && (
         <Form.Control.Feedback className="manage-entity-modal-feedback" type="invalid">
           {validationErrorText}
@@ -104,13 +129,18 @@ FilterInputController.propTypes = {
   filterKey: PropTypes.string.isRequired,
   rule: PropTypes.shape({
     filters: PropTypes.objectOf(
-      PropTypes.oneOfType([PropTypes.string, PropTypes.shape({
-        start: PropTypes.string, end: PropTypes.string,
-      })]),
+      PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.arrayOf(PropTypes.string),
+        PropTypes.shape({
+          start: PropTypes.string, end: PropTypes.string,
+        }),
+      ]),
     ).isRequired,
   }).isRequired,
   ruleIndex: PropTypes.number.isRequired,
   placeholder: PropTypes.string,
+  multiple: PropTypes.bool,
   options: PropTypes.arrayOf(PropTypes.string),
 };
 
@@ -120,6 +150,7 @@ FilterInputController.defaultProps = {
   label: undefined,
   as: undefined,
   placeholder: undefined,
+  multiple: false,
   options: [],
 };
 

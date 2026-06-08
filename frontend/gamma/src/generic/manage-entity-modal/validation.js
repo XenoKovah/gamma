@@ -194,7 +194,11 @@ export const validateFilters = (values, messages) => {
               }
               errors.rules[index].filters.frequency = messages.frequency.frequencyInt;
             }
-          } else if (filterValue === undefined || filterValue === '') {
+          } else if (
+            filterValue === undefined
+            || filterValue === ''
+            || (Array.isArray(filterValue) && filterValue.length === 0)
+          ) {
             if (!errors.rules) {
               errors.rules = [];
             }
