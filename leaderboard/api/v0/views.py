@@ -1,3 +1,4 @@
+import math
 from typing import List, Optional, Tuple
 
 from django.contrib.contenttypes.models import ContentType
@@ -197,32 +198,28 @@ class BadgeLeaderBoardView(APIView):
         """
         Compute a 0-100 progress percentage for an in-progress achievement.
 
-        Each rule contributes either 100% (when its dependencies are achieved) or
-        the average of its events' ``min(count, goal) / goal`` ratios; the rule
-        contributions are then averaged. Mirrors the dashboard's badge-progress
-        calculation (e.g. 30 of 1000 points -> 3%).
+        This mirrors the dashboard's ``calculateBadgeProgress`` exactly so the
+        per-badge page and the dashboard badge widget never disagree: every event
+        (across all of the achievement's rules) with a goal contributes
+        ``floor((min(count, goal) / goal) * (100 / number_of_events))``, and these
+        are summed. For example 35 of 1000 points -> floor(3.5) -> 3%.
         """
-        rule_dependencies_list = achievement.achievement_dependencies or []
-        if not rule_dependencies_list:
+        events = [
+            event_progress
+            for rule_dependencies in (achievement.achievement_dependencies or [])
+            if rule_dependencies
+            for event_progress in rule_dependencies.get("events", {}).values()
+            if event_progress.get("goal")
+        ]
+        if not events:
             return 0
 
-        rule_ratios = []
-        for rule_dependencies in rule_dependencies_list:
-            if not rule_dependencies:
-                rule_ratios.append(0.0)
-                continue
-            if rule_dependencies.get("is_achieved"):
-                rule_ratios.append(1.0)
-                continue
-
-            event_ratios = []
-            for event_progress in rule_dependencies.get("events", {}).values():
-                goal = event_progress.get("goal")
-                if goal:
-                    event_ratios.append(min(event_progress.get("count", 0), goal) / goal)
-            rule_ratios.append(sum(event_ratios) / len(event_ratios) if event_ratios else 0.0)
-
-        return round(sum(rule_ratios) / len(rule_ratios) * 100)
+        percentage_one_event = 100 / len(events)
+        return sum(
+            math.floor(min(event_progress.get("count", 0), event_progress["goal"]) / event_progress["goal"]
+                       * percentage_one_event)
+            for event_progress in events
+        )
 
     @staticmethod
     def _rank_of(user_uid: Optional[str], ordered_user_uids: List[str]) -> Optional[int]:

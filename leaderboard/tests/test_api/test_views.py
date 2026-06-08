@@ -282,6 +282,20 @@ class TestBadgeLeaderBoardView:
         # The requesting user (ip_high) leads the in-progress list.
         assert data["in_progress_rank"] == 1
 
+    def test_progress_percent_is_floored_to_match_dashboard(self, auth_client: APIClient) -> None:
+        # 35 / 1000 = 3.5% must floor to 3 (matching the dashboard's calculateBadgeProgress),
+        # not round up to 4.
+        badge = BadgeFactory()
+        badge_ct = ContentType.objects.get_for_model(Badge)
+        user = GammaUserFactory(user_uid="halfway", points=35)
+        self._add_progress(user, badge, badge_ct, goal=1000, count=35)
+
+        endpoint = f"/api/v0/leaderboard/badge/{badge.slug}?username=halfway&signup_source=main"
+        response = auth_client.get(endpoint)
+
+        assert response.status_code == 200
+        assert response.json()["in_progress"][0]["progress_percent"] == 3
+
     def test_zero_progress_users_are_excluded_from_in_progress(self, auth_client: APIClient) -> None:
         badge = BadgeFactory()
         badge_ct = ContentType.objects.get_for_model(Badge)
