@@ -6,6 +6,9 @@ Versions follows PEP440 version scheme.
 [Unreleased]
 ************
 
+## Added
+* feat: Add `leaderboard/badge/<slug>` API returning the top-100 users who earned a badge (ranked by points) in leaderboard-member shape, plus the badge's display data, for the dashboard's per-badge leaderboard page
+
 
 release/teak.2 (2026-05-22)
 ---
