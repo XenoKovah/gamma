@@ -7,6 +7,8 @@ from avatars.api.v0.serializers import AvatarSetSerializer, UserAvatarConfigSeri
 from avatars.models import AvatarSet, UserAvatarConfig
 from badges.api.v0.serializers import BadgeSerializer
 from badges.models import Badge
+from statuses.api.v0.serializers import SystemStatusSerializer
+from statuses.models import Status
 from users.models import GammaUser
 
 
@@ -24,6 +26,7 @@ class UserGameProfileSerializer(serializers.Serializer):
     avatar_sets = serializers.SerializerMethodField()
     user_avatar_config = serializers.SerializerMethodField()
     system_badges = serializers.SerializerMethodField()
+    system_statuses = serializers.SerializerMethodField()
     badges = serializers.SerializerMethodField()
 
     points = serializers.IntegerField()
@@ -59,6 +62,13 @@ class UserGameProfileSerializer(serializers.Serializer):
         """
         system_badges = Badge.objects.all().prefetch_related('rules')
         return BadgeSerializer(system_badges, many=True).data
+
+    def get_system_statuses(self, obj):
+        """
+        Get all active system statuses (the "Your Statuses" ladder), ordered by threshold.
+        """
+        system_statuses = Status.objects.filter(is_active=True).order_by('status_points')
+        return SystemStatusSerializer(system_statuses, many=True).data
 
     def get_badges(self, obj):
         """
