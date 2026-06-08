@@ -21,3 +21,16 @@ export const getCookieByName = (cookieName) => {
  * @returns {string} String with the first letter capitalized.
  */
 export const capitalizeFirstLetter = (str = '') => str.charAt(0).toUpperCase() + str.slice(1);
+
+/**
+ * Returns a new array of strings sorted alphabetically.
+ *
+ * The sort is case-insensitive and numeric-aware (so e.g. "Dbg1016" sorts
+ * before "Dbg2011"). The input array is not mutated.
+ *
+ * @param {string[]} [items=[]] - Input array of strings.
+ * @returns {string[]} A new, alphabetically sorted array.
+ */
+export const sortAlphabetically = (items = []) => [...items].sort(
+  (a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }),
+);
