@@ -79,3 +79,31 @@ def test_common_processor_counts_event_when_rule_has_no_course_filter(
 
     assert dependencies['is_achieved'] is True
     assert dependencies['events'][CERT_EVENT]['count'] == 1
+
+
+def test_common_processor_counts_event_for_any_course_in_or_group(
+    cert_configuration,
+    rule_factory,
+    achievement_rule_factory,
+    event_factory,
+    gamma_user_factory,
+):
+    """
+    A rule whose course filter is a list (OR group) is satisfied by a cert in any listed course.
+    """
+    user = gamma_user_factory()
+    rule = rule_factory(
+        event_configuration=cert_configuration,
+        action={CERT_EVENT: {'count': 1}},
+        filters={'course': [COURSE_A, COURSE_B]},
+    )
+    achievement_rule = achievement_rule_factory(rule=rule, dependencies={})
+    processor = CommonEventProcessor()
+
+    # certificate in COURSE_B (listed) -> rule satisfied
+    event_b = event_factory(configuration=cert_configuration, course_id=COURSE_B, username=user.user_uid)
+    assert processor.process(achievement_rule, user, event_b)['is_achieved'] is True
+
+    # certificate in an unlisted course -> not counted
+    event_other = event_factory(configuration=cert_configuration, course_id='course-v1:org+X+1', username=user.user_uid)
+    assert processor.process(achievement_rule, user, event_other)['is_achieved'] is False

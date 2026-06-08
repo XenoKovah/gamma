@@ -155,3 +155,38 @@ def test_recompute_does_not_grant_partial_progress(
     achievement = Achievement.objects.filter(object_id=badge.id, user=user).first()
     assert achievement is not None
     assert not achievement.all_rules_completed
+
+
+def test_recompute_with_or_group_course_filter(
+    cert_configuration, badge_factory, rule_factory, event_factory, gamma_user_factory,
+):
+    """
+    A list course filter is an OR group: `A AND (B OR C)` grants to A + (B or C), not to A alone.
+    """
+    rule_a = _cert_rule(rule_factory, cert_configuration, COURSE_A)
+    rule_b_or_c = rule_factory(
+        event_configuration=cert_configuration,
+        action={CERT_EVENT: {"count": 1}},
+        filters={"course": [COURSE_B, COURSE_C]},
+    )
+    badge = badge_factory()
+    badge.rules.set([rule_a, rule_b_or_c])
+
+    user_a_b = gamma_user_factory()           # A + B  -> granted (B satisfies the OR group)
+    _earn_cert(event_factory, cert_configuration, user_a_b, COURSE_A)
+    _earn_cert(event_factory, cert_configuration, user_a_b, COURSE_B)
+    user_a_c = gamma_user_factory()           # A + C  -> granted (C satisfies the OR group)
+    _earn_cert(event_factory, cert_configuration, user_a_c, COURSE_A)
+    _earn_cert(event_factory, cert_configuration, user_a_c, COURSE_C)
+    user_a_only = gamma_user_factory()        # A only -> not granted (OR group unmet)
+    _earn_cert(event_factory, cert_configuration, user_a_only, COURSE_A)
+    user_b_c = gamma_user_factory()           # B + C but not A -> not granted (AND part unmet)
+    _earn_cert(event_factory, cert_configuration, user_b_c, COURSE_B)
+    _earn_cert(event_factory, cert_configuration, user_b_c, COURSE_C)
+
+    result = recompute_holders(badge)
+
+    assert user_a_b.user_uid in result.granted
+    assert user_a_c.user_uid in result.granted
+    assert user_a_only.user_uid not in result.granted
+    assert user_b_c.user_uid not in result.granted

@@ -73,9 +73,16 @@ class RulesFilterService:
     def _passes_course_filter(self, rule: Rule) -> bool:
         """
         Check if the rule passes the course filter.
+
+        ``course`` may be a single course id or a list of course ids. A list is an OR group
+        (satisfied by any one of them), used to credit any accepted version of a course.
         """
         course = rule.filters.get('course')
-        return course is None or self.event.course_id == course
+        if not course:
+            return True
+        if isinstance(course, (list, tuple)):
+            return self.event.course_id in course
+        return self.event.course_id == course
 
     @staticmethod
     def parse_and_make_aware(date_str: str) -> datetime:

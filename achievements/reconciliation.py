@@ -110,7 +110,10 @@ def _events_for_rule(rule: Rule):
     queryset = Event.objects.filter(configuration__event_type__name=name)
     filters = rule.filters or {}
     if course := filters.get('course'):
-        queryset = queryset.filter(course_id=course)
+        if isinstance(course, (list, tuple)):
+            queryset = queryset.filter(course_id__in=course)
+        else:
+            queryset = queryset.filter(course_id=course)
     if org := filters.get('org'):
         queryset = queryset.filter(org=org)
 
