@@ -14,7 +14,7 @@ from badges.models import Badge
 from leaderboard.api.v0.views import BadgeLeaderBoardView, LeaderBoardView
 from leaderboard.dataclasses import LeaderboardRetrievingContext
 from leaderboard.factories import LeaderboardRetrievingContextFactory
-from users.factories import GammaUserFactory
+from users.factories import GammaUserCoursePointsFactory, GammaUserFactory
 from users.models import GammaUser
 
 
@@ -310,3 +310,41 @@ class TestBadgeLeaderBoardView:
         assert data["top10"] == []
         assert data["in_progress"] == []
         assert data["in_progress_rank"] is None
+
+
+class TestCoursePointsView:
+    def test_returns_course_points_for_requested_users(self, auth_client: APIClient) -> None:
+        course_id = "course-v1:Org+Course+Run"
+        u1 = GammaUserFactory(user_uid="cp_u1")
+        u2 = GammaUserFactory(user_uid="cp_u2")
+        GammaUserFactory(user_uid="cp_u3")  # requested but has no course points
+        GammaUserCoursePointsFactory(gamma_user=u1, course_id=course_id, points=80)
+        GammaUserCoursePointsFactory(gamma_user=u2, course_id=course_id, points=30)
+        # points for a different course must be ignored
+        GammaUserCoursePointsFactory(gamma_user=u1, course_id="course-v1:Org+Other+Run", points=999)
+
+        response = auth_client.post(
+            "/api/v0/course-points",
+            {"course_id": course_id, "user_uids": ["cp_u1", "cp_u2", "cp_u3"]},
+            format="json",
+        )
+
+        assert response.status_code == 200
+        assert response.json() == {"cp_u1": 80, "cp_u2": 30}
+
+    def test_empty_user_list_returns_empty_mapping(self, auth_client: APIClient) -> None:
+        response = auth_client.post(
+            "/api/v0/course-points",
+            {"course_id": "course-v1:Org+Course+Run", "user_uids": []},
+            format="json",
+        )
+        assert response.status_code == 200
+        assert response.json() == {}
+
+    def test_unauthorized_request_is_forbidden(self, client: APIClient) -> None:
+        response = client.post(
+            "/api/v0/course-points",
+            {"course_id": "course-v1:Org+Course+Run", "user_uids": ["cp_u1"]},
+            format="json",
+        )
+        assert response.status_code == 403

@@ -7,6 +7,7 @@ Versions follows PEP440 version scheme.
 ************
 
 ## Added
+* feat: Add `course-points` API (POST) returning per-course points for a set of users, so the dashboard course leaderboard can rank certificate-earners by their course points
 * feat: Add `leaderboard/badge/<slug>` API returning the top-100 users who earned a badge (ranked by points) in leaderboard-member shape, plus the badge's display data, for the dashboard's per-badge leaderboard page
 * feat: The `leaderboard/badge/<slug>` API also returns an `in_progress` list — users with non-zero progress toward the badge who have not completed it, ranked by their computed progress percentage — for the per-badge page's "In progress" section
 
