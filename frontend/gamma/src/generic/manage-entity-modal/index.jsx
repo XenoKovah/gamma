@@ -34,7 +34,9 @@ const ManageEntityModal = ({
 
   // For entities that support a points value (badges), seed the create form with
   // `points: 0` so the field renders and is validated; edit data already carries it.
-  const defaultFormValues = hasPoints ? { ...DEFAULT_FORM_VALUES, points: 0 } : DEFAULT_FORM_VALUES;
+  const defaultFormValues = hasPoints
+    ? { ...DEFAULT_FORM_VALUES, points: 0, manualCriteria: '' }
+    : DEFAULT_FORM_VALUES;
   const initialFormikValues = data?.entityData || defaultFormValues;
 
   const translations = {
@@ -171,6 +173,7 @@ ManageEntityModal.propTypes = {
       title: PropTypes.string,
       slug: PropTypes.string,
       points: PropTypes.number,
+      manualCriteria: PropTypes.string,
       image: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
       description: PropTypes.string,
       eventType: PropTypes.string,

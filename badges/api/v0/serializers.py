@@ -33,7 +33,10 @@ class BadgeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Badge
-        fields = ('id', 'title', 'description', 'image', 'is_active', 'slug', 'points', 'rules', 'created_at')
+        fields = (
+            'id', 'title', 'description', 'image', 'is_active', 'slug', 'points',
+            'manual_criteria', 'rules', 'created_at',
+        )
         read_only_fields = ('created_at',)
 
     def create(self, validated_data):
