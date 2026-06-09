@@ -3,6 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 
+from achievements.reconciliation import recompute_holders
 from badges.models import Badge
 from core.mixins import AdminUserPermissionMixin
 from users.models import GammaUser
@@ -18,15 +19,16 @@ class BadgeViewSet(AdminUserPermissionMixin, viewsets.ModelViewSet):
     queryset = Badge.objects.all().prefetch_related('rules')
     serializer_class = BadgeSerializer
 
+    # State-changing custom actions that must be admin-only. ``AdminUserPermissionMixin``
+    # only guards the default write actions (create/update/partial_update/destroy), so
+    # without listing them here these actions would inherit the empty (public) permission set.
+    ADMIN_ONLY_ACTIONS = ('assign', 'recompute')
+
     def get_permissions(self):
         """
-        Restrict the custom ``assign`` action to admins.
-
-        ``AdminUserPermissionMixin`` only guards the default write actions
-        (create/update/partial_update/destroy), so without this the custom action
-        would inherit the empty (public) permission set.
+        Restrict the custom admin-only actions to admins.
         """
-        if self.action == 'assign':
+        if self.action in self.ADMIN_ONLY_ACTIONS:
             return [IsAdminUser()]
         return super().get_permissions()
 
@@ -66,3 +68,21 @@ class BadgeViewSet(AdminUserPermissionMixin, viewsets.ModelViewSet):
             },
             status=status.HTTP_200_OK,
         )
+
+    @action(detail=True, methods=['post'])
+    def recompute(self, request, pk=None):
+        """
+        Manually re-evaluate, under the badge's current rules, which users should hold it.
+
+        Grants the badge to users whose stored event history now satisfies every rule
+        (e.g. people who completed the courses before the badge or rule was added) and
+        revokes it from users who no longer qualify after a rules change.
+        """
+        badge = self.get_object()
+        result = recompute_holders(badge)
+        return Response({
+            'badge_id': badge.id,
+            'granted': result.granted,
+            'revoked': result.revoked,
+            'unchanged': result.unchanged,
+        })

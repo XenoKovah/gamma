@@ -141,7 +141,16 @@ class CommonEventProcessor(BaseEventProcessor):
         passed_frequency_filter = self._check_frequency_fit(achievement_rule.rule.filters, progress.current)
         event_count = progress.by_event.get('count', 0)
 
-        if event.event_name == progress.event_name:
+        # Advance the counter only when the event matches this rule's event type AND
+        # satisfies the rule's own filters (course/org/interval). A badge may hold
+        # several rules of the same event type scoped to different courses (e.g. one
+        # "Get a Course Certificate" rule per required course); without the per-rule
+        # filter check a single certificate would progress every such rule and the
+        # multi-course badge would be granted after completing just one course.
+        if (
+            event.event_name == progress.event_name
+            and self._event_passes_rule_filters(event, achievement_rule.rule)
+        ):
             event_count = event_count + 1 if passed_frequency_filter else 1
             progress.by_event['count'] = event_count
 
@@ -165,6 +174,19 @@ class CommonEventProcessor(BaseEventProcessor):
         )
 
         return types.EventDependencies(events={progress.event_name: updated_progress}, is_achieved=is_achieved)
+
+    @staticmethod
+    def _event_passes_rule_filters(event: Event, rule) -> bool:
+        """
+        Return whether the event satisfies this rule's own filters (course/org/interval).
+
+        Reuses RulesFilterService so per-rule progress matches the signal-level filtering
+        exactly. Imported lazily to avoid a circular import (rules.services depends on
+        events.models).
+        """
+        from rules.services import RulesFilterService
+
+        return RulesFilterService(event).does_event_pass_filters(rule)
 
     def _check_frequency_fit(self, filters: Optional[Dict[str, Any]], progress: Dict[str, Any]) -> bool:
         """

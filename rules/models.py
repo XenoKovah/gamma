@@ -67,5 +67,12 @@ class Rule(TimestampModelMixin, models.Model):
     def has_filter(self, name: str, value: Any) -> bool:
         """
         Check whether the rule has a filter with a specific value.
+
+        A list-valued filter (e.g. several accepted courses) matches if ``value`` is one of them.
         """
-        return self.filters.get(name) == value if name in self.filters else False
+        if name not in self.filters:
+            return False
+        stored = self.filters.get(name)
+        if isinstance(stored, (list, tuple)):
+            return value in stored
+        return stored == value

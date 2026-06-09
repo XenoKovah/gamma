@@ -3,6 +3,7 @@ import { capitalizeFirstLetter, sortAlphabetically } from '../../../../utils';
 export const getFilterConfig = (coursesData, organizationsData, messages) => ({
   course: {
     as: 'select',
+    multiple: true,
     placeholder: capitalizeFirstLetter('course'),
     options: sortAlphabetically(coursesData),
   },
