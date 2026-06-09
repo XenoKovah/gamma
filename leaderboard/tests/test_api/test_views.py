@@ -7,13 +7,14 @@ from django.contrib.contenttypes.models import ContentType
 from pytest_mock.plugin import MockerFixture
 from rest_framework.test import APIClient
 
-from achievements.factories import AchievementFactory
+from achievements.factories import AchievementFactory, AchievementRuleFactory
+from achievements.models import AchievementRule
 from badges.factories import BadgeFactory
 from badges.models import Badge
 from leaderboard.api.v0.views import BadgeLeaderBoardView, LeaderBoardView
 from leaderboard.dataclasses import LeaderboardRetrievingContext
 from leaderboard.factories import LeaderboardRetrievingContextFactory
-from users.factories import GammaUserFactory
+from users.factories import GammaUserCoursePointsFactory, GammaUserFactory
 from users.models import GammaUser
 
 
@@ -242,3 +243,108 @@ class TestBadgeLeaderBoardView:
         # Only the top 2 earners are serialized, but the rank reflects all earners.
         assert [member["user_uid"] for member in data["top10"]] == ["earner_2", "earner_1"]
         assert data["rank"] == 1
+
+    @staticmethod
+    def _add_progress(user, badge, badge_ct, goal, count):
+        """
+        Give ``user`` an in-progress (incomplete) achievement for ``badge``.
+        """
+        achievement = AchievementFactory(user=user, content_type=badge_ct, object_id=badge.id)
+        AchievementRuleFactory(
+            achievement=achievement,
+            status=AchievementRule.Statuses.ACTIVE,
+            dependencies={"is_achieved": False, "events": {"points": {"goal": goal, "count": count}}},
+        )
+
+    def test_in_progress_users_are_listed_separately_and_ranked_by_percent(self, auth_client: APIClient) -> None:
+        badge = BadgeFactory()
+        badge_ct = ContentType.objects.get_for_model(Badge)
+
+        # An earner stays in the completed list.
+        earner = GammaUserFactory(user_uid="earner", points=2000)
+        self._award_badge(earner, badge)
+
+        # Two users progressing toward a 1000-point goal (10% and 70%).
+        low = GammaUserFactory(user_uid="ip_low", points=100)
+        high = GammaUserFactory(user_uid="ip_high", points=700)
+        self._add_progress(low, badge, badge_ct, goal=1000, count=100)
+        self._add_progress(high, badge, badge_ct, goal=1000, count=700)
+
+        endpoint = f"/api/v0/leaderboard/badge/{badge.slug}?username=ip_high&signup_source=main"
+        response = auth_client.get(endpoint)
+
+        assert response.status_code == 200
+        data = response.json()
+        # Earner only in top10; in-progress users are a separate, percent-ranked list.
+        assert [member["user_uid"] for member in data["top10"]] == ["earner"]
+        assert [member["user_uid"] for member in data["in_progress"]] == ["ip_high", "ip_low"]
+        assert [member["progress_percent"] for member in data["in_progress"]] == [70, 10]
+        # The requesting user (ip_high) leads the in-progress list.
+        assert data["in_progress_rank"] == 1
+
+    def test_progress_percent_is_floored_to_match_dashboard(self, auth_client: APIClient) -> None:
+        # 35 / 1000 = 3.5% must floor to 3 (matching the dashboard's calculateBadgeProgress),
+        # not round up to 4.
+        badge = BadgeFactory()
+        badge_ct = ContentType.objects.get_for_model(Badge)
+        user = GammaUserFactory(user_uid="halfway", points=35)
+        self._add_progress(user, badge, badge_ct, goal=1000, count=35)
+
+        endpoint = f"/api/v0/leaderboard/badge/{badge.slug}?username=halfway&signup_source=main"
+        response = auth_client.get(endpoint)
+
+        assert response.status_code == 200
+        assert response.json()["in_progress"][0]["progress_percent"] == 3
+
+    def test_zero_progress_users_are_excluded_from_in_progress(self, auth_client: APIClient) -> None:
+        badge = BadgeFactory()
+        badge_ct = ContentType.objects.get_for_model(Badge)
+        user = GammaUserFactory(user_uid="no_progress", points=0)
+        self._add_progress(user, badge, badge_ct, goal=1000, count=0)
+
+        endpoint = f"/api/v0/leaderboard/badge/{badge.slug}?username=no_progress&signup_source=main"
+        response = auth_client.get(endpoint)
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["top10"] == []
+        assert data["in_progress"] == []
+        assert data["in_progress_rank"] is None
+
+
+class TestCoursePointsView:
+    def test_returns_course_points_for_requested_users(self, auth_client: APIClient) -> None:
+        course_id = "course-v1:Org+Course+Run"
+        u1 = GammaUserFactory(user_uid="cp_u1")
+        u2 = GammaUserFactory(user_uid="cp_u2")
+        GammaUserFactory(user_uid="cp_u3")  # requested but has no course points
+        GammaUserCoursePointsFactory(gamma_user=u1, course_id=course_id, points=80)
+        GammaUserCoursePointsFactory(gamma_user=u2, course_id=course_id, points=30)
+        # points for a different course must be ignored
+        GammaUserCoursePointsFactory(gamma_user=u1, course_id="course-v1:Org+Other+Run", points=999)
+
+        response = auth_client.post(
+            "/api/v0/course-points",
+            {"course_id": course_id, "user_uids": ["cp_u1", "cp_u2", "cp_u3"]},
+            format="json",
+        )
+
+        assert response.status_code == 200
+        assert response.json() == {"cp_u1": 80, "cp_u2": 30}
+
+    def test_empty_user_list_returns_empty_mapping(self, auth_client: APIClient) -> None:
+        response = auth_client.post(
+            "/api/v0/course-points",
+            {"course_id": "course-v1:Org+Course+Run", "user_uids": []},
+            format="json",
+        )
+        assert response.status_code == 200
+        assert response.json() == {}
+
+    def test_unauthorized_request_is_forbidden(self, client: APIClient) -> None:
+        response = client.post(
+            "/api/v0/course-points",
+            {"course_id": "course-v1:Org+Course+Run", "user_uids": ["cp_u1"]},
+            format="json",
+        )
+        assert response.status_code == 403

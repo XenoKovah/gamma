@@ -31,6 +31,16 @@ const messages = defineMessages({
     defaultMessage: 'Delete',
     description: 'The text displayed on the button to delete a badge.',
   },
+  badgeAssignBtnTitle: {
+    id: 'modules.badges.badge-item.button.assign.title',
+    defaultMessage: 'Assign to users',
+    description: 'The text on the button that opens the manual badge assignment modal.',
+  },
+  badgeUnassignBtnTitle: {
+    id: 'modules.badges.badge-item.button.unassign.title',
+    defaultMessage: 'Remove from users',
+    description: 'The text on the button that opens the manual badge removal modal.',
+  },
   badgeDefaultTitle: {
     id: 'modules.badges.badge-item.default.title',
     defaultMessage: 'Badge title',
@@ -71,6 +81,66 @@ const messages = defineMessages({
     defaultMessage: 'Are you sure you want to delete this badge? This action cannot be undone.',
     description: 'The description for the confirmation modal when deleting a badge.',
   },
+  assignBadgeModalTitle: {
+    id: 'modules.badges.modal.assign-badge.title',
+    defaultMessage: 'Assign "{title}" to users',
+    description: 'The title of the manual badge assignment modal.',
+  },
+  assignBadgeModalDescription: {
+    id: 'modules.badges.modal.assign-badge.description',
+    defaultMessage: 'Enter the user IDs (usernames) to grant this badge to, one per line or separated by commas.',
+    description: 'Instructions shown in the manual badge assignment modal.',
+  },
+  assignBadgeModalPointsNote: {
+    id: 'modules.badges.modal.assign-badge.points-note',
+    defaultMessage: 'Each user will also receive {points} points.',
+    description: 'Note shown when the badge being assigned awards points.',
+  },
+  assignBadgeModalUserIdsLabel: {
+    id: 'modules.badges.modal.assign-badge.user-ids.label',
+    defaultMessage: 'User IDs',
+    description: 'Label for the user IDs textarea in the manual badge assignment modal.',
+  },
+  assignBadgeModalUserIdsPlaceholder: {
+    id: 'modules.badges.modal.assign-badge.user-ids.placeholder',
+    defaultMessage: 'e.g. jdoe, asmith\nor one user ID per line',
+    description: 'Placeholder for the user IDs textarea in the manual badge assignment modal.',
+  },
+  assignBadgeModalSubmitBtnText: {
+    id: 'modules.badges.modal.assign-badge.button.submit',
+    defaultMessage: 'Assign badge',
+    description: 'The submit button text in the manual badge assignment modal.',
+  },
+  assignBadgeModalSelectedCount: {
+    id: 'modules.badges.modal.assign-badge.selected-count',
+    defaultMessage: '{count, plural, one {# user} other {# users}} will be assigned this badge.',
+    description: 'Shows how many distinct user IDs were entered in the assignment modal.',
+  },
+  unassignBadgeModalTitle: {
+    id: 'modules.badges.modal.unassign-badge.title',
+    defaultMessage: 'Remove "{title}" from users',
+    description: 'The title of the manual badge removal modal.',
+  },
+  unassignBadgeModalDescription: {
+    id: 'modules.badges.modal.unassign-badge.description',
+    defaultMessage: 'Enter the user IDs (usernames) to remove this badge from, one per line or separated by commas.',
+    description: 'Instructions shown in the manual badge removal modal.',
+  },
+  unassignBadgeModalPointsNote: {
+    id: 'modules.badges.modal.unassign-badge.points-note',
+    defaultMessage: 'Each user will lose up to {points} points.',
+    description: 'Note shown when the badge being removed had awarded points.',
+  },
+  unassignBadgeModalSubmitBtnText: {
+    id: 'modules.badges.modal.unassign-badge.button.submit',
+    defaultMessage: 'Remove badge',
+    description: 'The submit button text in the manual badge removal modal.',
+  },
+  unassignBadgeModalSelectedCount: {
+    id: 'modules.badges.modal.unassign-badge.selected-count',
+    defaultMessage: '{count, plural, one {# user} other {# users}} will have this badge removed.',
+    description: 'Shows how many distinct user IDs were entered in the removal modal.',
+  },
 
   toastErrorTitle: {
     id: 'modules.badges.toast.error.text',
@@ -91,6 +161,16 @@ const messages = defineMessages({
     id: 'modules.badges.alert.badge-deleted.title',
     defaultMessage: 'Badge successfully deleted',
     description: 'The title for the alert when a badge is successfully deleted.',
+  },
+  badgeAssignedTitle: {
+    id: 'modules.badges.alert.badge-assigned.title',
+    defaultMessage: 'Badge assigned: {granted} granted, {already} already had it',
+    description: 'The toast shown after manually assigning a badge to users.',
+  },
+  badgeUnassignedTitle: {
+    id: 'modules.badges.alert.badge-unassigned.title',
+    defaultMessage: 'Badge removed: {removed} removed, {notAssigned} did not have it',
+    description: 'The toast shown after manually removing a badge from users.',
   },
   badgeDraftStatusText: {
     id: 'modules.badges.badge.draft.status.text',

@@ -1,4 +1,5 @@
-from typing import List, Optional
+import math
+from typing import List, Optional, Tuple
 
 from django.contrib.contenttypes.models import ContentType
 from rest_framework import status
@@ -7,12 +8,11 @@ from rest_framework.views import APIView
 
 from achievements.models import Achievement
 from badges.models import Badge
-from badges.utils import is_achieved_badge
 from core.authentication import KeySecretAuthentication
 from leaderboard.dataclasses import LeaderboardRetrievingContext
 from leaderboard.repository import ORMLeaderboardMemberDataRepository, RedisLeaderboardRepository
 from leaderboard.usecases import GetPersonalizedLeaderboardUseCase
-from users.models import GammaUser
+from users.models import GammaUser, GammaUserCoursePoints
 
 
 class LeaderBoardView(APIView):
@@ -59,10 +59,11 @@ class BadgeLeaderBoardView(APIView):
     """
     Provide a leaderboard limited to the users who earned a specific badge.
 
-    Unlike the personalized leaderboard, this returns a flat, points-ranked list
-    of up to ``MEMBERS_LIMIT`` badge earners (not a window around the requesting
-    user), together with the badge's display data. The response reuses the
-    leaderboard member shape so the dashboard can render it with the regular
+    It returns the badge's display data plus two flat, ranked lists (not a window
+    around the requesting user): ``top10`` — the users who earned (completed) the
+    badge, ranked by points; and ``in_progress`` — users with non-zero progress who
+    have not completed it yet, ranked by their progress percentage. Both reuse the
+    leaderboard member shape so the dashboard can render them with the regular
     leaderboard components.
     """
 
@@ -81,12 +82,18 @@ class BadgeLeaderBoardView(APIView):
 
         GammaUser.ensure_gamma_user_is_created(user_uid=user_uid)
 
-        ranked_earners = self._get_ranked_earners(badge, course_id)
-        rank = self._get_current_user_rank(ranked_earners, user_uid)
-        top_earners = ranked_earners[:self.MEMBERS_LIMIT]
-
+        ranked_earners, ranked_in_progress = self._collect_badge_members(badge, course_id)
         context = LeaderboardRetrievingContext(user_uid, signup_source, course_id)
-        members_data = self._build_members_data(top_earners, course_id, context)
+
+        earners_data = self._build_members_data(ranked_earners[:self.MEMBERS_LIMIT], course_id, context)
+
+        top_in_progress = ranked_in_progress[:self.MEMBERS_LIMIT]
+        in_progress_data = self._build_members_data(
+            [gamma_user for gamma_user, _ in top_in_progress], course_id, context
+        )
+        percent_by_uid = {gamma_user.user_uid: percent for gamma_user, percent in top_in_progress}
+        for member_data in in_progress_data:
+            member_data["progress_percent"] = percent_by_uid.get(member_data["user_uid"], 0)
 
         response_data = {
             "badge": {
@@ -95,16 +102,27 @@ class BadgeLeaderBoardView(APIView):
                 "description": badge.description or "",
                 "url": badge.image.url if badge.image else None,
             },
-            "top10": members_data,
+            "top10": earners_data,
             "competitors": [],
-            "rank": rank,
+            "rank": self._rank_of(user_uid, [gamma_user.user_uid for gamma_user in ranked_earners]),
+            "in_progress": in_progress_data,
+            "in_progress_rank": self._rank_of(
+                user_uid, [gamma_user.user_uid for gamma_user, _ in ranked_in_progress]
+            ),
             "user_uid": user_uid,
         }
         return Response(response_data, status=status.HTTP_200_OK)
 
-    def _get_ranked_earners(self, badge: Badge, course_id: Optional[str]) -> List[GammaUser]:
+    def _collect_badge_members(
+        self, badge: Badge, course_id: Optional[str],
+    ) -> Tuple[List[GammaUser], List[Tuple[GammaUser, int]]]:
         """
-        Provide badge earners ordered by their points in the descending order.
+        Split the badge's users into earners and in-progress members.
+
+        Earners (all rules completed) are returned ranked by points descending;
+        in-progress members (not completed, but with progress above 0%) are
+        returned as ``(user, percent)`` pairs ranked by their progress percentage
+        descending, with points as a tie-breaker.
         """
         badge_content_type = ContentType.objects.get_for_model(Badge)
         achievements = (
@@ -115,24 +133,49 @@ class BadgeLeaderBoardView(APIView):
         )
 
         earners = {}
+        in_progress_percents = {}
         for achievement in achievements:
-            if achievement.user.user_uid in earners:
+            user = achievement.user
+            user_uid = user.user_uid
+
+            if course_id and not achievement.get_course_related_achievement_rules(course_id):
                 continue
-            if is_achieved_badge(achievement, course_id):
-                earners[achievement.user.user_uid] = achievement.user
 
-        if not earners:
-            return []
+            if achievement.all_rules_completed:
+                earners[user_uid] = user
+                in_progress_percents.pop(user_uid, None)
+                continue
 
-        earner_users = GammaUser.objects.filter(user_uid__in=earners.keys())
-        if course_id:
-            earner_users = earner_users.prefetch_related("courses_points")
+            if user_uid in earners:
+                continue
 
-        return sorted(
-            earner_users,
+            percent = self._progress_percent(achievement)
+            if percent > 0 and percent > in_progress_percents.get(user_uid, 0):
+                in_progress_percents[user_uid] = percent
+
+        ranked_earners = sorted(
+            self._fetch_users(earners.keys(), course_id),
             key=lambda gamma_user: self._member_points(gamma_user, course_id),
             reverse=True,
         )
+
+        in_progress_users = self._fetch_users(in_progress_percents.keys(), course_id)
+        ranked_in_progress = sorted(
+            ((user, in_progress_percents[user.user_uid]) for user in in_progress_users),
+            key=lambda pair: (pair[1], self._member_points(pair[0], course_id)),
+            reverse=True,
+        )
+        return ranked_earners, ranked_in_progress
+
+    @staticmethod
+    def _fetch_users(user_uids, course_id: Optional[str]) -> List[GammaUser]:
+        """
+        Fetch GammaUsers for the given uids, prefetching course points when needed.
+        """
+        users = GammaUser.objects.filter(user_uid__in=list(user_uids))
+        if course_id:
+            users = users.prefetch_related("courses_points")
+        return list(users)
 
     @staticmethod
     def _member_points(gamma_user: GammaUser, course_id: Optional[str]) -> int:
@@ -151,12 +194,40 @@ class BadgeLeaderBoardView(APIView):
         return 0
 
     @staticmethod
-    def _get_current_user_rank(ranked_earners: List[GammaUser], user_uid: Optional[str]) -> Optional[int]:
+    def _progress_percent(achievement: Achievement) -> int:
         """
-        Provide the 1-based rank of the requesting user among all badge earners.
+        Compute a 0-100 progress percentage for an in-progress achievement.
+
+        This mirrors the dashboard's ``calculateBadgeProgress`` exactly so the
+        per-badge page and the dashboard badge widget never disagree: every event
+        (across all of the achievement's rules) with a goal contributes
+        ``floor((min(count, goal) / goal) * (100 / number_of_events))``, and these
+        are summed. For example 35 of 1000 points -> floor(3.5) -> 3%.
         """
-        for index, gamma_user in enumerate(ranked_earners):
-            if gamma_user.user_uid == user_uid:
+        events = [
+            event_progress
+            for rule_dependencies in (achievement.achievement_dependencies or [])
+            if rule_dependencies
+            for event_progress in rule_dependencies.get("events", {}).values()
+            if event_progress.get("goal")
+        ]
+        if not events:
+            return 0
+
+        percentage_one_event = 100 / len(events)
+        return sum(
+            math.floor(min(event_progress.get("count", 0), event_progress["goal"]) / event_progress["goal"]
+                       * percentage_one_event)
+            for event_progress in events
+        )
+
+    @staticmethod
+    def _rank_of(user_uid: Optional[str], ordered_user_uids: List[str]) -> Optional[int]:
+        """
+        Provide the 1-based position of ``user_uid`` within an ordered uid list.
+        """
+        for index, ordered_uid in enumerate(ordered_user_uids):
+            if ordered_uid == user_uid:
                 return index + 1
         return None
 
@@ -180,3 +251,29 @@ class BadgeLeaderBoardView(APIView):
             member_data["points"] = points_by_uid.get(member_data["user_uid"], 0)
 
         return members_data
+
+
+class CoursePointsView(APIView):
+    """
+    Return per-course points for a given set of users.
+
+    The dashboard's course leaderboard uses this to rank certificate-earners by
+    their course points; the dashboard runs inside the LMS and cannot query the
+    Gamma database directly.
+    """
+
+    authentication_classes = (KeySecretAuthentication,)
+
+    def post(self, request):
+        course_id = request.data.get("course_id")
+        user_uids = request.data.get("user_uids") or []
+
+        if not course_id or not user_uids:
+            return Response({}, status=status.HTTP_200_OK)
+
+        points_by_uid = dict(
+            GammaUserCoursePoints.objects
+            .filter(course_id=course_id, gamma_user__user_uid__in=user_uids)
+            .values_list("gamma_user__user_uid", "points")
+        )
+        return Response(points_by_uid, status=status.HTTP_200_OK)

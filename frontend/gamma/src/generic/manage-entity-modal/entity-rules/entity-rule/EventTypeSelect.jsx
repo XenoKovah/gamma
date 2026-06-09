@@ -6,6 +6,13 @@ import { useIntl } from 'react-intl';
 
 import messages from '../../../../i18n';
 
+// Actions that may be used in more than one rule of the same entity. This lets an admin
+// build a badge that requires completing several specific courses — one "Get a Course
+// Certificate" rule per course, each scoped by its own course filter. The backend
+// (CommonEventProcessor) advances a rule's progress only for events matching that rule's
+// filters, so multiple certificate rules behave as an AND across courses.
+export const REPEATABLE_EVENT_NAMES = ['edx_certificate_created'];
+
 const EventTypeSelect = ({ ruleIndex, translations, data }) => {
   const intl = useIntl();
   const {
@@ -17,9 +24,12 @@ const EventTypeSelect = ({ ruleIndex, translations, data }) => {
     ?.map((rule, idx) => idx !== ruleIndex && rule.action?.eventType)
     .filter(Boolean);
 
-  // Filter out actions already used by other rules.
+  // Filter out actions already used by other rules, except repeatable ones (e.g. course
+  // certificates), which may scope to a different course in each rule.
   const filteredActions = data.actions.filter(
-    action => !existingEventTypes.includes(action.eventName) || action.eventName === selectedEventType,
+    action => REPEATABLE_EVENT_NAMES.includes(action.eventName)
+      || !existingEventTypes.includes(action.eventName)
+      || action.eventName === selectedEventType,
   );
 
   const isEventTypesFieldTouched = touched.rules?.[ruleIndex]?.action?.eventType;

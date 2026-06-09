@@ -165,4 +165,53 @@ describe('EventTypeSelect Component', () => {
 
     expect(select).toHaveValue('testAction1');
   });
+
+  it('hides a non-repeatable action already used by another rule', () => {
+    useFormikContext.mockReturnValue({
+      values: {
+        rules: [
+          { action: { eventType: 'testAction1' } },
+          { action: { eventType: '' } },
+        ],
+      },
+      touched: mockTouched,
+      errors: mockErrors,
+      setFieldValue: mockSetFieldValue,
+      handleBlur: mockHandleBlur,
+    });
+
+    const { queryByText } = renderComponent({ ruleIndex: 1 });
+
+    expect(queryByText('Test Action 1')).not.toBeInTheDocument();
+    expect(queryByText('Test Action 2')).toBeInTheDocument();
+  });
+
+  it('keeps a repeatable action (course certificate) available in another rule', () => {
+    const dataWithCertificate = {
+      actions: [
+        { id: 'cert', eventName: 'edx_certificate_created', title: 'Get a Course Certificate' },
+        { id: 'action2', eventName: 'testAction2', title: 'Test Action 2' },
+      ],
+    };
+
+    useFormikContext.mockReturnValue({
+      values: {
+        rules: [
+          { action: { eventType: 'edx_certificate_created' } },
+          { action: { eventType: '' } },
+        ],
+      },
+      touched: mockTouched,
+      errors: mockErrors,
+      setFieldValue: mockSetFieldValue,
+      handleBlur: mockHandleBlur,
+    });
+
+    const { queryByText } = renderComponent({ ruleIndex: 1, data: dataWithCertificate });
+
+    // Certificates are repeatable, so the action stays available for a second rule
+    // (one certificate rule per required course → multi-course completion badge).
+    expect(queryByText('Get a Course Certificate')).toBeInTheDocument();
+    expect(queryByText('Test Action 2')).toBeInTheDocument();
+  });
 });

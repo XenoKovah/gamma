@@ -19,6 +19,7 @@ const ManageEntityModal = ({
   title,
   onReset,
   hasFilters,
+  hasPoints,
   submitForm,
   submitStatus,
   setSubmitStatus,
@@ -31,7 +32,10 @@ const ManageEntityModal = ({
   const rulesContainerRef = useRef(null);
   const lastRuleRef = useRef(null);
 
-  const initialFormikValues = data?.entityData || DEFAULT_FORM_VALUES;
+  // For entities that support a points value (badges), seed the create form with
+  // `points: 0` so the field renders and is validated; edit data already carries it.
+  const defaultFormValues = hasPoints ? { ...DEFAULT_FORM_VALUES, points: 0 } : DEFAULT_FORM_VALUES;
+  const initialFormikValues = data?.entityData || defaultFormValues;
 
   const translations = {
     validation: {
@@ -51,6 +55,10 @@ const ManageEntityModal = ({
         countRequired: intl.formatMessage(messages.modalEntityValidationActionRequiredText),
         countPositive: intl.formatMessage(messages.modalEntityValidationActionPositiveNumberText),
         countInt: intl.formatMessage(messages.modalEntityValidationActionNumberText),
+      },
+      points: {
+        pointsPositive: intl.formatMessage(messages.modalEntityValidationPointsPositiveNumberText),
+        pointsInt: intl.formatMessage(messages.modalEntityValidationPointsNumberText),
       },
       descriptionRequired: intl.formatMessage(messages.modalEntityValidationDescriptionRequiredText),
       descriptionMaxLength: intl.formatMessage(messages.modalEntityValidationDescriptionMaxLengthText),
@@ -162,6 +170,7 @@ ManageEntityModal.propTypes = {
       id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
       title: PropTypes.string,
       slug: PropTypes.string,
+      points: PropTypes.number,
       image: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
       description: PropTypes.string,
       eventType: PropTypes.string,
@@ -186,6 +195,7 @@ ManageEntityModal.propTypes = {
   }),
   entityAcceptedImageFormats: PropTypes.arrayOf(PropTypes.string),
   hasFilters: PropTypes.bool,
+  hasPoints: PropTypes.bool,
 };
 
 ManageEntityModal.defaultProps = {
@@ -193,6 +203,7 @@ ManageEntityModal.defaultProps = {
   data: {},
   entityAcceptedImageFormats: DEFAULT_ACCEPTED_IMAGE_FORMATS,
   hasFilters: false,
+  hasPoints: false,
 };
 
 export default ManageEntityModal;

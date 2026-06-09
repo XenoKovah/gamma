@@ -33,6 +33,26 @@ class IntervalFilterSerializer(serializers.Serializer):
     end = DateTimeFieldSerializer(required=False)
 
 
+class CourseFilterField(serializers.Field):
+    """
+    Accept a single course id (string) or a list of course ids.
+
+    A list means "a certificate in any of these courses" (an OR group), used to credit
+    students for any accepted version of a course. The list is de-duplicated and sorted so
+    equivalent filters dedupe to the same Rule.
+    """
+
+    def to_internal_value(self, data):
+        if isinstance(data, str):
+            return data
+        if isinstance(data, (list, tuple)) and all(isinstance(item, str) for item in data):
+            return sorted(set(data))
+        raise serializers.ValidationError('course must be a string or a list of strings.')
+
+    def to_representation(self, value):
+        return value
+
+
 class FiltersSerializer(serializers.Serializer):
     """
     Serializer for validating the filters in a rule.
@@ -41,7 +61,7 @@ class FiltersSerializer(serializers.Serializer):
     interval = IntervalFilterSerializer(required=False)
     org = serializers.CharField(required=False)
     frequency = serializers.IntegerField(required=False)
-    course = serializers.CharField(required=False)
+    course = CourseFilterField(required=False)
 
 
 class RuleSerializer(serializers.ModelSerializer):

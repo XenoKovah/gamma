@@ -6,7 +6,7 @@ import { useToggle } from '@openedx/paragon';
 import { submitBtnStatuses } from '../../../generic';
 import {
   deleteBadge, useBadgesData, createBadge, useCoursesData,
-  useOrganizationsData, useActionsData, editBadge,
+  useOrganizationsData, useActionsData, editBadge, assignBadge, unassignBadge,
 } from '../data';
 import { DELETION_STATES, DEFAULT_DELAY, TOAST_TYPES } from '../constants';
 import { deletionReducer } from '../reducers';
@@ -51,6 +51,14 @@ export const useBadges = () => {
     isDeletionManageEntityModalOpen, openDeletionManageEntityModal, closeDeletionManageEntityModal,
   ] = useToggle(false);
   const [deletionStatus, dispatchDeletionStatus] = useReducer(deletionReducer, DELETION_STATES.RESET);
+
+  const [isAssignModalOpen, openAssignModal, closeAssignModal] = useToggle(false);
+  const [assigningBadge, setAssigningBadge] = useState(null);
+  const [assignMode, setAssignMode] = useState('assign'); // 'assign' | 'unassign'
+  const [isAssigning, setIsAssigning] = useState(false);
+  const [assignResult, setAssignResult] = useState({
+    granted: 0, already: 0, removed: 0, notAssigned: 0,
+  });
 
   useEffect(() => {
     if (showErrorAlert) {
@@ -127,6 +135,54 @@ export const useBadges = () => {
     openDeletionManageEntityModal();
   };
 
+  const openMembershipModal = (badgeId, mode) => {
+    const badge = badgesData?.find((badgeItem) => badgeItem.id === badgeId) || null;
+    setAssigningBadge(badge);
+    setAssignMode(mode);
+    openAssignModal();
+  };
+
+  const handleOpenAssignModal = (badgeId) => openMembershipModal(badgeId, 'assign');
+  const handleOpenUnassignModal = (badgeId) => openMembershipModal(badgeId, 'unassign');
+
+  const handleCloseAssignModal = () => {
+    closeAssignModal();
+    setAssigningBadge(null);
+  };
+
+  const handleBadgeMembershipSubmit = async (badgeId, userUids) => {
+    setIsAssigning(true);
+    try {
+      if (assignMode === 'unassign') {
+        const result = await unassignBadge(badgeId, userUids);
+        setAssignResult({
+          granted: 0,
+          already: 0,
+          removed: result?.removed?.length || 0,
+          notAssigned: result?.not_assigned?.length || 0,
+        });
+        await refetchBadgesData();
+        showToast(TOAST_TYPES.BADGE.UNASSIGNED);
+      } else {
+        const result = await assignBadge(badgeId, userUids);
+        setAssignResult({
+          granted: result?.granted?.length || 0,
+          already: result?.already_assigned?.length || 0,
+          removed: 0,
+          notAssigned: 0,
+        });
+        // Refresh so any points-derived data stays consistent after granting.
+        await refetchBadgesData();
+        showToast(TOAST_TYPES.BADGE.ASSIGNED);
+      }
+      handleCloseAssignModal();
+    } catch (error) {
+      showToast(TOAST_TYPES.ERROR);
+    } finally {
+      setIsAssigning(false);
+    }
+  };
+
   return {
     toast,
     isError,
@@ -155,5 +211,14 @@ export const useBadges = () => {
     openConfirmDeletionAlert,
     closeDeletionManageEntityModal,
     isDeletionManageEntityModalOpen,
+    isAssignModalOpen,
+    assigningBadge,
+    assignMode,
+    isAssigning,
+    assignResult,
+    handleOpenAssignModal,
+    handleOpenUnassignModal,
+    handleCloseAssignModal,
+    handleBadgeMembershipSubmit,
   };
 };

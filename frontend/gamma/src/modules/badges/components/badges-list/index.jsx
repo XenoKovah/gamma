@@ -12,6 +12,8 @@ const BadgesList = ({
   openConfirmDeletionAlert,
   firstBadgeRef,
   handleOpenManageEntityModal,
+  handleOpenAssignModal,
+  handleOpenUnassignModal,
 }) => {
   const intl = useIntl();
 
@@ -30,6 +32,8 @@ const BadgesList = ({
               isActive={badge.isActive}
               openConfirmDeletionAlert={() => openConfirmDeletionAlert(badge.id)}
               handleOpenManageEntityModal={() => handleOpenManageEntityModal(badge.id)}
+              handleOpenAssignModal={() => handleOpenAssignModal(badge.id)}
+              handleOpenUnassignModal={() => handleOpenUnassignModal(badge.id)}
             />
           </li>
         ))
@@ -59,11 +63,15 @@ BadgesList.propTypes = {
   openConfirmDeletionAlert: PropTypes.func,
   firstBadgeRef: PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
   handleOpenManageEntityModal: PropTypes.func.isRequired,
+  handleOpenAssignModal: PropTypes.func,
+  handleOpenUnassignModal: PropTypes.func,
 };
 
 BadgesList.defaultProps = {
   openConfirmDeletionAlert: () => {},
   firstBadgeRef: null,
+  handleOpenAssignModal: () => {},
+  handleOpenUnassignModal: () => {},
 };
 
 export default BadgesList;

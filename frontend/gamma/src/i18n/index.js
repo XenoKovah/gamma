@@ -166,6 +166,21 @@ const messages = defineMessages({
     defaultMessage: 'Active',
     description: 'The text displayed for the active badge status.',
   },
+  modalEntityInfoLabelEntityPointsText: {
+    id: 'generic.modal.entity.information.label.entity.points',
+    defaultMessage: 'Points (awarded on manual assignment)',
+    description: 'The label for the points awarded when a badge is manually assigned to a user.',
+  },
+  modalEntityValidationPointsNumberText: {
+    id: 'generic.modal.entity.validation.points.number',
+    defaultMessage: 'Points must be a whole number.',
+    description: 'Validation message when the points value is not an integer.',
+  },
+  modalEntityValidationPointsPositiveNumberText: {
+    id: 'generic.modal.entity.validation.points.positive',
+    defaultMessage: 'Points cannot be negative.',
+    description: 'Validation message when the points value is negative.',
+  },
   modalEntityRulesTitle: {
     id: 'generic.modal.entity.rules.heading',
     defaultMessage: 'Rules',

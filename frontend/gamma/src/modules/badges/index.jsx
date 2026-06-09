@@ -7,7 +7,7 @@ import {
   AlertModal, Header, Footer, ToastComponent, SubHeader,
 } from '../../generic';
 import genericMessages from '../../i18n';
-import { BadgesList } from './components';
+import { BadgesList, AssignBadgeModal } from './components';
 import { TOAST_TYPES } from './constants';
 import { useBadges } from './hooks/useBadges';
 import moduleMessages from './i18n';
@@ -43,6 +43,15 @@ export const Badges = () => {
     setIsEditManageEntityModal,
     closeDeletionManageEntityModal,
     isDeletionManageEntityModalOpen,
+    isAssignModalOpen,
+    assigningBadge,
+    assignMode,
+    isAssigning,
+    assignResult,
+    handleOpenAssignModal,
+    handleOpenUnassignModal,
+    handleCloseAssignModal,
+    handleBadgeMembershipSubmit,
   } = useBadges();
   const intl = useIntl();
 
@@ -73,6 +82,24 @@ export const Badges = () => {
       [TOAST_TYPES.BADGE.DELETED]: {
         isShow: true,
         text: intl.formatMessage(moduleMessages.badgeDeletedTitle),
+        variant: 'success',
+        onClose: () => showToast(null),
+      },
+      [TOAST_TYPES.BADGE.ASSIGNED]: {
+        isShow: true,
+        text: intl.formatMessage(moduleMessages.badgeAssignedTitle, {
+          granted: assignResult.granted,
+          already: assignResult.already,
+        }),
+        variant: 'success',
+        onClose: () => showToast(null),
+      },
+      [TOAST_TYPES.BADGE.UNASSIGNED]: {
+        isShow: true,
+        text: intl.formatMessage(moduleMessages.badgeUnassignedTitle, {
+          removed: assignResult.removed,
+          notAssigned: assignResult.notAssigned,
+        }),
         variant: 'success',
         onClose: () => showToast(null),
       },
@@ -127,6 +154,15 @@ export const Badges = () => {
           setSubmitStatus={setSubmitStatus}
           onReset={handleResetManageEntityModal}
           hasFilters
+          hasPoints
+        />
+        <AssignBadgeModal
+          isOpen={isAssignModalOpen}
+          badge={assigningBadge}
+          mode={assignMode}
+          onClose={handleCloseAssignModal}
+          onSubmit={handleBadgeMembershipSubmit}
+          isSubmitting={isAssigning}
         />
         <SEOHelmet
           title={intl.formatMessage(moduleMessages.pageTitle)}
@@ -157,6 +193,8 @@ export const Badges = () => {
                 openConfirmDeletionAlert={openConfirmDeletionAlert}
                 firstBadgeRef={firstBadgeRef}
                 handleOpenManageEntityModal={handleOpenManageEntityModal}
+                handleOpenAssignModal={handleOpenAssignModal}
+                handleOpenUnassignModal={handleOpenUnassignModal}
               />
               <Button
                 block

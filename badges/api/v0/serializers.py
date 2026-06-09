@@ -33,7 +33,7 @@ class BadgeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Badge
-        fields = ('id', 'title', 'description', 'image', 'is_active', 'slug', 'rules', 'created_at')
+        fields = ('id', 'title', 'description', 'image', 'is_active', 'slug', 'points', 'rules', 'created_at')
         read_only_fields = ('created_at',)
 
     def create(self, validated_data):
@@ -66,3 +66,27 @@ class BadgeSerializer(serializers.ModelSerializer):
                 instance.rules.add(rule)
 
         return instance
+
+
+class BadgeAssignmentSerializer(serializers.Serializer):
+    """
+    Validate the payload for manually assigning a badge to users by their user id.
+    """
+
+    user_uids = serializers.ListField(
+        child=serializers.CharField(max_length=255, allow_blank=False, trim_whitespace=True),
+        allow_empty=False,
+        help_text='List of GammaUser user_uids (edX usernames) to grant the badge to.',
+    )
+
+    def validate_user_uids(self, value):
+        """
+        De-duplicate the user ids while preserving order.
+        """
+        seen = set()
+        deduplicated = []
+        for user_uid in value:
+            if user_uid not in seen:
+                seen.add(user_uid)
+                deduplicated.append(user_uid)
+        return deduplicated
