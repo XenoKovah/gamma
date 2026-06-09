@@ -15,6 +15,7 @@ from core.models import AppClient
 from events.enums import RggInternalEventTypes
 from events.factories import EventFactory, EventConfigurationFactory, EventTypeFactory
 from rules.factories import RuleFactory
+from statuses.factories import StatusFactory
 from users.factories import GammaUserCoursePointsFactory, GammaUserFactory, UserFactory
 
 
@@ -28,6 +29,7 @@ register(EventConfigurationFactory)
 register(GammaUserCoursePointsFactory)
 register(GammaUserFactory)
 register(RuleFactory)
+register(StatusFactory)
 register(UserAvatarConfigFactory)
 register(UserFactory)
 

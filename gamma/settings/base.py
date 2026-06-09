@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'googlecharts',
     'leaderboard',
     'rules',
+    'statuses',
     'users',
 
     'corsheaders',
