@@ -45,11 +45,13 @@ export const Badges = () => {
     isDeletionManageEntityModalOpen,
     isAssignModalOpen,
     assigningBadge,
+    assignMode,
     isAssigning,
     assignResult,
     handleOpenAssignModal,
+    handleOpenUnassignModal,
     handleCloseAssignModal,
-    handleAssignBadge,
+    handleBadgeMembershipSubmit,
   } = useBadges();
   const intl = useIntl();
 
@@ -88,6 +90,15 @@ export const Badges = () => {
         text: intl.formatMessage(moduleMessages.badgeAssignedTitle, {
           granted: assignResult.granted,
           already: assignResult.already,
+        }),
+        variant: 'success',
+        onClose: () => showToast(null),
+      },
+      [TOAST_TYPES.BADGE.UNASSIGNED]: {
+        isShow: true,
+        text: intl.formatMessage(moduleMessages.badgeUnassignedTitle, {
+          removed: assignResult.removed,
+          notAssigned: assignResult.notAssigned,
         }),
         variant: 'success',
         onClose: () => showToast(null),
@@ -148,9 +159,10 @@ export const Badges = () => {
         <AssignBadgeModal
           isOpen={isAssignModalOpen}
           badge={assigningBadge}
+          mode={assignMode}
           onClose={handleCloseAssignModal}
-          onAssign={handleAssignBadge}
-          isAssigning={isAssigning}
+          onSubmit={handleBadgeMembershipSubmit}
+          isSubmitting={isAssigning}
         />
         <SEOHelmet
           title={intl.formatMessage(moduleMessages.pageTitle)}
@@ -182,6 +194,7 @@ export const Badges = () => {
                 firstBadgeRef={firstBadgeRef}
                 handleOpenManageEntityModal={handleOpenManageEntityModal}
                 handleOpenAssignModal={handleOpenAssignModal}
+                handleOpenUnassignModal={handleOpenUnassignModal}
               />
               <Button
                 block

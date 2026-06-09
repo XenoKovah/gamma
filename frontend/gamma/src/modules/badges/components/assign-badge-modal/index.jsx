@@ -18,11 +18,29 @@ export const parseUserIds = (text) => {
   return [...new Set(ids)];
 };
 
+const MODE_MESSAGES = {
+  assign: {
+    title: messages.assignBadgeModalTitle,
+    description: messages.assignBadgeModalDescription,
+    pointsNote: messages.assignBadgeModalPointsNote,
+    submit: messages.assignBadgeModalSubmitBtnText,
+    selectedCount: messages.assignBadgeModalSelectedCount,
+  },
+  unassign: {
+    title: messages.unassignBadgeModalTitle,
+    description: messages.unassignBadgeModalDescription,
+    pointsNote: messages.unassignBadgeModalPointsNote,
+    submit: messages.unassignBadgeModalSubmitBtnText,
+    selectedCount: messages.unassignBadgeModalSelectedCount,
+  },
+};
+
 const AssignBadgeModal = ({
-  isOpen, badge, onClose, onAssign, isAssigning,
+  isOpen, badge, mode, onClose, onSubmit, isSubmitting,
 }) => {
   const intl = useIntl();
   const [userIdsText, setUserIdsText] = useState('');
+  const modeMessages = MODE_MESSAGES[mode] || MODE_MESSAGES.assign;
 
   // Clear the textarea whenever the modal is closed so it reopens empty.
   useEffect(() => {
@@ -35,28 +53,28 @@ const AssignBadgeModal = ({
 
   const handleSubmit = () => {
     if (badge && userIds.length) {
-      onAssign(badge.id, userIds);
+      onSubmit(badge.id, userIds);
     }
   };
 
   return (
     <Modal
-      title={intl.formatMessage(messages.assignBadgeModalTitle, { title: badge?.title || '' })}
+      title={intl.formatMessage(modeMessages.title, { title: badge?.title || '' })}
       isOpen={isOpen}
       handleClose={onClose}
       hasCloseButton
       size="lg"
       isOverflowVisible={false}
       submitBtnOptions={{
-        title: intl.formatMessage(messages.assignBadgeModalSubmitBtnText),
+        title: intl.formatMessage(modeMessages.submit),
         submitFn: handleSubmit,
-        disabled: userIds.length === 0 || isAssigning,
+        disabled: userIds.length === 0 || isSubmitting,
       }}
     >
-      <p>{intl.formatMessage(messages.assignBadgeModalDescription)}</p>
+      <p>{intl.formatMessage(modeMessages.description)}</p>
       {badge?.points > 0 && (
         <p className="font-weight-bold">
-          {intl.formatMessage(messages.assignBadgeModalPointsNote, { points: badge.points })}
+          {intl.formatMessage(modeMessages.pointsNote, { points: badge.points })}
         </p>
       )}
       <Form.Group controlId="assignBadgeUserIds">
@@ -73,7 +91,7 @@ const AssignBadgeModal = ({
       </Form.Group>
       {userIds.length > 0 && (
         <p className="small text-muted mb-0">
-          {intl.formatMessage(messages.assignBadgeModalSelectedCount, { count: userIds.length })}
+          {intl.formatMessage(modeMessages.selectedCount, { count: userIds.length })}
         </p>
       )}
     </Modal>
@@ -83,8 +101,9 @@ const AssignBadgeModal = ({
 AssignBadgeModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
-  onAssign: PropTypes.func.isRequired,
-  isAssigning: PropTypes.bool,
+  onSubmit: PropTypes.func.isRequired,
+  mode: PropTypes.oneOf(['assign', 'unassign']),
+  isSubmitting: PropTypes.bool,
   badge: PropTypes.shape({
     id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     title: PropTypes.string,
@@ -93,7 +112,8 @@ AssignBadgeModal.propTypes = {
 };
 
 AssignBadgeModal.defaultProps = {
-  isAssigning: false,
+  mode: 'assign',
+  isSubmitting: false,
   badge: null,
 };
 

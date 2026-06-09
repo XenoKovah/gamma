@@ -22,7 +22,7 @@ class BadgeViewSet(AdminUserPermissionMixin, viewsets.ModelViewSet):
     # State-changing custom actions that must be admin-only. ``AdminUserPermissionMixin``
     # only guards the default write actions (create/update/partial_update/destroy), so
     # without listing them here these actions would inherit the empty (public) permission set.
-    ADMIN_ONLY_ACTIONS = ('assign', 'recompute')
+    ADMIN_ONLY_ACTIONS = ('assign', 'unassign', 'recompute')
 
     def get_permissions(self):
         """
@@ -64,6 +64,42 @@ class BadgeViewSet(AdminUserPermissionMixin, viewsets.ModelViewSet):
             {
                 'granted': granted,
                 'already_assigned': already_assigned,
+                'points_each': badge.points,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+    @action(detail=True, methods=['post'])
+    def unassign(self, request, pk=None):
+        """
+        Manually remove this badge from one or more users by their user id (inverse of ``assign``).
+
+        Body params:
+            - user_uids (list[str]): GammaUser user_uids (edX usernames) to remove the badge from.
+
+        Each listed user loses the badge and, if it has ``points``, those points are deducted
+        from their total (floored at 0). Removing a badge a user does not have is a no-op for
+        that user, so the call is safe to retry.
+
+        Returns HTTP 200 with ``{"removed": [...], "not_assigned": [...], "points_each": int}``.
+        """
+        badge = self.get_object()
+
+        serializer = BadgeAssignmentSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        removed, not_assigned = [], []
+        for user_uid in serializer.validated_data['user_uids']:
+            gamma_user = GammaUser.ensure_gamma_user_is_created(user_uid=user_uid)
+            if badge.revoke_from_user(gamma_user):
+                removed.append(user_uid)
+            else:
+                not_assigned.append(user_uid)
+
+        return Response(
+            {
+                'removed': removed,
+                'not_assigned': not_assigned,
                 'points_each': badge.points,
             },
             status=status.HTTP_200_OK,

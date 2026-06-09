@@ -6,6 +6,7 @@ export {
   deleteBadge,
   editBadge,
   assignBadge,
+  unassignBadge,
 } from './api';
 export {
   useBadgesData,

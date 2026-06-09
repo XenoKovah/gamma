@@ -13,6 +13,7 @@ export const TOAST_TYPES = {
     EDITED: 'edited',
     DELETED: 'deleted',
     ASSIGNED: 'assigned',
+    UNASSIGNED: 'unassigned',
   },
   ERROR: 'error',
 };

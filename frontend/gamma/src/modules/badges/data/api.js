@@ -160,6 +160,31 @@ export const assignBadge = async (badgeId, userUids) => {
 };
 
 /**
+ * Manually removes a badge from one or more users by their user id (inverse of assignBadge).
+ * @param {number|string} badgeId - The ID of the badge to remove.
+ * @param {string[]} userUids - The GammaUser user_uids (edX usernames) to remove the badge from.
+ * @returns {Promise<{removed: string[], not_assigned: string[], points_each: number}>}
+ *          The API response listing which users had the badge removed vs never had it.
+ */
+export const unassignBadge = async (badgeId, userUids) => {
+  try {
+    const response = await axios.post(
+      `${API_ROUTES.BADGES}${badgeId}/unassign/`,
+      { user_uids: userUids },
+      {
+        headers: { ...REQUEST_HEADERS },
+        withCredentials: true,
+      },
+    );
+
+    return response.data;
+  } catch (error) {
+    logError('Error unassigning badge:', error);
+    throw error;
+  }
+};
+
+/**
  * Deletes a badge by its ID.
  * @param {number|string} badgeId - The ID of the badge to be deleted.
  * @returns {Promise<Object>} The response from the API.

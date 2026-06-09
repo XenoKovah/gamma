@@ -80,3 +80,36 @@ class Badge(TimestampModelMixin, models.Model):
             user.update_user_progress(self.points)
 
         return created
+
+    @transaction.atomic
+    def revoke_from_user(self, user: GammaUser) -> bool:
+        """
+        Manually remove this badge from a user — the inverse of ``award_to_user``.
+
+        Deletes the user's Achievement for this badge and, if the badge has ``points``,
+        deducts them from the user's total (floored at 0, so it never goes negative) and
+        reverses the matching progress-timeline entry, keeping the general and per-badge
+        leaderboards in sync. The deduction is symmetric with the grant: it removes the
+        badge's configured points regardless of how the badge was originally obtained.
+
+        Return ``True`` if the badge was removed, ``False`` if the user did not have it
+        (idempotent: re-running never deducts points twice).
+        """
+        achievements = Achievement.objects.filter(
+            user=user,
+            content_type=ContentType.objects.get_for_model(type(self)),
+            object_id=self.id,
+        )
+        if not achievements.exists():
+            return False
+
+        achievements.delete()
+
+        if self.points:
+            deducted = min(user.points, self.points)
+            if deducted:
+                user.points -= deducted
+                user.save(update_fields=('points',))
+                user.update_user_progress(-deducted)
+
+        return True
