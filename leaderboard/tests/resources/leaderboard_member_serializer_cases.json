@@ -42,6 +42,7 @@
       "badges": [
         {
           "title": "Master Collector",
+          "slug": "master-collector",
           "description": "You’ve bookmarked tons of valuable content. Knowledge is power!",
           "url": "/media/uploads/badges/bookmark.png",
           "progress": [
@@ -254,6 +255,7 @@
       "badges": [
         {
           "title": "Community Contributor",
+          "slug": "community-contributor",
           "description": "Your posts and replies help make this forum a better place!",
           "url": "/media/uploads/badges/community_contributor.png",
           "progress": [
@@ -370,6 +372,7 @@
       "badges": [
         {
           "title": "Master Collector",
+          "slug": "master-collector",
           "description": "You’ve bookmarked tons of valuable content. Knowledge is power!",
           "url": "/media/uploads/badges/bookmark.png",
           "progress": [
@@ -386,6 +389,7 @@
         },
         {
           "title": "Community Contributor",
+          "slug": "community-contributor",
           "description": "Your posts and replies help make this forum a better place!",
           "url": "/media/uploads/badges/community_contributor.png",
           "progress": [
@@ -541,6 +545,7 @@
       "badges": [
         {
           "title": "Master Collector",
+          "slug": "master-collector",
           "description": "You’ve bookmarked tons of valuable content. Knowledge is power!",
           "url": "/media/uploads/badges/bookmark.png",
           "progress": [
@@ -621,6 +626,7 @@
       "badges": [
         {
           "title": "Master Collector",
+          "slug": "master-collector",
           "description": "You’ve bookmarked tons of valuable content. Knowledge is power!",
           "url": "/media/uploads/badges/bookmark.png",
           "progress": [
