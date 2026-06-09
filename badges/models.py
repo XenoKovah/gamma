@@ -21,6 +21,14 @@ class Badge(TimestampModelMixin, models.Model):
         default=0,
         help_text='Points granted to a user when this badge is manually assigned to them by an admin.',
     )
+    manual_criteria = models.TextField(
+        blank=True,
+        default='',
+        help_text=(
+            'For manually-assigned (rule-less) badges: free text describing how this badge is '
+            'granted. Shown to learners on hover, separately from the description.'
+        ),
+    )
 
     slug = models.SlugField(max_length=255, null=True, blank=True)
     rules = models.ManyToManyField('rules.Rule')

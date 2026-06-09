@@ -12,6 +12,7 @@ class LeaderboardMemberBadgeSerializer(serializers.ModelSerializer):
 
     progress = serializers.JSONField(source="achievement_dependencies")
     url = serializers.SerializerMethodField()
+    slug = serializers.SerializerMethodField()
 
     def get_url(self, obj: Achievement) -> str:
         """
@@ -19,9 +20,16 @@ class LeaderboardMemberBadgeSerializer(serializers.ModelSerializer):
         """
         return obj.content_object.image.url
 
+    def get_slug(self, obj: Achievement) -> str:
+        """
+        Provide the badge slug so the dashboard can link each leaderboard icon
+        to its per-badge leaderboard.
+        """
+        return obj.content_object.slug
+
     class Meta:
         model = Achievement
-        fields = ("title", "description", "progress", "url")
+        fields = ("title", "slug", "description", "progress", "url")
 
 
 class LeaderboardMemberSerializer(serializers.ModelSerializer):
