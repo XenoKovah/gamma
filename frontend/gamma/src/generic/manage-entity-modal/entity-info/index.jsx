@@ -46,6 +46,15 @@ const EntityInfo = () => {
         autoResize
         hasCol={false}
       />
+      {Object.hasOwn(initialValues, 'manualCriteria') && (
+        <FormInputController
+          label={intl.formatMessage(messages.modalEntityInfoLabelEntityManualCriteriaText)}
+          name="manualCriteria"
+          as="textarea"
+          autoResize
+          hasCol={false}
+        />
+      )}
       {Object.hasOwn(initialValues, 'points') && (
         <Form.Group controlId="formEntityPoints" size="sm">
           <Form.Control
