@@ -2,11 +2,19 @@ import React, { forwardRef, useCallback, useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { useFormikContext } from 'formik';
-import { Form, useMediaQuery, breakpoints } from '@openedx/paragon';
+import { Form, Button, useMediaQuery, breakpoints } from '@openedx/paragon';
 
 import messages from '../../../../i18n';
 
 const CHARACTER_WIDTH_RATIO = 30;
+
+// A single selection is stored as a plain string (identical to a legacy single-course
+// filter); two or more become a list (an OR group). Empty -> '' so "required" still fires.
+const normalizeMultiValue = (values) => {
+  if (values.length === 0) { return ''; }
+  if (values.length === 1) { return values[0]; }
+  return values;
+};
 
 const FilterInputController = forwardRef(({
   name,
@@ -29,11 +37,6 @@ const FilterInputController = forwardRef(({
   const fieldName = `rules.${ruleIndex}.filters.${filterKey}`;
   const fieldValue = rule.filters[filterKey] ?? '';
   const isMulti = multiple && as === 'select';
-  // A multi-value filter (e.g. several accepted courses) is stored as an array, but a single
-  // selection stays a plain string so it remains identical to a legacy single-course filter.
-  const selectedValues = isMulti
-    ? (Array.isArray(fieldValue) ? fieldValue : (fieldValue && [fieldValue]) || [])
-    : fieldValue;
   const isFieldTouched = touched.rules?.[ruleIndex]?.filters?.[filterKey];
   const validationErrorText = errors.rules?.[ruleIndex]?.filters?.[filterKey];
 
@@ -53,16 +56,6 @@ const FilterInputController = forwardRef(({
     });
   }, [setTouched, ruleIndex, filterKey]);
 
-  const handleChange = useCallback((e) => {
-    if (isMulti) {
-      const values = Array.from(e.target.selectedOptions, (option) => option.value);
-      // 0 -> '' (so "required" validation still fires), 1 -> string (legacy), 2+ -> array (OR group).
-      setFieldValue(fieldName, values.length === 0 ? '' : (values.length === 1 ? values[0] : values));
-    } else {
-      setFieldValue(fieldName, e.target.value);
-    }
-  }, [isMulti, setFieldValue, fieldName]);
-
   const maxLength = useMemo(() => {
     if (isExtraSmall) {
       return Math.floor(window.innerWidth / CHARACTER_WIDTH_RATIO);
@@ -70,29 +63,89 @@ const FilterInputController = forwardRef(({
     return Infinity;
   }, [isExtraSmall]);
 
+  const feedback = isFieldTouched && validationErrorText ? (
+    <Form.Control.Feedback className="manage-entity-modal-feedback" type="invalid">
+      {validationErrorText}
+    </Form.Control.Feedback>
+  ) : null;
+
+  // Multi-value filter (e.g. several accepted courses = an OR group). Rendered as a
+  // "pick from the dropdown -> add a removable row" control so it needs no modifier keys.
+  if (isMulti) {
+    const selected = Array.isArray(fieldValue) ? fieldValue : (fieldValue ? [fieldValue] : []);
+    const available = options.filter((option) => !selected.includes(option));
+
+    const addValue = (value) => {
+      if (value && !selected.includes(value)) {
+        setFieldValue(fieldName, normalizeMultiValue([...selected, value]));
+      }
+    };
+    const removeValue = (value) => {
+      setFieldValue(fieldName, normalizeMultiValue(selected.filter((item) => item !== value)));
+    };
+
+    return (
+      <div className="entity-rule-multi-filter">
+        <Form.Control
+          ref={ref}
+          as="select"
+          floatingLabel={label}
+          className="entity-rule-filter-form-control mr-0"
+          value=""
+          onChange={(e) => addValue(e.target.value)}
+          onBlur={handleBlur}
+          isInvalid={isFieldTouched && !!validationErrorText}
+        >
+          <option value="">
+            {intl.formatMessage(messages.modalEntityRulesFilterSelectTitle, { filterName: placeholder })}
+          </option>
+          {available.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </Form.Control>
+        <Form.Text>
+          Certificate in any of the courses below (OR) — add each accepted version.
+        </Form.Text>
+        {selected.map((item) => (
+          <div key={item} className="d-flex align-items-center justify-content-between mt-1">
+            <span className="small text-truncate mr-2" title={item}>{item}</span>
+            <Button
+              variant="outline-danger"
+              size="sm"
+              className="entity-rule-remove-filter-btn flex-shrink-0"
+              onClick={() => removeValue(item)}
+            >
+              {intl.formatMessage(messages.modalEntityRulesBtnRemoveFilterText)}
+            </Button>
+          </div>
+        ))}
+        {feedback}
+      </div>
+    );
+  }
+
   return (
     <>
       <Form.Control
         ref={ref}
-        floatingLabel={isMulti ? undefined : label}
+        floatingLabel={label}
         name={name}
         placeholder={placeholder}
         className="entity-rule-filter-form-control mr-0"
         as={as}
         type={type}
-        multiple={isMulti}
-        value={selectedValues}
-        onChange={handleChange}
+        value={fieldValue}
+        onChange={(e) => setFieldValue(fieldName, e.target.value)}
         onBlur={handleBlur}
         isInvalid={isFieldTouched && !!validationErrorText}
       >
         {as === 'select' ? (
           <>
-            {!isMulti && (
-              <option value="">
-                {intl.formatMessage(messages.modalEntityRulesFilterSelectTitle, { filterName: placeholder })}
-              </option>
-            )}
+            <option value="">
+              {intl.formatMessage(messages.modalEntityRulesFilterSelectTitle, { filterName: placeholder })}
+            </option>
             {options.map((option) => {
               const truncatedOption = isExtraSmall && option.length > maxLength
                 ? `${option.slice(0, maxLength)}…`
@@ -107,16 +160,7 @@ const FilterInputController = forwardRef(({
           </>
         ) : null}
       </Form.Control>
-      {isMulti && (
-        <Form.Text className="mb-2">
-          Course — certificate in any of the selected courses (Ctrl/Cmd-click to choose several).
-        </Form.Text>
-      )}
-      {isFieldTouched && validationErrorText && (
-        <Form.Control.Feedback className="manage-entity-modal-feedback" type="invalid">
-          {validationErrorText}
-        </Form.Control.Feedback>
-      )}
+      {feedback}
     </>
   );
 });
