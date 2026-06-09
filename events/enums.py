@@ -28,3 +28,15 @@ class EdxCommonEventTypes(EventTypeMixin, Enum):
     EDX_COURSE_ENROLLMENT_ACTIVATED = ('edx_course_enrollment_activated', _('Enroll in a Course'), 20)
     EDX_BOOKMARK_ADDED = ('edx_bookmark_added', _('Bookmark a Unit'), 1)
     EDX_STOP_VIDEO = ('stop_video', _('Watch a Video to the End'), 10)
+
+    # Profile / account-settings milestones. These are derived from the Open edX
+    # ``edx.user.settings.changed`` tracking event by the gamification bridge
+    # (gamma_bridge.statements.profile.ProfileSettingStatement), which maps each
+    # rewardable account/preference field onto one of the event names below.
+    # Award values are starting points and can be tuned per EventConfiguration.
+    EDX_PROFILE_NAME_MADE_PUBLIC = ('edx_profile_name_made_public', _('Make Your Name Public'), 10)
+    EDX_PROFILE_IMAGE_ADDED = ('edx_profile_image_added', _('Add a Profile Picture'), 10)
+    EDX_PROFILE_EDUCATION_SET = ('edx_profile_education_set', _('Add Your Education Level'), 5)
+    EDX_PROFILE_LOCATION_SET = ('edx_profile_location_set', _('Add Your Location'), 5)
+    EDX_PROFILE_LANGUAGE_SET = ('edx_profile_language_set', _('Add Your Primary Language'), 5)
+    EDX_PROFILE_ABOUT_ME_SET = ('edx_profile_about_me_set', _('Write Your "About Me"'), 10)
