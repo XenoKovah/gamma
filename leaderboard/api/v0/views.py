@@ -1,7 +1,9 @@
 import math
 from typing import List, Optional, Tuple
 
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Q
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -277,3 +279,112 @@ class CoursePointsView(APIView):
             .values_list("gamma_user__user_uid", "points")
         )
         return Response(points_by_uid, status=status.HTTP_200_OK)
+
+
+class UsersLeaderBoardView(APIView):
+    """
+    Provide a leaderboard restricted to an explicit set of users, ranked by points.
+
+    The dashboard runs inside the LMS and resolves *which* users share a trait that
+    only it can see (e.g. a publicly-shared profile country); Gamma cannot see that
+    trait, so the dashboard passes the candidate ``user_uids`` here and Gamma ranks
+    just those users by their general-leaderboard points. The response matches the
+    regular leaderboard shape (``top10``/``competitors``/``rank``/``user_uid``) so the
+    dashboard can enrich and render it with the existing leaderboard components.
+
+    ``user_uids`` is sent in the POST body rather than the query string because the
+    candidate set can be large (every learner from a populous country), exactly like
+    :class:`CoursePointsView`.
+    """
+
+    authentication_classes = (KeySecretAuthentication,)
+
+    MEMBERS_LIMIT = 100
+
+    def post(self, request):
+        viewer_uid = request.data.get("username")
+        signup_source = request.data.get("signup_source")
+        user_uids = request.data.get("user_uids") or []
+
+        if not user_uids:
+            return self._empty_response(viewer_uid)
+
+        ranked_users = self._rank_users(user_uids, signup_source)
+        ranked_uids = [gamma_user.user_uid for gamma_user in ranked_users]
+
+        context = LeaderboardRetrievingContext(viewer_uid, signup_source, None)
+        members_data = self._build_members_data(ranked_users[:self.MEMBERS_LIMIT], context)
+
+        return Response(
+            {
+                "top10": members_data,
+                "competitors": [],
+                "rank": self._rank_of(viewer_uid, ranked_uids),
+                "user_uid": viewer_uid,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+    @staticmethod
+    def _empty_response(viewer_uid: Optional[str]) -> Response:
+        """
+        Shape returned when no candidate users were supplied (e.g. nobody in the
+        country shares it publicly): an empty, well-formed leaderboard.
+        """
+        return Response(
+            {"top10": [], "competitors": [], "rank": None, "user_uid": viewer_uid},
+            status=status.HTTP_200_OK,
+        )
+
+    @staticmethod
+    def _rank_users(user_uids: List[str], signup_source: Optional[str]) -> List[GammaUser]:
+        """
+        Fetch the requested users that belong to ``signup_source``'s leaderboard,
+        ordered by total points (descending).
+
+        Scoping by signup source — with the same ``None``/empty -> ``MAIN_SIGNUP_SOURCE``
+        normalization the leaderboard-building code uses — keeps this page consistent
+        with the regular (per-signup-source) leaderboard: it shows the same population,
+        just narrowed to the supplied users.
+        """
+        effective_source = signup_source or settings.MAIN_SIGNUP_SOURCE
+        users = GammaUser.objects.filter(user_uid__in=user_uids)
+
+        if effective_source == settings.MAIN_SIGNUP_SOURCE:
+            users = users.filter(
+                Q(signup_source=effective_source) | Q(signup_source__isnull=True) | Q(signup_source="")
+            )
+        else:
+            users = users.filter(signup_source=effective_source)
+
+        return sorted(users, key=lambda gamma_user: gamma_user.points, reverse=True)
+
+    @staticmethod
+    def _build_members_data(ranked_users: List[GammaUser], context: LeaderboardRetrievingContext) -> List[dict]:
+        """
+        Serialize the (already ranked) users into leaderboard member data with their
+        points attached, preserving the ranked order.
+        """
+        if not ranked_users:
+            return []
+
+        ranked_uids = [gamma_user.user_uid for gamma_user in ranked_users]
+        members_data = ORMLeaderboardMemberDataRepository().get_leaderboard_members_data(ranked_uids, context)
+
+        points_by_uid = {gamma_user.user_uid: gamma_user.points for gamma_user in ranked_users}
+        for member_data in members_data:
+            member_data["points"] = points_by_uid.get(member_data["user_uid"], 0)
+
+        return members_data
+
+    @staticmethod
+    def _rank_of(user_uid: Optional[str], ordered_user_uids: List[str]) -> Optional[int]:
+        """
+        Provide the 1-based position of ``user_uid`` within an ordered uid list, or
+        ``None`` when the user is absent (e.g. the viewer is not in this country, or
+        keeps their own country private).
+        """
+        for index, ordered_uid in enumerate(ordered_user_uids):
+            if ordered_uid == user_uid:
+                return index + 1
+        return None

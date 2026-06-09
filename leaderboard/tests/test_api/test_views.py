@@ -11,7 +11,7 @@ from achievements.factories import AchievementFactory, AchievementRuleFactory
 from achievements.models import AchievementRule
 from badges.factories import BadgeFactory
 from badges.models import Badge
-from leaderboard.api.v0.views import BadgeLeaderBoardView, LeaderBoardView
+from leaderboard.api.v0.views import BadgeLeaderBoardView, LeaderBoardView, UsersLeaderBoardView
 from leaderboard.dataclasses import LeaderboardRetrievingContext
 from leaderboard.factories import LeaderboardRetrievingContextFactory
 from users.factories import GammaUserCoursePointsFactory, GammaUserFactory
@@ -348,3 +348,122 @@ class TestCoursePointsView:
             format="json",
         )
         assert response.status_code == 403
+
+
+class TestUsersLeaderBoardView:
+    """
+    Test Case for the UsersLeaderBoardView (a leaderboard restricted to a supplied
+    set of users, ranked by points — used by the dashboard's country leaderboard).
+    """
+
+    ENDPOINT = "/api/v0/leaderboard/users"
+
+    def test_unauthorized_request_is_forbidden(self, client: APIClient) -> None:
+        response = client.post(
+            self.ENDPOINT,
+            {"username": "viewer", "signup_source": "main", "user_uids": ["a"]},
+            format="json",
+        )
+        assert response.status_code == 403
+
+    def test_ranks_requested_users_by_points(self, auth_client: APIClient) -> None:
+        GammaUserFactory(user_uid="low", points=10, signup_source="main")
+        GammaUserFactory(user_uid="high", points=90, signup_source="main")
+        GammaUserFactory(user_uid="mid", points=50, signup_source="main")
+
+        response = auth_client.post(
+            self.ENDPOINT,
+            {"username": "high", "signup_source": "main", "user_uids": ["low", "high", "mid"]},
+            format="json",
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert [member["user_uid"] for member in data["top10"]] == ["high", "mid", "low"]
+        assert [member["points"] for member in data["top10"]] == [90, 50, 10]
+        assert data["competitors"] == []
+        # The requesting user ("high") leads, so their rank is 1.
+        assert data["rank"] == 1
+
+    def test_only_requested_users_are_returned(self, auth_client: APIClient) -> None:
+        GammaUserFactory(user_uid="wanted", points=10, signup_source="main")
+        GammaUserFactory(user_uid="unwanted", points=99, signup_source="main")
+
+        response = auth_client.post(
+            self.ENDPOINT,
+            {"username": "wanted", "signup_source": "main", "user_uids": ["wanted"]},
+            format="json",
+        )
+
+        assert response.status_code == 200
+        assert [member["user_uid"] for member in response.json()["top10"]] == ["wanted"]
+
+    def test_empty_user_list_returns_empty_leaderboard(self, auth_client: APIClient) -> None:
+        response = auth_client.post(
+            self.ENDPOINT,
+            {"username": "viewer", "signup_source": "main", "user_uids": []},
+            format="json",
+        )
+
+        assert response.status_code == 200
+        assert response.json() == {"top10": [], "competitors": [], "rank": None, "user_uid": "viewer"}
+
+    def test_users_from_other_signup_sources_are_excluded(self, auth_client: APIClient) -> None:
+        # The country page is scoped to the requesting user's signup source, mirroring
+        # the regular leaderboard's per-source partitioning.
+        GammaUserFactory(user_uid="same_site", points=10, signup_source="main")
+        GammaUserFactory(user_uid="other_site", points=99, signup_source="OTHER")
+
+        response = auth_client.post(
+            self.ENDPOINT,
+            {"username": "same_site", "signup_source": "main", "user_uids": ["same_site", "other_site"]},
+            format="json",
+        )
+
+        assert response.status_code == 200
+        assert [member["user_uid"] for member in response.json()["top10"]] == ["same_site"]
+
+    def test_users_with_unset_signup_source_count_as_main(self, auth_client: APIClient) -> None:
+        # A GammaUser with no signup source belongs to the MAIN leaderboard, so it is
+        # matched when the requesting user's source is "main".
+        GammaUserFactory(user_uid="legacy", points=42, signup_source=None)
+
+        response = auth_client.post(
+            self.ENDPOINT,
+            {"username": "legacy", "signup_source": "main", "user_uids": ["legacy"]},
+            format="json",
+        )
+
+        assert response.status_code == 200
+        assert [member["user_uid"] for member in response.json()["top10"]] == ["legacy"]
+
+    def test_rank_is_none_when_viewer_is_not_in_the_set(self, auth_client: APIClient) -> None:
+        GammaUserFactory(user_uid="someone", points=10, signup_source="main")
+
+        response = auth_client.post(
+            self.ENDPOINT,
+            {"username": "outsider", "signup_source": "main", "user_uids": ["someone"]},
+            format="json",
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert [member["user_uid"] for member in data["top10"]] == ["someone"]
+        assert data["rank"] is None
+
+    def test_members_are_limited_to_the_top_100(self, auth_client: APIClient, mocker: MockerFixture) -> None:
+        mocker.patch.object(UsersLeaderBoardView, "MEMBERS_LIMIT", 2)
+        for index in range(3):
+            GammaUserFactory(user_uid=f"u{index}", points=index, signup_source="main")
+
+        response = auth_client.post(
+            self.ENDPOINT,
+            {"username": "u2", "signup_source": "main", "user_uids": ["u0", "u1", "u2"]},
+            format="json",
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        # Only the top 2 users are serialized, but rank still reflects all matched users.
+        assert [member["user_uid"] for member in data["top10"]] == ["u2", "u1"]
+        assert data["rank"] == 1
