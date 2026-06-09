@@ -155,6 +155,10 @@ def test_recompute_does_not_grant_partial_progress(
     achievement = Achievement.objects.filter(object_id=badge.id, user=user).first()
     assert achievement is not None
     assert not achievement.all_rules_completed
+    # Every rule records canonical 'events' progress (goal/count) so the leaderboard percent
+    # calc counts it — otherwise a 1-of-2 in-progress badge would render as 100%.
+    for achievement_rule in achievement.achievement_rules.all():
+        assert 'events' in (achievement_rule.dependencies or {})
 
 
 def test_recompute_with_or_group_course_filter(

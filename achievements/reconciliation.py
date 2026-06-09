@@ -219,7 +219,7 @@ class AchievementReconciliationService:
                 title=template.title,
                 description=template.description,
             )
-        self._sync_rules(achievement, rules, satisfied)
+        self._sync_rules(achievement, rules, satisfied, user)
 
         if will_be_earned and not was_earned:
             # Reuse the normal completion path so grant-side effects (avatar evolution,
@@ -261,10 +261,13 @@ class AchievementReconciliationService:
 
         return False
 
-    @staticmethod
-    def _sync_rules(achievement: Achievement, rules: List[Rule], satisfied: Dict[int, bool]) -> None:
+    def _sync_rules(
+        self, achievement: Achievement, rules: List[Rule], satisfied: Dict[int, bool], user: GammaUser,
+    ) -> None:
         """
         Make the achievement's AchievementRule rows mirror the template's current rules.
+
+        Always rewrites status + canonical dependencies (so re-running recompute repairs old rows).
         """
         rule_ids = {rule.id for rule in rules}
         achievement.achievement_rules.exclude(rule_id__in=rule_ids).delete()
@@ -275,15 +278,45 @@ class AchievementReconciliationService:
                 AchievementRule.Statuses.COMPLETED if satisfied[rule.id]
                 else AchievementRule.Statuses.ACTIVE
             )
+            dependencies = self._rule_progress(rule, user, satisfied[rule.id])
             rule_link = existing.get(rule.id)
             if rule_link is None:
                 AchievementRule.objects.create(
                     achievement=achievement,
                     rule=rule,
                     status=status,
-                    dependencies={'is_achieved': satisfied[rule.id]},
+                    dependencies=dependencies,
                 )
-            elif rule_link.status != status:
+            else:
                 rule_link.status = status
-                rule_link.dependencies = {**(rule_link.dependencies or {}), 'is_achieved': satisfied[rule.id]}
+                rule_link.dependencies = dependencies
                 rule_link.save(update_fields=('status', 'dependencies'))
+
+    @staticmethod
+    def _rule_progress(rule: Rule, user: GammaUser, satisfied: bool) -> dict:
+        """
+        Build canonical rule dependencies: ``{'events': {<event>: {'goal', 'count'}}, 'is_achieved'}``.
+
+        Mirrors the event-driven shape so the progress-percent calc counts every rule in its
+        denominator — an unsatisfied rule contributes its real 0-100% slice rather than being
+        omitted (which otherwise inflates the percentage, e.g. 1-of-2 rules showing as 100%).
+        """
+        dependencies = {'is_achieved': satisfied}
+        name = _event_name(rule)
+        action_value = (rule.action or {}).get(name) or {}
+
+        goal = None
+        count = 0
+        if 'count' in action_value:
+            goal = _as_int(action_value.get('count'))
+            count = _events_for_rule(rule).filter(username=user.user_uid).count()
+        elif 'points' in action_value:
+            goal = _as_int(action_value.get('points'))
+            count = user.points
+        elif 'dependent_object_id' in action_value:
+            goal = 1
+            count = 1 if satisfied else 0
+
+        if name and goal:
+            dependencies['events'] = {name: {'goal': goal, 'count': goal if satisfied else min(count, goal)}}
+        return dependencies
