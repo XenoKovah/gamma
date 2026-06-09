@@ -1,5 +1,5 @@
 from django.contrib.contenttypes.fields import ContentType
-from django.db import models
+from django.db import models, transaction
 from django.utils.text import slugify
 
 from achievements.models import Achievement
@@ -16,6 +16,11 @@ class Badge(TimestampModelMixin, models.Model):
     description = models.TextField(null=True, blank=True)
     image = models.ImageField(upload_to='uploads/badges/')
     is_active = models.BooleanField(default=True)
+
+    points = models.PositiveIntegerField(
+        default=0,
+        help_text='Points granted to a user when this badge is manually assigned to them by an admin.',
+    )
 
     slug = models.SlugField(max_length=255, null=True, blank=True)
     rules = models.ManyToManyField('rules.Rule')
@@ -43,3 +48,35 @@ class Badge(TimestampModelMixin, models.Model):
             content_type=ContentType.objects.get_for_model(self),
             object_id=self.id
         ).exists()
+
+    @transaction.atomic
+    def award_to_user(self, user: GammaUser) -> bool:
+        """
+        Manually grant this badge to a user, bypassing the event/rules engine.
+
+        Creates a rule-less Achievement for the (user, badge) pair. Because an
+        Achievement is considered complete when all of its rules are completed and
+        ``all([])`` is ``True``, a rule-less Achievement reads as "earned" everywhere
+        the dashboard and leaderboards look. On the first grant only, the badge's
+        ``points`` are added to the user's total (and progress timeline) so manually
+        awarded badges count toward the general and per-badge leaderboards.
+
+        Return ``True`` if the badge was newly granted, ``False`` if the user already
+        had it (idempotent: re-assigning never double-awards points).
+        """
+        _, created = Achievement.objects.get_or_create(
+            user=user,
+            content_type=ContentType.objects.get_for_model(type(self)),
+            object_id=self.id,
+            defaults={
+                # Achievement.title is max_length=64 and non-null; Badge.title is 255/nullable.
+                'title': (self.title or '')[:64],
+                'description': self.description,
+            },
+        )
+
+        if created and self.points:
+            user.update_user_points(self.points)
+            user.update_user_progress(self.points)
+
+        return created

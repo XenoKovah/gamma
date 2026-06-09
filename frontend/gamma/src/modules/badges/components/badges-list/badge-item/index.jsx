@@ -8,7 +8,8 @@ import {
 import messages from '../../../i18n';
 
 const BadgeItem = ({
-  title, description, image, openConfirmDeletionAlert, handleOpenManageEntityModal, isActive,
+  title, description, image, openConfirmDeletionAlert, handleOpenManageEntityModal,
+  handleOpenAssignModal, isActive,
 }) => {
   const intl = useIntl();
   const isExtraSmall = useMediaQuery({ maxWidth: breakpoints.extraSmall.maxWidth });
@@ -34,6 +35,9 @@ const BadgeItem = ({
         <Button onClick={handleOpenManageEntityModal}>
           {intl.formatMessage(messages.badgeEditBtnTitle)}
         </Button>
+        <Button variant="outline-primary" onClick={handleOpenAssignModal}>
+          {intl.formatMessage(messages.badgeAssignBtnTitle)}
+        </Button>
         <Button variant="outline-secondary" onClick={openConfirmDeletionAlert}>
           {intl.formatMessage(messages.badgeDeleteBtnTitle)}
         </Button>
@@ -48,6 +52,7 @@ BadgeItem.propTypes = {
   image: PropTypes.string,
   openConfirmDeletionAlert: PropTypes.func.isRequired,
   handleOpenManageEntityModal: PropTypes.func.isRequired,
+  handleOpenAssignModal: PropTypes.func,
   isActive: PropTypes.bool.isRequired,
 };
 
@@ -55,6 +60,7 @@ BadgeItem.defaultProps = {
   title: '',
   description: '',
   image: null,
+  handleOpenAssignModal: () => {},
 };
 
 export default BadgeItem;

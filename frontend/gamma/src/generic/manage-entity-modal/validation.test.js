@@ -107,6 +107,44 @@ describe('getValidationSchema', () => {
 
     await expect(schema.validate(invalidData)).rejects.toThrow(messages.eventTypeRequired);
   });
+
+  const badgeMessages = {
+    ...messages,
+    points: {
+      pointsInt: genericMessages.modalEntityValidationPointsNumberText.defaultMessage,
+      pointsPositive: genericMessages.modalEntityValidationPointsPositiveNumberText.defaultMessage,
+    },
+  };
+
+  const validBadgeData = {
+    title: 'Subtitle Fixer',
+    description: 'Awarded for fixing subtitles',
+    image: new File([], 'image.png', { type: 'image/png' }),
+    points: 100,
+    rules: [],
+  };
+
+  it('allows a badge (entity with points) to have zero rules', async () => {
+    const schema = getValidationSchema(badgeMessages, { points: 0 });
+
+    await expect(schema.validate(validBadgeData)).resolves.toBeTruthy();
+  });
+
+  it('rejects negative points for a badge', async () => {
+    const schema = getValidationSchema(badgeMessages, { points: 0 });
+
+    const invalidData = { ...validBadgeData, points: -5 };
+
+    await expect(schema.validate(invalidData)).rejects.toThrow(badgeMessages.points.pointsPositive);
+  });
+
+  it('rejects non-integer points for a badge', async () => {
+    const schema = getValidationSchema(badgeMessages, { points: 0 });
+
+    const invalidData = { ...validBadgeData, points: 3.5 };
+
+    await expect(schema.validate(invalidData)).rejects.toThrow(badgeMessages.points.pointsInt);
+  });
 });
 
 describe('validateFilters', () => {

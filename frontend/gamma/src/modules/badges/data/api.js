@@ -135,6 +135,31 @@ export const createBadge = async (badgeData) => {
 };
 
 /**
+ * Manually assigns a badge to one or more users by their user id.
+ * @param {number|string} badgeId - The ID of the badge to assign.
+ * @param {string[]} userUids - The GammaUser user_uids (edX usernames) to grant the badge to.
+ * @returns {Promise<{granted: string[], already_assigned: string[], points_each: number}>}
+ *          The API response listing which users were newly granted vs already had the badge.
+ */
+export const assignBadge = async (badgeId, userUids) => {
+  try {
+    const response = await axios.post(
+      `${API_ROUTES.BADGES}${badgeId}/assign/`,
+      { user_uids: userUids },
+      {
+        headers: { ...REQUEST_HEADERS },
+        withCredentials: true,
+      },
+    );
+
+    return response.data;
+  } catch (error) {
+    logError('Error assigning badge:', error);
+    throw error;
+  }
+};
+
+/**
  * Deletes a badge by its ID.
  * @param {number|string} badgeId - The ID of the badge to be deleted.
  * @returns {Promise<Object>} The response from the API.

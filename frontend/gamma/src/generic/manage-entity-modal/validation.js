@@ -43,6 +43,16 @@ export const getValidationSchema = (messages, entityData) => yup.object().shape(
         .max(100, messages.slug.slugMaxLength),
     }
     : {}),
+  ...(Object.hasOwn(entityData, 'points')
+    ? {
+      points: yup
+        .number()
+        .transform((value, originalValue) => (originalValue === '' ? 0 : value))
+        .typeError(messages.points.pointsInt)
+        .integer(messages.points.pointsInt)
+        .min(0, messages.points.pointsPositive),
+    }
+    : {}),
   description: yup
     .string()
     .required(messages.descriptionRequired)
@@ -105,7 +115,9 @@ export const getValidationSchema = (messages, entityData) => yup.object().shape(
         filters: yup.object(),
       }),
     )
-    .min(1),
+    // Badges (entities with a points value) may be purely manual, so they can have
+    // zero automatic rules. Other entities (avatars) still require at least one rule.
+    .min(Object.hasOwn(entityData, 'points') ? 0 : 1),
 });
 
 /**

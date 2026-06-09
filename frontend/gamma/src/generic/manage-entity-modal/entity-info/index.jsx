@@ -9,11 +9,19 @@ import FormInputController from './FormInputController';
 
 const EntityInfo = () => {
   const intl = useIntl();
-  const { values, initialValues, handleChange } = useFormikContext();
+  const {
+    values, initialValues, errors, touched, handleChange, handleBlur, setFieldValue,
+  } = useFormikContext();
   const isExtraSmall = useMediaQuery({ maxWidth: breakpoints.extraSmall.maxWidth });
 
   const handleCheckboxChange = (event) => {
     handleChange({ target: { name: 'isActive', value: event.target.checked } });
+  };
+
+  const handlePointsChange = (event) => {
+    const { value } = event.target;
+    // Keep points as a number in form state (an empty input means 0 points).
+    setFieldValue('points', value === '' ? 0 : Number(value));
   };
 
   return (
@@ -38,6 +46,27 @@ const EntityInfo = () => {
         autoResize
         hasCol={false}
       />
+      {Object.hasOwn(initialValues, 'points') && (
+        <Form.Group controlId="formEntityPoints" size="sm">
+          <Form.Control
+            type="number"
+            min={0}
+            step={1}
+            className="mr-0"
+            floatingLabel={intl.formatMessage(messages.modalEntityInfoLabelEntityPointsText)}
+            name="points"
+            value={values.points ?? 0}
+            onChange={handlePointsChange}
+            onBlur={handleBlur}
+            isInvalid={touched.points && !!errors.points}
+          />
+          {touched.points && errors.points && (
+            <Form.Control.Feedback className="manage-entity-modal-feedback" type="invalid">
+              {errors.points}
+            </Form.Control.Feedback>
+          )}
+        </Form.Group>
+      )}
       {Object.hasOwn(initialValues, 'isActive') && (
         <Form.Group className="mb-4" controlId="formEntityActive">
           <Form.Checkbox
