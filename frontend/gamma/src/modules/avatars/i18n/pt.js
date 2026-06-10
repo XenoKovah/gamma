@@ -163,7 +163,7 @@ const messages = defineMessages({
   },
   avatarSetStepperValidationTitleLettersNumbers: {
     id: 'modules.avatars.avatar-set.stepper.validation.title-letters-numbers',
-    defaultMessage: 'O título deve conter apenas letras e números',
+    defaultMessage: 'O título contém caracteres não suportados',
     description: 'Mensagem de validação quando o título contém caracteres inválidos.',
   },
   avatarSetStepperValidationTitleUnique: {

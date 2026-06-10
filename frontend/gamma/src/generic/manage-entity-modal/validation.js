@@ -32,7 +32,9 @@ import { MAX_IMAGE_SIZE } from './constants';
 export const getValidationSchema = (messages, entityData) => yup.object().shape({
   title: yup
     .string()
-    .matches(/^[\p{L}\p{N}\s'’\-.,]+$/u, messages.titleInvalid)
+    // Any printable text is fine (the backend stores the title verbatim and
+    // derives the slug via slugify); only control characters are rejected.
+    .matches(/^[^\p{Cc}]+$/u, messages.titleInvalid)
     .required(messages.titleRequired)
     .max(100, messages.titleMaxLength),
   ...(Object.hasOwn(entityData, 'slug')

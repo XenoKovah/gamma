@@ -48,8 +48,14 @@ describe('stepTitleValidationSchema', () => {
       .rejects.toThrow(translations.titleMaxLength);
   });
 
-  it('should fail validation when title contains special characters', async () => {
-    await expect(schema.validate({ title: 'Invalid@Title!' }))
+  it('should pass validation when title contains punctuation and symbols', async () => {
+    await expect(schema.validate({ title: '10 more points!' })).resolves.toEqual({
+      title: '10 more points!',
+    });
+  });
+
+  it('should fail validation when title contains control characters', async () => {
+    await expect(schema.validate({ title: 'Invalid\u0000Title' }))
       .rejects.toThrow(translations.titleLettersNumbers);
   });
 

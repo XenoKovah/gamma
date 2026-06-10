@@ -353,7 +353,7 @@ const messages = defineMessages({
   },
   genericManageEntityModalEntityInfoTitle: {
     id: 'generic.manage.entity.modal.entity.info.title',
-    defaultMessage: 'Заголовок повинен містити лише літери та цифри',
+    defaultMessage: 'Заголовок містить непідтримувані символи',
     description: 'Повідомлення про валідацію для поля заголовка в модальному вікні керування сутністю.',
   },
 });

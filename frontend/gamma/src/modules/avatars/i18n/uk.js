@@ -148,8 +148,8 @@ const messages = defineMessages({
   },
   avatarSetStepperValidationTitleLettersNumbers: {
     id: 'modules.avatars.avatar-set.stepper.validation.title-letters-numbers',
-    defaultMessage: 'Назва має містити лише літери та цифри',
-    description: 'Повідомлення про помилку для назви, яка має містити лише літери та цифри в майстрі створення набору аватарів.',
+    defaultMessage: 'Назва містить непідтримувані символи',
+    description: 'Повідомлення про помилку для назви з непідтримуваними символами в майстрі створення набору аватарів.',
   },
   avatarSetStepperValidationTitleUnique: {
     id: 'modules.avatars.avatar-set.stepper.validation.title-unique',

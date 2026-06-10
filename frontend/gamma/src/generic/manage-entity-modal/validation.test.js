@@ -7,6 +7,7 @@ import { MAX_IMAGE_SIZE } from './constants';
 
 describe('getValidationSchema', () => {
   const messages = {
+    titleInvalid: genericMessages.genericManageEntityModalEntityInfoTitle.defaultMessage,
     titleRequired: genericMessages.modalEntityValidationTitleRequiredText.defaultMessage,
     titleMaxLength: genericMessages.modalEntityValidationTitleMaxLengthText.defaultMessage,
     slug: {
@@ -69,6 +70,22 @@ describe('getValidationSchema', () => {
     const invalidData = { ...validData, title: 'A'.repeat(101) };
 
     await expect(schema.validate(invalidData)).rejects.toThrow(messages.titleMaxLength);
+  });
+
+  it('passes when title contains punctuation and symbols', async () => {
+    const schema = getValidationSchema(messages, { slug: 'valid-slug' });
+
+    const punctuatedData = { ...validData, title: '10 more points!' };
+
+    await expect(schema.validate(punctuatedData)).resolves.toBeTruthy();
+  });
+
+  it('fails when title contains control characters', async () => {
+    const schema = getValidationSchema(messages, { slug: 'valid-slug' });
+
+    const invalidData = { ...validData, title: 'Bad\u0000Title' };
+
+    await expect(schema.validate(invalidData)).rejects.toThrow(messages.titleInvalid);
   });
 
   it('fails when slug format is invalid', async () => {

@@ -353,7 +353,7 @@ const messages = defineMessages({
   },
   genericManageEntityModalEntityInfoTitle: {
     id: 'generic.manage.entity.modal.entity.info.title',
-    defaultMessage: 'Title must contain only letters and numbers',
+    defaultMessage: 'Title contains unsupported characters',
     description: 'The validation message for the title field in the manage entity modal.',
   },
 });
