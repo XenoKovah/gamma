@@ -3,6 +3,9 @@ import * as yup from 'yup';
 import { capitalizeFirstLetter } from '../../utils';
 import { MAX_IMAGE_SIZE } from './constants';
 
+// A block usage key, e.g. block-v1:OST2+Arch4001+2026+type@done+block@761ee26eb2ad...
+const BLOCK_USAGE_KEY_PATTERN = /^block-v1:[^+\s]+\+[^+\s]+\+[^+\s]+\+type@[^+\s]+\+block@\S+$/;
+
 /**
  * Returns a Yup validation schema for entity creation or updating.
  *
@@ -208,6 +211,21 @@ export const validateFilters = (values, messages) => {
               }
               errors.rules[index].filters.frequency = messages.frequency.frequencyInt;
             }
+          } else if (
+            filterKey === 'blocks'
+            && Array.isArray(filterValue)
+            && filterValue.length > 0
+            && filterValue.some((block) => !BLOCK_USAGE_KEY_PATTERN.test(block))
+          ) {
+            if (!errors.rules) {
+              errors.rules = [];
+            }
+            if (!errors.rules[index]) {
+              errors.rules[index] = {
+                filters: {},
+              };
+            }
+            errors.rules[index].filters.blocks = 'Each block must be a usage id like block-v1:ORG+Course+Run+type@done+block@…';
           } else if (
             filterValue === undefined
             || filterValue === ''

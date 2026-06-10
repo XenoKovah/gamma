@@ -42,6 +42,7 @@ class RulesFilterService:
             self._passes_interval_filter,
             self._passes_org_filter,
             self._passes_course_filter,
+            self._passes_blocks_filter,
         ]
 
         return all(filter_method(rule) for filter_method in filter_methods)
@@ -83,6 +84,24 @@ class RulesFilterService:
         if isinstance(course, (list, tuple)):
             return self.event.course_id in course
         return self.event.course_id == course
+
+    def _passes_blocks_filter(self, rule: Rule) -> bool:
+        """
+        Check if the rule passes the blocks filter.
+
+        ``blocks`` is a list of block usage keys (or a single key); the event passes
+        when its block_id is one of them. Combined with an action count equal to the
+        list length the rule reads "all of these blocks" — the per-block event uid
+        dedup upstream means each block can advance the counter at most once. Events
+        that predate block_id (NULL) never match a blocks filter; the done-state
+        backfill repairs those rows.
+        """
+        blocks = rule.filters.get('blocks')
+        if not blocks:
+            return True
+        if isinstance(blocks, (list, tuple)):
+            return self.event.block_id in blocks
+        return self.event.block_id == blocks
 
     @staticmethod
     def parse_and_make_aware(date_str: str) -> datetime:

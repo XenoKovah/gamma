@@ -69,6 +69,10 @@ class EventSerializer(serializers.ModelSerializer):
 
     event_type = serializers.CharField(write_only=True)
     configuration = EventConfigurationSerializer(read_only=True)
+    # The model default (now) makes created_at read-only by default; declaring it
+    # writable lets backfills date replayed events when the action really happened,
+    # so interval-filtered rules see them in the right window. Live events omit it.
+    created_at = serializers.DateTimeField(required=False)
 
     class Meta:
         model = Event
@@ -80,6 +84,7 @@ class EventSerializer(serializers.ModelSerializer):
             'client',
             'org',
             'course_id',
+            'block_id',
             'configuration',
             'event_type',
         )

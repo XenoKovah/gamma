@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 
 from rest_framework import serializers
@@ -53,6 +54,31 @@ class CourseFilterField(serializers.Field):
         return value
 
 
+class BlocksFilterField(serializers.Field):
+    """
+    Accept a single block usage key (string) or a list of usage keys.
+
+    The list is the set of blocks the rule is about — e.g. every "Mark as complete"
+    block that makes up a badge — matched against each event's block_id. With the
+    action count equal to the list length the rule reads "all of these blocks". The
+    list is de-duplicated and sorted so equivalent filters dedupe to the same Rule.
+    """
+
+    def to_internal_value(self, data):
+        if isinstance(data, str):
+            data = [data]
+        if (
+            isinstance(data, (list, tuple))
+            and data
+            and all(isinstance(item, str) and item.strip() for item in data)
+        ):
+            return sorted({item.strip() for item in data})
+        raise serializers.ValidationError('blocks must be a usage key or a non-empty list of usage keys.')
+
+    def to_representation(self, value):
+        return value
+
+
 class FiltersSerializer(serializers.Serializer):
     """
     Serializer for validating the filters in a rule.
@@ -62,6 +88,28 @@ class FiltersSerializer(serializers.Serializer):
     org = serializers.CharField(required=False)
     frequency = serializers.IntegerField(required=False)
     course = CourseFilterField(required=False)
+    blocks = BlocksFilterField(required=False)
+
+    COURSE_FROM_BLOCK_KEY = re.compile(r'^block-v1:(?P<course>[^+]+\+[^+]+\+[^+]+)\+type@')
+
+    def validate(self, attrs):
+        """
+        Derive the course filter from the blocks filter when absent.
+
+        Course-scoped features (per-course badge lists, the course leaderboard's badge
+        column) associate a badge with a course through its rules' course filter, so a
+        block-set rule should carry the course(s) its blocks live in even when the
+        admin only entered block keys.
+        """
+        if attrs.get('blocks') and not attrs.get('course'):
+            courses = sorted({
+                f'course-v1:{match.group("course")}'
+                for block in attrs['blocks']
+                if (match := self.COURSE_FROM_BLOCK_KEY.match(block))
+            })
+            if courses:
+                attrs['course'] = courses if len(courses) > 1 else courses[0]
+        return attrs
 
 
 class RuleSerializer(serializers.ModelSerializer):

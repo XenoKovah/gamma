@@ -219,6 +219,35 @@ describe('validateFilters', () => {
     });
   });
 
+  describe('blocks filter', () => {
+    const VALID_BLOCK = 'block-v1:OST2+Arch4001+2026+type@done+block@761ee26eb2ad47aea8a0582700ec9832';
+
+    it('accepts a list of well-formed usage keys', () => {
+      const values = { rules: [{ filters: { blocks: [VALID_BLOCK] } }] };
+
+      expect(validateFilters(values, messages)).toEqual({});
+    });
+
+    it('rejects entries that are not block usage keys', () => {
+      const values = { rules: [{ filters: { blocks: [VALID_BLOCK, 'course-v1:OST2+Arch4001+2026'] } }] };
+
+      const errors = validateFilters(values, messages);
+
+      expect(errors.rules[0].filters.blocks).toMatch(/usage id/);
+    });
+
+    it('requires at least one entry like any other filter', () => {
+      const values = { rules: [{ filters: { blocks: '' } }] };
+      const expectedErrors = {
+        rules: [{
+          filters: { blocks: `${capitalizeFirstLetter('blocks')} ${messages.filterKeyRequired}` },
+        }],
+      };
+
+      expect(validateFilters(values, messages)).toEqual(expectedErrors);
+    });
+  });
+
   describe('should return an error if frequency is invalid', () => {
     it('not a number', () => {
       const invalidValues = { rules: [{ filters: { frequency: 'not-a-number' } }] };

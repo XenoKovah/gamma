@@ -236,6 +236,11 @@ const messages = defineMessages({
     defaultMessage: 'Remove',
     description: 'The text displayed on the button to remove a filter.',
   },
+  modalEntityRulesBtnAddFilterText: {
+    id: 'generic.modal.entity.rules.button.add-filter.text',
+    defaultMessage: 'Add',
+    description: 'The text displayed on the button to add an entry to a multi-value filter.',
+  },
   modalEntityRulesIntervalStartLabelText: {
     id: 'generic.modal.entity.rules.interval.start.label.text',
     defaultMessage: 'Start date',

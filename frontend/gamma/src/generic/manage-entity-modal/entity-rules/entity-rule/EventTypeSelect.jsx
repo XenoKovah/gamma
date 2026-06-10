@@ -11,7 +11,10 @@ import messages from '../../../../i18n';
 // Certificate" rule per course, each scoped by its own course filter. The backend
 // (CommonEventProcessor) advances a rule's progress only for events matching that rule's
 // filters, so multiple certificate rules behave as an AND across courses.
-export const REPEATABLE_EVENT_NAMES = ['edx_certificate_created'];
+// "Mark a Unit as Complete" repeats for the same reason (block-set rules scoped by a
+// blocks filter); note one rule with the union of blocks usually suffices, and renders
+// a more accurate progress circle than several same-event rules.
+export const REPEATABLE_EVENT_NAMES = ['edx_certificate_created', 'edx_done_toggled'];
 
 const EventTypeSelect = ({ ruleIndex, translations, data }) => {
   const intl = useIntl();

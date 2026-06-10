@@ -1,4 +1,4 @@
-import React, { forwardRef, useCallback, useMemo } from 'react';
+import React, { forwardRef, useCallback, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { useFormikContext } from 'formik';
@@ -26,6 +26,7 @@ const FilterInputController = forwardRef(({
   ruleIndex,
   placeholder,
   multiple,
+  freeText,
   options = [],
 }, ref) => {
   const intl = useIntl();
@@ -33,10 +34,12 @@ const FilterInputController = forwardRef(({
     touched, setFieldValue, setTouched, errors,
   } = useFormikContext();
   const isExtraSmall = useMediaQuery({ maxWidth: breakpoints.extraSmall.maxWidth });
+  const [pendingEntry, setPendingEntry] = useState('');
 
   const fieldName = `rules.${ruleIndex}.filters.${filterKey}`;
   const fieldValue = rule.filters[filterKey] ?? '';
   const isMulti = multiple && as === 'select';
+  const isFreeTextMulti = multiple && freeText;
   const isFieldTouched = touched.rules?.[ruleIndex]?.filters?.[filterKey];
   const validationErrorText = errors.rules?.[ruleIndex]?.filters?.[filterKey];
 
@@ -68,6 +71,86 @@ const FilterInputController = forwardRef(({
       {validationErrorText}
     </Form.Control.Feedback>
   ) : null;
+
+  // Free-text multi-value filter (e.g. the block usage keys a badge is made of).
+  // Rendered as a "paste a key -> Add -> removable row" control; the action count is
+  // kept in sync with the list length (the "all of these blocks" reading) unless the
+  // admin has deliberately set a different count (an "any N of these" rule).
+  if (isFreeTextMulti) {
+    const selected = Array.isArray(fieldValue) ? fieldValue : (fieldValue ? [fieldValue] : []);
+
+    const syncActionCount = (newLength) => {
+      const currentCount = rule.action?.count;
+      const tracksListLength = currentCount === '' || currentCount == null
+        || Number(currentCount) === selected.length;
+      if (tracksListLength) {
+        setFieldValue(`rules.${ruleIndex}.action.count`, newLength > 0 ? newLength : '');
+      }
+    };
+
+    const addPendingEntry = () => {
+      const value = pendingEntry.trim();
+      if (value && !selected.includes(value)) {
+        setFieldValue(fieldName, [...selected, value]);
+        syncActionCount(selected.length + 1);
+      }
+      setPendingEntry('');
+    };
+    const removeValue = (value) => {
+      const remaining = selected.filter((item) => item !== value);
+      setFieldValue(fieldName, remaining.length ? remaining : '');
+      syncActionCount(remaining.length);
+    };
+
+    return (
+      <div className="entity-rule-multi-filter">
+        <div className="d-flex align-items-start">
+          <Form.Control
+            ref={ref}
+            floatingLabel={label}
+            placeholder={placeholder}
+            className="entity-rule-filter-form-control mr-2"
+            value={pendingEntry}
+            onChange={(e) => setPendingEntry(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                addPendingEntry();
+              }
+            }}
+            onBlur={handleBlur}
+            isInvalid={isFieldTouched && !!validationErrorText}
+          />
+          <Button
+            variant="outline-primary"
+            size="sm"
+            className="entity-rule-add-filter-btn flex-shrink-0"
+            onClick={addPendingEntry}
+          >
+            {intl.formatMessage(messages.modalEntityRulesBtnAddFilterText)}
+          </Button>
+        </div>
+        <Form.Text>
+          Marked complete for every block below (AND) — paste each block&apos;s usage id, e.g.
+          block-v1:ORG+Course+Run+type@done+block@… Lower the count for an &quot;any N of these&quot; rule.
+        </Form.Text>
+        {selected.map((item) => (
+          <div key={item} className="d-flex align-items-center justify-content-between mt-1">
+            <span className="small text-truncate mr-2" title={item}>{item}</span>
+            <Button
+              variant="outline-danger"
+              size="sm"
+              className="entity-rule-remove-filter-btn flex-shrink-0"
+              onClick={() => removeValue(item)}
+            >
+              {intl.formatMessage(messages.modalEntityRulesBtnRemoveFilterText)}
+            </Button>
+          </div>
+        ))}
+        {feedback}
+      </div>
+    );
+  }
 
   // Multi-value filter (e.g. several accepted courses = an OR group). Rendered as a
   // "pick from the dropdown -> add a removable row" control so it needs no modifier keys.
@@ -181,10 +264,14 @@ FilterInputController.propTypes = {
         }),
       ]),
     ).isRequired,
+    action: PropTypes.shape({
+      count: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    }),
   }).isRequired,
   ruleIndex: PropTypes.number.isRequired,
   placeholder: PropTypes.string,
   multiple: PropTypes.bool,
+  freeText: PropTypes.bool,
   options: PropTypes.arrayOf(PropTypes.string),
 };
 
@@ -195,6 +282,7 @@ FilterInputController.defaultProps = {
   as: undefined,
   placeholder: undefined,
   multiple: false,
+  freeText: false,
   options: [],
 };
 
