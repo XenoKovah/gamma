@@ -1,6 +1,7 @@
 from django.contrib.contenttypes.fields import ContentType
 from django.db import models, transaction
 from django.utils.text import slugify
+from django.utils.timezone import now
 
 from achievements.models import Achievement
 from users.models import GammaUser
@@ -80,6 +81,10 @@ class Badge(TimestampModelMixin, models.Model):
                 # Achievement.title is max_length=64 and non-null; Badge.title is 255/nullable.
                 'title': (self.title or '')[:64],
                 'description': self.description,
+                # Manual awards never pass through AchievementCompletionUseCase, so the
+                # completion moment (which drives the badge-earned notification) is
+                # recorded here at grant time.
+                'completed_at': now(),
             },
         )
 

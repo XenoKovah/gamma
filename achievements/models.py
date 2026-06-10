@@ -29,8 +29,34 @@ class Achievement(models.Model):
     title = models.CharField(max_length=64)
     description = models.TextField(blank=True, null=True)
 
+    completed_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text=_('When the user completed this achievement. Unset for in-progress achievements '
+                    'and for achievements created by paths that bypass completion tracking (backfills).'),
+    )
+    notification_seen_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text=_('When the "badge earned" notification for this achievement was shown to the user. '
+                    'A completed achievement with this unset is a pending notification.'),
+    )
+
     def __str__(self):
         return f'Achievement {self.title!r} with type {self.content_type!r} for {self.user}'
+
+    def mark_completed(self) -> bool:
+        """
+        Record the completion moment, once.
+
+        Return True only on the first call; False when a completion timestamp already
+        exists (e.g. a repeated event against an already-complete achievement).
+        """
+        if self.completed_at:
+            return False
+        self.completed_at = now()
+        self.save(update_fields=('completed_at',))
+        return True
 
     @property
     def all_rules_completed(self):

@@ -2,6 +2,7 @@ import logging
 from typing import List, Union
 
 from django.contrib.contenttypes.models import ContentType
+from django.utils.timezone import now as timezone_now
 
 from achievements.exceptions import AchievementRuleProcessingException
 from achievements.models import Achievement, AchievementRule
@@ -225,4 +226,45 @@ class AchievementCompletionUseCase(UseCase):
     """
 
     def execute(self, achievement: Achievement):
+        achievement.mark_completed()
         simulate_rgg_internal_event(achievement.user, RggInternalEventTypes.RGG_ACHIEVEMENT_OBTAINED.value)
+
+
+class PendingBadgeNotificationsUseCase(UseCase):
+    """
+    Use case for listing a user's completed-but-not-yet-notified badge achievements.
+
+    Backs the learner-facing "you earned a badge" pop-up: anything returned here is
+    a notification waiting to be shown. Only badge achievements are considered —
+    avatar achievements have no notification UI.
+    """
+
+    def execute(self, user_uid: str) -> List[Achievement]:
+        badge_content_type = ContentType.objects.get_for_model(Badge)
+        return list(
+            Achievement.objects.filter(
+                user__user_uid=user_uid,
+                content_type=badge_content_type,
+                completed_at__isnull=False,
+                notification_seen_at__isnull=True,
+            ).order_by('completed_at')
+        )
+
+
+class MarkBadgeNotificationsSeenUseCase(UseCase):
+    """
+    Use case for acknowledging shown badge notifications.
+
+    Stamp ``notification_seen_at`` on the given achievements so they are not
+    returned by PendingBadgeNotificationsUseCase again. Idempotent: already-seen
+    achievements are left untouched (their original timestamp is preserved).
+    """
+
+    def execute(self, user_uid: str, achievement_uuids: List[str]) -> int:
+        badge_content_type = ContentType.objects.get_for_model(Badge)
+        return Achievement.objects.filter(
+            user__user_uid=user_uid,
+            content_type=badge_content_type,
+            uuid__in=achievement_uuids,
+            notification_seen_at__isnull=True,
+        ).update(notification_seen_at=timezone_now())

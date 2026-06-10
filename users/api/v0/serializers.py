@@ -80,3 +80,16 @@ class UserGameProfileSerializer(serializers.Serializer):
         )
 
         return AchievementDetailSerializer(received_user_badges, many=True).data
+
+
+class BadgeNotificationsSeenSerializer(serializers.Serializer):
+    """
+    Validate the payload for acknowledging shown badge notifications.
+    """
+
+    username = serializers.CharField(max_length=255)
+    uuids = serializers.ListField(
+        child=serializers.UUIDField(),
+        allow_empty=False,
+        help_text='Achievement uuids whose notifications were shown to the user.',
+    )
