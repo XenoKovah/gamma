@@ -44,6 +44,25 @@ def test_completion_usecase_stamps_completed_at(badge_achievement):
 
 
 @pytest.mark.django_db
+def test_completion_usecase_fires_obtained_event_only_once(badge_achievement):
+    """
+    Re-running completion for an already-complete achievement (a shared rule can
+    keep routing events at it) must not emit another internal obtained event.
+    """
+    from events.enums import RggInternalEventTypes
+    from events.models import Event
+
+    AchievementCompletionUseCase().execute(badge_achievement)
+    AchievementCompletionUseCase().execute(badge_achievement)
+
+    obtained_events = Event.objects.filter(
+        username=badge_achievement.user.user_uid,
+        configuration__event_type__name=RggInternalEventTypes.RGG_ACHIEVEMENT_OBTAINED.value,
+    )
+    assert obtained_events.count() == 1
+
+
+@pytest.mark.django_db
 def test_manual_award_stamps_completed_at(badge_factory, gamma_user_factory):
     badge = badge_factory()
     user = gamma_user_factory()
