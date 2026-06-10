@@ -7,7 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from pytest_mock.plugin import MockerFixture
 from rest_framework.test import APIClient
 
-from achievements.factories import AchievementFactory, AchievementRuleFactory
+from achievements.tests.factories import AchievementFactory, AchievementRuleFactory
 from achievements.models import AchievementRule
 from badges.factories import BadgeFactory
 from badges.models import Badge
