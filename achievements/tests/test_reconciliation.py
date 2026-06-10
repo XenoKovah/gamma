@@ -216,3 +216,81 @@ def test_recompute_with_or_group_course_filter(
     assert user_a_c.user_uid in result.granted
     assert user_a_only.user_uid not in result.granted
     assert user_b_c.user_uid not in result.granted
+
+
+DONE_EVENT = 'edx_done_toggled'
+DONE_BLOCKS = [f'block-v1:org+A+1+type@done+block@{suffix}' for suffix in 'abcde']
+
+
+@pytest.fixture
+def done_configuration(event_configuration_factory):
+    return event_configuration_factory(event_type__name=DONE_EVENT)
+
+
+def _block_set_rule(rule_factory, configuration, blocks):
+    return rule_factory(
+        event_configuration=configuration,
+        action={DONE_EVENT: {'count': len(blocks)}},
+        filters={'course': COURSE_A, 'blocks': blocks},
+    )
+
+
+def _mark_done(event_factory, configuration, user, block_id):
+    return event_factory(
+        configuration=configuration,
+        username=user.user_uid,
+        course_id=COURSE_A,
+        block_id=block_id,
+    )
+
+
+def test_recompute_grants_block_set_badge_from_event_history(
+    done_configuration, badge_factory, rule_factory, event_factory, gamma_user_factory,
+):
+    """
+    A user whose done-events already cover every listed block is granted on recompute;
+    blocks outside the set contribute nothing.
+    """
+    badge = badge_factory()
+    badge.rules.set([_block_set_rule(rule_factory, done_configuration, DONE_BLOCKS)])
+
+    user_full = gamma_user_factory()
+    for block_id in DONE_BLOCKS:
+        _mark_done(event_factory, done_configuration, user_full, block_id)
+
+    user_outside = gamma_user_factory()
+    for suffix in 'vwxyz':                    # five done blocks, none in the set
+        _mark_done(event_factory, done_configuration, user_outside, f'block-v1:org+A+1+type@done+block@{suffix}')
+
+    result = recompute_holders(badge)
+
+    assert user_full.user_uid in result.granted
+    assert user_outside.user_uid not in result.granted
+    achievement = Achievement.objects.get(object_id=badge.id, user=user_full)
+    assert achievement.all_rules_completed
+
+
+def test_recompute_writes_partial_block_progress(
+    done_configuration, badge_factory, rule_factory, event_factory, gamma_user_factory,
+):
+    """
+    2 of 5 listed blocks done -> in-progress with canonical count/goal (the dashboard
+    circle renders floor(2/5*100) = 40%), and a NULL-block_id legacy event never counts.
+    """
+    badge = badge_factory()
+    badge.rules.set([_block_set_rule(rule_factory, done_configuration, DONE_BLOCKS)])
+
+    user = gamma_user_factory()
+    _mark_done(event_factory, done_configuration, user, DONE_BLOCKS[0])
+    _mark_done(event_factory, done_configuration, user, DONE_BLOCKS[1])
+    _mark_done(event_factory, done_configuration, user, None)   # pre-block_id row
+
+    result = recompute_holders(badge)
+
+    assert user.user_uid not in result.granted
+    achievement = Achievement.objects.get(object_id=badge.id, user=user)
+    assert not achievement.all_rules_completed
+    achievement_rule = achievement.achievement_rules.get()
+    progress = achievement_rule.dependencies['events'][DONE_EVENT]
+    assert progress['count'] == 2
+    assert progress['goal'] == 5

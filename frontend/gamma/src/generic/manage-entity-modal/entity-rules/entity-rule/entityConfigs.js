@@ -7,6 +7,11 @@ export const getFilterConfig = (coursesData, organizationsData, messages) => ({
     placeholder: capitalizeFirstLetter('course'),
     options: sortAlphabetically(coursesData),
   },
+  blocks: {
+    multiple: true,
+    freeText: true,
+    placeholder: capitalizeFirstLetter('blocks'),
+  },
   org: {
     as: 'select',
     placeholder: messages.organizationTitle,

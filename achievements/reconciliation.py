@@ -122,6 +122,11 @@ def _events_for_rule(rule: Rule):
             queryset = queryset.filter(course_id=course)
     if org := filters.get('org'):
         queryset = queryset.filter(org=org)
+    if blocks := filters.get('blocks'):
+        if isinstance(blocks, (list, tuple)):
+            queryset = queryset.filter(block_id__in=blocks)
+        else:
+            queryset = queryset.filter(block_id=blocks)
 
     interval = filters.get('interval') or {}
     if start := _parse_datetime(interval.get('start')):
@@ -211,7 +216,13 @@ class AchievementReconciliationService:
         will_be_earned = bool(rules) and all(satisfied.values())
 
         # No progress at all under the current rules — drop a stale Achievement entirely.
-        if not any(satisfied.values()) and not will_be_earned:
+        # "Progress" is a fully-satisfied rule OR partial event history: a count-N rule
+        # (e.g. a block-set rule) is in progress long before it is satisfied, and its
+        # holder needs the Achievement row for the dashboard to show partial progress.
+        has_progress = any(satisfied.values()) or any(
+            _events_for_rule(rule).filter(username=user.user_uid).exists() for rule in rules
+        )
+        if not has_progress:
             if achievement:
                 achievement.delete()
                 return 'revoked' if was_earned else 'unchanged'

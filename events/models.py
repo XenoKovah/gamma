@@ -98,6 +98,7 @@ class Event(models.Model):
 
     org = models.CharField(max_length=255, null=True, blank=True)
     course_id = models.CharField(max_length=255, null=True, blank=True)
+    block_id = models.CharField(max_length=255, null=True, blank=True, db_index=True)
 
     class Meta:
         unique_together = ('uid', 'client', 'username')

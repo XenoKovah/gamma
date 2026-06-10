@@ -107,3 +107,67 @@ def test_common_processor_counts_event_for_any_course_in_or_group(
     # certificate in an unlisted course -> not counted
     event_other = event_factory(configuration=cert_configuration, course_id='course-v1:org+X+1', username=user.user_uid)
     assert processor.process(achievement_rule, user, event_other)['is_achieved'] is False
+
+
+DONE_EVENT = 'edx_done_toggled'
+
+
+@pytest.fixture
+def done_configuration(event_configuration_factory):
+    return event_configuration_factory(event_type__name=DONE_EVENT)
+
+
+def test_common_processor_counts_distinct_blocks_toward_block_set_rule(
+    done_configuration,
+    rule_factory,
+    achievement_rule_factory,
+    event_factory,
+    gamma_user_factory,
+):
+    """
+    A rule scoped to a set of "Mark as complete" blocks advances once per listed block.
+
+    Blocks outside the set never advance it, partial progress keeps the canonical
+    count/goal shape the dashboard circle renders (2 of 5 -> floor(2/5*100) = 40%),
+    and completing the whole set achieves the rule. Each block can only count once
+    in production because the event uid hashes (course, user, block) and duplicates
+    are rejected at ingest.
+    """
+    user = gamma_user_factory()
+    blocks = [f'block-v1:org+A+1+type@done+block@{suffix}' for suffix in 'abcde']
+    rule = rule_factory(
+        event_configuration=done_configuration,
+        action={DONE_EVENT: {'count': 5}},
+        filters={'course': COURSE_A, 'blocks': blocks},
+    )
+    achievement_rule = achievement_rule_factory(rule=rule, dependencies={})
+    processor = CommonEventProcessor()
+
+    def feed(block_id):
+        event = event_factory(
+            configuration=done_configuration,
+            course_id=COURSE_A,
+            username=user.user_uid,
+            block_id=block_id,
+        )
+        dependencies = processor.process(achievement_rule, user, event)
+        # what the use case persists between events (bulk_update of dependencies)
+        achievement_rule.dependencies = dependencies
+        achievement_rule.save()
+        return dependencies
+
+    # a done block in the same course but outside the set does not advance the rule
+    dependencies = feed('block-v1:org+A+1+type@done+block@unrelated')
+    assert dependencies['events'][DONE_EVENT]['count'] == 0
+    assert dependencies['is_achieved'] is False
+
+    feed(blocks[0])
+    dependencies = feed(blocks[1])
+    assert dependencies['events'][DONE_EVENT]['count'] == 2
+    assert dependencies['events'][DONE_EVENT]['goal'] == 5
+    assert dependencies['is_achieved'] is False
+
+    for block_id in blocks[2:]:
+        dependencies = feed(block_id)
+    assert dependencies['events'][DONE_EVENT]['count'] == 5
+    assert dependencies['is_achieved'] is True

@@ -162,3 +162,56 @@ def test_one_rule_based_on_action_criteria(
     filtered_rules = RulesFilterService(event).filter_rules([rule])
 
     assert bool(filtered_rules) == expected_valid
+
+
+mock_block_a = 'block-v1:edx+1+1+type@done+block@aaaa'
+mock_block_b = 'block-v1:edx+1+1+type@done+block@bbbb'
+
+
+@pytest.mark.parametrize(
+    'filter_blocks, event_block_id, expected_valid',
+    [
+        # Passed: No blocks filter matches any event block
+        (None, mock_block_a, True),
+        # Passed: Event block is in the filter list
+        ([mock_block_a, mock_block_b], mock_block_a, True),
+        # Passed: Single-string filter matches the event block
+        (mock_block_a, mock_block_a, True),
+        # Failed: Event block is outside the filter list
+        ([mock_block_a], mock_block_b, False),
+        # Failed: Single-string filter mismatch
+        (mock_block_a, mock_block_b, False),
+        # Failed: Pre-block_id event (NULL) never matches a blocks filter
+        ([mock_block_a], None, False),
+    ],
+    ids=[
+        'Passed: No blocks filter',
+        'Passed: Block in list',
+        'Passed: Single block string match',
+        'Failed: Block outside list',
+        'Failed: Single block string mismatch',
+        'Failed: NULL block_id never matches',
+    ]
+)
+def test_one_rule_based_on_blocks_filter(
+    rule_factory,
+    event_factory,
+    event_configuration_factory,
+    filter_blocks,
+    event_block_id,
+    expected_valid,
+):
+    filters = {} if filter_blocks is None else {'blocks': filter_blocks}
+
+    event_configuration = event_configuration_factory(event_type__name=mock_event_name)
+    event = event_factory(
+        configuration=event_configuration,
+        org=mock_org,
+        course_id=mock_course_id,
+        block_id=event_block_id,
+    )
+    rule = rule_factory(event_configuration=event_configuration, filters=filters, action={mock_event_name: 3})
+
+    filtered_rules = RulesFilterService(event).filter_rules([rule])
+
+    assert bool(filtered_rules) == expected_valid

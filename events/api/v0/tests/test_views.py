@@ -63,6 +63,71 @@ class TestEventsAPI:
         assert response.status_code == 400
         assert 'The fields uid, client, username must make a unique set.' in response_json.get('non_field_errors')
 
+    def test_create_event_stores_block_id(self, auth_client, event_request_data):
+        block_id = 'block-v1:edx+101+101+type@done+block@aaaa'
+        event_request_data['block_id'] = block_id
+
+        response = auth_client.post(self.endpoint, event_request_data)
+
+        assert response.status_code == 201
+        event = Event.objects.get(uid=event_request_data['uid'])
+        assert event.block_id == block_id
+
+    def test_duplicate_event_records_block_id_on_legacy_row(
+        self, auth_client, event_request_data, event_factory, mocker
+    ):
+        """
+        Rows ingested before block_id existed get it filled in when the same logical
+        event is re-sent (the done-state backfill path); the duplicate is still rejected.
+        """
+        mock_client_uid = 'mock_client_uid'
+        block_id = 'block-v1:edx+101+101+type@done+block@bbbb'
+
+        mock_app_client = mocker.MagicMock()
+        mock_app_client.name = mock_client_uid
+        mocker.patch('core.authentication.AppClient.objects.get', return_value=mock_app_client)
+
+        event = event_factory(client=mock_client_uid, block_id=None)
+        event_request_data['uid'] = event.uid
+        event_request_data['username'] = event.username
+        event_request_data['block_id'] = block_id
+
+        response = auth_client.post(self.endpoint, event_request_data)
+
+        assert response.status_code == 400
+        event.refresh_from_db()
+        assert event.block_id == block_id
+
+    def test_duplicate_event_does_not_overwrite_existing_block_id(
+        self, auth_client, event_request_data, event_factory, mocker
+    ):
+        mock_client_uid = 'mock_client_uid'
+        original_block_id = 'block-v1:edx+101+101+type@done+block@cccc'
+
+        mock_app_client = mocker.MagicMock()
+        mock_app_client.name = mock_client_uid
+        mocker.patch('core.authentication.AppClient.objects.get', return_value=mock_app_client)
+
+        event = event_factory(client=mock_client_uid, block_id=original_block_id)
+        event_request_data['uid'] = event.uid
+        event_request_data['username'] = event.username
+        event_request_data['block_id'] = 'block-v1:edx+101+101+type@done+block@dddd'
+
+        response = auth_client.post(self.endpoint, event_request_data)
+
+        assert response.status_code == 400
+        event.refresh_from_db()
+        assert event.block_id == original_block_id
+
+    def test_create_event_honors_explicit_created_at(self, auth_client, event_request_data):
+        event_request_data['created_at'] = '2025-03-04T05:06:07Z'
+
+        response = auth_client.post(self.endpoint, event_request_data)
+
+        assert response.status_code == 201
+        event = Event.objects.get(uid=event_request_data['uid'])
+        assert event.created_at.isoformat() == '2025-03-04T05:06:07+00:00'
+
 
 @pytest.mark.no_rgg_events
 class TestAvailableActionsAPI:
