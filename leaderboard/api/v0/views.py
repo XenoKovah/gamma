@@ -80,7 +80,7 @@ class BadgeLeaderBoardView(APIView):
 
         badge = Badge.objects.filter(slug=badge_slug).order_by("-is_active", "pk").first()
         if badge is None:
-            return Response({"error": "Badge not found."}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": "Accomplishment not found."}, status=status.HTTP_404_NOT_FOUND)
 
         GammaUser.ensure_gamma_user_is_created(user_uid=user_uid)
 

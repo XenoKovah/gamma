@@ -176,7 +176,7 @@ class TestBadgeLeaderBoardView:
         response = auth_client.get(endpoint)
 
         assert response.status_code == 404
-        assert response.json() == {"error": "Badge not found."}
+        assert response.json() == {"error": "Accomplishment not found."}
 
     def test_returns_badge_earners_ranked_by_points(self, auth_client: APIClient) -> None:
         badge = BadgeFactory(title="Firmware Master Level 1", description="Complete Arch4001")
