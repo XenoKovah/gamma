@@ -67,4 +67,7 @@ def test_process_event_creation_runs_update_user_pipeline(
     event = event_factory(username=user_uid)
 
     gamma_user_mock.ensure_gamma_user_is_created.assert_called_once_with(user_uid=user_uid)
-    gamma_user_mock.ensure_gamma_user_is_created.return_value.run_update_user_pipeline.assert_called_once_with(event)
+    # The user is re-fetched under a row lock before processing, so the pipeline
+    # runs on the locked instance rather than the ensure_* return value.
+    locked_user = gamma_user_mock.objects.select_for_update.return_value.get.return_value
+    locked_user.run_update_user_pipeline.assert_called_once_with(event)

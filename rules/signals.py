@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
@@ -14,6 +15,16 @@ def process_event_creation(sender, instance, created, **kwargs):
     This signal is triggered when an Event is created.
 
     The handler processes the event according to the rules defined.
+
+    All work for a single user is serialized under a row lock on that user. The
+    gamification bridge dispatches every Open edX tracking event as its own
+    Celery task, and the RGG worker runs them concurrently, so two events for the
+    same learner (e.g. a quiz submission and a "mark complete" clicked together)
+    would otherwise race: lost point/chart/progress updates (read-modify-write on
+    the user row) and colliding inserts of the same Achievement (both events see
+    no achievement, both create it, one rolls back — leaving the badge unrecorded
+    even though it "completed"). Locking the user row makes same-user events queue;
+    different users still process in parallel.
     """
 
     if not created:
@@ -23,14 +34,21 @@ def process_event_creation(sender, instance, created, **kwargs):
     configuration = event.configuration
     user = GammaUser.ensure_gamma_user_is_created(user_uid=event.username)
 
-    affected_rules_by_event = Rule.objects.not_completed_by_user(configuration, user)
-    rule_filter = RulesFilterService(event)
-    affected_rules = rule_filter.filter_rules(affected_rules_by_event)
+    with transaction.atomic():
+        # Re-fetch the user under a row lock for the duration of processing. The
+        # internal points/achievement events emitted below re-enter this handler
+        # synchronously within this same transaction; re-locking a row the
+        # transaction already holds is a no-op, so the recursion does not deadlock.
+        user = GammaUser.objects.select_for_update().get(pk=user.pk)
 
-    for rule in affected_rules:
-        for backend in get_gamification_backends():
-            backend.process_achievement(rule, event, user)
+        affected_rules_by_event = Rule.objects.not_completed_by_user(configuration, user)
+        rule_filter = RulesFilterService(event)
+        affected_rules = rule_filter.filter_rules(affected_rules_by_event)
 
-    # To avoid recursion we limit the calls only for common events.
-    if configuration.event_name in EventConfiguration.common_event_names():
-        user.run_update_user_pipeline(event)
+        for rule in affected_rules:
+            for backend in get_gamification_backends():
+                backend.process_achievement(rule, event, user)
+
+        # To avoid recursion we limit the calls only for common events.
+        if configuration.event_name in EventConfiguration.common_event_names():
+            user.run_update_user_pipeline(event)
