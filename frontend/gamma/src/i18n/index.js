@@ -338,7 +338,7 @@ const messages = defineMessages({
   },
   headerBadgesLinkText: {
     id: 'generic.header.nav.badges',
-    defaultMessage: 'Badges',
+    defaultMessage: 'Accomplishments',
     description: 'The text displayed for the Badges link in the header.',
   },
   headerAvatarsLinkText: {

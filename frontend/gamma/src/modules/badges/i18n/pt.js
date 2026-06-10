@@ -3,22 +3,22 @@ import { defineMessages } from 'react-intl';
 const messages = defineMessages({
   pageTitle: {
     id: 'modules.badges.heading.text',
-    defaultMessage: 'Configurações de distintivos',
+    defaultMessage: 'Configurações de conquistas',
     description: 'O texto exibido no cabeçalho da página de configurações de distintivos.',
   },
   pageDescription: {
     id: 'modules.badges.page.description',
-    defaultMessage: 'Esta página exibe os distintivos e permite que os usuários os criem e editem.',
+    defaultMessage: 'Esta página exibe as conquistas e permite que os usuários as criem e editem.',
     description: 'A descrição da página de configurações de distintivos.',
   },
   addBadgeBtnText: {
     id: 'modules.badges.button.add-badge',
-    defaultMessage: 'Adicionar distintivo',
+    defaultMessage: 'Adicionar conquista',
     description: 'O texto exibido no botão para adicionar um distintivo.',
   },
   totalBadgesCount: {
     id: 'modules.badges.total-badges.counter.text',
-    defaultMessage: 'Total de distintivos: {badgesCount}',
+    defaultMessage: 'Total de conquistas: {badgesCount}',
     description: 'O texto exibido para o número total de distintivos.',
   },
   badgeEditBtnTitle: {
@@ -33,32 +33,32 @@ const messages = defineMessages({
   },
   badgeDefaultTitle: {
     id: 'modules.badges.badge-item.default.title',
-    defaultMessage: 'Título do distintivo',
+    defaultMessage: 'Título da conquista',
     description: 'O título padrão de um distintivo.',
   },
   badgeDefaultDescription: {
     id: 'modules.badges.badge-item.default.description',
-    defaultMessage: 'Descrição do distintivo',
+    defaultMessage: 'Descrição da conquista',
     description: 'A descrição padrão de um distintivo.',
   },
   alertEmptyBadgesListTitle: {
     id: 'modules.badges.alert.empty-badges-list.title',
-    defaultMessage: 'Nenhum distintivo disponível',
+    defaultMessage: 'Nenhuma conquista disponível',
     description: 'O título do alerta quando não há distintivos para exibir.',
   },
   alertEmptyBadgesListDescription: {
     id: 'modules.badges.alert.empty-badges-list.description',
-    defaultMessage: 'Atualmente, não há distintivos para exibir.',
+    defaultMessage: 'Atualmente, não há conquistas para exibir.',
     description: 'A descrição do alerta quando não há distintivos para exibir.',
   },
   addManageEntityModalTitle: {
     id: 'modules.badges.modal.add-badge.title',
-    defaultMessage: 'Adicionar novo distintivo',
+    defaultMessage: 'Adicionar nova conquista',
     description: 'O título do modal para adicionar distintivo.',
   },
   editManageEntityModalTitle: {
     id: 'modules.badges.modal.edit-badge.title',
-    defaultMessage: 'Editar distintivo',
+    defaultMessage: 'Editar conquista',
     description: 'O título do modal para editar distintivo.',
   },
   confirmDeletionModalTitle: {
@@ -68,7 +68,7 @@ const messages = defineMessages({
   },
   confirmDeletionModalDescription: {
     id: 'modules.badges.alert.modal.confirm.deletion.description',
-    defaultMessage: 'Tem certeza de que deseja excluir este distintivo? Esta ação não pode ser desfeita.',
+    defaultMessage: 'Tem certeza de que deseja excluir esta conquista? Esta ação não pode ser desfeita.',
     description: 'A descrição do modal de confirmação ao excluir um distintivo.',
   },
   toastErrorTitle: {
@@ -78,17 +78,17 @@ const messages = defineMessages({
   },
   badgeCreatedTitle: {
     id: 'modules.badges.alert.badge-created.title',
-    defaultMessage: 'Distintivo criado com sucesso',
+    defaultMessage: 'Conquista criada com sucesso',
     description: 'O título do alerta quando um distintivo é criado com sucesso.',
   },
   badgeEditedTitle: {
     id: 'modules.badges.alert.badge-edited.title',
-    defaultMessage: 'Distintivo editado com sucesso',
+    defaultMessage: 'Conquista editada com sucesso',
     description: 'O título do alerta quando um distintivo é editado com sucesso.',
   },
   badgeDeletedTitle: {
     id: 'modules.badges.alert.badge-deleted.title',
-    defaultMessage: 'Distintivo excluído com sucesso',
+    defaultMessage: 'Conquista excluída com sucesso',
     description: 'O título do alerta quando um distintivo é excluído com sucesso.',
   },
   badgeDraftStatusText: {

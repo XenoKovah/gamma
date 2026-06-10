@@ -318,7 +318,7 @@ const messages = defineMessages({
   },
   headerBadgesLinkText: {
     id: 'generic.header.nav.badges',
-    defaultMessage: 'Значки',
+    defaultMessage: 'Досягнення',
     description: 'Текст для посилання на значки в заголовку.',
   },
   headerAvatarsLinkText: {

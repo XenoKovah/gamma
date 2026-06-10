@@ -318,7 +318,7 @@ const messages = defineMessages({
   },
   headerBadgesLinkText: {
     id: 'generic.header.nav.badges',
-    defaultMessage: 'Distintivos',
+    defaultMessage: 'Conquistas',
     description: 'Texto exibido para o link de Distintivos no cabeçalho.',
   },
   headerAvatarsLinkText: {
