@@ -226,11 +226,21 @@ class AchievementCompletionUseCase(UseCase):
     """
 
     def execute(self, achievement: Achievement):
-        # Only the first completion records the moment and emits the internal
-        # "achievement obtained" event. Later events matching an already-complete
-        # achievement land here again (the rule may stay selected for the user
-        # because another badge/avatar shares it), and must not re-fire.
+        # Only the first completion records the moment, pays out completion
+        # points, and emits the internal "achievement obtained" event. Later
+        # events matching an already-complete achievement land here again (the
+        # rule may stay selected for the user because another badge/avatar
+        # shares it), and must not re-fire.
         if achievement.mark_completed():
+            # Badges may carry completion points (Badge.points, shown on the
+            # dashboard as "Points for completion"). Pay them out on the first
+            # rule-driven completion, mirroring the manual-assignment path
+            # (Badge.award_to_user), so the advertised points are granted no
+            # matter how the badge is earned. Avatars have no points attribute.
+            completion_points = getattr(achievement.content_object, 'points', 0) or 0
+            if completion_points:
+                achievement.user.update_user_points(completion_points)
+                achievement.user.update_user_progress(completion_points)
             simulate_rgg_internal_event(achievement.user, RggInternalEventTypes.RGG_ACHIEVEMENT_OBTAINED.value)
 
 

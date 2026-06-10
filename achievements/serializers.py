@@ -14,10 +14,11 @@ class AchievementDetailSerializer(serializers.ModelSerializer):
     object_uri = serializers.SerializerMethodField()
     slug = serializers.SerializerMethodField()
     is_active = serializers.SerializerMethodField()
+    points = serializers.SerializerMethodField()
 
     class Meta:
         model = Achievement
-        fields = ('title', 'slug', 'description', 'done', 'progress', 'object_id', 'object_uri', 'is_active')
+        fields = ('title', 'slug', 'description', 'done', 'progress', 'object_id', 'object_uri', 'is_active', 'points')
 
     def get_slug(self, obj):
         """
@@ -26,6 +27,15 @@ class AchievementDetailSerializer(serializers.ModelSerializer):
         if isinstance(obj.content_object, Badge):
             return obj.content_object.slug
         return None
+
+    def get_points(self, obj):
+        """
+        Completion points configured on the badge ("Points for completion" on the
+        dashboard). 0 for non-badge achievements or unset/dangling badges.
+        """
+        if isinstance(obj.content_object, Badge):
+            return obj.content_object.points
+        return 0
 
     def get_is_active(self, obj):
         """

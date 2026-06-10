@@ -80,3 +80,38 @@ def test_manual_award_stamps_completed_at(badge_factory, gamma_user_factory):
     assert badge.award_to_user(user) is False
     achievement.refresh_from_db()
     assert achievement.completed_at == first_completed_at
+
+
+@pytest.mark.django_db
+def test_completion_usecase_pays_badge_points_once(achievement_factory, badge_factory, gamma_user_factory):
+    """
+    The first rule-driven completion grants the badge's completion points
+    ("Points for completion" on the dashboard); re-completions (a shared rule
+    can keep routing events at the achievement) must not pay again.
+    """
+    badge = badge_factory(points=150)
+    user = gamma_user_factory()
+    starting_points = user.points
+    achievement = achievement_factory(
+        user=user,
+        content_type=ContentType.objects.get_for_model(Badge),
+        object_id=badge.id,
+    )
+
+    AchievementCompletionUseCase().execute(achievement)
+    user.refresh_from_db()
+    assert user.points == starting_points + 150
+
+    AchievementCompletionUseCase().execute(achievement)
+    user.refresh_from_db()
+    assert user.points == starting_points + 150
+
+
+@pytest.mark.django_db
+def test_completion_usecase_without_badge_points_pays_nothing(badge_achievement):
+    starting_points = badge_achievement.user.points
+
+    AchievementCompletionUseCase().execute(badge_achievement)
+
+    badge_achievement.user.refresh_from_db()
+    assert badge_achievement.user.points == starting_points

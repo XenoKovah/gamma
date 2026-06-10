@@ -109,7 +109,8 @@ class TestUserGameProfileSerializer:
                     ('progress', None),
                     ('object_id', badge.id),
                     ('object_uri', badge.image.url),
-                    ('is_active', badge.is_active)
+                    ('is_active', badge.is_active),
+                    ('points', badge.points)
                 ])
             ],
             'points': 100,

@@ -82,3 +82,12 @@ class TestAchievementDetailSerializer:
         assert data['object_uri'] is None
         assert data['slug'] is None
         assert data['is_active'] is None
+
+    def test_serializer_exposes_badge_completion_points(self, achievement_factory, badge_factory):
+        content_type = ContentType.objects.get_for_model(Badge)
+        badge = badge_factory(points=10000)
+        achievement = achievement_factory(content_type=content_type, content_object=badge)
+
+        data = AchievementDetailSerializer(achievement).data
+
+        assert data['points'] == 10000
