@@ -1,5 +1,6 @@
-from typing import Any
+from typing import Any, Type
 
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
 from achievements.models import Achievement, AchievementRule
@@ -13,22 +14,60 @@ class RuleQuerySet(models.QuerySet):
     Extend queryset manager with rule specific methods.
     """
 
+    @staticmethod
+    def _objects_with_pending_work(
+        model: Type[models.Model], user: GammaUser, **extra_filters: Any
+    ) -> models.QuerySet:
+        """
+        Content objects (badges/avatars) carrying the outer rule on which ``user``
+        has not yet completed THIS rule's achievement instance.
+
+        One Rule row can be attached to several badges/avatars (the settings UI
+        deduplicates identical rule definitions), so completion must be judged
+        per content object: the inner subquery correlates on both the candidate
+        object (``object_id``) and the outer Rule (double ``OuterRef``).
+        """
+        completed_instance_for_object = AchievementRule.objects.filter(
+            rule=models.OuterRef(models.OuterRef('pk')),
+            status=AchievementRule.Statuses.COMPLETED,
+            achievement__user=user,
+            achievement__content_type=ContentType.objects.get_for_model(model),
+            achievement__object_id=models.OuterRef('id'),
+        )
+        return (
+            model.objects
+            .filter(rules=models.OuterRef('pk'), **extra_filters)
+            .exclude(models.Exists(completed_instance_for_object))
+        )
+
     def not_completed_by_user(self, configuration: EventConfiguration, user: GammaUser) -> models.QuerySet['Rule']:
         """
-        Filter only not completed or has not started yet rules.
-        """
-        # All AchievementRules for this user and rule.
-        user_achievements = AchievementRule.objects.filter(rule=models.OuterRef('pk'), achievement__user=user)
+        Rules with work left for this user on at least one object carrying them.
 
-        # Subset of user's AchievementRules that are incomplete.
-        not_completed_achievements = user_achievements.exclude(status=AchievementRule.Statuses.COMPLETED)
+        A rule stays selected while ANY badge/avatar it is attached to lacks a
+        completed achievement instance for the user. Judging completion on the
+        bare (rule, user) pair starves shared rules: completing the rule under
+        one object (e.g. an avatar) would permanently stop a badge sharing the
+        same rule from ever starting. The object filters mirror what the
+        backends process (active badges; avatars in non-draft sets), so rules
+        attached only to inactive/draft objects are skipped rather than
+        reprocessed on every event.
+        """
+        # Imported here: badges/avatars import the achievements app, which sits
+        # alongside rules in several import chains — a module-level import would
+        # be cycle-prone for no benefit.
+        from avatars.models import Avatar
+        from badges.models import Badge
+
+        badges_with_pending_work = self._objects_with_pending_work(Badge, user, is_active=True)
+        avatars_with_pending_work = self._objects_with_pending_work(Avatar, user, avatarset__is_draft=False)
 
         return (
             self.filter(event_configuration=configuration)
-                .annotate(
-                    has_any=models.Exists(user_achievements),
-                    has_not_completed=models.Exists(not_completed_achievements))
-                .filter(models.Q(has_not_completed=True) | models.Q(has_any=False))
+                .filter(
+                    models.Q(models.Exists(badges_with_pending_work))
+                    | models.Q(models.Exists(avatars_with_pending_work))
+                )
         )
 
 

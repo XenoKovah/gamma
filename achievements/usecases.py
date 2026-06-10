@@ -226,8 +226,12 @@ class AchievementCompletionUseCase(UseCase):
     """
 
     def execute(self, achievement: Achievement):
-        achievement.mark_completed()
-        simulate_rgg_internal_event(achievement.user, RggInternalEventTypes.RGG_ACHIEVEMENT_OBTAINED.value)
+        # Only the first completion records the moment and emits the internal
+        # "achievement obtained" event. Later events matching an already-complete
+        # achievement land here again (the rule may stay selected for the user
+        # because another badge/avatar shares it), and must not re-fire.
+        if achievement.mark_completed():
+            simulate_rgg_internal_event(achievement.user, RggInternalEventTypes.RGG_ACHIEVEMENT_OBTAINED.value)
 
 
 class PendingBadgeNotificationsUseCase(UseCase):
