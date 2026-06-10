@@ -27,6 +27,7 @@ class EdxCommonEventTypes(EventTypeMixin, Enum):
     EDX_GRADES_PROBLEM_SUBMITTED = ('edx_grades_problem_submitted', _('Submit an Answer'), 5)
     EDX_COURSE_ENROLLMENT_ACTIVATED = ('edx_course_enrollment_activated', _('Enroll in a Course'), 20)
     EDX_BOOKMARK_ADDED = ('edx_bookmark_added', _('Bookmark a Unit'), 1)
+    EDX_DONE_TOGGLED = ('edx_done_toggled', _('Mark a Unit as Complete'), 5)
     EDX_STOP_VIDEO = ('stop_video', _('Watch a Video to the End'), 10)
 
     # Profile / account-settings milestones. These are derived from the Open edX
