@@ -1,3 +1,11 @@
+// Pin the timezone before Jest spawns workers: formatDateToISO and friends
+// format in local time, so date-part assertions (the interval-date-picker
+// suites) are only deterministic in a fixed zone. RG's CI runs in UTC; match
+// it. Setting this here (config loads in the main process) makes workers
+// inherit TZ=UTC at process start, which works regardless of whether Node
+// honors mid-process TZ changes.
+process.env.TZ = 'UTC';
+
 const path = require('path');
 const presets = require('./lib/presets');
 
