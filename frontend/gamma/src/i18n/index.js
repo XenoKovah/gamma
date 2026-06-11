@@ -176,6 +176,11 @@ const messages = defineMessages({
     defaultMessage: 'Manual assignment criteria',
     description: 'The label for the free-text manual assignment criteria shown on hover for manual-only badges.',
   },
+  modalEntityInfoLabelEntityCategoryText: {
+    id: 'generic.modal.entity.information.label.entity.category',
+    defaultMessage: 'Category',
+    description: 'The label/placeholder for the free-text badge category used to group and sort badges.',
+  },
   modalEntityValidationPointsNumberText: {
     id: 'generic.modal.entity.validation.points.number',
     defaultMessage: 'Points must be a whole number.',

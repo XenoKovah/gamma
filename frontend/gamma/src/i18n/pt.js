@@ -166,6 +166,11 @@ const messages = defineMessages({
     defaultMessage: 'Ativo',
     description: 'Texto exibido para o estado ativo do distintivo.',
   },
+  modalEntityInfoLabelEntityCategoryText: {
+    id: 'generic.modal.entity.information.label.entity.category',
+    defaultMessage: 'Categoria',
+    description: 'O rótulo/marcador do campo de texto livre da categoria do distintivo, usado para agrupar e ordenar distintivos.',
+  },
   modalEntityRulesTitle: {
     id: 'generic.modal.entity.rules.heading',
     defaultMessage: 'Regras',

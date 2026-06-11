@@ -166,6 +166,11 @@ const messages = defineMessages({
     defaultMessage: 'Активний',
     description: 'Текст, що відображається для статусу активності значка.',
   },
+  modalEntityInfoLabelEntityCategoryText: {
+    id: 'generic.modal.entity.information.label.entity.category',
+    defaultMessage: 'Категорія',
+    description: 'Підпис/заповнювач для вільного поля категорії значка, що використовується для групування та сортування значків.',
+  },
   modalEntityRulesTitle: {
     id: 'generic.modal.entity.rules.heading',
     defaultMessage: 'Правила',
