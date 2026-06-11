@@ -30,6 +30,7 @@ class TestBadgeViewSet:
             'id': badge.id,
             'title': badge.title,
             'description': badge.description,
+            'category': badge.category,
             'image': f'http://testserver/media/{badge.image}',
             'slug': badge.slug,
             'is_active': badge.is_active,
