@@ -113,6 +113,33 @@ describe('EntityInfo', () => {
     });
   });
 
+  it('renders the Category field for badges (when category is in the form values)', async () => {
+    const badgeValues = { ...DEFAULT_FORM_VALUES, category: '' };
+    const { getByLabelText, findByDisplayValue } = renderComponent(badgeValues);
+
+    const categoryInput = getByLabelText(messages.modalEntityInfoLabelEntityCategoryText.defaultMessage);
+    expect(categoryInput).toBeInTheDocument();
+
+    userEvent.type(categoryInput, 'Security');
+    await findByDisplayValue('Security');
+    expect(categoryInput).toHaveValue('Security');
+  });
+
+  it('prefills the Category field from existing badge data on edit', () => {
+    const badgeValues = { ...DEFAULT_FORM_VALUES, category: 'Reverse Engineering' };
+    const { getByLabelText } = renderComponent(badgeValues);
+
+    expect(getByLabelText(messages.modalEntityInfoLabelEntityCategoryText.defaultMessage))
+      .toHaveValue('Reverse Engineering');
+  });
+
+  it('does not render the Category field for non-badge entities (no category key)', () => {
+    const { queryByLabelText } = renderComponent();
+
+    expect(queryByLabelText(messages.modalEntityInfoLabelEntityCategoryText.defaultMessage))
+      .not.toBeInTheDocument();
+  });
+
   it('trims leading and trailing spaces from title on blur', async () => {
     const { getByLabelText } = renderComponent(DEFAULT_FORM_VALUES, {
       validateOnBlur: false,

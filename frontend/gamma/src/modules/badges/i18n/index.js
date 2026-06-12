@@ -3,22 +3,22 @@ import { defineMessages } from 'react-intl';
 const messages = defineMessages({
   pageTitle: {
     id: 'modules.badges.heading.text',
-    defaultMessage: 'Badges settings',
+    defaultMessage: 'Accomplishments settings',
     description: 'The text displayed in the heading of the badges settings page.',
   },
   pageDescription: {
     id: 'modules.badges.page.description',
-    defaultMessage: 'This page displays badges and allows users to create and edit them.',
+    defaultMessage: 'This page displays accomplishments and allows users to create and edit them.',
     description: 'The description for the badges settings page.',
   },
   addBadgeBtnText: {
     id: 'modules.badges.button.add-badge',
-    defaultMessage: 'Add badge',
+    defaultMessage: 'Add accomplishment',
     description: 'The text displayed on the button to add a badge.',
   },
   totalBadgesCount: {
     id: 'modules.badges.total-badges.counter.text',
-    defaultMessage: 'Total badges: {badgesCount}',
+    defaultMessage: 'Total accomplishments: {badgesCount}',
     description: 'The text displayed for the total number of badges.',
   },
   badgeEditBtnTitle: {
@@ -43,32 +43,32 @@ const messages = defineMessages({
   },
   badgeDefaultTitle: {
     id: 'modules.badges.badge-item.default.title',
-    defaultMessage: 'Badge title',
+    defaultMessage: 'Accomplishment title',
     description: 'The default title for a badge.',
   },
   badgeDefaultDescription: {
     id: 'modules.badges.badge-item.default.description',
-    defaultMessage: 'Badge description',
+    defaultMessage: 'Accomplishment description',
     description: 'The default description for a badge.',
   },
   alertEmptyBadgesListTitle: {
     id: 'modules.badges.alert.empty-badges-list.title',
-    defaultMessage: 'No badges available',
+    defaultMessage: 'No accomplishments available',
     description: 'The title for the alert when there are no badges to display.',
   },
   alertEmptyBadgesListDescription: {
     id: 'modules.badges.alert.empty-badges-list.description',
-    defaultMessage: 'There are currently no badges to display.',
+    defaultMessage: 'There are currently no accomplishments to display.',
     description: 'The description for the alert when there are no badges to display.',
   },
   addManageEntityModalTitle: {
     id: 'modules.badges.modal.add-badge.title',
-    defaultMessage: 'Add new badge',
+    defaultMessage: 'Add new accomplishment',
     description: 'The title for the badge modal.',
   },
   editManageEntityModalTitle: {
     id: 'modules.badges.modal.edit-badge.title',
-    defaultMessage: 'Edit badge',
+    defaultMessage: 'Edit accomplishment',
     description: 'The title for the edit badge modal.',
   },
   confirmDeletionModalTitle: {
@@ -78,7 +78,7 @@ const messages = defineMessages({
   },
   confirmDeletionModalDescription: {
     id: 'modules.badges.alert.modal.confirm.deletion.description',
-    defaultMessage: 'Are you sure you want to delete this badge? This action cannot be undone.',
+    defaultMessage: 'Are you sure you want to delete this accomplishment? This action cannot be undone.',
     description: 'The description for the confirmation modal when deleting a badge.',
   },
   assignBadgeModalTitle: {
@@ -88,7 +88,7 @@ const messages = defineMessages({
   },
   assignBadgeModalDescription: {
     id: 'modules.badges.modal.assign-badge.description',
-    defaultMessage: 'Enter the user IDs (usernames) to grant this badge to, one per line or separated by commas.',
+    defaultMessage: 'Enter the user IDs (usernames) to grant this accomplishment to, one per line or separated by commas.',
     description: 'Instructions shown in the manual badge assignment modal.',
   },
   assignBadgeModalPointsNote: {
@@ -108,12 +108,12 @@ const messages = defineMessages({
   },
   assignBadgeModalSubmitBtnText: {
     id: 'modules.badges.modal.assign-badge.button.submit',
-    defaultMessage: 'Assign badge',
+    defaultMessage: 'Assign accomplishment',
     description: 'The submit button text in the manual badge assignment modal.',
   },
   assignBadgeModalSelectedCount: {
     id: 'modules.badges.modal.assign-badge.selected-count',
-    defaultMessage: '{count, plural, one {# user} other {# users}} will be assigned this badge.',
+    defaultMessage: '{count, plural, one {# user} other {# users}} will be assigned this accomplishment.',
     description: 'Shows how many distinct user IDs were entered in the assignment modal.',
   },
   unassignBadgeModalTitle: {
@@ -123,7 +123,7 @@ const messages = defineMessages({
   },
   unassignBadgeModalDescription: {
     id: 'modules.badges.modal.unassign-badge.description',
-    defaultMessage: 'Enter the user IDs (usernames) to remove this badge from, one per line or separated by commas.',
+    defaultMessage: 'Enter the user IDs (usernames) to remove this accomplishment from, one per line or separated by commas.',
     description: 'Instructions shown in the manual badge removal modal.',
   },
   unassignBadgeModalPointsNote: {
@@ -133,12 +133,12 @@ const messages = defineMessages({
   },
   unassignBadgeModalSubmitBtnText: {
     id: 'modules.badges.modal.unassign-badge.button.submit',
-    defaultMessage: 'Remove badge',
+    defaultMessage: 'Remove accomplishment',
     description: 'The submit button text in the manual badge removal modal.',
   },
   unassignBadgeModalSelectedCount: {
     id: 'modules.badges.modal.unassign-badge.selected-count',
-    defaultMessage: '{count, plural, one {# user} other {# users}} will have this badge removed.',
+    defaultMessage: '{count, plural, one {# user} other {# users}} will have this accomplishment removed.',
     description: 'Shows how many distinct user IDs were entered in the removal modal.',
   },
 
@@ -149,27 +149,27 @@ const messages = defineMessages({
   },
   badgeCreatedTitle: {
     id: 'modules.badges.alert.badge-created.title',
-    defaultMessage: 'Badge successfully created',
+    defaultMessage: 'Accomplishment successfully created',
     description: 'The title for the alert when a badge is successfully created.',
   },
   badgeEditedTitle: {
     id: 'modules.badges.alert.badge-edited.title',
-    defaultMessage: 'Badge successfully edited',
+    defaultMessage: 'Accomplishment successfully edited',
     description: 'The title for the alert when a badge is successfully edited.',
   },
   badgeDeletedTitle: {
     id: 'modules.badges.alert.badge-deleted.title',
-    defaultMessage: 'Badge successfully deleted',
+    defaultMessage: 'Accomplishment successfully deleted',
     description: 'The title for the alert when a badge is successfully deleted.',
   },
   badgeAssignedTitle: {
     id: 'modules.badges.alert.badge-assigned.title',
-    defaultMessage: 'Badge assigned: {granted} granted, {already} already had it',
+    defaultMessage: 'Accomplishment assigned: {granted} granted, {already} already had it',
     description: 'The toast shown after manually assigning a badge to users.',
   },
   badgeUnassignedTitle: {
     id: 'modules.badges.alert.badge-unassigned.title',
-    defaultMessage: 'Badge removed: {removed} removed, {notAssigned} did not have it',
+    defaultMessage: 'Accomplishment removed: {removed} removed, {notAssigned} did not have it',
     description: 'The toast shown after manually removing a badge from users.',
   },
   badgeDraftStatusText: {

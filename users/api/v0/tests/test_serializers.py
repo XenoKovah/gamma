@@ -90,6 +90,7 @@ class TestUserGameProfileSerializer:
                     ('id', badge.id),
                     ('title', badge.title),
                     ('description', badge.description),
+                    ('category', badge.category),
                     ('image', badge.image.url),
                     ('is_active', badge.is_active),
                     ('slug', badge.slug),

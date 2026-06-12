@@ -4,6 +4,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 from django.core.management import call_command
+from pytest_mock.plugin import MockerFixture
 from redis import Redis
 
 from core.tests.utils.helpers import load_params_from_json
@@ -22,6 +23,20 @@ from users.factories import GammaUserCoursePointsFactory, GammaUserFactory
 
 
 class TestGetPersonalizedLeaderboardUseCase:
+    """
+    Exercise the personalized leaderboard windowing logic.
+
+    The JSON-driven and ``_get_top_members_data`` cases below were written against
+    30-user fixtures and a top size of 10, so an autouse fixture pins
+    ``TOP_MEMBERS_LIMIT`` to 10 for this class to keep exercising the head/tail/tie
+    selection at a small, controllable boundary. The production size of 100 is
+    proven separately by :class:`TestTopMembersLimit`.
+    """
+
+    @pytest.fixture(autouse=True)
+    def _pin_top_members_limit(self, mocker: MockerFixture) -> None:
+        mocker.patch.object(usecases.GetPersonalizedLeaderboardUseCase, "TOP_MEMBERS_LIMIT", 10)
+
     @pytest.mark.django_db
     @pytest.mark.parametrize(
         "entry",
@@ -135,7 +150,7 @@ class TestGetPersonalizedLeaderboardUseCase:
 
         call_command("initialize_leaderboard")
 
-        top10_members_data = usecase._get_top10_members_data(current_user, 3, leaderboard_retrieving_context)
+        top10_members_data = usecase._get_top_members_data(current_user, 3, leaderboard_retrieving_context)
 
         assert len(top10_members_data) == 2
         assert top10_members_data[0]["user_uid"] == "user_uid_1"
@@ -162,7 +177,7 @@ class TestGetPersonalizedLeaderboardUseCase:
 
         call_command("initialize_leaderboard")
 
-        top10_members_data = usecase._get_top10_members_data(current_user, 10, leaderboard_retrieving_context)
+        top10_members_data = usecase._get_top_members_data(current_user, 10, leaderboard_retrieving_context)
 
         assert len(top10_members_data) == 10
         assert top10_members_data[9]["user_uid"] == current_user_uid
@@ -185,7 +200,7 @@ class TestGetPersonalizedLeaderboardUseCase:
 
         call_command("initialize_leaderboard")
 
-        top10_members_data = usecase._get_top10_members_data(current_user, 10, leaderboard_retrieving_context)
+        top10_members_data = usecase._get_top_members_data(current_user, 10, leaderboard_retrieving_context)
 
         assert len(top10_members_data) == 0
 
@@ -216,6 +231,79 @@ class TestGetPersonalizedLeaderboardUseCase:
         tail_competitors = usecase._get_tail_competitors(current_user, "leaderboard:main")
 
         assert len(tail_competitors) == entry["expected_length"]
+
+
+class TestTopMembersLimit:
+    """
+    Prove the production leaderboard "top" size (``TOP_MEMBERS_LIMIT`` = 100).
+
+    These cases deliberately do NOT pin the limit (unlike
+    :class:`TestGetPersonalizedLeaderboardUseCase`), so they exercise the real
+    value and guard against the size silently regressing back to 10.
+    """
+
+    @pytest.mark.django_db
+    def test_default_top_members_limit_is_100(self) -> None:
+        assert usecases.GetPersonalizedLeaderboardUseCase.TOP_MEMBERS_LIMIT == 100
+
+    @pytest.mark.django_db
+    def test_up_to_100_members_are_returned_in_the_top_list(
+        self,
+        gamma_user_factory: Type[GammaUserFactory],
+    ) -> None:
+        redis_leaderboard_repository = RedisLeaderboardRepository()
+        leaderboard_member_data_repository = ORMLeaderboardMemberDataRepository()
+        leaderboard_retrieving_context = LeaderboardRetrievingContext("user_uid_1", "main", None)
+
+        # 150 users, each with a distinct descending score (user_uid_1 has the most).
+        for i in range(1, 151):
+            gamma_user_factory(user_uid=f"user_uid_{i}", signup_source="main", points=151 - i)
+
+        call_command("initialize_leaderboard")
+
+        top_members_data, competitors_data, rank = usecases.GetPersonalizedLeaderboardUseCase(
+            redis_leaderboard_repository,
+            leaderboard_member_data_repository,
+        ).execute(leaderboard_retrieving_context)
+
+        # The top list is capped at 100 (not 10) and the viewer (rank 1) is in it.
+        assert rank == 1
+        assert len(top_members_data) == 100
+        assert [member["user_uid"] for member in top_members_data] == [f"user_uid_{i}" for i in range(1, 101)]
+        # A top-ranked viewer has no competitor window.
+        assert competitors_data == []
+
+    @pytest.mark.django_db
+    def test_user_ranked_below_top_100_still_sees_neighbors(
+        self,
+        gamma_user_factory: Type[GammaUserFactory],
+    ) -> None:
+        redis_leaderboard_repository = RedisLeaderboardRepository()
+        leaderboard_member_data_repository = ORMLeaderboardMemberDataRepository()
+        # The viewer sits at rank 120 (well outside the top 100).
+        leaderboard_retrieving_context = LeaderboardRetrievingContext("user_uid_120", "main", None)
+
+        for i in range(1, 151):
+            gamma_user_factory(user_uid=f"user_uid_{i}", signup_source="main", points=151 - i)
+
+        call_command("initialize_leaderboard")
+
+        top_members_data, competitors_data, rank = usecases.GetPersonalizedLeaderboardUseCase(
+            redis_leaderboard_repository,
+            leaderboard_member_data_repository,
+        ).execute(leaderboard_retrieving_context)
+
+        # Top list is still the highest 100, and the out-of-top viewer is NOT in it.
+        assert rank == 120
+        assert len(top_members_data) == 100
+        assert [member["user_uid"] for member in top_members_data] == [f"user_uid_{i}" for i in range(1, 101)]
+
+        # The competitor window is preserved: 4 neighbours above + viewer + 2 below.
+        assert [member["user_uid"] for member in competitors_data] == [
+            "user_uid_116", "user_uid_117", "user_uid_118", "user_uid_119",
+            "user_uid_120",
+            "user_uid_121", "user_uid_122",
+        ]
 
 
 class TestAutoRecoverLeaderboardsUseCase:

@@ -36,18 +36,20 @@ class GetPersonalizedLeaderboardUseCase:
     use case allows getting only relevant to user leaderboard data.
 
     The provided data:
-    - top 10 users.
+    - top ``TOP_MEMBERS_LIMIT`` users.
     - competitors:
         - 4 users before and 2 users after current user,
-        when the user is not in the top 10 and does not occupy the last 2 positions.
+        when the user is not in the top members and does not occupy the last 2 positions.
         - 5 users before and 1 users after current user,
         when the user possesses the second to last position in the rating.
         - 6 users before and 0 users after current user,
         when the user possesses to last position in the leaderboard, but he has points.
-        - An empty list if the user has no points, or the user is in the top 10.
+        - An empty list if the user has no points, or the user is in the top members.
     - current user rank.
     """
 
+    # Size of the leaderboard's "top" list (the leaders shown to everyone).
+    TOP_MEMBERS_LIMIT = 100
     TAIL_COMPETITORS_LIMIT = 2
 
     def __init__(
@@ -65,20 +67,20 @@ class GetPersonalizedLeaderboardUseCase:
         current_user = LeaderboardMember({"user_uid": user_uid, "points": current_user_score})
 
         rank = self._get_user_rank(current_user, leaderboard_id)
-        top10_members_data = self._get_top10_members_data(current_user, rank, context)
+        top_members_data = self._get_top_members_data(current_user, rank, context)
 
         competitors_data = []
         if current_user.points == 0:
             rank = None
-            return top10_members_data, competitors_data, rank
+            return top_members_data, competitors_data, rank
 
-        if rank > 10:
+        if rank > self.TOP_MEMBERS_LIMIT:
             tail_competitors = self._get_tail_competitors(current_user, leaderboard_id)
             head_competitors_limit = 6 - len(tail_competitors)
             head_competitors = self._get_head_competitors(current_user, head_competitors_limit, leaderboard_id)
             competitors = head_competitors + [current_user] + tail_competitors
             competitors_data = self._build_leaderboard_members_data(competitors, context)
-        return top10_members_data, competitors_data, rank
+        return top_members_data, competitors_data, rank
 
     def _get_user_rank(self, current_user: LeaderboardMember, leaderboard_id: str) -> int:
         """
@@ -88,44 +90,45 @@ class GetPersonalizedLeaderboardUseCase:
         """
         return self._leaderboard_repository.get_user_count_with_score_gt(current_user.points, leaderboard_id) + 1
 
-    def _get_top10_members_data(
+    def _get_top_members_data(
         self,
         current_user: LeaderboardMember,
         rank: int,
         context: LeaderboardRetrievingContext,
     ) -> List[dict]:
         """
-        Provide top 10 leaderboard members data.
+        Provide top ``TOP_MEMBERS_LIMIT`` leaderboard members data.
         """
         leaderboard_id = context.leaderboard_id
         current_user_points = current_user.points
+        top_limit = self.TOP_MEMBERS_LIMIT
 
-        if rank > 10:
-            top10_members = self._leaderboard_repository.get_users_with_highest_score(10, leaderboard_id)
-            return self._build_leaderboard_members_data(top10_members, context)
+        if rank > top_limit:
+            top_members = self._leaderboard_repository.get_users_with_highest_score(top_limit, leaderboard_id)
+            return self._build_leaderboard_members_data(top_members, context)
 
-        head_top10_members = self._leaderboard_repository.get_top_users_with_score_gt(
+        head_top_members = self._leaderboard_repository.get_top_users_with_score_gt(
             current_user_points,
             leaderboard_id,
         )
 
         if current_user_points == 0:
-            return self._build_leaderboard_members_data(head_top10_members, context)
+            return self._build_leaderboard_members_data(head_top_members, context)
 
-        head_top10_length = len(head_top10_members)
-        if head_top10_length == 9:
-            head_top10_members.append(current_user)
-            return self._build_leaderboard_members_data(head_top10_members, context)
+        head_top_length = len(head_top_members)
+        if head_top_length == top_limit - 1:
+            head_top_members.append(current_user)
+            return self._build_leaderboard_members_data(head_top_members, context)
 
-        tail_top10_members = self._leaderboard_repository.get_top_users_with_score_lte(
+        tail_top_members = self._leaderboard_repository.get_top_users_with_score_lte(
             current_user_points,
-            10 - head_top10_length,
+            top_limit - head_top_length,
             leaderboard_id,
             users_to_exclude={current_user.user_uid},
         )
 
-        top10_members = (head_top10_members + [current_user] + tail_top10_members)[:10]
-        return self._build_leaderboard_members_data(top10_members, context)
+        top_members = (head_top_members + [current_user] + tail_top_members)[:top_limit]
+        return self._build_leaderboard_members_data(top_members, context)
 
     def _get_head_competitors(
         self,

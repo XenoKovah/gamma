@@ -55,6 +55,13 @@ const EntityInfo = () => {
           hasCol={false}
         />
       )}
+      {Object.hasOwn(initialValues, 'category') && (
+        <FormInputController
+          label={intl.formatMessage(messages.modalEntityInfoLabelEntityCategoryText)}
+          name="category"
+          hasCol={false}
+        />
+      )}
       {Object.hasOwn(initialValues, 'points') && (
         <Form.Group controlId="formEntityPoints" size="sm">
           <Form.Control

@@ -166,6 +166,11 @@ const messages = defineMessages({
     defaultMessage: 'Ativo',
     description: 'Texto exibido para o estado ativo do distintivo.',
   },
+  modalEntityInfoLabelEntityCategoryText: {
+    id: 'generic.modal.entity.information.label.entity.category',
+    defaultMessage: 'Categoria',
+    description: 'O rótulo/marcador do campo de texto livre da categoria do distintivo, usado para agrupar e ordenar distintivos.',
+  },
   modalEntityRulesTitle: {
     id: 'generic.modal.entity.rules.heading',
     defaultMessage: 'Regras',
@@ -318,7 +323,7 @@ const messages = defineMessages({
   },
   headerBadgesLinkText: {
     id: 'generic.header.nav.badges',
-    defaultMessage: 'Distintivos',
+    defaultMessage: 'Conquistas',
     description: 'Texto exibido para o link de Distintivos no cabeçalho.',
   },
   headerAvatarsLinkText: {

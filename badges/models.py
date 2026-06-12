@@ -15,6 +15,12 @@ class Badge(TimestampModelMixin, models.Model):
 
     title = models.CharField(max_length=255, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
+    category = models.CharField(
+        max_length=255,
+        blank=True,
+        default='',
+        help_text='Free-text grouping label for the badge. Used to sort badges on the all-badges page.',
+    )
     image = models.ImageField(upload_to='uploads/badges/')
     is_active = models.BooleanField(default=True)
 
