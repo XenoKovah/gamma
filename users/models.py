@@ -1,5 +1,5 @@
-from datetime import datetime
-from typing import Dict, List
+from datetime import date, datetime
+from typing import Dict, List, Optional, Union
 
 from django.db import models
 from django.utils.translation import gettext as _
@@ -28,6 +28,13 @@ class GammaUser(models.Model):
     # moment they opt out. Toggled via the leaderboard opt-out API in users/api/v0.
     excluded_from_leaderboard = models.BooleanField(default=False)
 
+    # Continuous Learning streak state (see users.continuous_learning). current_streak is
+    # the number of consecutive calendar days the learner has been active (logged in and
+    # earning points); last_active_date is the most recent day counted, used to detect
+    # whether the next active day continues the run (+1) or breaks it (reset to 1).
+    current_streak = models.PositiveIntegerField(default=0)
+    last_active_date = models.DateField(null=True, blank=True)
+
     class Meta:
         verbose_name = _('Gamma User')
         verbose_name_plural = _('Gamma Users')
@@ -43,13 +50,21 @@ class GammaUser(models.Model):
         gamma_user, __ = cls.objects.get_or_create(user_uid=user_uid)
         return gamma_user
 
-    def update_user_progress(self, event_points: int) -> None:
+    def update_user_progress(self, event_points: int, when: Optional[Union[date, datetime]] = None) -> None:
         """
         Update Gamma User progress dict.
+
+        ``when`` overrides the day the points are credited to (defaults to today). It
+        lets the Continuous Learning backfill replay historical active days onto their
+        real dates; live callers leave it unset and get today's entry as before.
         """
         current_progress = self.progress or {}
 
-        today_date = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        base = when if when is not None else datetime.now()
+        if isinstance(base, datetime):
+            today_date = base.replace(hour=0, minute=0, second=0, microsecond=0)
+        else:
+            today_date = datetime(base.year, base.month, base.day)
         iso_today_date = today_date.isoformat()
         current_year = str(today_date.year)
 
@@ -81,6 +96,24 @@ class GammaUser(models.Model):
 
         self.chart[event_chart_key]['points'] += event_configuration.award
         self.chart[event_chart_key]['title'] = event_configuration.title
+
+        self.save(update_fields=('chart',))
+
+    def add_chart_points(self, key: str, title: str, points: int) -> None:
+        """
+        Add ``points`` to an arbitrary Points Distribution bucket, keyed by ``key`` and
+        labelled ``title``.
+
+        Like ``update_user_chart`` but for points not tied to an EventConfiguration's
+        fixed award — used by Continuous Learning, whose daily (5) and streak-bonus
+        (10/10/25/50) amounts all accumulate into a single ``continuous_learning`` bucket
+        that a one-award-per-type EventConfiguration could not express.
+        """
+        self.chart = self.chart or {}
+
+        self.chart.setdefault(key, {'title': title, 'points': 0})
+        self.chart[key]['points'] += points
+        self.chart[key]['title'] = title
 
         self.save(update_fields=('chart',))
 

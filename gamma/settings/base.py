@@ -233,6 +233,12 @@ WEBPACK_LOADER = {
 
 LEADERBOARD_INITIALIZATION_BATCH_SIZE = environ.get('LEADERBOARD_INITIALIZATION_BATCH_SIZE', 100)
 
+# Continuous Learning: award points for each day a learner is active (logged in and
+# earning points from some action) and grant "{N} day streak" badges for consecutive
+# active days. Kill-switch — set to "false" in the environment to disable the daily
+# award + streak processing without a code change (see users.continuous_learning).
+RGG_CONTINUOUS_LEARNING_ENABLED = environ.get('RGG_CONTINUOUS_LEARNING_ENABLED', 'true').lower() == 'true'
+
 AUTHENTICATION_BACKENDS = (
     'auth_backends.backends.EdXOAuth2',
     'django.contrib.auth.backends.ModelBackend',

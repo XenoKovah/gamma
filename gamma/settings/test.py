@@ -12,6 +12,11 @@ DATABASES = {
 
 CELERY_TASK_ALWAYS_EAGER = True
 
+# Off by default in tests so the once-per-day Continuous Learning award does not perturb
+# the many existing tests that fire events and assert exact point totals. The feature's
+# own tests (users/tests/test_continuous_learning.py) enable it explicitly.
+RGG_CONTINUOUS_LEARNING_ENABLED = False
+
 DB_DATA = 'test-data'
 
 ENABLE_CORS_HEADERS = True

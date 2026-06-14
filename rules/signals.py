@@ -6,6 +6,7 @@ from core.utils import get_gamification_backends
 from events.models import Event, EventConfiguration
 from rules.models import Rule
 from rules.services import RulesFilterService
+from users.continuous_learning import register_active_day
 from users.models import GammaUser
 
 
@@ -52,3 +53,7 @@ def process_event_creation(sender, instance, created, **kwargs):
         # To avoid recursion we limit the calls only for common events.
         if configuration.event_name in EventConfiguration.common_event_names():
             user.run_update_user_pipeline(event)
+            # A common (point-earning) event means the learner was active today: award
+            # the daily Continuous Learning points and advance their streak. Runs under
+            # the same row lock and creates no Event, so it does not re-enter this signal.
+            register_active_day(user, event_name=configuration.event_name)
