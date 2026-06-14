@@ -22,6 +22,12 @@ class GammaUser(models.Model):
     chart = models.JSONField(default=dict, blank=True)
     progress = models.JSONField(default=dict, blank=True)
 
+    # When True the user has opted out of leaderboard ranking (Account Settings):
+    # they are kept out of every leaderboard (general, course, country, badge) by the
+    # building/update pipeline and the ranking endpoints, and evicted from Redis the
+    # moment they opt out. Toggled via the leaderboard opt-out API in users/api/v0.
+    excluded_from_leaderboard = models.BooleanField(default=False)
+
     class Meta:
         verbose_name = _('Gamma User')
         verbose_name_plural = _('Gamma Users')

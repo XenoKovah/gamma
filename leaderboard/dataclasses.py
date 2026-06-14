@@ -16,6 +16,9 @@ class LeaderboardRetrievingContext:
     user_uid: Optional[str]
     user_signup_source: Optional[str]
     course_id: Optional[str]
+    # Set by the personalized-leaderboard view when the requesting user has opted out
+    # of ranking: they may view the public board but must never be (re-)added to it.
+    is_excluded: bool = False
 
     @cached_property
     def leaderboard_id(self) -> str:

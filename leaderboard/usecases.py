@@ -63,6 +63,16 @@ class GetPersonalizedLeaderboardUseCase:
     def execute(self, context: LeaderboardRetrievingContext) -> Tuple[List[dict], List[dict], Optional[int]]:
         user_uid = context.user_uid
         leaderboard_id = context.leaderboard_id
+
+        if context.is_excluded:
+            # The requesting user opted out of ranking: show them the public top board,
+            # but never call get_or_init_user_score (which would re-add them to Redis at
+            # score 0) and never give them a rank or competitors of their own.
+            top_members = self._leaderboard_repository.get_users_with_highest_score(
+                self.TOP_MEMBERS_LIMIT, leaderboard_id
+            )
+            return self._build_leaderboard_members_data(top_members, context), [], None
+
         current_user_score = self._leaderboard_repository.get_or_init_user_score(user_uid, leaderboard_id)
         current_user = LeaderboardMember({"user_uid": user_uid, "points": current_user_score})
 
@@ -493,7 +503,9 @@ class ReconcileLeaderboardsUseCase:
         redis_client = get_redis_client()
         stale_count = 0
 
-        queryset = GammaUser.objects.order_by("pk").values_list(
+        # Opted-out users are intentionally absent from Redis, so don't treat them as
+        # "stale" (that would re-enqueue them forever); the build pipeline skips them too.
+        queryset = GammaUser.objects.exclude(excluded_from_leaderboard=True).order_by("pk").values_list(
             "user_uid", "points", "signup_source",
         )
         total = queryset.count()

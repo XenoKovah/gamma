@@ -3,6 +3,8 @@ from django.urls import path
 from users.api.v0.views import (
     BadgeNotificationsSeenView,
     BadgeNotificationsView,
+    ExcludedUserUidsView,
+    LeaderboardOptOutView,
     SignupSourceUpdateView,
     UserGameProfileView,
 )
@@ -17,4 +19,10 @@ urlpatterns = [
         name='user-badge-notifications-seen',
     ),
     path('users/update_profile_signup_source/', SignupSourceUpdateView.as_view(), name='update-profile-signup-source'),
+    path('users/leaderboard-opt-out/', LeaderboardOptOutView.as_view(), name='user-leaderboard-opt-out'),
+    path(
+        'users/leaderboard-excluded-uids/',
+        ExcludedUserUidsView.as_view(),
+        name='leaderboard-excluded-uids',
+    ),
 ]

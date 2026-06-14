@@ -26,13 +26,14 @@ class LeaderBoardView(APIView):
 
     def get(self, request):
         user_uid = request.GET.get("username")
+        gamma_user = GammaUser.ensure_gamma_user_is_created(user_uid=user_uid)
+
         leaderboard_retrieving_context = LeaderboardRetrievingContext(
             user_uid,
             request.GET.get("signup_source"),
             request.GET.get("course_id"),
+            is_excluded=gamma_user.excluded_from_leaderboard,
         )
-
-        GammaUser.ensure_gamma_user_is_created(user_uid=user_uid)
 
         response_data = self._collect_response_data(leaderboard_retrieving_context)
 
@@ -173,8 +174,12 @@ class BadgeLeaderBoardView(APIView):
     def _fetch_users(user_uids, course_id: Optional[str]) -> List[GammaUser]:
         """
         Fetch GammaUsers for the given uids, prefetching course points when needed.
+
+        Opted-out users are dropped so they never appear on a per-badge leaderboard.
         """
-        users = GammaUser.objects.filter(user_uid__in=list(user_uids))
+        users = GammaUser.objects.filter(user_uid__in=list(user_uids)).exclude(
+            excluded_from_leaderboard=True
+        )
         if course_id:
             users = users.prefetch_related("courses_points")
         return list(users)
@@ -348,7 +353,9 @@ class UsersLeaderBoardView(APIView):
         just narrowed to the supplied users.
         """
         effective_source = signup_source or settings.MAIN_SIGNUP_SOURCE
-        users = GammaUser.objects.filter(user_uid__in=user_uids)
+        # Opted-out users are dropped here, so they never appear on the per-country or
+        # per-course "Completed" leaderboards (and an opted-out viewer gets rank=None).
+        users = GammaUser.objects.filter(user_uid__in=user_uids).exclude(excluded_from_leaderboard=True)
 
         if effective_source == settings.MAIN_SIGNUP_SOURCE:
             users = users.filter(

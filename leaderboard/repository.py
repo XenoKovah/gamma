@@ -291,7 +291,10 @@ class ORMLeaderboardMemberDataRepository(LeaderboardMemberDataRepository):
         offset: Optional[int] = None,
         batch_size: Optional[int] = None,
     ) -> List[UserLeaderboardsData]:
-        queryset = GammaUser.objects.prefetch_related("courses_points")
+        # Opted-out users are never placed on any leaderboard: excluding them here keeps
+        # them out of both the full initialization and the per-user update (this feeds the
+        # general + course Redis leaderboards), so the pipeline never (re-)adds them.
+        queryset = GammaUser.objects.exclude(excluded_from_leaderboard=True).prefetch_related("courses_points")
 
         if _filters:
             queryset = queryset.filter(**_filters)
