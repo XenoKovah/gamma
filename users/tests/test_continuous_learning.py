@@ -12,6 +12,7 @@ from users.continuous_learning import (
     CONTINUOUS_LEARNING_TITLE,
     DAILY_ACTIVE_POINTS,
     register_active_day,
+    reset_stale_streaks,
     streak_badge_slug,
 )
 
@@ -170,6 +171,46 @@ def test_streak_badge_awarded_exactly_once(gamma_user_factory):
     # 10 daily*5 + 5-day(10) + 10-day(10) bonuses; bucket holds only the daily points.
     assert user.points == 10 * DAILY_ACTIVE_POINTS + 10 + 10
     assert _bucket(user)['points'] == 10 * DAILY_ACTIVE_POINTS
+
+
+def test_reset_stale_streaks_zeros_broken_streak_and_ring(gamma_user_factory):
+    call_command('initialize_continuous_learning_badges')
+    user = gamma_user_factory(points=0, chart={}, current_streak=0, last_active_date=None)
+    _register_days(user.pk, 3)  # active DAY, DAY+1, DAY+2 -> streak 3
+    user.refresh_from_db()
+    badge5 = Badge.objects.get(slug=streak_badge_slug(5))
+    assert user.current_streak == 3 and _streak_progress_count(user, badge5) == 3
+
+    # Two days later (missed DAY+3) -> streak broken.
+    reset = reset_stale_streaks(today=DAY + timedelta(days=4))
+    user.refresh_from_db()
+
+    assert reset == 1
+    assert user.current_streak == 0
+    assert _streak_progress_count(user, badge5) == 0  # ring dropped to 0%
+    assert user.points == 3 * DAILY_ACTIVE_POINTS  # earned points are untouched
+
+
+def test_reset_leaves_streak_active_yesterday_alone(gamma_user_factory):
+    call_command('initialize_continuous_learning_badges')
+    user = gamma_user_factory(points=0, chart={}, current_streak=0, last_active_date=None)
+    _register_days(user.pk, 3)  # last active = DAY+2
+
+    # "Today" is the day right after the last active day: the streak is still continuable.
+    reset = reset_stale_streaks(today=DAY + timedelta(days=3))
+    user.refresh_from_db()
+
+    assert reset == 0
+    assert user.current_streak == 3  # preserved
+
+
+def test_reset_is_noop_when_disabled(gamma_user_factory, settings):
+    user = gamma_user_factory(points=0, chart={}, current_streak=3, last_active_date=DAY)
+    settings.RGG_CONTINUOUS_LEARNING_ENABLED = False
+
+    assert reset_stale_streaks(today=DAY + timedelta(days=4)) == 0
+    user.refresh_from_db()
+    assert user.current_streak == 3
 
 
 @pytest.mark.enable_signals

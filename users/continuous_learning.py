@@ -128,6 +128,46 @@ def _award_continuous_learning_points(user, amount: int, when: date) -> None:
     user.add_chart_points(CONTINUOUS_LEARNING_KEY, CONTINUOUS_LEARNING_TITLE, amount)
 
 
+def reset_stale_streaks(today: Optional[date] = None) -> int:
+    """
+    Zero out streaks that can no longer continue and refresh their badge rings.
+
+    A streak is broken once the learner has missed a whole day — i.e. their
+    ``last_active_date`` is earlier than yesterday, so the next active day would reset to
+    1 anyway. We zero those eagerly (and re-evaluate the streak badges to 0%) so a learner
+    returning after a gap, before earning points, sees an accurate "streak broken" state
+    rather than stale progress.
+
+    A learner active *yesterday* is deliberately left alone: their streak is still live
+    and they can extend it today, so zeroing it would corrupt the next-day increment.
+
+    Idempotent — only streaks with ``current_streak > 0`` are touched, so a streak stays
+    zeroed on later runs. Earned points/badges and the Continuous Learning bucket are
+    untouched; only the streak counter and its in-progress rings reset. Returns the number
+    of users reset. Run daily via ``users.tasks.reset_stale_continuous_learning_streaks``.
+    """
+    if not is_enabled():
+        return 0
+
+    from users.models import GammaUser
+
+    if today is None:
+        today = datetime.now().date()
+    # Active yesterday (== today - 1) is still continuable; only earlier is broken.
+    broken_before = today - timedelta(days=1)
+
+    stale_users = list(
+        GammaUser.objects.filter(current_streak__gt=0, last_active_date__lt=broken_before)
+    )
+    for user in stale_users:
+        user.current_streak = 0
+        user.save(update_fields=('current_streak',))
+        # Re-evaluate the streak badges against the now-zero streak so the rings drop to 0%.
+        _trigger_streak_badge_evaluation(user)
+
+    return len(stale_users)
+
+
 def _trigger_streak_badge_evaluation(user) -> None:
     """
     Re-evaluate the streak badges against the user's just-updated ``current_streak``.

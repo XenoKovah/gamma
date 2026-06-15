@@ -1,5 +1,7 @@
 from os import path
 
+from celery.schedules import crontab
+
 from .edx_platform import *  # pylint: disable=wildcard-import
 from .logging import LOGGING  # pylint: disable=unused-import
 
@@ -201,6 +203,13 @@ CELERY_BEAT_SCHEDULE = {
     'reconcile-leaderboards-hourly': {
         'task': 'leaderboard.tasks.task_reconcile_leaderboards',
         'schedule': 3600,
+    },
+    # Once a day (UTC), zero out Continuous Learning streaks that have been broken (the
+    # learner missed a full day), so their streak badge rings drop to 0% before they next
+    # earn points — rather than showing stale progress until they return.
+    'reset-stale-continuous-learning-streaks-daily': {
+        'task': 'users.tasks.reset_stale_continuous_learning_streaks',
+        'schedule': crontab(hour=0, minute=30),
     },
 }
 
