@@ -88,8 +88,14 @@ class Command(BaseCommand):
                 badges_before = self._badge_count(user)
 
                 for activity_date in active_dates:
-                    register_active_day(user, activity_date=activity_date, force=True)
+                    # Re-fetch a fresh instance per day, exactly as the live signal does
+                    # for each event: register_active_day's streak-badge completion writes
+                    # points on a separate instance, so reusing one stale instance across
+                    # days would let a later day's save clobber an earlier day's bonus.
+                    day_user = GammaUser.objects.get(pk=user.pk)
+                    register_active_day(day_user, activity_date=activity_date, force=True)
 
+                user.refresh_from_db()
                 gained_points = user.points - points_before
                 gained_badges = self._badge_count(user) - badges_before
 

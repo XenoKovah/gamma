@@ -12,6 +12,9 @@ class RggInternalEventTypes(EventTypeMixin, Enum):
 
     RGG_POINTS_DISTRIBUTION = ('rgg_points_distribution', _('Points Distribution'))
     RGG_ACHIEVEMENT_OBTAINED = ('rgg_achievement_obtained', _('Achievement Obtained'))
+    # Drives the "{N} day streak" badges: emitted once per active day after the
+    # streak counter advances, so the streak rules re-evaluate against current_streak.
+    RGG_CONTINUOUS_LEARNING_STREAK = ('rgg_continuous_learning_streak', _('Continuous Learning Streak'))
 
 
 class EdxCommonEventTypes(EventTypeMixin, Enum):

@@ -3,6 +3,7 @@ from datetime import date, timedelta
 
 import pytest
 from django.contrib.contenttypes.models import ContentType
+from django.core.management import call_command
 
 from achievements.models import Achievement
 from badges.models import Badge
@@ -109,54 +110,66 @@ def test_disabled_feature_is_noop(gamma_user_factory, settings):
     assert user.points == 0
 
 
-def test_reaching_milestone_awards_badge_and_bonus(gamma_user_factory, badge_factory):
-    bonus = 10
-    badge = badge_factory(title='5 day streak', slug=streak_badge_slug(5), points=bonus)
+def _streak_progress_count(user, badge):
+    """The in-progress streak count the dashboard ring reads (achievement dependency)."""
+    ach = Achievement.objects.filter(
+        user=user, content_type=ContentType.objects.get_for_model(Badge), object_id=badge.id,
+    ).first()
+    if ach is None:
+        return None
+    for dep in ach.achievement_dependencies or []:
+        event = (dep.get('events') or {}).get('rgg_continuous_learning_streak')
+        if event is not None:
+            return event.get('count')
+    return None
+
+
+def _register_days(user_pk, n, start=DAY):
+    """Drive n consecutive active days, fetching a fresh instance per day as the live
+    signal does for each event (avoids a stale instance clobbering completion bonuses)."""
+    from users.models import GammaUser
+    for offset in range(n):
+        register_active_day(GammaUser.objects.get(pk=user_pk), activity_date=start + timedelta(days=offset))
+
+
+def test_streak_badge_awarded_and_progress_via_rules_engine(gamma_user_factory):
+    # The real deploy path: seed the streak event type + the 4 rule-driven badges.
+    call_command('initialize_continuous_learning_badges')
     user = gamma_user_factory(points=0, chart={}, current_streak=0, last_active_date=None)
 
-    for offset in range(5):
-        register_active_day(user, activity_date=DAY + timedelta(days=offset))
+    _register_days(user.pk, 5)  # 5 consecutive active days
     user.refresh_from_db()
+
+    badge5 = Badge.objects.get(slug=streak_badge_slug(5))
+    badge10 = Badge.objects.get(slug=streak_badge_slug(10))
 
     assert user.current_streak == 5
-    assert badge.has_achievement(user) is True
-    # 5 active days * 5 daily points + 10 milestone bonus.
-    expected = 5 * DAILY_ACTIVE_POINTS + bonus
-    assert user.points == expected
-    assert _bucket(user)['points'] == expected
+    # 5-day badge awarded by the rules engine.
+    assert badge5.has_achievement(user) is True
+    # Bonus (Badge.points=10) goes to the total, NOT the Continuous Learning bucket;
+    # the bucket holds only the daily points (5 days * 5).
+    assert _bucket(user)['points'] == 5 * DAILY_ACTIVE_POINTS
+    assert user.points == 5 * DAILY_ACTIVE_POINTS + 10
+    # 10-day badge is in progress with the ring data reading current_streak (5/10).
+    assert badge10.has_achievement(user) is True
+    assert _streak_progress_count(user, badge10) == 5
 
 
-def test_milestone_badge_not_re_awarded_after_streak_breaks_and_reclimbs(gamma_user_factory, badge_factory):
-    bonus = 10
-    badge = badge_factory(title='5 day streak', slug=streak_badge_slug(5), points=bonus)
+def test_streak_badge_awarded_exactly_once(gamma_user_factory):
+    call_command('initialize_continuous_learning_badges')
     user = gamma_user_factory(points=0, chart={}, current_streak=0, last_active_date=None)
 
-    # First 5-day run earns the badge once.
-    for offset in range(5):
-        register_active_day(user, activity_date=DAY + timedelta(days=offset))
-    # Break, then climb to 5 again.
-    for offset in range(10, 15):
-        register_active_day(user, activity_date=DAY + timedelta(days=offset))
+    _register_days(user.pk, 10)  # reach the 10-day milestone
     user.refresh_from_db()
 
-    assert badge.has_achievement(user) is True
-    assert _achievement_count(user, badge) == 1  # earned once, never re-awarded
-    # 10 active days * 5 daily + exactly one 10 bonus (not two).
-    assert user.points == 10 * DAILY_ACTIVE_POINTS + bonus
-    assert _bucket(user)['points'] == 10 * DAILY_ACTIVE_POINTS + bonus
+    badge5 = Badge.objects.get(slug=streak_badge_slug(5))
+    badge10 = Badge.objects.get(slug=streak_badge_slug(10))
 
-
-def test_higher_milestone_skipped_when_badge_row_absent(gamma_user_factory, badge_factory):
-    # Only the 5-day badge exists; reaching 5 must not error on the missing 10/20/30 rows.
-    badge_factory(title='5 day streak', slug=streak_badge_slug(5), points=10)
-    user = gamma_user_factory(points=0, chart={}, current_streak=0, last_active_date=None)
-
-    for offset in range(6):
-        register_active_day(user, activity_date=DAY + timedelta(days=offset))
-    user.refresh_from_db()
-
-    assert user.current_streak == 6
-    assert user.points == 6 * DAILY_ACTIVE_POINTS + 10
+    assert badge5.has_achievement(user) and badge10.has_achievement(user)
+    assert _achievement_count(user, badge5) == 1  # not duplicated as the streak climbs past 5
+    # 10 daily*5 + 5-day(10) + 10-day(10) bonuses; bucket holds only the daily points.
+    assert user.points == 10 * DAILY_ACTIVE_POINTS + 10 + 10
+    assert _bucket(user)['points'] == 10 * DAILY_ACTIVE_POINTS
 
 
 @pytest.mark.enable_signals

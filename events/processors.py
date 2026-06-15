@@ -295,7 +295,57 @@ class RggPointsDistributionProcessor(BaseEventProcessor):
         )
 
 
+class ContinuousLearningStreakProcessor(BaseEventProcessor):
+    """
+    Processor for the "{N} day streak" badges.
+
+    Mirrors RggPointsDistributionProcessor but measures the user's current
+    consecutive-active-day streak against the rule's goal instead of points, so the
+    dashboard renders an in-progress ring (current_streak / N) and the badge completes
+    when the streak reaches N. Fed by the internal ``rgg_continuous_learning_streak``
+    event emitted once per active day from users.continuous_learning.
+    """
+
+    ACTION_SCHEMA = schemas.CountActionSchema
+
+    def _process(
+        self,
+        progress: EventProgress,
+        achievement_rule: AchievementRule,
+        user: GammaUser,
+        event: Event
+    ) -> types.EventDependencies:
+        """
+        Process the event and update the dependency with the user's current streak.
+        """
+        streak = user.current_streak
+        raw_progress_count = progress.action.get('count')
+
+        try:
+            progress_count = int(raw_progress_count)
+        except (TypeError, ValueError):
+            logger.warning(
+                'The streak goal of %s rule cannot be processed: %s',
+                achievement_rule,
+                raw_progress_count
+            )
+            raise AchievementRuleProcessingException
+
+        is_achieved = streak >= progress_count
+        updated_progress = types.GeneralProgress(
+            goal=progress.action['count'],
+            last_updated=event.created_at.isoformat(),
+            count=streak,
+        )
+
+        return types.EventDependencies(
+            events={progress.event_name: updated_progress},
+            is_achieved=is_achieved
+        )
+
+
 TRACKING_EVENT_PROCESSORS_MAP = {
     RggInternalEventTypes.RGG_ACHIEVEMENT_OBTAINED.value: RggAchievementObtainedProcessor,
     RggInternalEventTypes.RGG_POINTS_DISTRIBUTION.value: RggPointsDistributionProcessor,
+    RggInternalEventTypes.RGG_CONTINUOUS_LEARNING_STREAK.value: ContinuousLearningStreakProcessor,
 }
