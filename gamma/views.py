@@ -36,9 +36,17 @@ class GammaView(AdminPermissionMixin, TemplateView):
         mfe_base_url = urlunsplit((parts.scheme, f'apps.{parts.netloc}', '', '', ''))
 
         user = self.request.user
+        # gamma authenticates via OAuth/social-auth against the LMS and stores its own
+        # local auth user, whose ``username`` social-auth may have collision-suffixed
+        # (e.g. the LMS "Xeno" becomes "Xeno89ed5e48c5354abc"). Prefer the social-auth
+        # UID -- the upstream LMS username -- which is what the platform header shows and
+        # what the public-profile URL (/profile/u/<username>) expects. Fall back to the
+        # local username when there is no social-auth record (e.g. a direct superuser).
+        social = user.social_auth.first() if hasattr(user, 'social_auth') else None
+        lms_username = social.uid if (social and social.uid) else user.username
         context['gamma_header_config'] = {
-            'username': user.username,
-            'name': user.get_full_name() or user.username,
+            'username': lms_username,
+            'name': user.get_full_name() or lms_username,
             'lmsBaseUrl': lms_base_url,
             'mfeBaseUrl': mfe_base_url,
             'logoUrl': f'{lms_base_url}/theming/asset/images/logo.png',
