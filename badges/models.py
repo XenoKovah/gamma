@@ -135,3 +135,37 @@ class Badge(TimestampModelMixin, models.Model):
             user.update_user_progress(-self.points)
 
         return True
+
+
+class AntiGamingPenalty(models.Model):
+    """
+    Per-(learner, course) record of the rushed-"Mark as complete" anti-gaming penalty,
+    so the daily ``process_anti_gaming`` detector can apply / adjust / reverse the
+    points claw-back idempotently and symmetrically.
+
+    ``points_docked`` is the POSITIVE magnitude currently subtracted from the learner's
+    ``GammaUser.points`` for this course (always 0 in ``flag`` mode). On each run the
+    detector reconciles the live total by the delta between the freshly-computed target
+    dock and this stored value; when the learner stops qualifying (no longer rushing, or
+    they have since watched the videos / solved the problems) the record is reversed —
+    the docked points are restored — and deleted. ``mode`` mirrors the rule's current
+    mode so a flag→dock flip is auditable per learner.
+    """
+
+    user = models.ForeignKey(
+        GammaUser, on_delete=models.CASCADE, related_name='anti_gaming_penalties',
+    )
+    course_id = models.CharField(max_length=255)
+    points_docked = models.PositiveIntegerField(default=0)
+    rushed_blocks = models.PositiveIntegerField(default=0)
+    longest_run = models.PositiveIntegerField(default=0)
+    mode = models.CharField(max_length=8, default='flag')
+    evaluated_at = models.DateTimeField(default=now)
+
+    class Meta:
+        verbose_name = 'Anti-gaming penalty'
+        verbose_name_plural = 'Anti-gaming penalties'
+        unique_together = ('user', 'course_id')
+
+    def __str__(self):
+        return f'AntiGamingPenalty({self.user.user_uid!r}, {self.course_id!r}, -{self.points_docked})'
