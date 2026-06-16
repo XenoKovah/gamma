@@ -24,9 +24,12 @@ class Badge(TimestampModelMixin, models.Model):
     image = models.ImageField(upload_to='uploads/badges/')
     is_active = models.BooleanField(default=True)
 
-    points = models.PositiveIntegerField(
+    points = models.IntegerField(
         default=0,
-        help_text='Points granted to a user when this badge is manually assigned to them by an admin.',
+        help_text=(
+            'Points granted to a user when this badge is manually assigned to them by an admin. '
+            'May be negative to apply a penalty — only allowed on manually-assigned (rule-less) badges.'
+        ),
     )
     manual_criteria = models.TextField(
         blank=True,
@@ -106,10 +109,12 @@ class Badge(TimestampModelMixin, models.Model):
         Manually remove this badge from a user — the inverse of ``award_to_user``.
 
         Deletes the user's Achievement for this badge and, if the badge has ``points``,
-        deducts them from the user's total (floored at 0, so it never goes negative) and
-        reverses the matching progress-timeline entry, keeping the general and per-badge
-        leaderboards in sync. The deduction is symmetric with the grant: it removes the
-        badge's configured points regardless of how the badge was originally obtained.
+        reverses them exactly — the inverse of ``award_to_user``'s ``user.points +=
+        self.points`` — and reverses the matching progress-timeline entry, keeping the
+        general and per-badge leaderboards in sync. The reversal is symmetric with the
+        grant regardless of how the badge was originally obtained, so revoking a
+        negative-points (penalty) badge restores the docked points, and the total is
+        allowed to go below zero.
 
         Return ``True`` if the badge was removed, ``False`` if the user did not have it
         (idempotent: re-running never deducts points twice).
@@ -125,10 +130,8 @@ class Badge(TimestampModelMixin, models.Model):
         achievements.delete()
 
         if self.points:
-            deducted = min(user.points, self.points)
-            if deducted:
-                user.points -= deducted
-                user.save(update_fields=('points',))
-                user.update_user_progress(-deducted)
+            user.points -= self.points
+            user.save(update_fields=('points',))
+            user.update_user_progress(-self.points)
 
         return True

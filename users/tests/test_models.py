@@ -70,6 +70,21 @@ def test_update_user_points(gamma_user_factory) -> None:
 
 
 @pytest.mark.django_db
+def test_update_user_points_can_go_negative(gamma_user_factory) -> None:
+    """
+    A negative delta (e.g. an admin-assigned penalty badge) decrements the total,
+    which is allowed to fall below zero now that the points field is signed.
+    """
+    gamma_user = gamma_user_factory(points=30)
+
+    gamma_user.update_user_points(points=-50)
+
+    gamma_user.refresh_from_db()
+
+    assert gamma_user.points == -20
+
+
+@pytest.mark.django_db
 @factory.django.mute_signals(signals.post_save)
 def test_update_user_course_points_creates_gamma_user_course_points_record_if_it_does_not_exist(
     gamma_user_factory: Type[GammaUserFactory],

@@ -200,6 +200,23 @@ class TestBadgeLeaderBoardView:
         # The requesting user earned the badge and tops the list.
         assert data["rank"] == 1
 
+    def test_negative_points_earner_ranks_last(self, auth_client: APIClient) -> None:
+        badge = BadgeFactory(title="Penalty Holder", description="Docked points")
+        penalized = GammaUserFactory(user_uid="penalized_user", points=-50)
+        positive = GammaUserFactory(user_uid="positive_user", points=10)
+        self._award_badge(penalized, badge)
+        self._award_badge(positive, badge)
+
+        endpoint = f"/api/v0/leaderboard/badge/{badge.slug}?username=penalized_user&signup_source=main"
+        response = auth_client.get(endpoint)
+
+        assert response.status_code == 200
+        data = response.json()
+        # Ranked by points, highest first: a negative total ranks last (intended punishment).
+        assert [member["user_uid"] for member in data["top10"]] == ["positive_user", "penalized_user"]
+        assert [member["points"] for member in data["top10"]] == [10, -50]
+        assert data["rank"] == 2  # the penalized (requesting) user is last
+
     def test_rank_is_none_when_requesting_user_has_not_earned_badge(self, auth_client: APIClient) -> None:
         badge = BadgeFactory()
         earner = GammaUserFactory(user_uid="earner", points=50)

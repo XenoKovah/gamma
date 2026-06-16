@@ -39,6 +39,30 @@ class BadgeSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ('created_at',)
 
+    def validate(self, attrs):
+        """
+        Enforce that negative points are only ever set on a manually-assigned
+        (rule-less) badge. Checks the combined post-edit state (incoming ``points``
+        and ``rules`` fall back to the existing instance when not being changed), so
+        a penalty cannot be applied to a badge that has — or is gaining — completion
+        rules, and a rule cannot be added to a negative-points badge.
+        """
+        attrs = super().validate(attrs)
+
+        points = attrs.get('points', getattr(self.instance, 'points', 0) or 0)
+        if 'rules' in attrs:
+            rules = attrs['rules']
+        elif self.instance is not None:
+            rules = self.instance.rules.all()
+        else:
+            rules = []
+
+        if points is not None and points < 0 and rules:
+            raise serializers.ValidationError({
+                'points': 'Negative points are only allowed on manually-assigned badges with no completion rules.',
+            })
+        return attrs
+
     def create(self, validated_data):
         """
         Handle creation of a badge, including creating or linking rules.

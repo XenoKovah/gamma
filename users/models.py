@@ -18,7 +18,10 @@ class GammaUser(models.Model):
     username = models.CharField(max_length=255, null=True, blank=True)
     signup_source = models.CharField(max_length=255, blank=True, null=True)
 
-    points = models.PositiveBigIntegerField(default=0)
+    # Signed: a manually-assigned negative-points (penalty) badge can dock points and
+    # push the total below zero. Per-course points (GammaUserCoursePoints) stay unsigned —
+    # manual penalties never touch them.
+    points = models.BigIntegerField(default=0)
     chart = models.JSONField(default=dict, blank=True)
     progress = models.JSONField(default=dict, blank=True)
 

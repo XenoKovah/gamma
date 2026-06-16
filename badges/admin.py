@@ -1,7 +1,31 @@
+from django import forms
 from django.contrib import admin, messages
 
 from achievements.reconciliation import recompute_holders
 from badges.models import Badge
+
+
+class BadgeAdminForm(forms.ModelForm):
+    """
+    Badge admin form that mirrors the API's manual-only guard: negative points are
+    only valid on a rule-less (manually-assigned) badge. In the admin the M2M
+    ``rules`` is available in ``cleaned_data``, so the combined post-edit state can
+    be checked here.
+    """
+
+    class Meta:
+        model = Badge
+        fields = '__all__'
+
+    def clean(self):
+        cleaned_data = super().clean()
+        points = cleaned_data.get('points')
+        rules = cleaned_data.get('rules')
+        if points is not None and points < 0 and rules:
+            raise forms.ValidationError(
+                'Negative points are only allowed on manually-assigned badges with no completion rules.'
+            )
+        return cleaned_data
 
 
 class BadgeAdmin(admin.ModelAdmin):
@@ -9,6 +33,7 @@ class BadgeAdmin(admin.ModelAdmin):
     Admin interface for the Badge model.
     """
 
+    form = BadgeAdminForm
     list_display = ('title', 'is_active', 'slug', 'rule_actions', 'id')
     search_fields = ('title', 'slug',)
     list_filter = ('is_active',)

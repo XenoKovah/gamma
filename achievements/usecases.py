@@ -238,7 +238,11 @@ class AchievementCompletionUseCase(UseCase):
             # (Badge.award_to_user), so the advertised points are granted no
             # matter how the badge is earned. Avatars have no points attribute.
             completion_points = getattr(achievement.content_object, 'points', 0) or 0
-            if completion_points:
+            # Strictly positive: the rule/event path must never subtract, even if a
+            # negative-points (penalty) badge somehow gained a rule (the serializer/admin
+            # guards prevent it, but a direct DB edit or data migration could bypass them).
+            # Penalties are manual-assignment only.
+            if completion_points > 0:
                 achievement.user.update_user_points(completion_points)
                 achievement.user.update_user_progress(completion_points)
             simulate_rgg_internal_event(achievement.user, RggInternalEventTypes.RGG_ACHIEVEMENT_OBTAINED.value)

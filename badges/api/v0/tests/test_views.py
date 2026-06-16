@@ -157,6 +157,35 @@ class TestBadgeAssign:
         gamma_user.refresh_from_db()
         assert gamma_user.points == 42  # unchanged
 
+    def test_assign_negative_points_badge_subtracts_and_can_go_negative(
+        self, client, badge_factory, gamma_user_factory, user_factory,
+    ):
+        badge = badge_factory(points=-50)  # rule-less penalty badge
+        gamma_user = gamma_user_factory(points=30)
+        admin_client = self._admin_client(client, user_factory)
+
+        response = admin_client.post(
+            self._assign_url(badge), {'user_uids': [gamma_user.user_uid]}, format='json',
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json()['points_each'] == -50
+        gamma_user.refresh_from_db()
+        assert gamma_user.points == -20  # 30 - 50, allowed below zero
+
+    def test_assign_negative_points_badge_is_idempotent(
+        self, client, badge_factory, gamma_user_factory, user_factory,
+    ):
+        badge = badge_factory(points=-50)
+        gamma_user = gamma_user_factory(points=30)
+        admin_client = self._admin_client(client, user_factory)
+
+        admin_client.post(self._assign_url(badge), {'user_uids': [gamma_user.user_uid]}, format='json')
+        admin_client.post(self._assign_url(badge), {'user_uids': [gamma_user.user_uid]}, format='json')
+
+        gamma_user.refresh_from_db()
+        assert gamma_user.points == -20  # penalty applied once, not twice
+
 
 class TestBadgeUnassign:
 
@@ -203,16 +232,20 @@ class TestBadgeUnassign:
         gamma_user.refresh_from_db()
         assert gamma_user.points == 250
 
-    def test_unassign_floors_points_at_zero(self, client, badge_factory, gamma_user_factory, user_factory):
+    def test_unassign_does_exact_reversal_below_zero(self, client, badge_factory, gamma_user_factory, user_factory):
         badge = badge_factory(points=100)
-        gamma_user = gamma_user_factory(points=30)  # fewer points than the badge is worth
-        badge.award_to_user(gamma_user)  # 30 -> 130
+        gamma_user = gamma_user_factory(points=30)
+        badge.award_to_user(gamma_user)  # holds the badge; 30 -> 130
+        # Simulate the running total later dropping below the badge's value.
+        gamma_user.points = 30
+        gamma_user.save(update_fields=('points',))
         admin_client = self._admin_client(client, user_factory)
 
         admin_client.post(self._unassign_url(badge), {'user_uids': [gamma_user.user_uid]}, format='json')
 
         gamma_user.refresh_from_db()
-        assert gamma_user.points == 30  # 130 - 100, not negative
+        # Exact reversal of the badge's points; the total is allowed to go below zero.
+        assert gamma_user.points == -70  # 30 - 100
 
     def test_unassign_noop_for_user_without_badge(
         self, client, badge_factory, gamma_user_factory, user_factory,
@@ -244,4 +277,18 @@ class TestBadgeUnassign:
         assert second.json()['removed'] == []
         assert second.json()['not_assigned'] == [gamma_user.user_uid]
         gamma_user.refresh_from_db()
-        assert gamma_user.points == 0  # deducted once, floored, not below zero
+        assert gamma_user.points == 0  # reversed once; the second unassign is a no-op, not a double deduction
+
+    def test_unassign_negative_points_badge_restores_points(
+        self, client, badge_factory, gamma_user_factory, user_factory,
+    ):
+        badge = badge_factory(points=-50)  # rule-less penalty badge
+        gamma_user = gamma_user_factory(points=30)
+        admin_client = self._admin_client(client, user_factory)
+        # Apply the penalty (30 -> -20), then revoke it.
+        admin_client.post(self._assign_url(badge), {'user_uids': [gamma_user.user_uid]}, format='json')
+
+        admin_client.post(self._unassign_url(badge), {'user_uids': [gamma_user.user_uid]}, format='json')
+
+        gamma_user.refresh_from_db()
+        assert gamma_user.points == 30  # penalty reversed: -20 - (-50) = 30
