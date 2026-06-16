@@ -47,12 +47,13 @@ export const getValidationSchema = (messages, entityData) => yup.object().shape(
     : {}),
   ...(Object.hasOwn(entityData, 'points')
     ? {
+      // Points may be negative (a penalty) on any badge — manually-assigned or
+      // rule-based (e.g. a future cheating-detection rule that docks points).
       points: yup
         .number()
         .transform((value, originalValue) => (originalValue === '' ? 0 : value))
         .typeError(messages.points.pointsInt)
-        .integer(messages.points.pointsInt)
-        .min(0, messages.points.pointsPositive),
+        .integer(messages.points.pointsInt),
     }
     : {}),
   description: yup

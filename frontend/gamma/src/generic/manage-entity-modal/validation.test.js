@@ -147,12 +147,24 @@ describe('getValidationSchema', () => {
     await expect(schema.validate(validBadgeData)).resolves.toBeTruthy();
   });
 
-  it('rejects negative points for a badge', async () => {
+  it('allows negative points for a badge (a penalty)', async () => {
     const schema = getValidationSchema(badgeMessages, { points: 0 });
 
-    const invalidData = { ...validBadgeData, points: -5 };
+    const penaltyData = { ...validBadgeData, points: -5 };
 
-    await expect(schema.validate(invalidData)).rejects.toThrow(badgeMessages.points.pointsPositive);
+    await expect(schema.validate(penaltyData)).resolves.toBeTruthy();
+  });
+
+  it('allows negative points for a badge that has rules', async () => {
+    const schema = getValidationSchema(badgeMessages, { points: 0 });
+
+    const penaltyWithRules = {
+      ...validBadgeData,
+      points: -5,
+      rules: [{ action: { eventType: 'edx_course_enrollment_activated', count: 1, points: null }, filters: {} }],
+    };
+
+    await expect(schema.validate(penaltyWithRules)).resolves.toBeTruthy();
   });
 
   it('rejects non-integer points for a badge', async () => {

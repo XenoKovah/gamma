@@ -27,8 +27,8 @@ class Badge(TimestampModelMixin, models.Model):
     points = models.IntegerField(
         default=0,
         help_text=(
-            'Points granted to a user when this badge is manually assigned to them by an admin. '
-            'May be negative to apply a penalty — only allowed on manually-assigned (rule-less) badges.'
+            'Points granted to a user when this badge is assigned to them — manually by an admin, '
+            'or automatically when its completion rules are met. May be negative to dock points as a penalty.'
         ),
     )
     manual_criteria = models.TextField(

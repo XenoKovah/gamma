@@ -32,11 +32,12 @@ const ManageEntityModal = ({
   const rulesContainerRef = useRef(null);
   const lastRuleRef = useRef(null);
 
-  // For entities that support a points value (badges), seed the create form with
-  // `points: 0` so the field renders and is validated; edit data already carries it.
+  // For entities that support a points value (badges), seed the create form with an
+  // empty points field (rendered + validated; treated as 0 if left blank). Starting
+  // empty rather than "0" lets the admin type a negative value cleanly.
   const defaultFormValues = hasPoints
     ? {
-      ...DEFAULT_FORM_VALUES, points: 0, manualCriteria: '', category: '',
+      ...DEFAULT_FORM_VALUES, points: '', manualCriteria: '', category: '',
     }
     : DEFAULT_FORM_VALUES;
   const initialFormikValues = data?.entityData || defaultFormValues;

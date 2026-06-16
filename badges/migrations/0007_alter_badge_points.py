@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='badge',
             name='points',
-            field=models.IntegerField(default=0, help_text='Points granted to a user when this badge is manually assigned to them by an admin. May be negative to apply a penalty — only allowed on manually-assigned (rule-less) badges.'),
+            field=models.IntegerField(default=0, help_text='Points granted to a user when this badge is assigned to them — manually by an admin, or automatically when its completion rules are met. May be negative to dock points as a penalty.'),
         ),
     ]

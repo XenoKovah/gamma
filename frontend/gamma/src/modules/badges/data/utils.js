@@ -134,6 +134,9 @@ export const reverseTransformActions = (rules) => rules.map((rule) => {
  */
 export const preparePayload = (data) => ({
   ...data,
+  // `points` arrives from the form input as a (possibly empty or negative) string;
+  // send a number, treating blank as 0. Negative values are allowed (penalty badges).
+  ...(data.points !== undefined ? { points: Number(data.points) || 0 } : {}),
   rules: data.rules ? transformActions(data.rules) : undefined,
 });
 

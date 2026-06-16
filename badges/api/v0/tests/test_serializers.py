@@ -38,22 +38,22 @@ class TestBadgeSerializer:
         assert badge.category == 'Reverse Engineering'
 
 
-class TestBadgeSerializerNegativePointsGuard:
+class TestBadgeSerializerNegativePoints:
     """
-    Negative points (a penalty) are only valid on a manually-assigned, rule-less
-    badge — the serializer checks the combined post-edit state.
+    Negative points (a penalty) are accepted on any badge — manually-assigned
+    (rule-less) or rule-based (e.g. a future cheating-detection rule that docks
+    points for completing a course suspiciously fast).
     """
 
-    def test_rejects_negative_points_on_badge_with_rules(self, badge_factory, rule_factory):
-        badge = badge_factory(set_rules=(rule_factory(),))
+    def test_accepts_negative_points_on_ruleless_badge(self, badge_factory):
+        badge = badge_factory()  # no rules
 
         serializer = BadgeSerializer(badge, data={'points': -50}, partial=True)
 
-        assert not serializer.is_valid()
-        assert 'points' in serializer.errors
+        assert serializer.is_valid(), serializer.errors
 
-    def test_allows_negative_points_on_ruleless_badge(self, badge_factory):
-        badge = badge_factory()  # no rules
+    def test_accepts_negative_points_on_badge_with_rules(self, badge_factory, rule_factory):
+        badge = badge_factory(set_rules=(rule_factory(),))
 
         serializer = BadgeSerializer(badge, data={'points': -50}, partial=True)
 

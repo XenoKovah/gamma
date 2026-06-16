@@ -19,9 +19,16 @@ const EntityInfo = () => {
   };
 
   const handlePointsChange = (event) => {
-    const { value } = event.target;
-    // Keep points as a number in form state (an empty input means 0 points).
-    setFieldValue('points', value === '' ? 0 : Number(value));
+    // Keep the raw input string in form state while editing so a negative entry
+    // (the intermediate "-") and an empty field are preserved -- coercing to a number
+    // here would clobber the "-". The value is normalised to a number on blur.
+    setFieldValue('points', event.target.value);
+  };
+
+  const handlePointsBlur = (event) => {
+    const number = Number(event.target.value);
+    setFieldValue('points', event.target.value === '' || Number.isNaN(number) ? 0 : number);
+    handleBlur(event);
   };
 
   return (
@@ -66,14 +73,13 @@ const EntityInfo = () => {
         <Form.Group controlId="formEntityPoints" size="sm">
           <Form.Control
             type="number"
-            min={0}
             step={1}
             className="mr-0"
             floatingLabel={intl.formatMessage(messages.modalEntityInfoLabelEntityPointsText)}
             name="points"
-            value={values.points ?? 0}
+            value={values.points ?? ''}
             onChange={handlePointsChange}
-            onBlur={handleBlur}
+            onBlur={handlePointsBlur}
             isInvalid={touched.points && !!errors.points}
           />
           {touched.points && errors.points && (

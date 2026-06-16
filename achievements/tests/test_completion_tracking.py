@@ -108,6 +108,27 @@ def test_completion_usecase_pays_badge_points_once(achievement_factory, badge_fa
 
 
 @pytest.mark.django_db
+def test_completion_usecase_docks_negative_badge_points(achievement_factory, badge_factory, gamma_user_factory):
+    """
+    A rule-driven completion of a negative-points badge subtracts points (e.g. a
+    future "completed the course suspiciously fast" cheating penalty); the total
+    may go below zero.
+    """
+    badge = badge_factory(points=-50)
+    user = gamma_user_factory(points=30)
+    achievement = achievement_factory(
+        user=user,
+        content_type=ContentType.objects.get_for_model(Badge),
+        object_id=badge.id,
+    )
+
+    AchievementCompletionUseCase().execute(achievement)
+
+    user.refresh_from_db()
+    assert user.points == -20  # 30 - 50, allowed below zero
+
+
+@pytest.mark.django_db
 def test_completion_usecase_without_badge_points_pays_nothing(badge_achievement):
     starting_points = badge_achievement.user.points
 
