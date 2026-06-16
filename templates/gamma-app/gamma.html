@@ -10,5 +10,6 @@
 {% endblock %}
 
 {% block content %}
+    {{ gamma_header_config|json_script:"gamma-header-config" }}
     <div id="app" aria-live="polite"></div>
 {% endblock %}

@@ -34,3 +34,24 @@ export const capitalizeFirstLetter = (str = '') => str.charAt(0).toUpperCase() +
 export const sortAlphabetically = (items = []) => [...items].sort(
   (a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }),
 );
+
+/**
+ * Reads the header config the Django `GammaView` injects into the page via
+ * `{{ gamma_header_config|json_script:"gamma-header-config" }}`.
+ *
+ * The standalone gamma React app only knows its own origin (the gamma host),
+ * so the current user and the cross-host LMS/MFE base URLs + logo are supplied
+ * by the backend. Returns `{}` if the element is missing or malformed (e.g. in
+ * tests / local dev) so callers can fall back gracefully.
+ *
+ * @returns {{username?: string, name?: string, lmsBaseUrl?: string,
+ *   mfeBaseUrl?: string, logoUrl?: string}} The parsed config, or `{}`.
+ */
+export const getGammaHeaderConfig = () => {
+  try {
+    const el = document.getElementById('gamma-header-config');
+    return el ? JSON.parse(el.textContent) : {};
+  } catch {
+    return {};
+  }
+};

@@ -5,12 +5,14 @@ import { Navbar, Container, Image } from '@openedx/paragon';
 
 import messages from '../../i18n';
 import { ROUTES } from '../../routes';
+import { getGammaHeaderConfig } from '../../utils';
 
 import Logo from '../../assets/images/logo.svg';
 
 const Footer = () => {
   const intl = useIntl();
   const currentYear = new Date().getFullYear();
+  const { logoUrl } = getGammaHeaderConfig();
 
   return (
     <footer className="page-footer">
@@ -20,7 +22,7 @@ const Footer = () => {
             <Link to={ROUTES.BADGES}>
               <Image
                 className="page-footer-logo"
-                src={Logo}
+                src={logoUrl || Logo}
                 alt={intl.formatMessage(messages.headerLogoAltText)}
               />
             </Link>

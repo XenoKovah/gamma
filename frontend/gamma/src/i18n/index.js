@@ -351,6 +351,36 @@ const messages = defineMessages({
     defaultMessage: 'Avatars',
     description: 'The text displayed for the Avatars link in the header.',
   },
+  headerUserMenuLabel: {
+    id: 'generic.header.user-menu.label',
+    defaultMessage: 'Account menu for {username}',
+    description: 'Accessible label for the per-user navigation dropdown toggle in the header.',
+  },
+  headerUserMenuPerformance: {
+    id: 'generic.header.user-menu.performance',
+    defaultMessage: 'Your Accomplishments',
+    description: 'User-menu link to the learner performance/accomplishments dashboard.',
+  },
+  headerUserMenuLeaderboard: {
+    id: 'generic.header.user-menu.leaderboard',
+    defaultMessage: 'Leaderboard',
+    description: 'User-menu link to the leaderboard.',
+  },
+  headerUserMenuGamificationSettings: {
+    id: 'generic.header.user-menu.gamification-settings',
+    defaultMessage: 'Gamification Settings',
+    description: 'User-menu link to the gamification settings (this admin app).',
+  },
+  headerUserMenuPublicProfile: {
+    id: 'generic.header.user-menu.public-profile',
+    defaultMessage: 'Public Profile',
+    description: "User-menu link to the learner's public profile page.",
+  },
+  headerUserMenuAccountSettings: {
+    id: 'generic.header.user-menu.account-settings',
+    defaultMessage: 'Account Settings',
+    description: 'User-menu link to the account settings page.',
+  },
   pgnDropzoneDefaultContentLabel: {
     id: 'pgn.Dropzone.DefaultContent.label',
     defaultMessage: 'Drag and drop your file here or click to upload.',
