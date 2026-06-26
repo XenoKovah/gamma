@@ -17,6 +17,34 @@ from leaderboard.usecases import GetPersonalizedLeaderboardUseCase
 from users.models import GammaUser, GammaUserCoursePoints
 
 
+def _standard_competition_rank(
+    user_uid: Optional[str],
+    ranked_members: List[Tuple[str, float]],
+) -> Optional[int]:
+    """
+    Provide the 1-based standard-competition ("1224") rank of ``user_uid``.
+
+    ``ranked_members`` is the leaderboard ordered best-first as ``(uid, value)``
+    pairs, where ``value`` is whatever the board is ranked by (points, or progress
+    percentage). Members sharing the same value share a rank and the next distinct
+    value resumes after the gap, so two learners tied on grade get the same number —
+    matching how the dashboard numbers the rows. Returns ``None`` when the user is
+    absent (e.g. the viewer is not on this board).
+    """
+    member_value = None
+    found = False
+    for uid, value in ranked_members:
+        if uid == user_uid:
+            member_value = value
+            found = True
+            break
+
+    if not found:
+        return None
+
+    return sum(1 for _, value in ranked_members if value > member_value) + 1
+
+
 class LeaderBoardView(APIView):
     """
     Provide personalized leaderboard data for the requesting Gamma user.
@@ -107,10 +135,14 @@ class BadgeLeaderBoardView(APIView):
             },
             "top10": earners_data,
             "competitors": [],
-            "rank": self._rank_of(user_uid, [gamma_user.user_uid for gamma_user in ranked_earners]),
+            "rank": _standard_competition_rank(
+                user_uid,
+                [(gamma_user.user_uid, self._member_points(gamma_user, course_id)) for gamma_user in ranked_earners],
+            ),
             "in_progress": in_progress_data,
-            "in_progress_rank": self._rank_of(
-                user_uid, [gamma_user.user_uid for gamma_user, _ in ranked_in_progress]
+            "in_progress_rank": _standard_competition_rank(
+                user_uid,
+                [(gamma_user.user_uid, percent) for gamma_user, percent in ranked_in_progress],
             ),
             "user_uid": user_uid,
         }
@@ -228,16 +260,6 @@ class BadgeLeaderBoardView(APIView):
             for event_progress in events
         )
 
-    @staticmethod
-    def _rank_of(user_uid: Optional[str], ordered_user_uids: List[str]) -> Optional[int]:
-        """
-        Provide the 1-based position of ``user_uid`` within an ordered uid list.
-        """
-        for index, ordered_uid in enumerate(ordered_user_uids):
-            if ordered_uid == user_uid:
-                return index + 1
-        return None
-
     def _build_members_data(
         self,
         earners: List[GammaUser],
@@ -315,7 +337,6 @@ class UsersLeaderBoardView(APIView):
             return self._empty_response(viewer_uid)
 
         ranked_users = self._rank_users(user_uids, signup_source)
-        ranked_uids = [gamma_user.user_uid for gamma_user in ranked_users]
 
         context = LeaderboardRetrievingContext(viewer_uid, signup_source, None)
         members_data = self._build_members_data(ranked_users[:self.MEMBERS_LIMIT], context)
@@ -324,7 +345,10 @@ class UsersLeaderBoardView(APIView):
             {
                 "top10": members_data,
                 "competitors": [],
-                "rank": self._rank_of(viewer_uid, ranked_uids),
+                "rank": _standard_competition_rank(
+                    viewer_uid,
+                    [(gamma_user.user_uid, gamma_user.points) for gamma_user in ranked_users],
+                ),
                 "user_uid": viewer_uid,
             },
             status=status.HTTP_200_OK,
@@ -383,15 +407,3 @@ class UsersLeaderBoardView(APIView):
             member_data["points"] = points_by_uid.get(member_data["user_uid"], 0)
 
         return members_data
-
-    @staticmethod
-    def _rank_of(user_uid: Optional[str], ordered_user_uids: List[str]) -> Optional[int]:
-        """
-        Provide the 1-based position of ``user_uid`` within an ordered uid list, or
-        ``None`` when the user is absent (e.g. the viewer is not in this country, or
-        keeps their own country private).
-        """
-        for index, ordered_uid in enumerate(ordered_user_uids):
-            if ordered_uid == user_uid:
-                return index + 1
-        return None

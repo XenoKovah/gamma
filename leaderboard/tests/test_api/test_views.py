@@ -328,6 +328,51 @@ class TestBadgeLeaderBoardView:
         assert data["in_progress"] == []
         assert data["in_progress_rank"] is None
 
+    def test_earners_tied_on_points_share_a_rank(self, auth_client: APIClient) -> None:
+        # Two earners on the same points must share a rank, and the next earner
+        # gets the gapped rank (standard competition ranking: 1, 1, 3).
+        badge = BadgeFactory()
+        for earner in (
+            GammaUserFactory(user_uid="tie_a", points=90),
+            GammaUserFactory(user_uid="tie_b", points=90),
+            GammaUserFactory(user_uid="below", points=50),
+        ):
+            self._award_badge(earner, badge)
+
+        # The second member of the tie shares rank 1 with the first.
+        tied = auth_client.get(
+            f"/api/v0/leaderboard/badge/{badge.slug}?username=tie_b&signup_source=main"
+        ).json()
+        assert tied["rank"] == 1
+
+        # The earner just below the tie is rank 3, not 2 (the tie consumes ranks 1 and 2).
+        below = auth_client.get(
+            f"/api/v0/leaderboard/badge/{badge.slug}?username=below&signup_source=main"
+        ).json()
+        assert below["rank"] == 3
+
+    def test_in_progress_members_tied_on_percent_share_a_rank(self, auth_client: APIClient) -> None:
+        badge = BadgeFactory()
+        badge_ct = ContentType.objects.get_for_model(Badge)
+        # Two members at 50% (different points) and one at 10%.
+        tie_a = GammaUserFactory(user_uid="ip_tie_a", points=500)
+        tie_b = GammaUserFactory(user_uid="ip_tie_b", points=400)
+        below = GammaUserFactory(user_uid="ip_below", points=100)
+        self._add_progress(tie_a, badge, badge_ct, goal=1000, count=500)
+        self._add_progress(tie_b, badge, badge_ct, goal=1000, count=500)
+        self._add_progress(below, badge, badge_ct, goal=1000, count=100)
+
+        tied = auth_client.get(
+            f"/api/v0/leaderboard/badge/{badge.slug}?username=ip_tie_b&signup_source=main"
+        ).json()
+        assert [member["progress_percent"] for member in tied["in_progress"]] == [50, 50, 10]
+        assert tied["in_progress_rank"] == 1
+
+        below_data = auth_client.get(
+            f"/api/v0/leaderboard/badge/{badge.slug}?username=ip_below&signup_source=main"
+        ).json()
+        assert below_data["in_progress_rank"] == 3
+
 
 class TestCoursePointsView:
     def test_returns_course_points_for_requested_users(self, auth_client: APIClient) -> None:
@@ -484,3 +529,25 @@ class TestUsersLeaderBoardView:
         # Only the top 2 users are serialized, but rank still reflects all matched users.
         assert [member["user_uid"] for member in data["top10"]] == ["u2", "u1"]
         assert data["rank"] == 1
+
+    def test_users_tied_on_points_share_a_rank(self, auth_client: APIClient) -> None:
+        # Tied users share a rank; the user below the tie gets the gapped rank
+        # (standard competition ranking: 1, 1, 3).
+        GammaUserFactory(user_uid="tie_a", points=90, signup_source="main")
+        GammaUserFactory(user_uid="tie_b", points=90, signup_source="main")
+        GammaUserFactory(user_uid="below", points=50, signup_source="main")
+        uids = ["tie_a", "tie_b", "below"]
+
+        tied = auth_client.post(
+            self.ENDPOINT,
+            {"username": "tie_b", "signup_source": "main", "user_uids": uids},
+            format="json",
+        ).json()
+        assert tied["rank"] == 1
+
+        below = auth_client.post(
+            self.ENDPOINT,
+            {"username": "below", "signup_source": "main", "user_uids": uids},
+            format="json",
+        ).json()
+        assert below["rank"] == 3
