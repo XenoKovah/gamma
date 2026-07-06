@@ -9,6 +9,8 @@ class AchievementDetailSerializer(serializers.ModelSerializer):
     Serializer for receiving achievement details.
     """
 
+    title = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
     done = serializers.SerializerMethodField()
     progress = serializers.SerializerMethodField()
     object_uri = serializers.SerializerMethodField()
@@ -19,6 +21,26 @@ class AchievementDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Achievement
         fields = ('title', 'slug', 'description', 'done', 'progress', 'object_id', 'object_uri', 'is_active', 'points')
+
+    def get_title(self, obj):
+        """
+        Get the badge's *current* title, falling back to the achievement's
+        award-time snapshot. Reading through ``content_object`` keeps earned
+        badges' names in sync when a badge is renamed (the dashboard and the
+        All Accomplishments page otherwise show the stale snapshot).
+        """
+        if isinstance(obj.content_object, Badge) and obj.content_object.title:
+            return obj.content_object.title
+        return obj.title
+
+    def get_description(self, obj):
+        """
+        Get the badge's *current* description, falling back to the achievement
+        snapshot (mirrors ``get_title``).
+        """
+        if isinstance(obj.content_object, Badge) and obj.content_object.description:
+            return obj.content_object.description
+        return obj.description or ''
 
     def get_slug(self, obj):
         """

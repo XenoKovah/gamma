@@ -22,8 +22,9 @@ class TestAchievementDetailSerializer:
         serializer = AchievementDetailSerializer(achievement)
         data = serializer.data
 
-        assert data['title'] == achievement.title
-        assert data['description'] == achievement.description
+        # Title/description come from the current badge, not the award-time snapshot.
+        assert data['title'] == badge.title
+        assert data['description'] == badge.description
         assert data['done'] is True
         assert data['progress'] == achievement.achievement_dependencies
         assert data['object_id'] == achievement.object_id
@@ -40,8 +41,8 @@ class TestAchievementDetailSerializer:
         serializer = AchievementDetailSerializer(achievement)
         data = serializer.data
 
-        assert data['title'] == achievement.title
-        assert data['description'] == achievement.description
+        assert data['title'] == badge.title
+        assert data['description'] == badge.description
         assert data['done'] is False
         assert data['progress'] == achievement.achievement_dependencies
         assert data['object_id'] == achievement.object_id
@@ -58,14 +59,50 @@ class TestAchievementDetailSerializer:
         serializer = AchievementDetailSerializer(achievement)
         data = serializer.data
 
-        assert data['title'] == achievement.title
-        assert data['description'] == achievement.description
+        assert data['title'] == badge.title
+        assert data['description'] == badge.description
         assert data['done'] is False
         assert data['progress'] == achievement.achievement_dependencies
         assert data['object_id'] == achievement.object_id
         assert data['object_uri'] == achievement.content_object.image.url
         assert data['slug'] == badge.slug
         assert data['is_active'] == badge.is_active
+
+    def test_title_and_description_follow_badge_rename(self, achievement_factory, badge_factory):
+        """A badge rename is reflected immediately, not frozen at award time."""
+        content_type = ContentType.objects.get_for_model(Badge)
+        badge = badge_factory(title='Received a Post Like', description='Original description.')
+        achievement = achievement_factory(
+            content_type=content_type,
+            content_object=badge,
+            title='⑧ Received a Post Like',  # stale award-time snapshot
+            description='Stale snapshot description.',
+        )
+
+        badge.title = 'Received a Post Like'
+        badge.description = 'Updated description.'
+        badge.save()
+
+        data = AchievementDetailSerializer(achievement).data
+
+        assert data['title'] == 'Received a Post Like'
+        assert data['description'] == 'Updated description.'
+
+    def test_falls_back_to_snapshot_when_badge_title_blank(self, achievement_factory, badge_factory):
+        """When the badge has no title/description, the achievement snapshot is used."""
+        content_type = ContentType.objects.get_for_model(Badge)
+        badge = badge_factory(title='', description='')
+        achievement = achievement_factory(
+            content_type=content_type,
+            content_object=badge,
+            title='Snapshot title',
+            description='Snapshot description',
+        )
+
+        data = AchievementDetailSerializer(achievement).data
+
+        assert data['title'] == 'Snapshot title'
+        assert data['description'] == 'Snapshot description'
 
     def test_serializer_with_broken_rules_and_object(self, achievement_factory):
         content_type = ContentType.objects.get_for_model(Badge)
@@ -74,6 +111,7 @@ class TestAchievementDetailSerializer:
         serializer = AchievementDetailSerializer(achievement)
         data = serializer.data
 
+        # No resolvable badge -> fall back to the achievement's own snapshot.
         assert data['title'] == achievement.title
         assert data['description'] == achievement.description
         assert data['done'] is True

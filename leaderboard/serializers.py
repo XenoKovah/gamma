@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from achievements.models import Achievement
+from badges.models import Badge
 from badges.utils import is_achieved_badge
 from users.models import GammaUser
 
@@ -11,8 +12,32 @@ class LeaderboardMemberBadgeSerializer(serializers.ModelSerializer):
     """
 
     progress = serializers.JSONField(source="achievement_dependencies")
+    title = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
     url = serializers.SerializerMethodField()
     slug = serializers.SerializerMethodField()
+
+    def get_title(self, obj: Achievement) -> str:
+        """
+        Provide the badge's *current* title, falling back to the achievement's
+        award-time snapshot. Reading through ``content_object`` means renaming a
+        badge is reflected on the leaderboard immediately, instead of showing the
+        stale name copied onto the achievement when it was earned.
+        """
+        badge = obj.content_object
+        if isinstance(badge, Badge) and badge.title:
+            return badge.title
+        return obj.title
+
+    def get_description(self, obj: Achievement) -> str:
+        """
+        Provide the badge's *current* description, falling back to the achievement
+        snapshot (mirrors ``get_title``).
+        """
+        badge = obj.content_object
+        if isinstance(badge, Badge) and badge.description:
+            return badge.description
+        return obj.description or ""
 
     def get_url(self, obj: Achievement) -> str:
         """

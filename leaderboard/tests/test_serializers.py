@@ -4,6 +4,7 @@ import pytest
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
 
+from achievements.models import AchievementRule
 from achievements.tests.factories import AchievementFactory, AchievementRuleFactory
 from badges.factories import BadgeFactory
 from core.tests.utils.helpers import load_params_from_json
@@ -73,3 +74,48 @@ def test_leaderboard_member_serializer_data_correctness(
     )
 
     assert serializer.data == entry["expected_serialization_result"]
+
+
+@pytest.mark.django_db
+def test_leaderboard_badge_title_follows_rename(
+    gamma_user_factory: Type[GammaUserFactory],
+    achievement_factory: Type[AchievementFactory],
+    achievement_rule_factory: Type[AchievementRuleFactory],
+    badge_factory: Type[BadgeFactory],
+    rule_factory: Type[RuleFactory],
+) -> None:
+    """
+    The hover title/description on the leaderboard reflect the badge's *current*
+    name, not the stale snapshot copied onto the achievement when it was earned.
+    """
+    context = LeaderboardRetrievingContext("user-1", "main", None)
+    user = gamma_user_factory(user_uid="user-1", signup_source="main")
+    rule = rule_factory(action={"edx_bookmark_added": 1}, filters={})
+    badge = badge_factory(
+        title="Received a Post Like",
+        description="Updated description.",
+        image=SimpleUploadedFile(name="b.png", content=b"dummy.content", content_type="image/png"),
+        set_rules=(rule,),
+    )
+    achievement = achievement_factory(
+        user=user,
+        content_type=ContentType.objects.get_for_model(type(badge)),
+        object_id=badge.id,
+        title="⑧ Received a Post Like",       # stale award-time snapshot
+        description="Stale snapshot description.",
+    )
+    achievement_rule_factory(
+        achievement=achievement,
+        rule=rule,
+        dependencies={},
+        status=AchievementRule.Statuses.COMPLETED,
+    )
+
+    data = LeaderboardMemberSerializer(
+        user,
+        context={"leaderboard_retrieving_context": context},
+    ).data
+
+    assert len(data["badges"]) == 1
+    assert data["badges"][0]["title"] == "Received a Post Like"
+    assert data["badges"][0]["description"] == "Updated description."
