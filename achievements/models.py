@@ -45,6 +45,19 @@ class Achievement(models.Model):
     def __str__(self):
         return f'Achievement {self.title!r} with type {self.content_type!r} for {self.user}'
 
+    def save(self, *args, **kwargs):
+        # ``title`` is a denormalized snapshot of the source Badge/Avatar title, which
+        # allows up to 255 chars, but this column is max_length=64. Every write path
+        # (reconciliation.recompute_holders and the event-driven grant use cases) copies
+        # the source title in verbatim, so a long badge title -- e.g. a "Course
+        # Completion" badge named after a full course title -- would otherwise raise
+        # "Data too long for column 'title'". Cap it here so all writers are safe,
+        # centralizing what Badge.award_to_user already did inline with ``[:64]``.
+        max_length = self._meta.get_field('title').max_length
+        if self.title and len(self.title) > max_length:
+            self.title = self.title[:max_length]
+        super().save(*args, **kwargs)
+
     def mark_completed(self) -> bool:
         """
         Record the completion moment, once.
