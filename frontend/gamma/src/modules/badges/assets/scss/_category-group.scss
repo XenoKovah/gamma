@@ -1,0 +1,25 @@
+// Collapsible per-category groups on the badges admin page. Each category header
+// is a prominent, clickable row (collapsed by default); expanding reveals the
+// badges in that category.
+.badges-by-category {
+  .badge-category-group {
+    border: 1px solid var(--pgn-color-light-400, #dae0e5);
+    border-radius: 0.375rem;
+    overflow: hidden;
+
+    .collapsible-trigger {
+      padding: 1rem 1.25rem;
+      background-color: var(--pgn-color-light-200, #f2f0ef);
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .collapsible-body {
+      padding: 1.25rem 1.25rem 0;
+    }
+
+    .badge-category-title {
+      font-size: 1.25rem;
+    }
+  }
+}

@@ -112,6 +112,10 @@ describe('Badges Component', () => {
 
     const { getByText, getAllByRole } = renderWithProviders(<Badges />);
 
+    // Badges are grouped by category and collapsed by default; expand the
+    // (Uncategorized) group so its badges and their action buttons render.
+    userEvent.click(getByText(moduleMessages.badgesUncategorizedLabel.defaultMessage));
+
     badgesMocks.forEach((badge) => {
       expect(getByText(badge.title)).toBeInTheDocument();
       expect(getByText(badge.description)).toBeInTheDocument();

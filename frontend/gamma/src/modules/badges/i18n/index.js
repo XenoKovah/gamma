@@ -61,6 +61,16 @@ const messages = defineMessages({
     defaultMessage: 'There are currently no accomplishments to display.',
     description: 'The description for the alert when there are no badges to display.',
   },
+  badgesUncategorizedLabel: {
+    id: 'modules.badges.category.uncategorized.label',
+    defaultMessage: 'Uncategorized',
+    description: 'Heading for the group of accomplishments that have no category set.',
+  },
+  badgesCategoryCount: {
+    id: 'modules.badges.category.count',
+    defaultMessage: '{count, plural, one {# accomplishment} other {# accomplishments}}',
+    description: 'Count of accomplishments shown next to a category heading in the admin list.',
+  },
   addManageEntityModalTitle: {
     id: 'modules.badges.modal.add-badge.title',
     defaultMessage: 'Add new accomplishment',
