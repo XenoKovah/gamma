@@ -41,16 +41,19 @@ class LeaderboardMemberBadgeSerializer(serializers.ModelSerializer):
 
     def get_url(self, obj: Achievement) -> str:
         """
-        Provide the badge image URL.
+        Provide the badge image URL. Defensive against a dangling badge (the
+        Badge was deleted but the Achievement remains) — get_badges already
+        filters those out, but never crash the whole leaderboard on one bad row.
         """
-        return obj.content_object.image.url
+        image = getattr(obj.content_object, "image", None)
+        return image.url if image else None
 
     def get_slug(self, obj: Achievement) -> str:
         """
         Provide the badge slug so the dashboard can link each leaderboard icon
-        to its per-badge leaderboard.
+        to its per-badge leaderboard. Defensive against a dangling badge.
         """
-        return obj.content_object.slug
+        return getattr(obj.content_object, "slug", None)
 
     class Meta:
         model = Achievement
@@ -74,7 +77,10 @@ class LeaderboardMemberSerializer(serializers.ModelSerializer):
         course_id = self.context["leaderboard_retrieving_context"].course_id
         achieved_badges = [
             achievement for achievement in obj.achievement_set.all()
-            if is_achieved_badge(achievement, course_id)
+            # Exclude dangling achievements whose Badge was deleted: they can't be
+            # rendered (no image/slug/title) and would otherwise crash the whole
+            # leaderboard response when this member is serialized.
+            if is_achieved_badge(achievement, course_id) and achievement.content_object is not None
         ]
         # Show the highest-value badges first: order by the badge's completion
         # points (Badge.points), descending. Python's sort is stable, so badges

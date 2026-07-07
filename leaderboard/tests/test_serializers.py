@@ -160,3 +160,45 @@ def test_leaderboard_badges_ordered_by_points_desc(
     ).data
 
     assert [badge["title"] for badge in data["badges"]] == ["High", "Mid", "Low"]
+
+
+@pytest.mark.django_db
+def test_leaderboard_skips_dangling_badge_without_crashing(
+    gamma_user_factory: Type[GammaUserFactory],
+    achievement_factory: Type[AchievementFactory],
+    achievement_rule_factory: Type[AchievementRuleFactory],
+    badge_factory: Type[BadgeFactory],
+    rule_factory: Type[RuleFactory],
+) -> None:
+    """
+    A completed achievement whose Badge was deleted (content_object is None) is
+    skipped rather than crashing the whole leaderboard response.
+    """
+    context = LeaderboardRetrievingContext("user-dangle", "main", None)
+    user = gamma_user_factory(user_uid="user-dangle", signup_source="main")
+    content_type = ContentType.objects.get_for_model(Badge)
+
+    # A live badge the member has earned.
+    live_rule = rule_factory(action={"edx_bookmark_added": 1}, filters={})
+    live_badge = badge_factory(
+        title="Live Badge", points=10,
+        image=SimpleUploadedFile(name="live.png", content=b"dummy.content", content_type="image/png"),
+        set_rules=(live_rule,),
+    )
+    live = achievement_factory(user=user, content_type=content_type, object_id=live_badge.id, title="Live Badge")
+    achievement_rule_factory(
+        achievement=live, rule=live_rule, dependencies={}, status=AchievementRule.Statuses.COMPLETED,
+    )
+
+    # A dangling achievement: Badge content type, but object_id points at no Badge.
+    dangling_rule = rule_factory(action={"edx_bookmark_added": 1}, filters={})
+    dangling = achievement_factory(user=user, content_type=content_type, object_id=999999, title="Deleted Badge")
+    achievement_rule_factory(
+        achievement=dangling, rule=dangling_rule, dependencies={}, status=AchievementRule.Statuses.COMPLETED,
+    )
+
+    data = LeaderboardMemberSerializer(
+        user, context={"leaderboard_retrieving_context": context},
+    ).data
+
+    assert [badge["title"] for badge in data["badges"]] == ["Live Badge"]
