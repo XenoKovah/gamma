@@ -7,6 +7,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from achievements.models import AchievementRule
 from achievements.tests.factories import AchievementFactory, AchievementRuleFactory
 from badges.factories import BadgeFactory
+from badges.models import Badge
 from core.tests.utils.helpers import load_params_from_json
 from leaderboard.dataclasses import LeaderboardRetrievingContext
 from leaderboard.serializers import LeaderboardMemberSerializer
@@ -119,3 +120,43 @@ def test_leaderboard_badge_title_follows_rename(
     assert len(data["badges"]) == 1
     assert data["badges"][0]["title"] == "Received a Post Like"
     assert data["badges"][0]["description"] == "Updated description."
+
+
+@pytest.mark.django_db
+def test_leaderboard_badges_ordered_by_points_desc(
+    gamma_user_factory: Type[GammaUserFactory],
+    achievement_factory: Type[AchievementFactory],
+    achievement_rule_factory: Type[AchievementRuleFactory],
+    badge_factory: Type[BadgeFactory],
+    rule_factory: Type[RuleFactory],
+) -> None:
+    """
+    A member's achieved badges are returned highest-value first (Badge.points
+    descending), regardless of the order the achievements were earned.
+    """
+    context = LeaderboardRetrievingContext("user-ord", "main", None)
+    user = gamma_user_factory(user_uid="user-ord", signup_source="main")
+    content_type = ContentType.objects.get_for_model(Badge)
+
+    # Created in a deliberately non-descending order to prove the sort runs.
+    for title, points in [("Low", 10), ("High", 100), ("Mid", 50)]:
+        rule = rule_factory(action={"edx_bookmark_added": 1}, filters={})
+        badge = badge_factory(
+            title=title,
+            points=points,
+            image=SimpleUploadedFile(name=f"{title}.png", content=b"dummy.content", content_type="image/png"),
+            set_rules=(rule,),
+        )
+        achievement = achievement_factory(
+            user=user, content_type=content_type, object_id=badge.id, title=title,
+        )
+        achievement_rule_factory(
+            achievement=achievement, rule=rule, dependencies={},
+            status=AchievementRule.Statuses.COMPLETED,
+        )
+
+    data = LeaderboardMemberSerializer(
+        user, context={"leaderboard_retrieving_context": context},
+    ).data
+
+    assert [badge["title"] for badge in data["badges"]] == ["High", "Mid", "Low"]

@@ -76,6 +76,14 @@ class LeaderboardMemberSerializer(serializers.ModelSerializer):
             achievement for achievement in obj.achievement_set.all()
             if is_achieved_badge(achievement, course_id)
         ]
+        # Show the highest-value badges first: order by the badge's completion
+        # points (Badge.points), descending. Python's sort is stable, so badges
+        # tied on points keep their existing order. getattr guards a dangling
+        # badge whose content_object no longer resolves.
+        achieved_badges.sort(
+            key=lambda achievement: getattr(achievement.content_object, "points", 0) or 0,
+            reverse=True,
+        )
         return LeaderboardMemberBadgeSerializer(achieved_badges, many=True, read_only=True).data
 
     class Meta:
