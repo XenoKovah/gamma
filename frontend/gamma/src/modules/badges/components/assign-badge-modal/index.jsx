@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
-import { Form } from '@openedx/paragon';
+import { Form, Alert } from '@openedx/paragon';
 
 import { Modal } from '../../../../generic';
+import { resolveIdentifiersToUsernames } from '../../data';
 import messages from '../../i18n';
 
 /**
@@ -40,20 +41,39 @@ const AssignBadgeModal = ({
 }) => {
   const intl = useIntl();
   const [userIdsText, setUserIdsText] = useState('');
+  const [isResolving, setIsResolving] = useState(false);
+  const [unresolvedEmails, setUnresolvedEmails] = useState([]);
   const modeMessages = MODE_MESSAGES[mode] || MODE_MESSAGES.assign;
 
-  // Clear the textarea whenever the modal is closed so it reopens empty.
+  // Clear the textarea (and any previous lookup error) whenever the modal closes
+  // so it reopens empty.
   useEffect(() => {
     if (!isOpen) {
       setUserIdsText('');
+      setUnresolvedEmails([]);
     }
   }, [isOpen]);
 
   const userIds = useMemo(() => parseUserIds(userIdsText), [userIdsText]);
 
-  const handleSubmit = () => {
-    if (badge && userIds.length) {
-      onSubmit(badge.id, userIds);
+  // Entries may be usernames or emails. Emails are resolved to usernames against
+  // the LMS (the gamma service has no email); if any can't be matched we surface
+  // them and do NOT submit, rather than assigning to a bogus user.
+  const handleSubmit = async () => {
+    if (!badge || !userIds.length) {
+      return;
+    }
+    setUnresolvedEmails([]);
+    setIsResolving(true);
+    try {
+      const { usernames, unresolved } = await resolveIdentifiersToUsernames(userIds);
+      if (unresolved.length) {
+        setUnresolvedEmails(unresolved);
+        return;
+      }
+      onSubmit(badge.id, usernames);
+    } finally {
+      setIsResolving(false);
     }
   };
 
@@ -68,7 +88,7 @@ const AssignBadgeModal = ({
       submitBtnOptions={{
         title: intl.formatMessage(modeMessages.submit),
         submitFn: handleSubmit,
-        disabled: userIds.length === 0 || isSubmitting,
+        disabled: userIds.length === 0 || isSubmitting || isResolving,
       }}
     >
       <p>{intl.formatMessage(modeMessages.description)}</p>
@@ -85,10 +105,20 @@ const AssignBadgeModal = ({
           name="userIds"
           data-testid="assign-badge-user-ids"
           value={userIdsText}
-          onChange={(event) => setUserIdsText(event.target.value)}
+          onChange={(event) => {
+            setUserIdsText(event.target.value);
+            setUnresolvedEmails([]);
+          }}
           placeholder={intl.formatMessage(messages.assignBadgeModalUserIdsPlaceholder)}
         />
       </Form.Group>
+      {unresolvedEmails.length > 0 && (
+        <Alert variant="danger" className="mb-2" data-testid="assign-badge-unresolved-emails">
+          {intl.formatMessage(messages.assignBadgeModalUnresolvedEmailsError, {
+            emails: unresolvedEmails.join(', '),
+          })}
+        </Alert>
+      )}
       {userIds.length > 0 && (
         <p className="small text-muted mb-0">
           {intl.formatMessage(modeMessages.selectedCount, { count: userIds.length })}

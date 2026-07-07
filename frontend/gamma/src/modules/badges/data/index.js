@@ -7,6 +7,7 @@ export {
   editBadge,
   assignBadge,
   unassignBadge,
+  resolveIdentifiersToUsernames,
 } from './api';
 export {
   useBadgesData,

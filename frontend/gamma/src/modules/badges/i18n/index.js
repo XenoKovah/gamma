@@ -88,7 +88,7 @@ const messages = defineMessages({
   },
   assignBadgeModalDescription: {
     id: 'modules.badges.modal.assign-badge.description',
-    defaultMessage: 'Enter the user IDs (usernames) to grant this accomplishment to, one per line or separated by commas.',
+    defaultMessage: 'Enter the usernames or email addresses to grant this accomplishment to, one per line or separated by commas.',
     description: 'Instructions shown in the manual badge assignment modal.',
   },
   assignBadgeModalPointsNote: {
@@ -98,13 +98,18 @@ const messages = defineMessages({
   },
   assignBadgeModalUserIdsLabel: {
     id: 'modules.badges.modal.assign-badge.user-ids.label',
-    defaultMessage: 'User IDs',
-    description: 'Label for the user IDs textarea in the manual badge assignment modal.',
+    defaultMessage: 'Usernames or emails',
+    description: 'Label for the usernames/emails textarea in the manual badge assignment modal.',
   },
   assignBadgeModalUserIdsPlaceholder: {
     id: 'modules.badges.modal.assign-badge.user-ids.placeholder',
-    defaultMessage: 'e.g. jdoe, asmith\nor one user ID per line',
-    description: 'Placeholder for the user IDs textarea in the manual badge assignment modal.',
+    defaultMessage: 'e.g. jdoe, asmith@example.com\nor one per line',
+    description: 'Placeholder for the usernames/emails textarea in the manual badge assignment modal.',
+  },
+  assignBadgeModalUnresolvedEmailsError: {
+    id: 'modules.badges.modal.assign-badge.unresolved-emails.error',
+    defaultMessage: 'No user found for: {emails}. Check the email address, or enter the username instead.',
+    description: 'Error shown when one or more entered email addresses could not be matched to a user.',
   },
   assignBadgeModalSubmitBtnText: {
     id: 'modules.badges.modal.assign-badge.button.submit',
@@ -123,7 +128,7 @@ const messages = defineMessages({
   },
   unassignBadgeModalDescription: {
     id: 'modules.badges.modal.unassign-badge.description',
-    defaultMessage: 'Enter the user IDs (usernames) to remove this accomplishment from, one per line or separated by commas.',
+    defaultMessage: 'Enter the usernames or email addresses to remove this accomplishment from, one per line or separated by commas.',
     description: 'Instructions shown in the manual badge removal modal.',
   },
   unassignBadgeModalPointsNote: {

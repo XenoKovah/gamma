@@ -9,6 +9,61 @@ import {
   convertKeysToSnakeCase,
   processReceivedPayload,
 } from './utils';
+import { getGammaHeaderConfig } from '../../../utils';
+
+/**
+ * An identifier is treated as an email if it contains an "@". edX usernames
+ * cannot contain "@", so this cleanly separates emails from usernames.
+ */
+const looksLikeEmail = (identifier) => identifier.includes('@');
+
+/**
+ * Resolve a list of assignment identifiers (edX usernames and/or emails) to
+ * usernames. The gamma service stores no email, so emails are looked up against
+ * the LMS accounts API (staff-only) using the LMS base URL the Django view
+ * injects into the page. Non-email identifiers pass through unchanged.
+ *
+ * @param {string[]} identifiers - Usernames and/or emails as typed by the admin.
+ * @returns {Promise<{usernames: string[], unresolved: string[]}>} `usernames`:
+ *   order-preserving, de-duplicated usernames to assign; `unresolved`: emails
+ *   that could not be matched to a user (or couldn't be looked up), so the caller
+ *   can surface them instead of silently assigning to a bogus user.
+ */
+export const resolveIdentifiersToUsernames = async (identifiers) => {
+  const { lmsBaseUrl } = getGammaHeaderConfig();
+  const usernames = [];
+  const unresolved = [];
+
+  for (const identifier of identifiers) {
+    if (!looksLikeEmail(identifier)) {
+      usernames.push(identifier);
+    } else if (!lmsBaseUrl) {
+      unresolved.push(identifier);
+    } else {
+      try {
+        // Staff-only LMS lookup; withCredentials sends the shared edX JWT cookie.
+        // eslint-disable-next-line no-await-in-loop
+        const { data } = await axios.get(`${lmsBaseUrl}/api/user/v1/accounts`, {
+          params: { email: identifier },
+          withCredentials: true,
+        });
+        const username = Array.isArray(data) && data[0]?.username;
+        if (username) {
+          usernames.push(username);
+        } else {
+          unresolved.push(identifier);
+        }
+      } catch (error) {
+        // 404 (no such email) and any auth/CORS failure land here — surface the
+        // email as unresolved rather than assigning to a bogus user.
+        logError('Error resolving email to username:', error);
+        unresolved.push(identifier);
+      }
+    }
+  }
+
+  return { usernames: [...new Set(usernames)], unresolved: [...new Set(unresolved)] };
+};
 
 /**
  * Fetches badge data from the API.

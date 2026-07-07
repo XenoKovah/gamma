@@ -9,6 +9,7 @@ import {
   createBadge,
   editBadge,
   deleteBadge,
+  resolveIdentifiersToUsernames,
 } from '../api';
 
 import {
@@ -24,6 +25,11 @@ jest.mock('../utils', () => ({
   ...jest.requireActual('../utils'),
   logError: jest.fn(),
   fileToBase64: jest.fn(() => Promise.resolve('base64EncodedString')),
+}));
+
+const LMS_BASE_URL = 'https://lms.example.com';
+jest.mock('../../../../utils', () => ({
+  getGammaHeaderConfig: jest.fn(() => ({ lmsBaseUrl: 'https://lms.example.com' })),
 }));
 
 describe('API functions', () => {
@@ -164,6 +170,44 @@ describe('API functions', () => {
       mock.onDelete(`${API_ROUTES.BADGES}${badgeId}/`).reply(500);
 
       await expect(deleteBadge(badgeId)).rejects.toThrow();
+    });
+  });
+
+  describe('resolveIdentifiersToUsernames', () => {
+    beforeEach(() => {
+      mock.onGet(`${LMS_BASE_URL}/api/user/v1/accounts`).reply((config) => {
+        const email = config.params?.email;
+        if (email === 'xkovah@gmail.com') {
+          return [200, [{ username: 'XenoPublic', email }]];
+        }
+        return [404, {}];
+      });
+    });
+
+    it('passes usernames through unchanged without hitting the LMS', async () => {
+      const result = await resolveIdentifiersToUsernames(['jdoe', 'asmith']);
+      expect(result).toEqual({ usernames: ['jdoe', 'asmith'], unresolved: [] });
+      expect(mock.history.get).toHaveLength(0);
+    });
+
+    it('resolves an email to its username via the LMS accounts API', async () => {
+      const result = await resolveIdentifiersToUsernames(['xkovah@gmail.com']);
+      expect(result).toEqual({ usernames: ['XenoPublic'], unresolved: [] });
+    });
+
+    it('handles a mix of usernames and emails, preserving order', async () => {
+      const result = await resolveIdentifiersToUsernames(['jdoe', 'xkovah@gmail.com']);
+      expect(result).toEqual({ usernames: ['jdoe', 'XenoPublic'], unresolved: [] });
+    });
+
+    it('reports an email that matches no user (404) as unresolved', async () => {
+      const result = await resolveIdentifiersToUsernames(['nobody@nowhere.tld']);
+      expect(result).toEqual({ usernames: [], unresolved: ['nobody@nowhere.tld'] });
+    });
+
+    it('de-duplicates resolved usernames (email + its username collapse)', async () => {
+      const result = await resolveIdentifiersToUsernames(['XenoPublic', 'xkovah@gmail.com']);
+      expect(result).toEqual({ usernames: ['XenoPublic'], unresolved: [] });
     });
   });
 });
