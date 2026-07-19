@@ -97,6 +97,34 @@ def test_pending_badge_notifications_excludes_seen_incomplete_and_other_users(
 
 
 @pytest.mark.django_db
+def test_pending_badge_notifications_excludes_deactivated_badges(
+    auth_client, achievement_factory, badge_factory, gamma_user_factory
+):
+    """
+    A badge deactivated (returned to draft) before the learner saw the toast does
+    not notify; the pending achievement is kept, so the notification surfaces if
+    the badge is re-activated.
+    """
+    user = gamma_user_factory(user_uid='draft_badge_user')
+    draft_badge = badge_factory(is_active=False)
+    achievement_factory(
+        user=user,
+        content_type=ContentType.objects.get_for_model(Badge),
+        object_id=draft_badge.id,
+        completed_at=now(),
+    )
+
+    response = auth_client.get(reverse('users:api:v0:user-badge-notifications'), {'username': 'draft_badge_user'})
+
+    assert response.json() == []
+
+    draft_badge.is_active = True
+    draft_badge.save(update_fields=('is_active',))
+    response = auth_client.get(reverse('users:api:v0:user-badge-notifications'), {'username': 'draft_badge_user'})
+    assert len(response.json()) == 1
+
+
+@pytest.mark.django_db
 def test_pending_badge_notifications_excludes_avatar_achievements(
     auth_client, achievement_factory, gamma_user_factory
 ):

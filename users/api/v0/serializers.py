@@ -58,9 +58,13 @@ class UserGameProfileSerializer(serializers.Serializer):
 
     def get_system_badges(self, obj):
         """
-        Get all system badges.
+        Get all active system badges.
+
+        Draft (deactivated) badges are not exposed to learners at all, so a badge
+        being prepared -- or one pulled back to draft -- never leaks its title,
+        image or rules through the API.
         """
-        system_badges = Badge.objects.all().prefetch_related('rules')
+        system_badges = Badge.objects.filter(is_active=True).prefetch_related('rules')
         return BadgeSerializer(system_badges, many=True).data
 
     def get_system_statuses(self, obj):
@@ -72,11 +76,18 @@ class UserGameProfileSerializer(serializers.Serializer):
 
     def get_badges(self, obj):
         """
-        Get user's received avatars data.
+        Get user's badge achievements (earned and in-progress).
+
+        Achievements whose badge was deactivated (returned to draft) are excluded:
+        deactivating a badge hides it everywhere learners see badges -- dashboard,
+        profile, leaderboards -- while the Achievement rows are kept, so
+        re-activating the badge restores it for everyone who had earned it.
         """
         content_type = ContentType.objects.get_for_model(Badge)
         received_user_badges = Achievement.objects.filter(
-            content_type=content_type, user__user_uid=obj.user_uid
+            content_type=content_type,
+            user__user_uid=obj.user_uid,
+            object_id__in=Badge.objects.filter(is_active=True).values('id'),
         )
 
         return AchievementDetailSerializer(received_user_badges, many=True).data

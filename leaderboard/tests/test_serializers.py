@@ -163,6 +163,55 @@ def test_leaderboard_badges_ordered_by_points_desc(
 
 
 @pytest.mark.django_db
+def test_leaderboard_hides_deactivated_badges(
+    gamma_user_factory: Type[GammaUserFactory],
+    achievement_factory: Type[AchievementFactory],
+    achievement_rule_factory: Type[AchievementRuleFactory],
+    badge_factory: Type[BadgeFactory],
+    rule_factory: Type[RuleFactory],
+) -> None:
+    """
+    An earned badge that was deactivated (returned to draft) is not shown on the
+    member's leaderboard row; the achievement itself is kept, so re-activating
+    the badge brings it back.
+    """
+    context = LeaderboardRetrievingContext("user-draft", "main", None)
+    user = gamma_user_factory(user_uid="user-draft", signup_source="main")
+    content_type = ContentType.objects.get_for_model(Badge)
+
+    badges = {}
+    for title, is_active in [("Shown", True), ("Hidden", False)]:
+        rule = rule_factory(action={"edx_bookmark_added": 1}, filters={})
+        badges[title] = badge_factory(
+            title=title,
+            is_active=is_active,
+            image=SimpleUploadedFile(name=f"{title}.png", content=b"dummy.content", content_type="image/png"),
+            set_rules=(rule,),
+        )
+        achievement = achievement_factory(
+            user=user, content_type=content_type, object_id=badges[title].id, title=title,
+        )
+        achievement_rule_factory(
+            achievement=achievement, rule=rule, dependencies={},
+            status=AchievementRule.Statuses.COMPLETED,
+        )
+
+    data = LeaderboardMemberSerializer(
+        user, context={"leaderboard_retrieving_context": context},
+    ).data
+
+    assert [badge["title"] for badge in data["badges"]] == ["Shown"]
+
+    # Re-activating the badge restores it for everyone who earned it.
+    badges["Hidden"].is_active = True
+    badges["Hidden"].save(update_fields=("is_active",))
+    data = LeaderboardMemberSerializer(
+        user, context={"leaderboard_retrieving_context": context},
+    ).data
+    assert sorted(badge["title"] for badge in data["badges"]) == ["Hidden", "Shown"]
+
+
+@pytest.mark.django_db
 def test_leaderboard_skips_dangling_badge_without_crashing(
     gamma_user_factory: Type[GammaUserFactory],
     achievement_factory: Type[AchievementFactory],

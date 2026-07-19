@@ -3,6 +3,8 @@ from collections import OrderedDict
 import pytest
 from django.contrib.contenttypes.models import ContentType
 
+from achievements.models import Achievement
+from badges.models import Badge
 from users.api.v0.serializers import UserGameProfileSerializer
 
 
@@ -124,6 +126,41 @@ class TestUserGameProfileSerializer:
         data = serializer.data
 
         assert expected_data == data
+
+    def test_deactivated_badges_hidden_but_achievements_kept(
+        self, gamma_user_factory, badge_factory, achievement_factory,
+    ):
+        """
+        A deactivated (draft) badge disappears from both system_badges and the
+        user's earned-badge list, but its Achievement row is untouched -- so
+        re-activating the badge restores it for everyone who earned it.
+        """
+        user = gamma_user_factory()
+        active_badge = badge_factory(title='Active Badge')
+        draft_badge = badge_factory(title='Speak at DEFCON', is_active=False)
+        badge_content_type = ContentType.objects.get_for_model(Badge)
+        for badge in (active_badge, draft_badge):
+            achievement_factory(
+                user=user,
+                content_type=badge_content_type,
+                object_id=badge.id,
+                title=badge.title,
+                description=badge.description,
+            )
+
+        data = UserGameProfileSerializer(user).data
+
+        assert [badge['title'] for badge in data['system_badges']] == ['Active Badge']
+        assert [badge['title'] for badge in data['badges']] == ['Active Badge']
+        # The grant survives deactivation; only the display is suppressed.
+        assert Achievement.objects.filter(
+            user=user, content_type=badge_content_type, object_id=draft_badge.id,
+        ).exists()
+
+        draft_badge.is_active = True
+        draft_badge.save(update_fields=('is_active',))
+        data = UserGameProfileSerializer(user).data
+        assert sorted(badge['title'] for badge in data['badges']) == ['Active Badge', 'Speak at DEFCON']
 
     def test_serialized_data_includes_active_system_statuses(self, gamma_user_factory, status_factory):
         """

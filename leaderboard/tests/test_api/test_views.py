@@ -178,6 +178,22 @@ class TestBadgeLeaderBoardView:
         assert response.status_code == 404
         assert response.json() == {"error": "Accomplishment not found."}
 
+    def test_deactivated_badge_returns_404(self, auth_client: APIClient) -> None:
+        """
+        A deactivated (draft) badge is hidden everywhere learners see badges, so a
+        direct URL to its per-badge leaderboard 404s like a deleted badge's would --
+        even when the badge has earners.
+        """
+        badge = BadgeFactory(title="Speak at DEFCON", is_active=False)
+        earner = GammaUserFactory(user_uid="draft_badge_earner", points=50)
+        self._award_badge(earner, badge)
+
+        endpoint = f"/api/v0/leaderboard/badge/{badge.slug}?username=draft_badge_earner&signup_source=main"
+        response = auth_client.get(endpoint)
+
+        assert response.status_code == 404
+        assert response.json() == {"error": "Accomplishment not found."}
+
     def test_returns_badge_earners_ranked_by_points(self, auth_client: APIClient) -> None:
         badge = BadgeFactory(title="Firmware Master Level 1", description="Complete Arch4001")
         low = GammaUserFactory(user_uid="low_points_user", points=10)

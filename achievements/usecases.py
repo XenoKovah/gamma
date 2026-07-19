@@ -265,6 +265,10 @@ class PendingBadgeNotificationsUseCase(UseCase):
                 content_type=badge_content_type,
                 completed_at__isnull=False,
                 notification_seen_at__isnull=True,
+                # Only active badges notify. A badge deactivated (returned to draft)
+                # before the learner saw the toast stays pending silently and will
+                # surface if the badge is re-activated.
+                object_id__in=Badge.objects.filter(is_active=True).values('id'),
             ).order_by('completed_at')
         )
 

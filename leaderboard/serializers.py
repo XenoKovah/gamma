@@ -79,8 +79,12 @@ class LeaderboardMemberSerializer(serializers.ModelSerializer):
             achievement for achievement in obj.achievement_set.all()
             # Exclude dangling achievements whose Badge was deleted: they can't be
             # rendered (no image/slug/title) and would otherwise crash the whole
-            # leaderboard response when this member is serialized.
-            if is_achieved_badge(achievement, course_id) and achievement.content_object is not None
+            # leaderboard response when this member is serialized. Also exclude
+            # deactivated (draft) badges: the achievement is kept, but the badge
+            # is hidden from every leaderboard until it is re-activated.
+            if is_achieved_badge(achievement, course_id)
+            and achievement.content_object is not None
+            and achievement.content_object.is_active
         ]
         # Show the highest-value badges first: order by the badge's completion
         # points (Badge.points), descending. Python's sort is stable, so badges

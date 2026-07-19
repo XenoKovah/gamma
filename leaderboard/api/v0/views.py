@@ -107,7 +107,9 @@ class BadgeLeaderBoardView(APIView):
         signup_source = request.GET.get("signup_source")
         course_id = request.GET.get("course_id")
 
-        badge = Badge.objects.filter(slug=badge_slug).order_by("-is_active", "pk").first()
+        # Deactivated (draft) badges have no leaderboard: they are hidden from every
+        # learner-facing surface, so a direct URL to their board 404s like a deleted one.
+        badge = Badge.objects.filter(slug=badge_slug, is_active=True).order_by("pk").first()
         if badge is None:
             return Response({"error": "Accomplishment not found."}, status=status.HTTP_404_NOT_FOUND)
 
