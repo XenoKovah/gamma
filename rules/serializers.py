@@ -53,6 +53,29 @@ class CourseFilterField(serializers.Field):
         return value
 
 
+class CompletionWindowFilterSerializer(serializers.Serializer):
+    """
+    Validate the completion window: how long the learner took to finish the class.
+
+    Measured in whole weeks from their first activity in the class to the event being
+    processed. ``min_weeks`` is exclusive and ``max_weeks`` inclusive, so bands laid
+    end to end (0-2, 2-4, 4-12) tile without overlapping and award at most one tier.
+    """
+
+    min_weeks = serializers.IntegerField(required=False, min_value=0)
+    max_weeks = serializers.IntegerField(required=False, min_value=1)
+
+    def validate(self, attrs):
+        if not attrs:
+            raise serializers.ValidationError('completion_window requires min_weeks and/or max_weeks.')
+
+        lower, upper = attrs.get('min_weeks'), attrs.get('max_weeks')
+        if lower is not None and upper is not None and upper <= lower:
+            raise serializers.ValidationError('max_weeks must be greater than min_weeks.')
+
+        return attrs
+
+
 class FiltersSerializer(serializers.Serializer):
     """
     Serializer for validating the filters in a rule.
@@ -62,6 +85,7 @@ class FiltersSerializer(serializers.Serializer):
     org = serializers.CharField(required=False)
     frequency = serializers.IntegerField(required=False)
     course = CourseFilterField(required=False)
+    completion_window = CompletionWindowFilterSerializer(required=False)
 
 
 class RuleSerializer(serializers.ModelSerializer):

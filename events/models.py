@@ -101,6 +101,14 @@ class Event(models.Model):
 
     class Meta:
         unique_together = ('uid', 'client', 'username')
+        indexes = [
+            # Serves the completion-window anchor lookup (rules.services.RulesFilterService
+            # ._window_anchor): "this learner's earliest activity in this class, before
+            # time T". The unique_together index leads with uid and cannot help, so without
+            # this the lookup is a full scan of a table that already holds millions of rows
+            # — and it runs inside the per-user lock every time a certificate arrives.
+            models.Index(fields=['username', 'course_id', 'created_at'], name='event_user_course_time_idx'),
+        ]
 
     def __str__(self):
         event_name = getattr(self.configuration, 'event_name', 'Unknown event')
