@@ -1,8 +1,11 @@
 from datetime import timedelta
 
 import pytest
+from django.contrib.contenttypes.models import ContentType
 from django.utils.timezone import now
 
+from achievements.models import Achievement
+from badges.models import Badge
 from rules.serializers import FiltersSerializer
 from rules.services import RulesFilterService
 
@@ -210,6 +213,79 @@ def test_completion_window_validation(window, is_valid):
     serializer = FiltersSerializer(data={'course': COURSE, 'completion_window': window})
 
     assert serializer.is_valid() is is_valid
+
+
+@pytest.mark.parametrize(
+    'elapsed, expected_tier, expected_points',
+    [
+        (timedelta(days=4), 'gold', 28500),
+        (timedelta(weeks=3), 'silver', 14250),
+        (timedelta(weeks=9), 'bronze', 7125),
+        (timedelta(weeks=20), None, 0),
+    ],
+    ids=['fast -> Gold', 'middling -> Silver', 'slow -> Bronze', 'too slow -> nothing'],
+)
+def test_tiers_award_exactly_one_badge_through_the_real_pipeline(
+    event_configuration_factory,
+    event_factory,
+    rule_factory,
+    badge_factory,
+    gamma_user_factory,
+    elapsed,
+    expected_tier,
+    expected_points,
+):
+    """
+    End-to-end: a certificate drives the real signal pipeline and lands on one tier only.
+
+    The three tiers sit on the same class and the same certificate event, so this is the
+    check that matters — that the bands cannot double-award, and that a learner slower
+    than the widest band simply earns nothing.
+    """
+    cert_configuration = event_configuration_factory(event_type__name=CERT_EVENT, award=50)
+    activity_configuration = event_configuration_factory(event_type__name=ACTIVITY_EVENT, award=0)
+
+    tiers = {}
+    for tier, window, points in (('gold', GOLD, 28500), ('silver', SILVER, 14250), ('bronze', BRONZE, 7125)):
+        rule = rule_factory(
+            event_configuration=cert_configuration,
+            action={CERT_EVENT: {'count': 1}},
+            filters={'course': COURSE, 'completion_window': window},
+        )
+        tiers[tier] = badge_factory(set_rules=rule, points=points, is_active=True)
+
+    user = gamma_user_factory()
+    certified_at = now()
+    points_before = user.points
+
+    event_factory(
+        configuration=activity_configuration,
+        username=user.user_uid,
+        course_id=COURSE,
+        created_at=certified_at - elapsed,
+    )
+    event_factory(
+        configuration=cert_configuration,
+        username=user.user_uid,
+        course_id=COURSE,
+        created_at=certified_at,
+    )
+
+    badge_type = ContentType.objects.get_for_model(Badge)
+    earned = [
+        tier for tier, badge in tiers.items()
+        if Achievement.objects.filter(
+            user=user, content_type=badge_type, object_id=badge.id, completed_at__isnull=False,
+        ).exists()
+    ]
+
+    assert earned == ([expected_tier] if expected_tier else [])
+
+    # The winning tier's completion points are paid exactly once. Event awards land on
+    # the user too, so compare the delta attributable to the badge.
+    user.refresh_from_db()
+    event_awards = cert_configuration.award + activity_configuration.award
+    assert user.points - points_before - event_awards == expected_points
 
 
 def test_completion_window_survives_serialisation():
