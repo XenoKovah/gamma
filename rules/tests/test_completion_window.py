@@ -18,6 +18,8 @@ ACTIVITY_EVENT = 'edx_done_toggled'
 GOLD = {'max_weeks': 2}
 SILVER = {'min_weeks': 2, 'max_weeks': 4}
 BRONZE = {'min_weeks': 4, 'max_weeks': 12}
+PLAIN = {'min_weeks': 12, 'match_without_anchor': True}
+ALL_TIERS = (('gold', GOLD), ('silver', SILVER), ('bronze', BRONZE), ('plain', PLAIN))
 
 COURSE = 'course-v1:OST2+Arch1001+2021_v1'
 COURSE_RERUN = 'course-v1:OST2+Arch1001+2024_v1'
@@ -81,8 +83,8 @@ def window_setup(event_configuration_factory, event_factory, rule_factory):
         (timedelta(weeks=4, seconds=1), 'bronze'),
         (timedelta(weeks=8), 'bronze'),
         (timedelta(weeks=12), 'bronze'),
-        (timedelta(weeks=12, seconds=1), None),
-        (timedelta(weeks=52), None),
+        (timedelta(weeks=12, seconds=1), 'plain'),
+        (timedelta(weeks=52), 'plain'),
     ],
     ids=[
         '1 day -> Gold',
@@ -94,21 +96,21 @@ def window_setup(event_configuration_factory, event_factory, rule_factory):
         'a second over 4 weeks -> Bronze',
         '8 weeks -> Bronze',
         'exactly 12 weeks -> Bronze',
-        'a second over 12 weeks -> nothing',
-        'a year -> nothing',
+        'a second over 12 weeks -> Plain',
+        'a year -> Plain',
     ],
 )
 def test_exactly_one_tier_matches_each_pace(window_setup, elapsed, expected_tier):
     """
-    Every pace resolves to at most one tier: the bands must tile without overlapping.
+    Every pace resolves to exactly one tier: the bands must tile without overlapping.
     """
     certificate, make_rule = window_setup([(ACTIVITY_EVENT, elapsed, COURSE)])
-    rules = {tier: make_rule(window) for tier, window in (('gold', GOLD), ('silver', SILVER), ('bronze', BRONZE))}
+    rules = {tier: make_rule(window) for tier, window in ALL_TIERS}
 
     service = RulesFilterService(certificate)
     matched = [tier for tier, rule in rules.items() if service.does_event_pass_filters(rule)]
 
-    assert matched == ([expected_tier] if expected_tier else [])
+    assert matched == [expected_tier]
 
 
 def test_enrolment_never_anchors_the_window(window_setup):
@@ -138,14 +140,30 @@ def test_multi_run_class_anchors_on_the_earliest_run(window_setup):
     assert service.does_event_pass_filters(make_rule(BRONZE, course_filter=both_runs)) is True
     assert service.does_event_pass_filters(make_rule(GOLD, course_filter=both_runs)) is False
 
-    # Scoped to the certificate's run alone, the older run's work is invisible and the
-    # window is unverifiable, so no tier is awarded.
+    # Scoped to the certificate's run alone, the older run's work is invisible, so the
+    # pace reads as unmeasurable and the graded band declines.
     assert RulesFilterService(certificate).does_event_pass_filters(make_rule(BRONZE)) is False
 
 
-def test_no_prior_activity_fails_closed(window_setup):
+def test_unmeasurable_pace_goes_to_the_catch_all_band_only(window_setup):
     """
-    Without recorded work before the certificate the pace is unknown: award nothing.
+    With no recorded work before the certificate, only the catch-all band claims it.
+
+    This is the common case for learners whose activity predates event tracking, so it
+    must land on exactly one tier rather than on all of them or none.
+    """
+    certificate, make_rule = window_setup([])
+    rules = {tier: make_rule(window) for tier, window in ALL_TIERS}
+
+    service = RulesFilterService(certificate)
+    matched = [tier for tier, rule in rules.items() if service.does_event_pass_filters(rule)]
+
+    assert matched == ['plain']
+
+
+def test_graded_bands_still_decline_an_unmeasurable_pace(window_setup):
+    """
+    Without a catch-all in the set, an unmeasurable pace earns nothing at all.
     """
     certificate, make_rule = window_setup([])
 
@@ -156,10 +174,15 @@ def test_no_prior_activity_fails_closed(window_setup):
 def test_activity_after_the_certificate_is_ignored(window_setup):
     """
     Only work preceding the certificate counts, so elapsed time can never go negative.
+
+    Later activity cannot anchor, so the pace reads as unmeasurable and falls to the
+    catch-all rather than scoring as an instant finish.
     """
     certificate, make_rule = window_setup([(ACTIVITY_EVENT, timedelta(days=-5), COURSE)])
 
-    assert RulesFilterService(certificate).does_event_pass_filters(make_rule(GOLD)) is False
+    service = RulesFilterService(certificate)
+    assert service.does_event_pass_filters(make_rule(GOLD)) is False
+    assert service.does_event_pass_filters(make_rule(PLAIN)) is True
 
 
 def test_rule_without_a_window_is_unaffected(window_setup):
@@ -190,7 +213,9 @@ def test_anchor_lookup_is_cached_across_tiers(window_setup, django_assert_num_qu
         ({'max_weeks': 2}, True),
         ({'min_weeks': 2, 'max_weeks': 4}, True),
         ({'min_weeks': 0, 'max_weeks': 12}, True),
+        ({'min_weeks': 12, 'match_without_anchor': True}, True),
         ({}, False),
+        ({'match_without_anchor': True}, False),
         ({'min_weeks': 4, 'max_weeks': 4}, False),
         ({'min_weeks': 6, 'max_weeks': 2}, False),
         ({'max_weeks': 0}, False),
@@ -201,7 +226,9 @@ def test_anchor_lookup_is_cached_across_tiers(window_setup, django_assert_num_qu
         'upper bound only',
         'a full band',
         'zero lower bound',
+        'open-ended catch-all band',
         'empty window rejected',
+        'catch-all without bounds rejected',
         'equal bounds rejected (empty band)',
         'inverted bounds rejected',
         'zero upper bound rejected',
@@ -221,9 +248,16 @@ def test_completion_window_validation(window, is_valid):
         (timedelta(days=4), 'gold', 28500),
         (timedelta(weeks=3), 'silver', 14250),
         (timedelta(weeks=9), 'bronze', 7125),
-        (timedelta(weeks=20), None, 0),
+        (timedelta(weeks=20), 'plain', 2850),
+        (None, 'plain', 2850),
     ],
-    ids=['fast -> Gold', 'middling -> Silver', 'slow -> Bronze', 'too slow -> nothing'],
+    ids=[
+        'fast -> Gold',
+        'middling -> Silver',
+        'slow -> Bronze',
+        'very slow -> Plain',
+        'no prior activity at all -> Plain',
+    ],
 )
 def test_tiers_award_exactly_one_badge_through_the_real_pipeline(
     event_configuration_factory,
@@ -246,7 +280,9 @@ def test_tiers_award_exactly_one_badge_through_the_real_pipeline(
     activity_configuration = event_configuration_factory(event_type__name=ACTIVITY_EVENT, award=0)
 
     tiers = {}
-    for tier, window, points in (('gold', GOLD, 28500), ('silver', SILVER, 14250), ('bronze', BRONZE, 7125)):
+    tier_points = (('gold', GOLD, 28500), ('silver', SILVER, 14250),
+                   ('bronze', BRONZE, 7125), ('plain', PLAIN, 2850))
+    for tier, window, points in tier_points:
         rule = rule_factory(
             event_configuration=cert_configuration,
             action={CERT_EVENT: {'count': 1}},
@@ -258,12 +294,13 @@ def test_tiers_award_exactly_one_badge_through_the_real_pipeline(
     certified_at = now()
     points_before = user.points
 
-    event_factory(
-        configuration=activity_configuration,
-        username=user.user_uid,
-        course_id=COURSE,
-        created_at=certified_at - elapsed,
-    )
+    if elapsed is not None:
+        event_factory(
+            configuration=activity_configuration,
+            username=user.user_uid,
+            course_id=COURSE,
+            created_at=certified_at - elapsed,
+        )
     event_factory(
         configuration=cert_configuration,
         username=user.user_uid,
@@ -279,12 +316,14 @@ def test_tiers_award_exactly_one_badge_through_the_real_pipeline(
         ).exists()
     ]
 
-    assert earned == ([expected_tier] if expected_tier else [])
+    assert earned == [expected_tier]
 
     # The winning tier's completion points are paid exactly once. Event awards land on
     # the user too, so compare the delta attributable to the badge.
     user.refresh_from_db()
-    event_awards = cert_configuration.award + activity_configuration.award
+    event_awards = cert_configuration.award
+    if elapsed is not None:
+        event_awards += activity_configuration.award
     assert user.points - points_before - event_awards == expected_points
 
 

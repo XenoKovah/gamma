@@ -59,18 +59,25 @@ class CompletionWindowFilterSerializer(serializers.Serializer):
 
     Measured in whole weeks from their first activity in the class to the event being
     processed. ``min_weeks`` is exclusive and ``max_weeks`` inclusive, so bands laid
-    end to end (0-2, 2-4, 4-12) tile without overlapping and award at most one tier.
+    end to end (0-2, 2-4, 4-12, 12+) tile without overlapping and award one tier.
+
+    ``match_without_anchor`` marks the band that also claims learners whose pace cannot
+    be measured at all; it belongs on a single open-ended band of a set.
     """
 
     min_weeks = serializers.IntegerField(required=False, min_value=0)
     max_weeks = serializers.IntegerField(required=False, min_value=1)
+    match_without_anchor = serializers.BooleanField(required=False)
 
     def validate(self, attrs):
-        if not attrs:
+        lower, upper = attrs.get('min_weeks'), attrs.get('max_weeks')
+
+        # A window carrying only match_without_anchor would match every pace as well as
+        # the unmeasurable case, silently swallowing the graded bands.
+        if lower is None and upper is None:
             raise serializers.ValidationError('completion_window requires min_weeks and/or max_weeks.')
 
-        lower, upper = attrs.get('min_weeks'), attrs.get('max_weeks')
-        if lower is not None and upper is not None and upper <= lower:
+        if upper is not None and lower is not None and upper <= lower:
             raise serializers.ValidationError('max_weeks must be greater than min_weeks.')
 
         return attrs

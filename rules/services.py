@@ -97,14 +97,18 @@ class RulesFilterService:
         their first real piece of work in it (see ``_window_anchor``) to the event being
         processed — in practice the certificate. ``min_weeks`` is exclusive and
         ``max_weeks`` inclusive, so consecutive bands tile without overlapping and a
-        certificate can satisfy at most one tier:
+        certificate satisfies exactly one tier:
 
             {'max_weeks': 2}                    ->        elapsed <= 2 weeks   (Gold)
             {'min_weeks': 2, 'max_weeks': 4}    -> 2 weeks < elapsed <= 4 weeks (Silver)
             {'min_weeks': 4, 'max_weeks': 12}   -> 4 weeks < elapsed <= 12 weeks (Bronze)
+            {'min_weeks': 12,                   ->           elapsed > 12 weeks (Plain)
+             'match_without_anchor': True}          ... or the pace is unmeasurable
 
-        A learner slower than the widest band matches no rule and earns nothing, which
-        is the intended outcome rather than an error.
+        ``match_without_anchor`` makes an open-ended band double as the catch-all for
+        learners whose pace cannot be established at all (no recorded work before the
+        event). Without it such a learner matches no band and earns nothing. It belongs
+        on exactly one band of a set — setting it on two would award both.
         """
         window = rule.filters.get('completion_window')
         if not window:
@@ -112,16 +116,19 @@ class RulesFilterService:
 
         anchor_at = self._window_anchor(rule)
         if anchor_at is None:
-            # No recorded work before this event, so the learner's pace is unknown. The
-            # window is unverifiable and deliberately fails closed: guessing would hand
-            # out a tier nobody measured. Expected for anyone whose activity predates
-            # event tracking, or whose history was backfilled after the fact.
+            # Nothing recorded before this event, so the learner's pace is unknown:
+            # expected for anyone whose activity predates event tracking or whose
+            # history was backfilled after the fact. Only the band explicitly claiming
+            # the unmeasurable case takes it; the graded bands decline rather than
+            # guess at a pace nobody observed.
+            claims_unanchored = bool(window.get('match_without_anchor'))
             logger.info(
-                'Completion window unverifiable for %r in %r: no anchoring activity before the event.',
+                'Completion window unmeasurable for %r in %r (no anchoring activity): %s.',
                 self.event.username,
                 self.event.course_id,
+                'claimed by the catch-all band' if claims_unanchored else 'declined by this band',
             )
-            return False
+            return claims_unanchored
 
         elapsed = self.event.created_at - anchor_at
         min_weeks = window.get('min_weeks')
