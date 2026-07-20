@@ -126,7 +126,7 @@ class Badge(TimestampModelMixin, models.Model):
         if blocking.exists():
             raise BadgeExclusionError(self, blocking)
 
-        _, created = Achievement.objects.get_or_create(
+        achievement, created = Achievement.objects.get_or_create(
             user=user,
             content_type=ContentType.objects.get_for_model(type(self)),
             object_id=self.id,
@@ -138,6 +138,9 @@ class Badge(TimestampModelMixin, models.Model):
                 # completion moment (which drives the badge-earned notification) is
                 # recorded here at grant time.
                 'completed_at': now(),
+                # Likewise the payment below is recorded here rather than by the
+                # completion use case, so a manual grant is auditable the same way.
+                'completion_points_paid': self.points or 0,
             },
         )
 
@@ -162,6 +165,13 @@ class Badge(TimestampModelMixin, models.Model):
 
         Return ``True`` if the badge was removed, ``False`` if the user did not have it
         (idempotent: re-running never deducts points twice).
+
+        The amount reversed is what the user was actually *paid*
+        (``Achievement.completion_points_paid``), not the badge's current ``points``.
+        The two diverge whenever a badge is re-valued after it was earned — which the
+        completion-points backfill does deliberately (0 -> N) — and reversing the current
+        value would then claw back points the user never received. Achievements predating
+        that field have no record, so they fall back to the current value as before.
         """
         achievements = Achievement.objects.filter(
             user=user,
@@ -171,12 +181,17 @@ class Badge(TimestampModelMixin, models.Model):
         if not achievements.exists():
             return False
 
+        paid = next(
+            (a.completion_points_paid for a in achievements if a.completion_points_paid is not None),
+            self.points,
+        )
+
         achievements.delete()
 
-        if self.points:
-            user.points -= self.points
+        if paid:
+            user.points -= paid
             user.save(update_fields=('points',))
-            user.update_user_progress(-self.points)
+            user.update_user_progress(-paid)
 
         return True
 

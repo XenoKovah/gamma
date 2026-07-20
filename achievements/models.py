@@ -41,6 +41,16 @@ class Achievement(models.Model):
         help_text=_('When the "badge earned" notification for this achievement was shown to the user. '
                     'A completed achievement with this unset is a pending notification.'),
     )
+    completion_points_paid = models.IntegerField(
+        null=True,
+        blank=True,
+        help_text=_("How many of the source Badge's completion points were credited to the user for this "
+                    'achievement. Set by every path that pays them (the rule-driven completion use case, the '
+                    'manual grant, and the backfill command) so a payment can be audited and never repeated. '
+                    'NULL means "no payment recorded" — which for rows predating this field is not the same as '
+                    '"never paid", so the backfill command scopes itself with an explicit badge list and a '
+                    'completion cutoff rather than trusting NULL alone. 0 records a deliberate zero-point pay.'),
+    )
 
     def __str__(self):
         return f'Achievement {self.title!r} with type {self.content_type!r} for {self.user}'
