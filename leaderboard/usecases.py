@@ -1,7 +1,7 @@
 import logging
 import time
 from collections import defaultdict
-from typing import Callable, Dict, Generator, List, Optional, Tuple
+from typing import Callable, Dict, Generator, List, Optional, Set, Tuple
 
 from django.conf import settings
 
@@ -46,6 +46,14 @@ class GetPersonalizedLeaderboardUseCase:
         when the user possesses to last position in the leaderboard, but he has points.
         - An empty list if the user has no points, or the user is in the top members.
     - current user rank.
+
+    A set of ``hidden_user_uids`` can be supplied to serve a filtered view of the same
+    board (the "hide instructors" view). Hidden members are dropped everywhere — the top
+    list, the competitor window and the rank arithmetic — so the result is the board as
+    it would look had those users never been on it, not the full board with gaps punched
+    in it. Every bounded read over-fetches by the size of the hidden set before filtering,
+    which is enough to refill the list because at most that many of the members fetched
+    can be hidden ones.
     """
 
     # Size of the leaderboard's "top" list (the leaders shown to everyone).
@@ -56,21 +64,25 @@ class GetPersonalizedLeaderboardUseCase:
         self,
         leaderboard_repository: LeaderboardRepository,
         leaderboard_member_data_repository: LeaderboardMemberDataRepository,
+        hidden_user_uids: Optional[Set[str]] = None,
     ) -> None:
         self._leaderboard_repository = leaderboard_repository
         self._leaderboard_member_data_repository = leaderboard_member_data_repository
+        self._hidden_user_uids = hidden_user_uids or set()
+        self._hidden_scores_cache: Dict[str, Dict[str, float]] = {}
 
     def execute(self, context: LeaderboardRetrievingContext) -> Tuple[List[dict], List[dict], Optional[int]]:
         user_uid = context.user_uid
         leaderboard_id = context.leaderboard_id
 
-        if context.is_excluded:
-            # The requesting user opted out of ranking: show them the public top board,
-            # but never call get_or_init_user_score (which would re-add them to Redis at
-            # score 0) and never give them a rank or competitors of their own.
-            top_members = self._leaderboard_repository.get_users_with_highest_score(
-                self.TOP_MEMBERS_LIMIT, leaderboard_id
-            )
+        if context.is_excluded or user_uid in self._hidden_user_uids:
+            # Either the requesting user opted out of ranking, or the filter currently
+            # applied hides them from their own board (an instructor viewing the
+            # instructor-free board). Both mean the same thing here: show them the public
+            # top list, but never call get_or_init_user_score (which would re-add an
+            # opted-out user to Redis at score 0) and never give them a rank or
+            # competitors of their own, because they are not on the board being shown.
+            top_members = self._get_highest_scoring_members(self.TOP_MEMBERS_LIMIT, leaderboard_id)
             return self._build_leaderboard_members_data(top_members, context), [], None
 
         current_user_score = self._leaderboard_repository.get_or_init_user_score(user_uid, leaderboard_id)
@@ -97,8 +109,69 @@ class GetPersonalizedLeaderboardUseCase:
         Determining the current position of the user based on number of points.
 
         In case of a tie in points with other users, the current user always ranks higher.
+
+        Hidden members are discounted, so on a filtered board the user's rank is the one
+        they hold among the members actually shown.
         """
-        return self._leaderboard_repository.get_user_count_with_score_gt(current_user.points, leaderboard_id) + 1
+        members_above = self._leaderboard_repository.get_user_count_with_score_gt(
+            current_user.points, leaderboard_id
+        )
+        hidden_above = sum(
+            1 for score in self._get_hidden_scores(leaderboard_id).values() if score > current_user.points
+        )
+        return members_above - hidden_above + 1
+
+    def _get_hidden_scores(self, leaderboard_id: str) -> Dict[str, float]:
+        """
+        Provide the scores the hidden members hold on this board.
+
+        Hidden members that are not on this board at all (an instructor with no points in
+        the course whose leaderboard is being viewed) are simply absent. Memoized because
+        the rank arithmetic reads it once per call and the set never changes mid-request.
+        """
+        if not self._hidden_user_uids:
+            return {}
+
+        if leaderboard_id not in self._hidden_scores_cache:
+            self._hidden_scores_cache[leaderboard_id] = self._leaderboard_repository.get_user_scores(
+                self._hidden_user_uids, leaderboard_id
+            )
+        return self._hidden_scores_cache[leaderboard_id]
+
+    def _drop_hidden(self, members: List[LeaderboardMember]) -> List[LeaderboardMember]:
+        """
+        Remove the hidden members from a list read off the leaderboard.
+        """
+        if not self._hidden_user_uids:
+            return members
+        return [member for member in members if member.user_uid not in self._hidden_user_uids]
+
+    def _get_highest_scoring_members(self, count: int, leaderboard_id: str) -> List[LeaderboardMember]:
+        """
+        Provide the ``count`` highest scoring members that are not hidden.
+        """
+        members = self._leaderboard_repository.get_users_with_highest_score(
+            count + len(self._hidden_user_uids), leaderboard_id
+        )
+        return self._drop_hidden(members)[:count]
+
+    def _get_members_with_score_lte(
+        self,
+        value: int,
+        limit: int,
+        leaderboard_id: str,
+        users_to_exclude: Optional[Set[str]] = None,
+    ) -> List[LeaderboardMember]:
+        """
+        Provide up to ``limit`` non-hidden members scoring at or below ``value``.
+        """
+        members = self._leaderboard_repository.get_top_users_with_score_lte(
+            value,
+            limit + len(self._hidden_user_uids),
+            leaderboard_id,
+            users_to_exclude=users_to_exclude,
+        )
+        return self._drop_hidden(members)[:limit]
 
     def _get_top_members_data(
         self,
@@ -114,13 +187,15 @@ class GetPersonalizedLeaderboardUseCase:
         top_limit = self.TOP_MEMBERS_LIMIT
 
         if rank > top_limit:
-            top_members = self._leaderboard_repository.get_users_with_highest_score(top_limit, leaderboard_id)
+            top_members = self._get_highest_scoring_members(top_limit, leaderboard_id)
             return self._build_leaderboard_members_data(top_members, context)
 
-        head_top_members = self._leaderboard_repository.get_top_users_with_score_gt(
+        # Unbounded read (everyone scoring above the user, who ranks inside the top list
+        # here), so dropping the hidden members needs no over-fetch to compensate.
+        head_top_members = self._drop_hidden(self._leaderboard_repository.get_top_users_with_score_gt(
             current_user_points,
             leaderboard_id,
-        )
+        ))
 
         if current_user_points == 0:
             return self._build_leaderboard_members_data(head_top_members, context)
@@ -130,7 +205,7 @@ class GetPersonalizedLeaderboardUseCase:
             head_top_members.append(current_user)
             return self._build_leaderboard_members_data(head_top_members, context)
 
-        tail_top_members = self._leaderboard_repository.get_top_users_with_score_lte(
+        tail_top_members = self._get_members_with_score_lte(
             current_user_points,
             top_limit - head_top_length,
             leaderboard_id,
@@ -149,17 +224,23 @@ class GetPersonalizedLeaderboardUseCase:
         """
         Provide the user competitors with higher score.
         """
-        return self._leaderboard_repository.get_nearest_top_users_with_score_gt(
+        if limit <= 0:
+            return []
+
+        members = self._leaderboard_repository.get_nearest_top_users_with_score_gt(
             current_user.points,
-            limit,
+            limit + len(self._hidden_user_uids),
             leaderboard_id,
         )
+        # Ordered by score descending, so the competitors nearest the user — the ones
+        # this window is for — are the trailing entries, not the leading ones.
+        return self._drop_hidden(members)[-limit:]
 
     def _get_tail_competitors(self, current_user: LeaderboardMember, leaderboard_id: str) -> List[LeaderboardMember]:
         """
         Provide the user competitors with lower score.
         """
-        return self._leaderboard_repository.get_top_users_with_score_lte(
+        return self._get_members_with_score_lte(
             current_user.points,
             self.TAIL_COMPETITORS_LIMIT + 1,
             leaderboard_id,

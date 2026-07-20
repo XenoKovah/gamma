@@ -1,6 +1,6 @@
 import logging
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, Iterable, List, Optional, Set, Tuple
 
 from django.db.models import Prefetch
 
@@ -32,6 +32,14 @@ class LeaderboardRepository(ABC):
     def get_user_count_with_score_gt(self, value: int, leaderboard_id: str) -> int:
         """
         Provide the count of leaderboard members with score greater than value.
+        """
+
+    def get_user_scores(self, user_uids: Iterable[str], leaderboard_id: str) -> Dict[str, float]:
+        """
+        Provide the scores of the given users on the leaderboard.
+
+        Users absent from the leaderboard are omitted from the result rather than
+        reported as 0, so a caller can tell "not on this board" from "no points".
         """
 
     @abstractmethod
@@ -117,6 +125,21 @@ class RedisLeaderboardRepository(LeaderboardRepository):
 
     def get_user_count_with_score_gt(self, value: int, leaderboard_id: str) -> int:
         return self._redis_client.zcount(leaderboard_id, f"({value}", "+inf")
+
+    def get_user_scores(self, user_uids: Iterable[str], leaderboard_id: str) -> Dict[str, float]:
+        user_uids = list(user_uids)
+        if not user_uids:
+            return {}
+
+        pipe = self._redis_client.pipeline(transaction=False)
+        for user_uid in user_uids:
+            pipe.zscore(leaderboard_id, user_uid)
+
+        return {
+            user_uid: score
+            for user_uid, score in zip(user_uids, pipe.execute())
+            if score is not None
+        }
 
     def get_users_with_highest_score(self, count: int, leaderboard_id: str) -> List[LeaderboardMember]:
         return [

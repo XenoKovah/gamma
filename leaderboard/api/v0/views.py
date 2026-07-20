@@ -1,5 +1,5 @@
 import math
-from typing import List, Optional, Tuple
+from typing import List, Optional, Set, Tuple
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -12,9 +12,29 @@ from achievements.models import Achievement
 from badges.models import Badge
 from core.authentication import KeySecretAuthentication
 from leaderboard.dataclasses import LeaderboardRetrievingContext
+from leaderboard.instructors import get_instructor_user_uids, is_instructor_badge_slug
 from leaderboard.repository import ORMLeaderboardMemberDataRepository, RedisLeaderboardRepository
 from leaderboard.usecases import GetPersonalizedLeaderboardUseCase
 from users.models import GammaUser, GammaUserCoursePoints
+
+TRUE_VALUES = {"1", "true", "yes", "on"}
+
+
+def _is_true(value: Optional[str]) -> bool:
+    """
+    Whether a request parameter carries an affirmative value.
+    """
+    return str(value).strip().lower() in TRUE_VALUES
+
+
+def _hidden_user_uids(hide_instructors: bool) -> Set[str]:
+    """
+    Provide the users to leave off the board for this request.
+
+    Empty unless the caller asked for the instructor-free view, so the default board
+    costs exactly what it did before.
+    """
+    return get_instructor_user_uids() if hide_instructors else set()
 
 
 def _standard_competition_rank(
@@ -48,6 +68,9 @@ def _standard_competition_rank(
 class LeaderBoardView(APIView):
     """
     Provide personalized leaderboard data for the requesting Gamma user.
+
+    ``hide_instructors=1`` serves the same board with instructors left off it and every
+    rank recomputed accordingly (see :mod:`leaderboard.instructors`).
     """
 
     authentication_classes = (KeySecretAuthentication,)
@@ -63,11 +86,16 @@ class LeaderBoardView(APIView):
             is_excluded=gamma_user.excluded_from_leaderboard,
         )
 
-        response_data = self._collect_response_data(leaderboard_retrieving_context)
+        hidden_user_uids = _hidden_user_uids(_is_true(request.GET.get("hide_instructors")))
+        response_data = self._collect_response_data(leaderboard_retrieving_context, hidden_user_uids)
 
         return Response(response_data, status=status.HTTP_200_OK)
 
-    def _collect_response_data(self, leaderboard_retrieving_context: LeaderboardRetrievingContext) -> dict:
+    def _collect_response_data(
+        self,
+        leaderboard_retrieving_context: LeaderboardRetrievingContext,
+        hidden_user_uids: Set[str],
+    ) -> dict:
         """
         Collect data to place in the response body.
         """
@@ -76,6 +104,7 @@ class LeaderBoardView(APIView):
         leaders, competitors, rank = GetPersonalizedLeaderboardUseCase(
             redis_leaderboard_repository,
             leaderboard_member_data_repository,
+            hidden_user_uids=hidden_user_uids,
         ).execute(leaderboard_retrieving_context)
 
         return {
@@ -83,6 +112,10 @@ class LeaderBoardView(APIView):
             "rank": rank,
             "user_uid": leaderboard_retrieving_context.user_uid,
             "competitors": competitors,
+            # The viewer is an instructor looking at the instructor-free board: they have
+            # no place on it, so the dashboard must not append its "you are not ranked
+            # yet" row for them (that row is for a learner who has yet to score).
+            "viewer_hidden": leaderboard_retrieving_context.user_uid in hidden_user_uids,
         }
 
 
@@ -115,7 +148,16 @@ class BadgeLeaderBoardView(APIView):
 
         GammaUser.ensure_gamma_user_is_created(user_uid=user_uid)
 
-        ranked_earners, ranked_in_progress = self._collect_badge_members(badge, course_id)
+        # An instructor badge's own board is the one place hiding instructors makes no
+        # sense: it would empty the page. The board is served unfiltered there and the
+        # dashboard drops the toggle, rather than honouring a sticky preference into a
+        # blank list.
+        is_instructor_badge = is_instructor_badge_slug(badge.slug)
+        hidden_user_uids = _hidden_user_uids(
+            _is_true(request.GET.get("hide_instructors")) and not is_instructor_badge
+        )
+
+        ranked_earners, ranked_in_progress = self._collect_badge_members(badge, course_id, hidden_user_uids)
         context = LeaderboardRetrievingContext(user_uid, signup_source, course_id)
 
         earners_data = self._build_members_data(ranked_earners[:self.MEMBERS_LIMIT], course_id, context)
@@ -134,6 +176,7 @@ class BadgeLeaderBoardView(APIView):
                 "title": badge.title,
                 "description": badge.description or "",
                 "url": badge.image.url if badge.image else None,
+                "is_instructor_badge": is_instructor_badge,
             },
             "top10": earners_data,
             "competitors": [],
@@ -151,7 +194,7 @@ class BadgeLeaderBoardView(APIView):
         return Response(response_data, status=status.HTTP_200_OK)
 
     def _collect_badge_members(
-        self, badge: Badge, course_id: Optional[str],
+        self, badge: Badge, course_id: Optional[str], hidden_user_uids: Optional[Set[str]] = None,
     ) -> Tuple[List[GammaUser], List[Tuple[GammaUser, int]]]:
         """
         Split the badge's users into earners and in-progress members.
@@ -160,6 +203,9 @@ class BadgeLeaderBoardView(APIView):
         in-progress members (not completed, but with progress above 0%) are
         returned as ``(user, percent)`` pairs ranked by their progress percentage
         descending, with points as a tie-breaker.
+
+        ``hidden_user_uids`` are dropped before ranking, so the ranks and the 100-member
+        cut-off are both computed over the members that are actually shown.
         """
         badge_content_type = ContentType.objects.get_for_model(Badge)
         achievements = (
@@ -191,12 +237,12 @@ class BadgeLeaderBoardView(APIView):
                 in_progress_percents[user_uid] = percent
 
         ranked_earners = sorted(
-            self._fetch_users(earners.keys(), course_id),
+            self._fetch_users(earners.keys(), course_id, hidden_user_uids),
             key=lambda gamma_user: self._member_points(gamma_user, course_id),
             reverse=True,
         )
 
-        in_progress_users = self._fetch_users(in_progress_percents.keys(), course_id)
+        in_progress_users = self._fetch_users(in_progress_percents.keys(), course_id, hidden_user_uids)
         ranked_in_progress = sorted(
             ((user, in_progress_percents[user.user_uid]) for user in in_progress_users),
             key=lambda pair: (pair[1], self._member_points(pair[0], course_id)),
@@ -205,15 +251,20 @@ class BadgeLeaderBoardView(APIView):
         return ranked_earners, ranked_in_progress
 
     @staticmethod
-    def _fetch_users(user_uids, course_id: Optional[str]) -> List[GammaUser]:
+    def _fetch_users(
+        user_uids, course_id: Optional[str], hidden_user_uids: Optional[Set[str]] = None,
+    ) -> List[GammaUser]:
         """
         Fetch GammaUsers for the given uids, prefetching course points when needed.
 
-        Opted-out users are dropped so they never appear on a per-badge leaderboard.
+        Opted-out users are dropped so they never appear on a per-badge leaderboard, as
+        are the members hidden by the view currently requested.
         """
         users = GammaUser.objects.filter(user_uid__in=list(user_uids)).exclude(
             excluded_from_leaderboard=True
         )
+        if hidden_user_uids:
+            users = users.exclude(user_uid__in=list(hidden_user_uids))
         if course_id:
             users = users.prefetch_related("courses_points")
         return list(users)
@@ -338,7 +389,8 @@ class UsersLeaderBoardView(APIView):
         if not user_uids:
             return self._empty_response(viewer_uid)
 
-        ranked_users = self._rank_users(user_uids, signup_source)
+        hidden_user_uids = _hidden_user_uids(_is_true(request.data.get("hide_instructors")))
+        ranked_users = self._rank_users(user_uids, signup_source, hidden_user_uids)
 
         context = LeaderboardRetrievingContext(viewer_uid, signup_source, None)
         members_data = self._build_members_data(ranked_users[:self.MEMBERS_LIMIT], context)
@@ -352,6 +404,7 @@ class UsersLeaderBoardView(APIView):
                     [(gamma_user.user_uid, gamma_user.points) for gamma_user in ranked_users],
                 ),
                 "user_uid": viewer_uid,
+                "viewer_hidden": viewer_uid in hidden_user_uids,
             },
             status=status.HTTP_200_OK,
         )
@@ -363,12 +416,14 @@ class UsersLeaderBoardView(APIView):
         country shares it publicly): an empty, well-formed leaderboard.
         """
         return Response(
-            {"top10": [], "competitors": [], "rank": None, "user_uid": viewer_uid},
+            {"top10": [], "competitors": [], "rank": None, "user_uid": viewer_uid, "viewer_hidden": False},
             status=status.HTTP_200_OK,
         )
 
     @staticmethod
-    def _rank_users(user_uids: List[str], signup_source: Optional[str]) -> List[GammaUser]:
+    def _rank_users(
+        user_uids: List[str], signup_source: Optional[str], hidden_user_uids: Optional[Set[str]] = None,
+    ) -> List[GammaUser]:
         """
         Fetch the requested users that belong to ``signup_source``'s leaderboard,
         ordered by total points (descending).
@@ -381,7 +436,12 @@ class UsersLeaderBoardView(APIView):
         effective_source = signup_source or settings.MAIN_SIGNUP_SOURCE
         # Opted-out users are dropped here, so they never appear on the per-country or
         # per-course "Completed" leaderboards (and an opted-out viewer gets rank=None).
+        # The members hidden by the requested view go the same way, before ranking, so
+        # the ranks close up rather than leaving gaps where they were.
         users = GammaUser.objects.filter(user_uid__in=user_uids).exclude(excluded_from_leaderboard=True)
+
+        if hidden_user_uids:
+            users = users.exclude(user_uid__in=list(hidden_user_uids))
 
         if effective_source == settings.MAIN_SIGNUP_SOURCE:
             users = users.filter(
@@ -409,3 +469,18 @@ class UsersLeaderBoardView(APIView):
             member_data["points"] = points_by_uid.get(member_data["user_uid"], 0)
 
         return members_data
+
+
+class InstructorUserUidsView(APIView):
+    """
+    List the user_uids of everyone holding an instructor badge.
+
+    The dashboard uses this for the one leaderboard section it ranks itself — the
+    per-course "In progress" list, ranked by course grade rather than points, which
+    Gamma never sees. Every point-ranked section is filtered by Gamma directly.
+    """
+
+    authentication_classes = (KeySecretAuthentication,)
+
+    def get(self, request, *args, **kwargs):
+        return Response({"user_uids": sorted(get_instructor_user_uids())})

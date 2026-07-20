@@ -80,7 +80,8 @@ class TestLeaderBoardView:
 
         response = auth_client.get(endpoint)
 
-        collect_response_data_mock.assert_called_once_with(leaderboard_retrieving_context)
+        # No ``hide_instructors``, so nobody is hidden and the request costs what it always did.
+        collect_response_data_mock.assert_called_once_with(leaderboard_retrieving_context, set())
         assert response.status_code == 200
         assert response.json() == collect_response_data_result
 
@@ -130,19 +131,21 @@ class TestLeaderBoardView:
             "rank": rank_mock,
             "user_uid": leaderboard_retrieving_context.user_uid,
             "competitors": competitors_mock,
+            "viewer_hidden": False,
         }
         use_case_mock = mocker.patch(
             "leaderboard.api.v0.views.GetPersonalizedLeaderboardUseCase",
             Mock(return_value=Mock(execute=Mock(return_value=(leaders_mock, competitors_mock, rank_mock)))),
         )
 
-        actual_response_data = LeaderBoardView()._collect_response_data(leaderboard_retrieving_context)
+        actual_response_data = LeaderBoardView()._collect_response_data(leaderboard_retrieving_context, set())
 
         redis_leaderboard_repository_mock.assert_called_once_with()
         orm_leaderboard_member_data_repository_mock.assert_called_once_with()
         use_case_mock.assert_called_once_with(
             redis_leaderboard_repository_mock.return_value,
             orm_leaderboard_member_data_repository_mock.return_value,
+            hidden_user_uids=set(),
         )
         use_case_mock.return_value.execute.assert_called_once_with(leaderboard_retrieving_context)
         assert actual_response_data == expected_response_data
@@ -484,7 +487,9 @@ class TestUsersLeaderBoardView:
         )
 
         assert response.status_code == 200
-        assert response.json() == {"top10": [], "competitors": [], "rank": None, "user_uid": "viewer"}
+        assert response.json() == {
+            "top10": [], "competitors": [], "rank": None, "user_uid": "viewer", "viewer_hidden": False,
+        }
 
     def test_users_from_other_signup_sources_are_excluded(self, auth_client: APIClient) -> None:
         # The country page is scoped to the requesting user's signup source, mirroring
