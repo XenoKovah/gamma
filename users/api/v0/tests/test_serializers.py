@@ -98,6 +98,7 @@ class TestUserGameProfileSerializer:
                     ('slug', badge.slug),
                     ('points', badge.points),
                     ('manual_criteria', badge.manual_criteria),
+                    ('excluded_categories', badge.excluded_categories),
                     ('rules', []),
                     ('created_at', badge.created_at.isoformat().replace('+00:00', 'Z'))
                 ])

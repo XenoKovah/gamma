@@ -4,6 +4,7 @@ from django.utils.text import slugify
 from django.utils.timezone import now
 
 from achievements.models import Achievement
+from badges.exceptions import BadgeExclusionError
 from users.models import GammaUser
 from core.mixins import TimestampModelMixin
 
@@ -40,6 +41,17 @@ class Badge(TimestampModelMixin, models.Model):
         ),
     )
 
+    excluded_categories = models.JSONField(
+        default=list,
+        blank=True,
+        help_text=(
+            'Badge categories that disqualify a learner from this badge. If the learner already '
+            'holds any badge in any of these categories, granting this one is refused. Example: '
+            '["Ignominious!"] stops a learner flagged for gaming completions from being granted '
+            'an accomplishment badge.'
+        ),
+    )
+
     slug = models.SlugField(max_length=255, null=True, blank=True)
     rules = models.ManyToManyField('rules.Rule')
 
@@ -67,6 +79,25 @@ class Badge(TimestampModelMixin, models.Model):
             object_id=self.id
         ).exists()
 
+    def blocking_badges(self, user: GammaUser) -> models.QuerySet:
+        """
+        Badges the user already holds that disqualify them from this one.
+
+        A badge is disqualifying when its ``category`` appears in this badge's
+        ``excluded_categories``. Returns an empty queryset when no exclusions are
+        configured, which is the case for every badge by default.
+        """
+        categories = self.excluded_categories or []
+        if not categories:
+            return Badge.objects.none()
+
+        held_badge_ids = Achievement.objects.filter(
+            user=user,
+            content_type=ContentType.objects.get_for_model(type(self)),
+        ).values_list('object_id', flat=True)
+
+        return Badge.objects.filter(id__in=held_badge_ids, category__in=categories)
+
     @transaction.atomic
     def award_to_user(self, user: GammaUser) -> bool:
         """
@@ -81,7 +112,20 @@ class Badge(TimestampModelMixin, models.Model):
 
         Return ``True`` if the badge was newly granted, ``False`` if the user already
         had it (idempotent: re-assigning never double-awards points).
+
+        Raise ``BadgeExclusionError`` if the user holds a badge in one of this badge's
+        ``excluded_categories``. The check guards the grant here, in the model, so every
+        caller is covered rather than only the admin dialog. It runs *after* the
+        already-held short-circuit, so a learner who earned this badge before being
+        flagged keeps it and re-assignment stays a no-op instead of starting to fail.
         """
+        if self.has_achievement(user):
+            return False
+
+        blocking = self.blocking_badges(user)
+        if blocking.exists():
+            raise BadgeExclusionError(self, blocking)
+
         _, created = Achievement.objects.get_or_create(
             user=user,
             content_type=ContentType.objects.get_for_model(type(self)),

@@ -36,6 +36,7 @@ class TestBadgeViewSet:
             'is_active': badge.is_active,
             'points': badge.points,
             'manual_criteria': badge.manual_criteria,
+            'excluded_categories': badge.excluded_categories,
             'rules': [],
             'created_at': badge.created_at.isoformat().replace('+00:00', 'Z'),
         }
@@ -72,6 +73,7 @@ class TestBadgeAssign:
         assert response.json() == {
             'granted': [gamma_user.user_uid],
             'already_assigned': [],
+            'blocked': [],
             'points_each': 100,
         }
 

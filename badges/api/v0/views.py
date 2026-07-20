@@ -4,6 +4,7 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 
 from achievements.reconciliation import recompute_holders
+from badges.exceptions import BadgeExclusionError
 from badges.models import Badge
 from core.mixins import AdminUserPermissionMixin
 from users.models import GammaUser
@@ -45,25 +46,34 @@ class BadgeViewSet(AdminUserPermissionMixin, viewsets.ModelViewSet):
         first grant. Re-assigning an already-granted badge is a no-op for that user (no double
         points), so the call is safe to retry.
 
-        Returns HTTP 200 with ``{"granted": [...], "already_assigned": [...], "points_each": int}``.
+        Users disqualified by the badge's ``excluded_categories`` are reported in
+        ``blocked`` rather than aborting the request, so one ineligible name in a bulk
+        assign cannot strand the rest half-granted.
+
+        Returns HTTP 200 with ``{"granted": [...], "already_assigned": [...],
+        "blocked": [{"user_uid": str, "reason": str}], "points_each": int}``.
         """
         badge = self.get_object()
 
         serializer = BadgeAssignmentSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        granted, already_assigned = [], []
+        granted, already_assigned, blocked = [], [], []
         for user_uid in serializer.validated_data['user_uids']:
             gamma_user = GammaUser.ensure_gamma_user_is_created(user_uid=user_uid)
-            if badge.award_to_user(gamma_user):
-                granted.append(user_uid)
-            else:
-                already_assigned.append(user_uid)
+            try:
+                if badge.award_to_user(gamma_user):
+                    granted.append(user_uid)
+                else:
+                    already_assigned.append(user_uid)
+            except BadgeExclusionError as exc:
+                blocked.append({'user_uid': user_uid, 'reason': str(exc)})
 
         return Response(
             {
                 'granted': granted,
                 'already_assigned': already_assigned,
+                'blocked': blocked,
                 'points_each': badge.points,
             },
             status=status.HTTP_200_OK,

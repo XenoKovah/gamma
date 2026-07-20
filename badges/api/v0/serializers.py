@@ -35,7 +35,7 @@ class BadgeSerializer(serializers.ModelSerializer):
         model = Badge
         fields = (
             'id', 'title', 'description', 'category', 'image', 'is_active', 'slug', 'points',
-            'manual_criteria', 'rules', 'created_at',
+            'manual_criteria', 'excluded_categories', 'rules', 'created_at',
         )
         read_only_fields = ('created_at',)
 
