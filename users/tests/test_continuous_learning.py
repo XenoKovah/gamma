@@ -3,6 +3,7 @@ from datetime import date, timedelta
 
 import pytest
 from django.contrib.contenttypes.models import ContentType
+from django.core.files.base import ContentFile
 from django.core.management import call_command
 
 from achievements.models import Achievement
@@ -326,6 +327,30 @@ def test_initialize_command_seeds_both_kinds_and_is_idempotent():
     assert weekday10.rules.count() == 1
     assert weekday10.rules.first().action == {WEEKDAY_STREAK.event_name: {'count': 10}}
     assert day10.rules.first().action == {DAILY_STREAK.event_name: {'count': 10}}
+
+
+def test_weekday_badge_copies_the_day_badges_current_artwork():
+    """
+    A milestone's artwork is shared, and the day badges' images get replaced by hand in
+    the badge editor — so the weekday badge must copy whatever its day counterpart is
+    showing now, not the possibly-superseded PNG bundled in the repo.
+    """
+    call_command('initialize_continuous_learning_badges')
+
+    replacement = b'REPLACEMENT-ARTWORK-NOT-THE-BUNDLED-FILE'
+    day10 = Badge.objects.get(slug=DAILY_STREAK.badge_slug(10))
+    day10.image.save('10-day-streak-v2.png', ContentFile(replacement), save=True)
+
+    # Re-seed the weekday badge as a fresh environment would, after that replacement.
+    Badge.objects.filter(slug=WEEKDAY_STREAK.badge_slug(10)).delete()
+    call_command('initialize_continuous_learning_badges')
+
+    weekday10 = Badge.objects.get(slug=WEEKDAY_STREAK.badge_slug(10))
+    weekday10.image.open('rb')
+    try:
+        assert weekday10.image.read() == replacement
+    finally:
+        weekday10.image.close()
 
 
 def test_reset_stale_streaks_zeros_broken_streak_and_ring(gamma_user_factory):

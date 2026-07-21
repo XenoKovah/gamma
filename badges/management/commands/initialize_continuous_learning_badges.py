@@ -21,6 +21,7 @@ their title, description, points and any hand-uploaded image.
 import os
 
 from django.core.files import File
+from django.core.files.base import ContentFile
 from django.core.management.base import BaseCommand
 
 from badges.models import Badge
@@ -86,11 +87,23 @@ class Command(BaseCommand):
         """
         Attach the badge image only if it has none yet (never clobber a hand-uploaded one).
 
-        Both streak kinds share one set of milestone artwork, so the weekday badges reuse
-        the same ``{days}_day_streak.png`` files as their calendar-day counterparts.
+        All streak kinds share one piece of artwork per milestone, so prefer whatever a
+        sibling badge for the same milestone is *currently* showing over the file bundled
+        here. The day badges' images had already been replaced by hand in the badge
+        editor, so seeding the weekday badges from the bundled PNG gave them the
+        superseded art while their day counterparts showed the newer version. Falling
+        back to the bundled file only when no sibling has an image keeps a from-scratch
+        environment working exactly as before.
         """
         if badge.image:
             return
+
+        sibling_artwork = self._sibling_milestone_image(days, exclude_slug=slug)
+        if sibling_artwork is not None:
+            badge.image.save(f'{slug}.png', sibling_artwork, save=True)
+            self.stdout.write(self.style.SUCCESS(f'    copied sibling artwork for {slug}'))
+            return
+
         image_path = os.path.join(IMAGES_DIR, f'{days}_day_streak.png')
         if os.path.exists(image_path):
             with open(image_path, 'rb') as fh:
@@ -98,3 +111,19 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS(f'    attached image for {slug}'))
         else:
             self.stdout.write(self.style.WARNING(f'    image not found for {slug}: {image_path}'))
+
+    @staticmethod
+    def _sibling_milestone_image(days, exclude_slug):
+        """The artwork another kind's badge for the same milestone already carries, if any."""
+        for kind in STREAK_KINDS:
+            sibling_slug = kind.badge_slug(days)
+            if sibling_slug == exclude_slug:
+                continue
+            sibling = Badge.objects.filter(slug=sibling_slug).exclude(image='').first()
+            if sibling is not None and sibling.image:
+                sibling.image.open('rb')
+                try:
+                    return ContentFile(sibling.image.read())
+                finally:
+                    sibling.image.close()
+        return None
