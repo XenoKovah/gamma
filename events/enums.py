@@ -17,9 +17,10 @@ class RggInternalEventTypes(EventTypeMixin, Enum):
     RGG_CONTINUOUS_LEARNING_STREAK = ('rgg_continuous_learning_streak', _('Continuous Learning Streak'))
     # The same for the "{N} weekday streak" badges, re-evaluated against
     # current_weekday_streak; emitted only on weekdays, since weekend activity leaves the
-    # weekday run untouched.
+    # weekday run untouched. Title kept short: it is stored in EventConfiguration.title,
+    # which is a 32-character column (see test_internal_event_titles_fit_configuration).
     RGG_CONTINUOUS_LEARNING_WEEKDAY_STREAK = (
-        'rgg_continuous_learning_weekday_streak', _('Continuous Learning Weekday Streak')
+        'rgg_continuous_learning_weekday_streak', _('Continuous Weekday Streak')
     )
     # Anti-gaming: the config-holder event for the rushed-"Mark as complete" rule. The rule
     # (course allowlist in filters['course'] + behaviour in action) is consumed by the daily
