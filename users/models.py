@@ -38,6 +38,13 @@ class GammaUser(models.Model):
     current_streak = models.PositiveIntegerField(default=0)
     last_active_date = models.DateField(null=True, blank=True)
 
+    # The same run counted over weekdays only, for learners who study Mon-Fri: weekend
+    # activity is ignored rather than counted or treated as a break, so Friday -> Monday
+    # continues the run. Kept in its own pair of fields because last_active_date also
+    # advances on weekends and so cannot answer "was the previous weekday active?".
+    current_weekday_streak = models.PositiveIntegerField(default=0)
+    last_weekday_active_date = models.DateField(null=True, blank=True)
+
     class Meta:
         verbose_name = _('Gamma User')
         verbose_name_plural = _('Gamma Users')

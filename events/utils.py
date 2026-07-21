@@ -30,6 +30,7 @@ class SchemaRenderer:
     EVENT_SCHEMA_MAP = {
         'rgg_points_distribution': RggPointDistributionSchema,
         'rgg_continuous_learning_streak': CountActionSchema,
+        'rgg_continuous_learning_weekday_streak': CountActionSchema,
     }
 
     FIELD_TYPE_MAP = {

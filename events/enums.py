@@ -15,6 +15,12 @@ class RggInternalEventTypes(EventTypeMixin, Enum):
     # Drives the "{N} day streak" badges: emitted once per active day after the
     # streak counter advances, so the streak rules re-evaluate against current_streak.
     RGG_CONTINUOUS_LEARNING_STREAK = ('rgg_continuous_learning_streak', _('Continuous Learning Streak'))
+    # The same for the "{N} weekday streak" badges, re-evaluated against
+    # current_weekday_streak; emitted only on weekdays, since weekend activity leaves the
+    # weekday run untouched.
+    RGG_CONTINUOUS_LEARNING_WEEKDAY_STREAK = (
+        'rgg_continuous_learning_weekday_streak', _('Continuous Learning Weekday Streak')
+    )
     # Anti-gaming: the config-holder event for the rushed-"Mark as complete" rule. The rule
     # (course allowlist in filters['course'] + behaviour in action) is consumed by the daily
     # `process_anti_gaming` command, not the live event engine.

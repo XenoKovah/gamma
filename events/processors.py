@@ -307,6 +307,8 @@ class ContinuousLearningStreakProcessor(BaseEventProcessor):
     """
 
     ACTION_SCHEMA = schemas.CountActionSchema
+    # GammaUser counter this processor measures (see users.continuous_learning.StreakKind).
+    STREAK_FIELD = 'current_streak'
 
     def _process(
         self,
@@ -318,7 +320,7 @@ class ContinuousLearningStreakProcessor(BaseEventProcessor):
         """
         Process the event and update the dependency with the user's current streak.
         """
-        streak = user.current_streak
+        streak = getattr(user, self.STREAK_FIELD)
         raw_progress_count = progress.action.get('count')
 
         try:
@@ -344,8 +346,20 @@ class ContinuousLearningStreakProcessor(BaseEventProcessor):
         )
 
 
+class ContinuousLearningWeekdayStreakProcessor(ContinuousLearningStreakProcessor):
+    """
+    Processor for the "{N} weekday streak" badges.
+
+    Identical to its parent but reads the weekday counter, which ignores weekends
+    entirely, so a Mon-Fri learner's run survives Saturday and Sunday.
+    """
+
+    STREAK_FIELD = 'current_weekday_streak'
+
+
 TRACKING_EVENT_PROCESSORS_MAP = {
     RggInternalEventTypes.RGG_ACHIEVEMENT_OBTAINED.value: RggAchievementObtainedProcessor,
     RggInternalEventTypes.RGG_POINTS_DISTRIBUTION.value: RggPointsDistributionProcessor,
     RggInternalEventTypes.RGG_CONTINUOUS_LEARNING_STREAK.value: ContinuousLearningStreakProcessor,
+    RggInternalEventTypes.RGG_CONTINUOUS_LEARNING_WEEKDAY_STREAK.value: ContinuousLearningWeekdayStreakProcessor,
 }

@@ -1,15 +1,22 @@
 """
-Create the "{N} day streak" Continuous Learning badges (idempotent).
+Create the Continuous Learning streak badges (idempotent).
+
+Seeds both kinds of streak badge (see users.continuous_learning.STREAK_KINDS):
+
+  * "{N} day streak"     — N consecutive calendar days.
+  * "{N} weekday streak" — N consecutive weekdays, for learners who study Mon-Fri and
+                           would otherwise reset every Monday.
 
 Run once per environment as part of deploying the Continuous Learning feature, before
 (or alongside) enabling it, so that learners crossing a milestone have a badge to earn.
+Re-run it after adding a new streak kind or milestone to create just the missing pieces.
 
 Each badge is rule-driven (like the points-threshold badges): a single rule with action
-``{rgg_continuous_learning_streak: {count: N}}`` against the internal
-``rgg_continuous_learning_streak`` event type. The rules engine then renders the
-in-progress ring (current_streak / N) and awards the badge — paying its completion points
-— when the streak reaches N. Re-running is safe: the event type, badges and rules are
-matched and only missing pieces are created.
+``{<the kind's event>: {count: N}}`` against that kind's internal event type. The rules
+engine then renders the in-progress ring (streak / N) and awards the badge — paying its
+completion points — when the streak reaches N. Re-running is safe: the event types,
+badges and rules are matched and only missing pieces are created; existing badges keep
+their title, description, points and any hand-uploaded image.
 """
 import os
 
@@ -17,74 +24,77 @@ from django.core.files import File
 from django.core.management.base import BaseCommand
 
 from badges.models import Badge
-from events.enums import RggInternalEventTypes
 from events.models import EventConfiguration, EventType
 from rules.models import Rule
 from users.continuous_learning import (
     CONTINUOUS_LEARNING_CATEGORY,
+    STREAK_KINDS,
     STREAK_MILESTONES,
-    streak_badge_description,
-    streak_badge_slug,
-    streak_badge_title,
 )
 
 IMAGES_DIR = os.path.join(os.path.dirname(__file__), '_continuous_learning_images')
-STREAK_EVENT_NAME = RggInternalEventTypes.RGG_CONTINUOUS_LEARNING_STREAK.value
 
 
 class Command(BaseCommand):
-    help = 'Creates the "{N} day streak" badges (and their rules) used by Continuous Learning.'
+    help = 'Creates the Continuous Learning streak badges (and their rules) for every streak kind.'
 
     def handle(self, *args, **options):
-        streak_config = self._ensure_streak_event_configuration()
+        for kind in STREAK_KINDS:
+            self.stdout.write(f'{kind.key} streaks ({kind.event_name}):')
+            streak_config = self._ensure_streak_event_configuration(kind)
 
-        for days, bonus in STREAK_MILESTONES:
-            slug = streak_badge_slug(days)
+            for days, bonus in STREAK_MILESTONES:
+                slug = kind.badge_slug(days)
 
-            badge, created = Badge.objects.get_or_create(
-                slug=slug,
-                defaults={
-                    'title': streak_badge_title(days),
-                    'description': streak_badge_description(days),
-                    'points': bonus,
-                    'category': CONTINUOUS_LEARNING_CATEGORY,
-                    'is_active': True,
-                },
-            )
-            self.stdout.write(
-                self.style.SUCCESS(f'Created badge: {slug} (+{bonus} pts)') if created
-                else f'Badge already exists: {slug}'
-            )
+                badge, created = Badge.objects.get_or_create(
+                    slug=slug,
+                    defaults={
+                        'title': kind.badge_title(days),
+                        'description': kind.badge_description(days),
+                        'points': bonus,
+                        'category': CONTINUOUS_LEARNING_CATEGORY,
+                        'is_active': True,
+                    },
+                )
+                self.stdout.write(
+                    self.style.SUCCESS(f'  Created badge: {slug} (+{bonus} pts)') if created
+                    else f'  Badge already exists: {slug}'
+                )
 
-            self._ensure_badge_rule(badge, streak_config, days)
-            self._ensure_badge_image(badge, days, slug)
+                self._ensure_badge_rule(badge, streak_config, kind, days)
+                self._ensure_badge_image(badge, days, slug)
 
-    def _ensure_streak_event_configuration(self):
-        """Create the internal streak event type + configuration (award 0), idempotently."""
-        event_type, _ = EventType.objects.get_or_create(name=STREAK_EVENT_NAME)
+    def _ensure_streak_event_configuration(self, kind):
+        """Create the kind's internal event type + configuration (award 0), idempotently."""
+        event_type, _ = EventType.objects.get_or_create(name=kind.event_name)
         config, _ = EventConfiguration.objects.get_or_create(
             event_type=event_type,
-            defaults={'title': str(RggInternalEventTypes.RGG_CONTINUOUS_LEARNING_STREAK.title), 'award': 0},
+            defaults={'title': str(kind.event_type.title), 'award': 0},
         )
         return config
 
-    def _ensure_badge_rule(self, badge, streak_config, days):
-        """Attach a streak rule (goal = ``days`` consecutive active days) to the badge."""
-        action = {STREAK_EVENT_NAME: {'count': days}}
+    def _ensure_badge_rule(self, badge, streak_config, kind, days):
+        """Attach a streak rule (goal = ``days`` days this kind counts) to the badge."""
+        action = {kind.event_name: {'count': days}}
         rule = Rule.objects.filter(event_configuration=streak_config, action=action).first()
         if rule is None:
             rule = Rule.objects.create(event_configuration=streak_config, action=action, filters={})
-            self.stdout.write(self.style.SUCCESS(f'  created rule (count={days})'))
+            self.stdout.write(self.style.SUCCESS(f'    created rule (count={days})'))
         badge.rules.add(rule)
 
     def _ensure_badge_image(self, badge, days, slug):
-        """Attach the badge image only if it has none yet (never clobber a hand-uploaded one)."""
+        """
+        Attach the badge image only if it has none yet (never clobber a hand-uploaded one).
+
+        Both streak kinds share one set of milestone artwork, so the weekday badges reuse
+        the same ``{days}_day_streak.png`` files as their calendar-day counterparts.
+        """
         if badge.image:
             return
         image_path = os.path.join(IMAGES_DIR, f'{days}_day_streak.png')
         if os.path.exists(image_path):
             with open(image_path, 'rb') as fh:
                 badge.image.save(f'{slug}.png', File(fh), save=True)
-            self.stdout.write(self.style.SUCCESS(f'  attached image for {slug}'))
+            self.stdout.write(self.style.SUCCESS(f'    attached image for {slug}'))
         else:
-            self.stdout.write(self.style.WARNING(f'  image not found for {slug}: {image_path}'))
+            self.stdout.write(self.style.WARNING(f'    image not found for {slug}: {image_path}'))
