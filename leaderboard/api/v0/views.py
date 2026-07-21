@@ -174,6 +174,10 @@ class BadgeLeaderBoardView(APIView):
             "badge": {
                 "slug": badge.slug,
                 "title": badge.title,
+                # Free-text grouping label, echoed so the board can link back to this
+                # badge's section of the All Accomplishments page. Blank for badges
+                # that were never categorised, which the dashboard renders as no link.
+                "category": badge.category or "",
                 "description": badge.description or "",
                 "url": badge.image.url if badge.image else None,
                 "is_instructor_badge": is_instructor_badge,
