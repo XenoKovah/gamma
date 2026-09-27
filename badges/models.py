@@ -5,6 +5,7 @@ from django.utils.timezone import now
 
 from achievements.models import Achievement
 from badges.exceptions import BadgeExclusionError
+from badges.thumbnails import build_thumbnail
 from users.models import GammaUser
 from core.mixins import TimestampModelMixin
 
@@ -23,6 +24,17 @@ class Badge(TimestampModelMixin, models.Model):
         help_text='Free-text grouping label for the badge. Used to sort badges on the all-badges page.',
     )
     image = models.ImageField(upload_to='uploads/badges/')
+    thumbnail = models.ImageField(
+        upload_to='uploads/badges/thumbs/',
+        blank=True,
+        null=True,
+        editable=False,
+        help_text=(
+            'Downscaled copy of the image, generated automatically whenever the image changes '
+            'and served wherever badges are rendered as icons (the leaderboards). Not edited '
+            'directly; run the generate_badge_thumbnails command to (re)build them in bulk.'
+        ),
+    )
     is_active = models.BooleanField(default=True)
 
     points = models.IntegerField(
@@ -59,7 +71,58 @@ class Badge(TimestampModelMixin, models.Model):
         if not self.slug and self.title:
             self.slug = slugify(self.title)
 
+        # Decide *before* saving, while the stored row still holds the previous image.
+        thumbnail_is_stale = self._thumbnail_is_stale()
+
         super().save(*args, **kwargs)
+
+        if thumbnail_is_stale:
+            self.refresh_thumbnail()
+
+    def _thumbnail_is_stale(self) -> bool:
+        """
+        Whether the thumbnail needs (re)building: the image was just set or swapped,
+        or the badge somehow has art but no icon (an upload from before this field
+        existed, or one whose generation previously failed).
+        """
+        if not self.image:
+            return False
+        if not self.pk:
+            return True
+        try:
+            stored = Badge.objects.only('image', 'thumbnail').get(pk=self.pk)
+        except Badge.DoesNotExist:
+            return True
+        return stored.image.name != self.image.name or not stored.thumbnail
+
+    def refresh_thumbnail(self) -> bool:
+        """
+        (Re)build this badge's thumbnail from its current image.
+
+        Writes the field straight through the queryset rather than calling ``save``:
+        this runs *from* ``save``, and re-entering it would recurse. Returns whether
+        a thumbnail is now attached.
+
+        The previous thumbnail file is removed once the new one is in place, so
+        replacing a badge's art repeatedly does not leave orphans behind.
+        """
+        previous_name = self.thumbnail.name if self.thumbnail else ''
+        built = build_thumbnail(self.image)
+
+        if built is None:
+            # Nothing to generate (missing/unreadable art, or art already icon-sized).
+            # Keep whatever is attached: the original still serves as its own icon.
+            return bool(previous_name)
+
+        filename, content = built
+        # save=False: persist the field ourselves, below, without re-entering save().
+        self.thumbnail.save(filename, content, save=False)
+        Badge.objects.filter(pk=self.pk).update(thumbnail=self.thumbnail.name)
+
+        if previous_name and previous_name != self.thumbnail.name:
+            self.thumbnail.storage.delete(previous_name)
+
+        return True
 
     class Meta:
         verbose_name = 'Badge'

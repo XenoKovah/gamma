@@ -41,11 +41,24 @@ class LeaderboardMemberBadgeSerializer(serializers.ModelSerializer):
 
     def get_url(self, obj: Achievement) -> str:
         """
-        Provide the badge image URL. Defensive against a dangling badge (the
-        Badge was deleted but the Achievement remains) — get_badges already
-        filters those out, but never crash the whole leaderboard on one bad row.
+        Provide the badge image URL, preferring the downscaled thumbnail.
+
+        A leaderboard row renders each badge at 84 CSS px while the source art is
+        routinely 1000x1000 and up to ~1 MB, so serving originals here cost tens of
+        megabytes per page. ``Badge.thumbnail`` is a 256px copy that covers even a
+        3x-DPI screen at that size; badges that predate it, or whose art is already
+        icon-sized, fall back to the original so nothing renders blank while the
+        generate_badge_thumbnails backfill catches up.
+
+        Defensive against a dangling badge (the Badge was deleted but the Achievement
+        remains) — get_badges already filters those out, but never crash the whole
+        leaderboard on one bad row.
         """
-        image = getattr(obj.content_object, "image", None)
+        badge = obj.content_object
+        thumbnail = getattr(badge, "thumbnail", None)
+        if thumbnail:
+            return thumbnail.url
+        image = getattr(badge, "image", None)
         return image.url if image else None
 
     def get_slug(self, obj: Achievement) -> str:
