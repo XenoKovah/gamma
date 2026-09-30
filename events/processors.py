@@ -267,7 +267,7 @@ class RggAchievementObtainedProcessor(BaseEventProcessor):
         """
         Process the event and updates the dependencies to achievements obtaining.
         """
-        is_achieved = Achievement.objects.filter(user=user, object_id=progress.action['dependent_object_id']).exists()
+        is_achieved = Achievement.objects.unexpired().filter(user=user, object_id=progress.action['dependent_object_id']).exists()
         updated_progress = types.AchievementObtainedProgress(**progress.action)
 
         return types.EventDependencies(

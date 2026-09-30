@@ -10,7 +10,7 @@ def is_achieved_badge(achievement: Achievement, course_id: Optional[str]) -> boo
     """
     Check whether an achievement is an achieved badge.
 
-    The badge is achieved if oll its rules are completed. If the course ID is
+    The badge is achieved if all its rules are completed and the grant has not expired. If the course ID is
     provided, the badge must have at least one course-related rule.
     """
     badge_content_type = ContentType.objects.get_for_model(Badge)
@@ -18,6 +18,7 @@ def is_achieved_badge(achievement: Achievement, course_id: Optional[str]) -> boo
 
     return (
         achievement_content_type == badge_content_type
+        and not achievement.is_expired
         and achievement.all_rules_completed
         and (not course_id or achievement.get_course_related_achievement_rules(course_id))
     )

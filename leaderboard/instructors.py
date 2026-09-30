@@ -68,6 +68,7 @@ def get_instructor_user_uids() -> Set[str]:
 
     achievements = (
         Achievement.objects
+        .unexpired()
         .filter(content_type=ContentType.objects.get_for_model(Badge), object_id__in=badge_ids)
         .select_related("user")
         .prefetch_related("achievement_rules")

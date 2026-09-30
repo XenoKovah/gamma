@@ -84,7 +84,7 @@ class UserGameProfileSerializer(serializers.Serializer):
         re-activating the badge restores it for everyone who had earned it.
         """
         content_type = ContentType.objects.get_for_model(Badge)
-        received_user_badges = Achievement.objects.filter(
+        received_user_badges = Achievement.objects.unexpired().filter(
             content_type=content_type,
             user__user_uid=obj.user_uid,
             object_id__in=Badge.objects.filter(is_active=True).values('id'),

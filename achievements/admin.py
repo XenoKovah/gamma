@@ -12,7 +12,7 @@ class AchievementRuleInline(admin.TabularInline):
 
 @admin.register(Achievement)
 class AchievementAdmin(admin.ModelAdmin):
-    list_display = ('user', 'content_type', 'object_id', 'content_object', 'all_rules_completed_status')
+    list_display = ('user', 'content_type', 'object_id', 'content_object', 'expires_at', 'all_rules_completed_status')
     search_fields = ('user__username', 'content_type__model')
     inlines = [AchievementRuleInline]
 

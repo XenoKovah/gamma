@@ -214,6 +214,7 @@ class BadgeLeaderBoardView(APIView):
         badge_content_type = ContentType.objects.get_for_model(Badge)
         achievements = (
             Achievement.objects
+            .unexpired()
             .filter(content_type=badge_content_type, object_id=badge.id)
             .select_related("user")
             .prefetch_related("achievement_rules", "achievement_rules__rule")

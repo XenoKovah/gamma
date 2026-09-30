@@ -14,6 +14,18 @@ from django.utils.translation import ugettext_lazy as _
 logger = logging.getLogger(__name__)
 
 
+class AchievementQuerySet(models.QuerySet):
+    """
+    Queryset helpers for the time-limited grants that ``Achievement.expires_at`` allows.
+    """
+
+    def unexpired(self):
+        """
+        Achievements that are still in force: no expiry set, or an expiry in the future.
+        """
+        return self.filter(models.Q(expires_at__isnull=True) | models.Q(expires_at__gt=now()))
+
+
 class Achievement(models.Model):
     """
     Represent an achievement that a user can earn, e.g. Badge or Avatar.
@@ -52,6 +64,18 @@ class Achievement(models.Model):
                     'completion cutoff rather than trusting NULL alone. 0 records a deliberate zero-point pay.'),
     )
 
+    expires_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        db_index=True,
+        help_text=_('When this grant lapses. Unset (the default) means it never expires. Once past, the '
+                    'achievement is treated as not held on every learner-facing surface -- dashboard, profile, '
+                    'leaderboards, notifications -- but the row and the points already paid are kept, so '
+                    'renewing the grant (a later expires_at) restores it without paying the points twice.'),
+    )
+
+    objects = AchievementQuerySet.as_manager()
+
     def __str__(self):
         return f'Achievement {self.title!r} with type {self.content_type!r} for {self.user}'
 
@@ -67,6 +91,13 @@ class Achievement(models.Model):
         if self.title and len(self.title) > max_length:
             self.title = self.title[:max_length]
         super().save(*args, **kwargs)
+
+    @property
+    def is_expired(self) -> bool:
+        """
+        Whether this grant has lapsed: ``expires_at`` is set and already in the past.
+        """
+        return self.expires_at is not None and self.expires_at <= now()
 
     def mark_completed(self, at=None) -> bool:
         """

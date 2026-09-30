@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.contrib.contenttypes.fields import ContentType
 from django.db import models, transaction
 from django.utils.text import slugify
@@ -50,6 +52,17 @@ class Badge(TimestampModelMixin, models.Model):
         help_text=(
             'For manually-assigned (rule-less) badges: free text describing how this badge is '
             'granted. Shown to learners on hover, separately from the description.'
+        ),
+    )
+
+    validity_days = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        help_text=(
+            'Optional default lifetime, in days, of a grant of this badge. When set, a manual grant that '
+            'does not name its own expiry lapses this many days after it is awarded (e.g. 365 for a '
+            'yearly-donor badge). Leave blank for badges that never expire. A single grant can always '
+            'override it: award_to_user(user, expires_at=...) -- e.g. a one-off $500 gift good for 5 years.'
         ),
     )
 
@@ -154,7 +167,7 @@ class Badge(TimestampModelMixin, models.Model):
         if not categories:
             return Badge.objects.none()
 
-        held_badge_ids = Achievement.objects.filter(
+        held_badge_ids = Achievement.objects.unexpired().filter(
             user=user,
             content_type=ContentType.objects.get_for_model(type(self)),
         ).values_list('object_id', flat=True)
@@ -162,7 +175,7 @@ class Badge(TimestampModelMixin, models.Model):
         return Badge.objects.filter(id__in=held_badge_ids, category__in=categories)
 
     @transaction.atomic
-    def award_to_user(self, user: GammaUser) -> bool:
+    def award_to_user(self, user: GammaUser, expires_at=None) -> bool:
         """
         Manually grant this badge to a user, bypassing the event/rules engine.
 
@@ -181,8 +194,28 @@ class Badge(TimestampModelMixin, models.Model):
         caller is covered rather than only the admin dialog. It runs *after* the
         already-held short-circuit, so a learner who earned this badge before being
         flagged keeps it and re-assignment stays a no-op instead of starting to fail.
+
+        ``expires_at`` makes the grant time-limited; when omitted, the badge's
+        ``validity_days`` (if any) sets it, else the grant never lapses. Re-awarding a
+        badge the user already holds is a **renewal** when ``expires_at`` is given, or
+        when the held grant has lapsed and the badge has ``validity_days``: the expiry is
+        moved, no points are paid again (``False`` is returned, as for any repeat grant).
+        A repeat award that names no expiry and finds a live grant changes nothing.
         """
-        if self.has_achievement(user):
+        if expires_at is None and self.validity_days:
+            default_expiry = now() + timedelta(days=self.validity_days)
+        else:
+            default_expiry = expires_at
+
+        existing = Achievement.objects.filter(
+            user=user,
+            content_type=ContentType.objects.get_for_model(type(self)),
+            object_id=self.id,
+        ).first()
+        if existing is not None:
+            if expires_at is not None or (existing.is_expired and default_expiry is not None):
+                existing.expires_at = default_expiry
+                existing.save(update_fields=('expires_at',))
             return False
 
         blocking = self.blocking_badges(user)
@@ -204,6 +237,7 @@ class Badge(TimestampModelMixin, models.Model):
                 # Likewise the payment below is recorded here rather than by the
                 # completion use case, so a manual grant is auditable the same way.
                 'completion_points_paid': self.points or 0,
+                'expires_at': default_expiry,
             },
         )
 

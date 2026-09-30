@@ -298,7 +298,7 @@ class PendingBadgeNotificationsUseCase(UseCase):
     def execute(self, user_uid: str) -> List[Achievement]:
         badge_content_type = ContentType.objects.get_for_model(Badge)
         return list(
-            Achievement.objects.filter(
+            Achievement.objects.unexpired().filter(
                 user__user_uid=user_uid,
                 content_type=badge_content_type,
                 completed_at__isnull=False,
