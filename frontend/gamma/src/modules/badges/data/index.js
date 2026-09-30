@@ -7,6 +7,9 @@ export {
   editBadge,
   assignBadge,
   unassignBadge,
+  fetchBadgeHolders,
+  setBadgeExpiry,
+  expireBadge,
   resolveIdentifiersToUsernames,
 } from './api';
 export {

@@ -15,6 +15,7 @@ const BadgesList = ({
   handleOpenManageEntityModal,
   handleOpenAssignModal,
   handleOpenUnassignModal,
+  handleOpenExpiryModal,
 }) => {
   const intl = useIntl();
 
@@ -65,10 +66,12 @@ const BadgesList = ({
                   image={badge.image}
                   slug={badge.slug}
                   isActive={badge.isActive}
+                  isExpiring={Boolean(badge.isExpiring)}
                   openConfirmDeletionAlert={() => openConfirmDeletionAlert(badge.id)}
                   handleOpenManageEntityModal={() => handleOpenManageEntityModal(badge.id)}
                   handleOpenAssignModal={() => handleOpenAssignModal(badge.id)}
                   handleOpenUnassignModal={() => handleOpenUnassignModal(badge.id)}
+                  handleOpenExpiryModal={() => handleOpenExpiryModal(badge.id)}
                 />
               </li>
             ))}
@@ -94,6 +97,7 @@ BadgesList.propTypes = {
   handleOpenManageEntityModal: PropTypes.func.isRequired,
   handleOpenAssignModal: PropTypes.func,
   handleOpenUnassignModal: PropTypes.func,
+  handleOpenExpiryModal: PropTypes.func,
 };
 
 BadgesList.defaultProps = {
@@ -101,6 +105,7 @@ BadgesList.defaultProps = {
   firstBadgeRef: null,
   handleOpenAssignModal: () => {},
   handleOpenUnassignModal: () => {},
+  handleOpenExpiryModal: () => {},
 };
 
 export default BadgesList;

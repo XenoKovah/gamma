@@ -32,3 +32,17 @@ describe('groupBadgesByCategory', () => {
     expect(learning.badges.map((b) => b.id)).toEqual([10, 11]);
   });
 });
+
+describe('expiry date helpers', () => {
+  it('endOfDayIso pins a date to the end of that UTC day and passes blanks through as null', () => {
+    const { endOfDayIso } = jest.requireActual('./utils');
+    expect(endOfDayIso('2031-09-29')).toBe('2031-09-29T23:59:59Z');
+    expect(endOfDayIso('')).toBeNull();
+  });
+
+  it('formatExpiryDate shows the UTC date, or the never label when unset', () => {
+    const { formatExpiryDate } = jest.requireActual('./utils');
+    expect(formatExpiryDate('2031-09-29T23:59:59Z', 'Never')).toBe('2031-09-29');
+    expect(formatExpiryDate(null, 'Never')).toBe('Never');
+  });
+});

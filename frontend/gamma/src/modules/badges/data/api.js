@@ -193,14 +193,15 @@ export const createBadge = async (badgeData) => {
  * Manually assigns a badge to one or more users by their user id.
  * @param {number|string} badgeId - The ID of the badge to assign.
  * @param {string[]} userUids - The GammaUser user_uids (edX usernames) to grant the badge to.
+ * @param {string} [expiresAt] - Optional ISO datetime the grant lapses (expiring badges only).
  * @returns {Promise<{granted: string[], already_assigned: string[], points_each: number}>}
  *          The API response listing which users were newly granted vs already had the badge.
  */
-export const assignBadge = async (badgeId, userUids) => {
+export const assignBadge = async (badgeId, userUids, expiresAt) => {
   try {
     const response = await axios.post(
       `${API_ROUTES.BADGES}${badgeId}/assign/`,
-      { user_uids: userUids },
+      { user_uids: userUids, ...(expiresAt ? { expires_at: expiresAt } : {}) },
       {
         headers: { ...REQUEST_HEADERS },
         withCredentials: true,
@@ -254,6 +255,67 @@ export const deleteBadge = async (badgeId) => {
     return response.data;
   } catch (error) {
     logError('Error deleting badge:', error);
+    throw error;
+  }
+};
+
+/**
+ * Lists every holder of an expiring badge with when each grant lapses.
+ * @param {number|string} badgeId - The ID of the expiring badge.
+ * @returns {Promise<Array<{userUid: string, awardedAt: string|null, expiresAt: string|null, isExpired: boolean}>>}
+ */
+export const fetchBadgeHolders = async (badgeId) => {
+  try {
+    const { data } = await axios.get(`${API_ROUTES.BADGES}${badgeId}/holders/`, { withCredentials: true });
+    return (data?.holders || []).map((holder) => ({
+      userUid: holder.user_uid,
+      awardedAt: holder.awarded_at,
+      expiresAt: holder.expires_at,
+      isExpired: holder.is_expired,
+    }));
+  } catch (error) {
+    logError('Error fetching badge holders:', error);
+    throw error;
+  }
+};
+
+/**
+ * Sets when the given holders' grants of an expiring badge lapse.
+ * @param {number|string} badgeId - The ID of the expiring badge.
+ * @param {string[]} userUids - Holders to re-date.
+ * @param {string|null} expiresAt - ISO datetime, or null to make the grants permanent.
+ * @returns {Promise<{updated: string[], not_assigned: string[]}>}
+ */
+export const setBadgeExpiry = async (badgeId, userUids, expiresAt) => {
+  try {
+    const response = await axios.post(
+      `${API_ROUTES.BADGES}${badgeId}/set_expiry/`,
+      { user_uids: userUids, expires_at: expiresAt },
+      { headers: { ...REQUEST_HEADERS }, withCredentials: true },
+    );
+    return response.data;
+  } catch (error) {
+    logError('Error setting badge expiry:', error);
+    throw error;
+  }
+};
+
+/**
+ * Immediately expires the given holders' grants of an expiring badge.
+ * @param {number|string} badgeId - The ID of the expiring badge.
+ * @param {string[]} userUids - Holders whose grant should lapse now.
+ * @returns {Promise<{updated: string[], not_assigned: string[]}>}
+ */
+export const expireBadge = async (badgeId, userUids) => {
+  try {
+    const response = await axios.post(
+      `${API_ROUTES.BADGES}${badgeId}/expire/`,
+      { user_uids: userUids },
+      { headers: { ...REQUEST_HEADERS }, withCredentials: true },
+    );
+    return response.data;
+  } catch (error) {
+    logError('Error expiring badge:', error);
     throw error;
   }
 };

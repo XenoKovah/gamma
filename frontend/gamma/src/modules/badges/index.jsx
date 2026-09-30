@@ -7,7 +7,7 @@ import {
   AlertModal, Header, Footer, ToastComponent, SubHeader,
 } from '../../generic';
 import genericMessages from '../../i18n';
-import { BadgesList, AssignBadgeModal } from './components';
+import { BadgesList, AssignBadgeModal, ExpiryBadgeModal } from './components';
 import { TOAST_TYPES } from './constants';
 import { useBadges } from './hooks/useBadges';
 import moduleMessages from './i18n';
@@ -52,6 +52,10 @@ export const Badges = () => {
     handleOpenUnassignModal,
     handleCloseAssignModal,
     handleBadgeMembershipSubmit,
+    isExpiryModalOpen,
+    expiryBadge,
+    handleOpenExpiryModal,
+    handleCloseExpiryModal,
   } = useBadges();
   const intl = useIntl();
 
@@ -164,6 +168,11 @@ export const Badges = () => {
           onSubmit={handleBadgeMembershipSubmit}
           isSubmitting={isAssigning}
         />
+        <ExpiryBadgeModal
+          isOpen={isExpiryModalOpen}
+          badge={expiryBadge}
+          onClose={handleCloseExpiryModal}
+        />
         <SEOHelmet
           title={intl.formatMessage(moduleMessages.pageTitle)}
           description={intl.formatMessage(moduleMessages.pageDescription)}
@@ -195,6 +204,7 @@ export const Badges = () => {
                 handleOpenManageEntityModal={handleOpenManageEntityModal}
                 handleOpenAssignModal={handleOpenAssignModal}
                 handleOpenUnassignModal={handleOpenUnassignModal}
+                handleOpenExpiryModal={handleOpenExpiryModal}
               />
               <Button
                 block

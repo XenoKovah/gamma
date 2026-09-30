@@ -35,7 +35,7 @@ class BadgeSerializer(serializers.ModelSerializer):
         model = Badge
         fields = (
             'id', 'title', 'description', 'category', 'image', 'is_active', 'slug', 'points',
-            'manual_criteria', 'excluded_categories', 'rules', 'created_at',
+            'manual_criteria', 'is_expiring', 'validity_days', 'excluded_categories', 'rules', 'created_at',
         )
         read_only_fields = ('created_at',)
 
@@ -93,3 +93,22 @@ class BadgeAssignmentSerializer(serializers.Serializer):
                 seen.add(user_uid)
                 deduplicated.append(user_uid)
         return deduplicated
+
+
+class BadgeAssignmentWithExpirySerializer(BadgeAssignmentSerializer):
+    """
+    ``BadgeAssignmentSerializer`` plus an optional per-grant expiry.
+
+    ``expires_at`` omitted (or null) leaves the grant permanent / on the badge's
+    ``validity_days`` default; a value makes it lapse at that moment.
+    """
+
+    expires_at = serializers.DateTimeField(required=False, allow_null=True)
+
+
+class BadgeExpirySerializer(BadgeAssignmentSerializer):
+    """
+    Payload for re-dating existing grants. ``expires_at`` is required; null makes the grants permanent.
+    """
+
+    expires_at = serializers.DateTimeField(allow_null=True)

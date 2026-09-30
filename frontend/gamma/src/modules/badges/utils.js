@@ -56,3 +56,20 @@ export const groupBadgesByCategory = (badges = [], uncategorizedLabel = 'Uncateg
     return a.label.localeCompare(b.label, undefined, { sensitivity: 'base' });
   });
 };
+
+/**
+ * Turn a `YYYY-MM-DD` date-input value into the ISO instant the API expects: the very end of
+ * that day in UTC, so a grant "good until 2031-09-29" stays live through that whole date.
+ * Returns null for a blank value.
+ */
+export const endOfDayIso = (dateValue) => (dateValue ? `${dateValue}T23:59:59Z` : null);
+
+/**
+ * Format an API expiry timestamp for display; null/undefined means the grant never lapses.
+ */
+export const formatExpiryDate = (isoValue, neverLabel) => {
+  if (!isoValue) {
+    return neverLabel;
+  }
+  return new Date(isoValue).toISOString().slice(0, 10);
+};

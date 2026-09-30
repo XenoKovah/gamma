@@ -55,6 +55,16 @@ class Badge(TimestampModelMixin, models.Model):
         ),
     )
 
+    is_expiring = models.BooleanField(
+        default=False,
+        help_text=(
+            'Whether grants of this badge can carry a per-user expiry date. Only expiring badges show the '
+            '"Manage expiry" controls in the settings page and accept an expiry through the API. Set it '
+            'when creating a badge meant to lapse (e.g. a recurring-donor badge); a badge already awarded '
+            'without expiry dates is deliberately not converted -- create a new expiring badge and copy '
+            'the holders across instead.'
+        ),
+    )
     validity_days = models.PositiveIntegerField(
         null=True,
         blank=True,
@@ -246,6 +256,35 @@ class Badge(TimestampModelMixin, models.Model):
             user.update_user_progress(self.points)
 
         return created
+
+    def set_expiry(self, user: GammaUser, expires_at) -> bool:
+        """
+        Change when ``user``'s existing grant of this badge lapses.
+
+        ``expires_at`` of ``None`` makes the grant permanent; a past time expires it
+        immediately. Only touches ``expires_at`` -- points and the row are kept, so the
+        grant can be restored by setting a later date. Return ``False`` if the user does
+        not hold the badge (there is nothing to re-date; use ``award_to_user``).
+        """
+        updated = Achievement.objects.filter(
+            user=user,
+            content_type=ContentType.objects.get_for_model(type(self)),
+            object_id=self.id,
+        ).update(expires_at=expires_at)
+        return bool(updated)
+
+    def holders_with_expiry(self):
+        """
+        Every grant of this badge, soonest-to-lapse first then permanent ones, for the admin UI.
+        """
+        return list(
+            Achievement.objects.filter(
+                content_type=ContentType.objects.get_for_model(type(self)),
+                object_id=self.id,
+            ).select_related('user').order_by(
+                models.F('expires_at').asc(nulls_last=True), 'user__user_uid',
+            )
+        )
 
     @transaction.atomic
     def revoke_from_user(self, user: GammaUser) -> bool:

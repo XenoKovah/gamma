@@ -9,7 +9,7 @@ import messages from '../../../i18n';
 
 const BadgeItem = ({
   title, description, image, openConfirmDeletionAlert, handleOpenManageEntityModal,
-  handleOpenAssignModal, handleOpenUnassignModal, isActive,
+  handleOpenAssignModal, handleOpenUnassignModal, handleOpenExpiryModal, isActive, isExpiring,
 }) => {
   const intl = useIntl();
   const isExtraSmall = useMediaQuery({ maxWidth: breakpoints.extraSmall.maxWidth });
@@ -41,6 +41,11 @@ const BadgeItem = ({
         <Button variant="outline-primary" onClick={handleOpenUnassignModal}>
           {intl.formatMessage(messages.badgeUnassignBtnTitle)}
         </Button>
+        {isExpiring && (
+          <Button variant="outline-primary" onClick={handleOpenExpiryModal}>
+            {intl.formatMessage(messages.badgeExpiryBtnTitle)}
+          </Button>
+        )}
         <Button variant="outline-secondary" onClick={openConfirmDeletionAlert}>
           {intl.formatMessage(messages.badgeDeleteBtnTitle)}
         </Button>
@@ -57,7 +62,9 @@ BadgeItem.propTypes = {
   handleOpenManageEntityModal: PropTypes.func.isRequired,
   handleOpenAssignModal: PropTypes.func,
   handleOpenUnassignModal: PropTypes.func,
+  handleOpenExpiryModal: PropTypes.func,
   isActive: PropTypes.bool.isRequired,
+  isExpiring: PropTypes.bool,
 };
 
 BadgeItem.defaultProps = {
@@ -66,6 +73,8 @@ BadgeItem.defaultProps = {
   image: null,
   handleOpenAssignModal: () => {},
   handleOpenUnassignModal: () => {},
+  handleOpenExpiryModal: () => {},
+  isExpiring: false,
 };
 
 export default BadgeItem;

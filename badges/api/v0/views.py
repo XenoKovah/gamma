@@ -1,3 +1,4 @@
+from django.utils.timezone import now
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser
@@ -9,7 +10,9 @@ from badges.models import Badge
 from core.mixins import AdminUserPermissionMixin
 from users.models import GammaUser
 
-from .serializers import BadgeAssignmentSerializer, BadgeSerializer
+from .serializers import (
+    BadgeAssignmentSerializer, BadgeAssignmentWithExpirySerializer, BadgeExpirySerializer, BadgeSerializer,
+)
 
 
 class BadgeViewSet(AdminUserPermissionMixin, viewsets.ModelViewSet):
@@ -23,7 +26,7 @@ class BadgeViewSet(AdminUserPermissionMixin, viewsets.ModelViewSet):
     # State-changing custom actions that must be admin-only. ``AdminUserPermissionMixin``
     # only guards the default write actions (create/update/partial_update/destroy), so
     # without listing them here these actions would inherit the empty (public) permission set.
-    ADMIN_ONLY_ACTIONS = ('assign', 'unassign', 'recompute')
+    ADMIN_ONLY_ACTIONS = ('assign', 'unassign', 'recompute', 'holders', 'set_expiry', 'expire')
 
     def get_permissions(self):
         """
@@ -55,14 +58,17 @@ class BadgeViewSet(AdminUserPermissionMixin, viewsets.ModelViewSet):
         """
         badge = self.get_object()
 
-        serializer = BadgeAssignmentSerializer(data=request.data)
+        serializer = BadgeAssignmentWithExpirySerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        expires_at = serializer.validated_data.get('expires_at')
+        if expires_at is not None and not badge.is_expiring:
+            return Response({'detail': 'This badge is not an expiring badge.'}, status=status.HTTP_400_BAD_REQUEST)
 
         granted, already_assigned, blocked = [], [], []
         for user_uid in serializer.validated_data['user_uids']:
             gamma_user = GammaUser.ensure_gamma_user_is_created(user_uid=user_uid)
             try:
-                if badge.award_to_user(gamma_user):
+                if badge.award_to_user(gamma_user, expires_at=expires_at):
                     granted.append(user_uid)
                 else:
                     already_assigned.append(user_uid)
@@ -114,6 +120,82 @@ class BadgeViewSet(AdminUserPermissionMixin, viewsets.ModelViewSet):
             },
             status=status.HTTP_200_OK,
         )
+
+    def _expiring_badge_or_400(self):
+        badge = self.get_object()
+        if not badge.is_expiring:
+            return badge, Response(
+                {'detail': 'This badge is not an expiring badge.'}, status=status.HTTP_400_BAD_REQUEST,
+            )
+        return badge, None
+
+    @action(detail=True, methods=['get'])
+    def holders(self, request, pk=None):
+        """
+        List everyone holding this (expiring) badge with when each grant lapses.
+
+        Returns ``{"holders": [{"user_uid", "awarded_at", "expires_at", "is_expired"}]}``, soonest
+        expiry first and permanent grants last.
+        """
+        badge, error = self._expiring_badge_or_400()
+        if error:
+            return error
+        return Response({
+            'holders': [
+                {
+                    'user_uid': grant.user.user_uid,
+                    'awarded_at': grant.completed_at,
+                    'expires_at': grant.expires_at,
+                    'is_expired': grant.is_expired,
+                }
+                for grant in badge.holders_with_expiry()
+            ],
+        })
+
+    def _apply_expiry(self, request, forced_expires_at=None):
+        badge, error = self._expiring_badge_or_400()
+        if error:
+            return error
+        if forced_expires_at is None:
+            serializer = BadgeExpirySerializer(data=request.data)
+        else:
+            serializer = BadgeAssignmentSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        expires_at = forced_expires_at if forced_expires_at is not None else serializer.validated_data['expires_at']
+
+        updated, not_assigned = [], []
+        for user_uid in serializer.validated_data['user_uids']:
+            gamma_user = GammaUser.ensure_gamma_user_is_created(user_uid=user_uid)
+            (updated if badge.set_expiry(gamma_user, expires_at) else not_assigned).append(user_uid)
+
+        return Response(
+            {'updated': updated, 'not_assigned': not_assigned, 'expires_at': expires_at},
+            status=status.HTTP_200_OK,
+        )
+
+    @action(detail=True, methods=['post'])
+    def set_expiry(self, request, pk=None):
+        """
+        Set (or clear) when the given users' existing grants of this badge lapse.
+
+        Body params:
+            - user_uids (list[str]): holders to re-date.
+            - expires_at (datetime | null): new expiry; null makes the grants permanent, a past
+              time expires them immediately. Points are not touched either way.
+
+        Returns ``{"updated": [...], "not_assigned": [...], "expires_at": ...}``.
+        """
+        return self._apply_expiry(request)
+
+    @action(detail=True, methods=['post'])
+    def expire(self, request, pk=None):
+        """
+        Immediately expire the given users' grants of this badge (reversible via ``set_expiry``).
+
+        Body params:
+            - user_uids (list[str]): holders whose grant should lapse right now.
+        """
+        return self._apply_expiry(request, forced_expires_at=now())
 
     @action(detail=True, methods=['post'])
     def recompute(self, request, pk=None):

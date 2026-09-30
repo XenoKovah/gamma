@@ -31,6 +31,96 @@ const messages = defineMessages({
     defaultMessage: 'Delete',
     description: 'The text displayed on the button to delete a badge.',
   },
+  badgeExpiryBtnTitle: {
+    id: 'modules.badges.badge-item.button.expiry.title',
+    defaultMessage: 'Manage expiry',
+    description: 'The text on the button that opens the per-user expiry modal of an expiring badge.',
+  },
+  expiryModalTitle: {
+    id: 'modules.badges.modal.expiry.title',
+    defaultMessage: 'Manage expiry for "{title}"',
+    description: 'The title of the per-user badge expiry modal.',
+  },
+  expiryModalDescription: {
+    id: 'modules.badges.modal.expiry.description',
+    defaultMessage: 'Each holder has their own expiry date. Select holders, then set a new date, make them permanent, or expire them now. Points are never changed, and an expired accomplishment comes back if you give it a later date.',
+    description: 'Explains the per-user badge expiry modal.',
+  },
+  expiryModalCloseBtnText: {
+    id: 'modules.badges.modal.expiry.close',
+    defaultMessage: 'Close',
+    description: 'Close button of the expiry modal.',
+  },
+  expirySetDateBtnText: {
+    id: 'modules.badges.modal.expiry.set-date',
+    defaultMessage: 'Set expiry date for selected',
+    description: 'Primary button that applies the chosen date to the selected holders.',
+  },
+  expiryMakePermanentBtnText: {
+    id: 'modules.badges.modal.expiry.make-permanent',
+    defaultMessage: 'Never expire (selected)',
+    description: 'Button that clears the expiry of the selected holders.',
+  },
+  expiryExpireNowBtnText: {
+    id: 'modules.badges.modal.expiry.expire-now',
+    defaultMessage: 'Expire now (selected)',
+    description: 'Button that immediately expires the selected holders grants.',
+  },
+  expiryDateLabel: {
+    id: 'modules.badges.modal.expiry.date-label',
+    defaultMessage: 'New expiry date (good through the end of this day, UTC)',
+    description: 'Label of the date input in the expiry modal.',
+  },
+  expiryUserColumn: {
+    id: 'modules.badges.modal.expiry.user-column',
+    defaultMessage: 'Username',
+    description: 'Column heading for the holder username.',
+  },
+  expiryExpiresColumn: {
+    id: 'modules.badges.modal.expiry.expires-column',
+    defaultMessage: 'Expires',
+    description: 'Column heading for the holder expiry date.',
+  },
+  expirySelectAll: {
+    id: 'modules.badges.modal.expiry.select-all',
+    defaultMessage: 'Select all holders',
+    description: 'Accessible label of the select-all checkbox.',
+  },
+  expiryNever: {
+    id: 'modules.badges.modal.expiry.never',
+    defaultMessage: 'Never',
+    description: 'Shown when a grant has no expiry date.',
+  },
+  expiryExpiredTag: {
+    id: 'modules.badges.modal.expiry.expired-tag',
+    defaultMessage: 'expired',
+    description: 'Tag shown next to the date of an already-expired grant.',
+  },
+  expiryNoHolders: {
+    id: 'modules.badges.modal.expiry.no-holders',
+    defaultMessage: 'Nobody holds this accomplishment yet.',
+    description: 'Shown when the expiring badge has no holders.',
+  },
+  expiryUpdatedNotice: {
+    id: 'modules.badges.modal.expiry.updated',
+    defaultMessage: 'Updated expiry for {count, plural, one {# user} other {# users}}.',
+    description: 'Success notice after re-dating grants.',
+  },
+  expiryExpiredNotice: {
+    id: 'modules.badges.modal.expiry.expired',
+    defaultMessage: 'Expired {count, plural, one {# grant} other {# grants}} now.',
+    description: 'Success notice after immediately expiring grants.',
+  },
+  expiryError: {
+    id: 'modules.badges.modal.expiry.error',
+    defaultMessage: 'Something went wrong. Please try again.',
+    description: 'Error shown when an expiry request fails.',
+  },
+  assignBadgeModalExpiryLabel: {
+    id: 'modules.badges.modal.assign-badge.expiry-label',
+    defaultMessage: 'Expires (optional; leave blank for no expiry)',
+    description: 'Label of the optional expiry date when assigning an expiring badge.',
+  },
   badgeAssignBtnTitle: {
     id: 'modules.badges.badge-item.button.assign.title',
     defaultMessage: 'Assign to users',

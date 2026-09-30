@@ -36,6 +36,8 @@ class TestBadgeViewSet:
             'is_active': badge.is_active,
             'points': badge.points,
             'manual_criteria': badge.manual_criteria,
+            'is_expiring': False,
+            'validity_days': None,
             'excluded_categories': badge.excluded_categories,
             'rules': [],
             'created_at': badge.created_at.isoformat().replace('+00:00', 'Z'),

@@ -5,6 +5,7 @@ import { Form, Alert } from '@openedx/paragon';
 
 import { Modal } from '../../../../generic';
 import { resolveIdentifiersToUsernames } from '../../data';
+import { endOfDayIso } from '../../utils';
 import messages from '../../i18n';
 
 /**
@@ -43,6 +44,7 @@ const AssignBadgeModal = ({
   const [userIdsText, setUserIdsText] = useState('');
   const [isResolving, setIsResolving] = useState(false);
   const [unresolvedEmails, setUnresolvedEmails] = useState([]);
+  const [expiryDate, setExpiryDate] = useState('');
   const modeMessages = MODE_MESSAGES[mode] || MODE_MESSAGES.assign;
 
   // Clear the textarea (and any previous lookup error) whenever the modal closes
@@ -51,6 +53,7 @@ const AssignBadgeModal = ({
     if (!isOpen) {
       setUserIdsText('');
       setUnresolvedEmails([]);
+      setExpiryDate('');
     }
   }, [isOpen]);
 
@@ -71,7 +74,11 @@ const AssignBadgeModal = ({
         setUnresolvedEmails(unresolved);
         return;
       }
-      onSubmit(badge.id, usernames);
+      if (mode === 'assign' && badge.isExpiring && expiryDate) {
+        onSubmit(badge.id, usernames, endOfDayIso(expiryDate));
+      } else {
+        onSubmit(badge.id, usernames);
+      }
     } finally {
       setIsResolving(false);
     }
@@ -112,6 +119,18 @@ const AssignBadgeModal = ({
           placeholder={intl.formatMessage(messages.assignBadgeModalUserIdsPlaceholder)}
         />
       </Form.Group>
+      {mode === 'assign' && badge?.isExpiring && (
+        <Form.Group controlId="assignBadgeExpiry">
+          <Form.Label>{intl.formatMessage(messages.assignBadgeModalExpiryLabel)}</Form.Label>
+          <Form.Control
+            type="date"
+            name="expiryDate"
+            data-testid="assign-badge-expiry"
+            value={expiryDate}
+            onChange={(event) => setExpiryDate(event.target.value)}
+          />
+        </Form.Group>
+      )}
       {unresolvedEmails.length > 0 && (
         <Alert variant="danger" className="mb-2" data-testid="assign-badge-unresolved-emails">
           {intl.formatMessage(messages.assignBadgeModalUnresolvedEmailsError, {
@@ -138,6 +157,7 @@ AssignBadgeModal.propTypes = {
     id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     title: PropTypes.string,
     points: PropTypes.number,
+    isExpiring: PropTypes.bool,
   }),
 };
 

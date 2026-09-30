@@ -54,6 +54,8 @@ export const useBadges = () => {
 
   const [isAssignModalOpen, openAssignModal, closeAssignModal] = useToggle(false);
   const [assigningBadge, setAssigningBadge] = useState(null);
+  const [isExpiryModalOpen, openExpiryModal, closeExpiryModal] = useToggle(false);
+  const [expiryBadge, setExpiryBadge] = useState(null);
   const [assignMode, setAssignMode] = useState('assign'); // 'assign' | 'unassign'
   const [isAssigning, setIsAssigning] = useState(false);
   const [assignResult, setAssignResult] = useState({
@@ -145,12 +147,22 @@ export const useBadges = () => {
   const handleOpenAssignModal = (badgeId) => openMembershipModal(badgeId, 'assign');
   const handleOpenUnassignModal = (badgeId) => openMembershipModal(badgeId, 'unassign');
 
+  const handleOpenExpiryModal = (badgeId) => {
+    setExpiryBadge(badgesData?.find((badgeItem) => badgeItem.id === badgeId) || null);
+    openExpiryModal();
+  };
+
+  const handleCloseExpiryModal = () => {
+    closeExpiryModal();
+    setExpiryBadge(null);
+  };
+
   const handleCloseAssignModal = () => {
     closeAssignModal();
     setAssigningBadge(null);
   };
 
-  const handleBadgeMembershipSubmit = async (badgeId, userUids) => {
+  const handleBadgeMembershipSubmit = async (badgeId, userUids, expiresAt) => {
     setIsAssigning(true);
     try {
       if (assignMode === 'unassign') {
@@ -164,7 +176,7 @@ export const useBadges = () => {
         await refetchBadgesData();
         showToast(TOAST_TYPES.BADGE.UNASSIGNED);
       } else {
-        const result = await assignBadge(badgeId, userUids);
+        const result = await assignBadge(badgeId, userUids, expiresAt);
         setAssignResult({
           granted: result?.granted?.length || 0,
           already: result?.already_assigned?.length || 0,
@@ -220,5 +232,9 @@ export const useBadges = () => {
     handleOpenUnassignModal,
     handleCloseAssignModal,
     handleBadgeMembershipSubmit,
+    isExpiryModalOpen,
+    expiryBadge,
+    handleOpenExpiryModal,
+    handleCloseExpiryModal,
   };
 };
