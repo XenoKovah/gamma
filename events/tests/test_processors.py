@@ -1,4 +1,7 @@
+from datetime import datetime
+
 import pytest
+from django.utils.timezone import utc
 
 from events.processors import CommonEventProcessor
 
@@ -171,3 +174,91 @@ def test_common_processor_counts_distinct_blocks_toward_block_set_rule(
         dependencies = feed(block_id)
     assert dependencies['events'][DONE_EVENT]['count'] == 5
     assert dependencies['is_achieved'] is True
+
+
+def _block_set_rule(rule_factory, configuration, blocks):
+    return rule_factory(
+        event_configuration=configuration,
+        action={DONE_EVENT: {'count': len(blocks)}},
+        filters={'course': COURSE_A, 'blocks': blocks},
+    )
+
+
+def _day(n):
+    return datetime(2026, 1, n, 12, tzinfo=utc)
+
+
+def test_block_set_rule_credits_units_marked_before_the_rule_existed(
+    done_configuration,
+    rule_factory,
+    achievement_rule_factory,
+    event_factory,
+    gamma_user_factory,
+):
+    """
+    A learner who marked most of a section before the badge's rule (or their Achievement
+    row) existed meets the goal by marking the one unit they had missed: progress comes
+    from their history, not from a counter that only starts when the rule does.
+    """
+    user = gamma_user_factory()
+    blocks = [f'block-v1:org+A+1+type@done+block@{suffix}' for suffix in 'abcde']
+    rule = _block_set_rule(rule_factory, done_configuration, blocks)
+    for day, block_id in enumerate(blocks[:4], start=1):
+        event_factory(
+            configuration=done_configuration, course_id=COURSE_A, username=user.user_uid,
+            block_id=block_id, created_at=_day(day),
+        )
+
+    achievement_rule = achievement_rule_factory(rule=rule, dependencies={})
+    missed_unit = event_factory(
+        configuration=done_configuration, course_id=COURSE_A, username=user.user_uid,
+        block_id=blocks[4], created_at=_day(9),
+    )
+    dependencies = CommonEventProcessor().process(achievement_rule, user, missed_unit)
+
+    assert dependencies['is_achieved'] is True
+    assert dependencies['events'][DONE_EVENT]['count'] == 5
+    assert dependencies['events'][DONE_EVENT]['achieved_at'] == _day(9).isoformat()
+
+
+def test_block_set_rule_is_met_by_whichever_unit_completes_the_set(
+    done_configuration,
+    rule_factory,
+    achievement_rule_factory,
+    event_factory,
+    gamma_user_factory,
+):
+    """
+    Units marked out of order count once each, even when one reached Gamma twice, and the
+    goal is met by whichever unit completes the set. ``achieved_at`` is when the set was
+    actually completed, also when history is replayed out of chronological order (a
+    backfill walks source rows by id, not by date).
+    """
+    user = gamma_user_factory()
+    blocks = [f'block-v1:org+A+1+type@done+block@{suffix}' for suffix in 'abcde']
+    rule = _block_set_rule(rule_factory, done_configuration, blocks)
+    achievement_rule = achievement_rule_factory(rule=rule, dependencies={})
+    processor = CommonEventProcessor()
+
+    def feed(block_id, day):
+        event = event_factory(
+            configuration=done_configuration, course_id=COURSE_A, username=user.user_uid,
+            block_id=block_id, created_at=_day(day),
+        )
+        dependencies = processor.process(achievement_rule, user, event)
+        achievement_rule.dependencies = dependencies
+        achievement_rule.save()
+        return dependencies
+
+    # (unit, day it was marked) in replay order; unit "a" arrives a second time on day 7
+    for block_id, day in ((blocks[3], 3), (blocks[0], 1), (blocks[0], 7), (blocks[4], 5), (blocks[1], 2)):
+        dependencies = feed(block_id, day)
+    assert dependencies['events'][DONE_EVENT]['count'] == 4
+    assert dependencies['is_achieved'] is False
+    assert 'achieved_at' not in dependencies['events'][DONE_EVENT]
+
+    # the missed unit "c" (marked day 4) completes the set, which was whole once "e" was marked on day 5
+    dependencies = feed(blocks[2], 4)
+    assert dependencies['events'][DONE_EVENT]['count'] == 5
+    assert dependencies['is_achieved'] is True
+    assert dependencies['events'][DONE_EVENT]['achieved_at'] == _day(5).isoformat()

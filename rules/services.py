@@ -1,7 +1,9 @@
 import logging
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import List, Optional, Sequence
 
+from django.db.models import Min, QuerySet
 from django.utils.timezone import make_aware, utc
 
 from events.models import Event
@@ -10,6 +12,95 @@ from rules.models import Rule
 from .constants import DATETIME_FORMAT, WINDOW_NON_ANCHOR_EVENT_TYPES
 
 logger = logging.getLogger('rules.filters')
+
+
+def _parse_filter_datetime(value: Optional[str]) -> Optional[datetime]:
+    if not value:
+        return None
+    try:
+        return make_aware(datetime.strptime(value, DATETIME_FORMAT), utc)
+    except (ValueError, TypeError):
+        return None
+
+
+def events_matching_rule(rule: Rule) -> QuerySet:
+    """
+    Events (across all users) that count toward this rule, applying its filters.
+    """
+    configuration = rule.event_configuration
+    if not configuration:
+        return Event.objects.none()
+
+    queryset = Event.objects.filter(configuration__event_type__name=configuration.event_name)
+    filters = rule.filters or {}
+    if course := filters.get('course'):
+        if isinstance(course, (list, tuple)):
+            queryset = queryset.filter(course_id__in=course)
+        else:
+            queryset = queryset.filter(course_id=course)
+    if org := filters.get('org'):
+        queryset = queryset.filter(org=org)
+    if blocks := filters.get('blocks'):
+        if isinstance(blocks, (list, tuple)):
+            queryset = queryset.filter(block_id__in=blocks)
+        else:
+            queryset = queryset.filter(block_id=blocks)
+
+    interval = filters.get('interval') or {}
+    if start := _parse_filter_datetime(interval.get('start')):
+        queryset = queryset.filter(created_at__gte=start)
+    if end := _parse_filter_datetime(interval.get('end')):
+        queryset = queryset.filter(created_at__lte=end)
+
+    return queryset
+
+
+def is_block_set_rule(rule: Rule) -> bool:
+    """
+    Whether the rule is about a set of blocks (e.g. every "Mark as complete" unit of a section).
+    """
+    return bool((rule.filters or {}).get('blocks'))
+
+
+@dataclass(frozen=True)
+class BlockSetProgress:
+    """
+    A learner's standing on a block-set rule.
+
+    ``count`` is how many distinct listed blocks they have completed; ``achieved_at`` is
+    when the goal-th of them was first completed, or None while the goal is unmet.
+    """
+
+    count: int
+    achieved_at: Optional[datetime]
+
+
+def block_set_progress(rule: Rule, username: str, goal: Optional[int]) -> BlockSetProgress:
+    """
+    Measure a learner's progress on a block-set rule from their stored events.
+
+    Counting distinct blocks in the learner's history, instead of advancing a counter per
+    incoming event, keeps the result independent of the order the units were marked in,
+    includes units marked before the rule (or the learner's Achievement row) existed, and
+    never counts a block twice however many times it reached Gamma. For an "all of these
+    blocks" rule, ``achieved_at`` is the moment the last missing unit was marked, whichever
+    unit that was, and it stays correct when history is replayed out of order.
+    """
+    first_completions = sorted(
+        row['first_completed_at']
+        for row in (
+            events_matching_rule(rule)
+            .filter(username=username, block_id__isnull=False)
+            .order_by()
+            .values('block_id')
+            .annotate(first_completed_at=Min('created_at'))
+        )
+    )
+    achieved = goal is not None and 0 < goal <= len(first_completions)
+    return BlockSetProgress(
+        count=len(first_completions),
+        achieved_at=first_completions[goal - 1] if achieved else None,
+    )
 
 
 class RulesFilterService:

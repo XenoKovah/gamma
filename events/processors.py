@@ -140,19 +140,7 @@ class CommonEventProcessor(BaseEventProcessor):
         """
         passed_frequency_filter = self._check_frequency_fit(achievement_rule.rule.filters, progress.current)
         event_count = progress.by_event.get('count', 0)
-
-        # Advance the counter only when the event matches this rule's event type AND
-        # satisfies the rule's own filters (course/org/interval). A badge may hold
-        # several rules of the same event type scoped to different courses (e.g. one
-        # "Get a Course Certificate" rule per required course); without the per-rule
-        # filter check a single certificate would progress every such rule and the
-        # multi-course badge would be granted after completing just one course.
-        if (
-            event.event_name == progress.event_name
-            and self._event_passes_rule_filters(event, achievement_rule.rule)
-        ):
-            event_count = event_count + 1 if passed_frequency_filter else 1
-            progress.by_event['count'] = event_count
+        achieved_at = progress.by_event.get('achieved_at')
 
         raw_progress_count = progress.action.get('count')
 
@@ -166,14 +154,50 @@ class CommonEventProcessor(BaseEventProcessor):
             )
             raise AchievementRuleProcessingException
 
+        # Advance the counter only when the event matches this rule's event type AND
+        # satisfies the rule's own filters (course/org/interval). A badge may hold
+        # several rules of the same event type scoped to different courses (e.g. one
+        # "Get a Course Certificate" rule per required course); without the per-rule
+        # filter check a single certificate would progress every such rule and the
+        # multi-course badge would be granted after completing just one course.
+        if (
+            event.event_name == progress.event_name
+            and self._event_passes_rule_filters(event, achievement_rule.rule)
+        ):
+            if self._is_block_set_rule(achievement_rule.rule):
+                # A block-set rule (e.g. every unit of a course section) is re-measured
+                # from the learner's history rather than incremented, so units marked
+                # out of order, before the rule existed, or more than once all count
+                # exactly once. See rules.services.block_set_progress.
+                block_progress = self._block_set_progress(achievement_rule.rule, user, progress_count)
+                event_count = block_progress.count
+                achieved_at = block_progress.achieved_at and block_progress.achieved_at.isoformat()
+            else:
+                event_count = event_count + 1 if passed_frequency_filter else 1
+            progress.by_event['count'] = event_count
+
         is_achieved = event_count >= progress_count
         updated_progress = types.GeneralProgress(
             goal=progress.action['count'],
             last_updated=event.created_at.isoformat(),
             count=event_count,
         )
+        if achieved_at:
+            updated_progress['achieved_at'] = achieved_at
 
         return types.EventDependencies(events={progress.event_name: updated_progress}, is_achieved=is_achieved)
+
+    @staticmethod
+    def _is_block_set_rule(rule) -> bool:
+        from rules.services import is_block_set_rule
+
+        return is_block_set_rule(rule)
+
+    @staticmethod
+    def _block_set_progress(rule, user: GammaUser, goal: int):
+        from rules.services import block_set_progress
+
+        return block_set_progress(rule, user.user_uid, goal)
 
     @staticmethod
     def _event_passes_rule_filters(event: Event, rule) -> bool:

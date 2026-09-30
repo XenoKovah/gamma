@@ -23,14 +23,12 @@ from typing import Dict, List, Optional, Set, Tuple
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
-from django.utils.timezone import make_aware, utc
 
 from achievements.models import Achievement, AchievementRule
-from achievements.usecases import AchievementCompletionUseCase
+from achievements.usecases import AchievementCompletionUseCase, completion_time
 from events.enums import RggInternalEventTypes
-from events.models import Event
-from rules.constants import DATETIME_FORMAT
 from rules.models import Rule
+from rules.services import block_set_progress, events_matching_rule, is_block_set_rule
 from users.models import GammaUser
 
 logger = logging.getLogger(__name__)
@@ -109,41 +107,7 @@ def _events_for_rule(rule: Rule):
     """
     Events (across all users) that count toward this rule, applying its filters.
     """
-    name = _event_name(rule)
-    if not name:
-        return Event.objects.none()
-
-    queryset = Event.objects.filter(configuration__event_type__name=name)
-    filters = rule.filters or {}
-    if course := filters.get('course'):
-        if isinstance(course, (list, tuple)):
-            queryset = queryset.filter(course_id__in=course)
-        else:
-            queryset = queryset.filter(course_id=course)
-    if org := filters.get('org'):
-        queryset = queryset.filter(org=org)
-    if blocks := filters.get('blocks'):
-        if isinstance(blocks, (list, tuple)):
-            queryset = queryset.filter(block_id__in=blocks)
-        else:
-            queryset = queryset.filter(block_id=blocks)
-
-    interval = filters.get('interval') or {}
-    if start := _parse_datetime(interval.get('start')):
-        queryset = queryset.filter(created_at__gte=start)
-    if end := _parse_datetime(interval.get('end')):
-        queryset = queryset.filter(created_at__lte=end)
-
-    return queryset
-
-
-def _parse_datetime(value: Optional[str]) -> Optional[datetime]:
-    if not value:
-        return None
-    try:
-        return make_aware(datetime.strptime(value, DATETIME_FORMAT), utc)
-    except (ValueError, TypeError):
-        return None
+    return events_matching_rule(rule)
 
 
 def _as_int(value) -> Optional[int]:
@@ -151,6 +115,19 @@ def _as_int(value) -> Optional[int]:
         return int(value)
     except (TypeError, ValueError):
         return None
+
+
+def _count_progress(rule: Rule, user: GammaUser, goal: int) -> Tuple[int, Optional[datetime]]:
+    """
+    Progress on a count rule as (count, moment the goal was met or None).
+
+    A block-set rule counts distinct blocks, dated by when the goal-th was first completed;
+    any other count rule counts its matching events and does not date its completion.
+    """
+    if is_block_set_rule(rule):
+        progress = block_set_progress(rule, user.user_uid, goal)
+        return progress.count, progress.achieved_at
+    return _events_for_rule(rule).filter(username=user.user_uid).count(), None
 
 
 def _templates_depending_on(template) -> List:
@@ -240,8 +217,9 @@ class AchievementReconciliationService:
 
         if will_be_earned and not was_earned:
             # Reuse the normal completion path so grant-side effects (avatar evolution,
-            # notifications) fire exactly as they would for an event-driven award.
-            AchievementCompletionUseCase().execute(achievement)
+            # notifications) fire exactly as they would for an event-driven award, dated
+            # when the rules were met if their history says so (see completion_time).
+            AchievementCompletionUseCase().execute(achievement, completed_at=completion_time(achievement))
             return 'granted'
         if was_earned and not will_be_earned:
             return 'revoked'
@@ -260,7 +238,7 @@ class AchievementReconciliationService:
             goal = _as_int(action_value.get('count'))
             # NOTE: the 'frequency' filter (consecutive-day reset) is not modelled here;
             # recompute counts all matching events. Exact for the common count==1 case.
-            return goal is not None and _events_for_rule(rule).filter(username=user.user_uid).count() >= goal
+            return goal is not None and _count_progress(rule, user, goal)[0] >= goal
 
         if 'points' in action_value:
             goal = _as_int(action_value.get('points'))
@@ -324,9 +302,11 @@ class AchievementReconciliationService:
 
         goal = None
         count = 0
+        achieved_at = None
         if 'count' in action_value:
             goal = _as_int(action_value.get('count'))
-            count = _events_for_rule(rule).filter(username=user.user_uid).count()
+            if goal is not None:
+                count, achieved_at = _count_progress(rule, user, goal)
         elif 'points' in action_value:
             goal = _as_int(action_value.get('points'))
             count = user.points
@@ -335,5 +315,9 @@ class AchievementReconciliationService:
             count = 1 if satisfied else 0
 
         if name and goal:
-            dependencies['events'] = {name: {'goal': goal, 'count': goal if satisfied else min(count, goal)}}
+            progress = {'goal': goal, 'count': goal if satisfied else min(count, goal)}
+            if satisfied and achieved_at is not None:
+                # Dates the grant: completion_time() reads it back (block-set rules).
+                progress['achieved_at'] = achieved_at.isoformat()
+            dependencies['events'] = {name: progress}
         return dependencies

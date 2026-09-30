@@ -68,16 +68,16 @@ class Achievement(models.Model):
             self.title = self.title[:max_length]
         super().save(*args, **kwargs)
 
-    def mark_completed(self) -> bool:
+    def mark_completed(self, at=None) -> bool:
         """
-        Record the completion moment, once.
+        Record the completion moment, once: ``at`` when known, else now.
 
         Return True only on the first call; False when a completion timestamp already
         exists (e.g. a repeated event against an already-complete achievement).
         """
         if self.completed_at:
             return False
-        self.completed_at = now()
+        self.completed_at = at or now()
         self.save(update_fields=('completed_at',))
         return True
 

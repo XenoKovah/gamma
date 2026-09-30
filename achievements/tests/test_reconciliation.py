@@ -1,6 +1,9 @@
+from datetime import datetime
+
 import pytest
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.signals import post_save
+from django.utils.timezone import utc
 
 from achievements.models import Achievement, AchievementRule
 from achievements.reconciliation import recompute_holders
@@ -235,12 +238,13 @@ def _block_set_rule(rule_factory, configuration, blocks):
     )
 
 
-def _mark_done(event_factory, configuration, user, block_id):
+def _mark_done(event_factory, configuration, user, block_id, **kwargs):
     return event_factory(
         configuration=configuration,
         username=user.user_uid,
         course_id=COURSE_A,
         block_id=block_id,
+        **kwargs,
     )
 
 
@@ -294,3 +298,47 @@ def test_recompute_writes_partial_block_progress(
     progress = achievement_rule.dependencies['events'][DONE_EVENT]
     assert progress['count'] == 2
     assert progress['goal'] == 5
+
+
+def test_recompute_counts_each_block_once(
+    done_configuration, badge_factory, rule_factory, event_factory, gamma_user_factory,
+):
+    """
+    A block that reached Gamma twice counts once: 4 distinct blocks of 5 is not the set,
+    however many rows the learner has.
+    """
+    badge = badge_factory()
+    badge.rules.set([_block_set_rule(rule_factory, done_configuration, DONE_BLOCKS)])
+    user = gamma_user_factory()
+    for block_id in DONE_BLOCKS[:4] + DONE_BLOCKS[:1]:
+        _mark_done(event_factory, done_configuration, user, block_id)
+
+    result = recompute_holders(badge)
+
+    assert user.user_uid not in result.granted
+    achievement = Achievement.objects.get(object_id=badge.id, user=user)
+    assert achievement.achievement_rules.get().dependencies['events'][DONE_EVENT]['count'] == 4
+
+
+def test_recompute_dates_block_set_grant_when_the_set_was_completed(
+    done_configuration, badge_factory, rule_factory, event_factory, gamma_user_factory,
+):
+    """
+    Recompute grants a section badge dated when its last unit was first marked, not "now"
+    and not a later re-send of an already-marked unit.
+    """
+    def day(n):
+        return datetime(2026, 1, n, 12, tzinfo=utc)
+
+    badge = badge_factory()
+    badge.rules.set([_block_set_rule(rule_factory, done_configuration, DONE_BLOCKS)])
+    user = gamma_user_factory()
+    for block_id, n in zip(DONE_BLOCKS, (3, 1, 5, 2, 4)):
+        _mark_done(event_factory, done_configuration, user, block_id, created_at=day(n))
+    _mark_done(event_factory, done_configuration, user, DONE_BLOCKS[1], created_at=day(9))
+
+    result = recompute_holders(badge)
+
+    assert user.user_uid in result.granted
+    achievement = Achievement.objects.get(object_id=badge.id, user=user)
+    assert achievement.completed_at == day(5)

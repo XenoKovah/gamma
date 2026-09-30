@@ -9,6 +9,8 @@ class GeneralProgress(TypedDict):
     goal: int
     last: str
     count: int
+    # Block-set rules only: ISO time the goal was first met, which dates the badge grant.
+    achieved_at: str
 
 
 class AchievedConditionMixin(TypedDict):

@@ -1,5 +1,6 @@
 import logging
-from typing import List, Union
+from datetime import datetime
+from typing import List, Optional, Union
 
 from django.contrib.contenttypes.models import ContentType
 from django.utils.timezone import now as timezone_now
@@ -42,6 +43,38 @@ def calculate_rule_dependencies_for_user_based_on_event(
         )
 
 
+def _recorded_achieved_at(dependencies: dict) -> Optional[datetime]:
+    """
+    The moment a rule's goal was met, as recorded in its dependencies (block-set rules).
+    """
+    for progress in ((dependencies or {}).get('events') or {}).values():
+        if isinstance(progress, dict) and progress.get('achieved_at'):
+            try:
+                return datetime.fromisoformat(progress['achieved_at'])
+            except (TypeError, ValueError):
+                return None
+    return None
+
+
+def completion_time(achievement: Achievement) -> Optional[datetime]:
+    """
+    When the achievement's rules were all met, if every rule recorded that moment.
+
+    Block-set rules record when the learner first completed the block that met the goal,
+    so a section badge is dated when its last missing unit was marked, even when that
+    history is replayed (a backfill) or recomputed long afterwards. A rule without the
+    record (a certificate count, a points threshold) leaves the moment unknown, and the
+    caller keeps stamping "now".
+    """
+    moments = []
+    for achievement_rule in achievement.achievement_rules.all():
+        moment = _recorded_achieved_at(achievement_rule.dependencies)
+        if moment is None:
+            return None
+        moments.append(moment)
+    return max(moments) if moments else None
+
+
 def collect_fulfilled_rules_for_achievement(achievement: Achievement) -> List[AchievementRule]:
     """
     Collect all the achievement rules associated with a given achievement that have met their goal criteria.
@@ -75,7 +108,7 @@ class CreateUserAchievementBasedOnEventUseCase(UseCase):
             ProcessFulfilledAchievementRulesUseCase().execute(fulfilled_rules)
 
         if achievement.all_rules_completed:
-            AchievementCompletionUseCase().execute(achievement)
+            AchievementCompletionUseCase().execute(achievement, completed_at=completion_time(achievement))
 
     def _create_achievement(self, instance: Union[Badge, Avatar], user: GammaUser) -> Achievement:
         """
@@ -151,7 +184,7 @@ class UpdateUserAchievementBasedOnEventUseCase(UseCase):
             ProcessFulfilledAchievementRulesUseCase().execute(fulfilled_rules)
 
         if achievement.all_rules_completed:
-            AchievementCompletionUseCase().execute(achievement)
+            AchievementCompletionUseCase().execute(achievement, completed_at=completion_time(achievement))
 
     def _get_user_achievement(self, instance: Union[Badge, Avatar], user: GammaUser) -> Achievement:
         """
@@ -225,13 +258,14 @@ class AchievementCompletionUseCase(UseCase):
     and issue an avatar to the user upon achievement completion.
     """
 
-    def execute(self, achievement: Achievement):
+    def execute(self, achievement: Achievement, completed_at: Optional[datetime] = None):
         # Only the first completion records the moment, pays out completion
         # points, and emits the internal "achievement obtained" event. Later
         # events matching an already-complete achievement land here again (the
         # rule may stay selected for the user because another badge/avatar
-        # shares it), and must not re-fire.
-        if achievement.mark_completed():
+        # shares it), and must not re-fire. ``completed_at`` dates the grant when
+        # the rules know when they were met (see completion_time); default now.
+        if achievement.mark_completed(completed_at):
             # Badges may carry completion points (Badge.points, shown on the
             # dashboard as "Points for completion"). Pay them out on the first
             # rule-driven completion, mirroring the manual-assignment path
