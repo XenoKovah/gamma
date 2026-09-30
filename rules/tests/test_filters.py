@@ -166,6 +166,7 @@ def test_one_rule_based_on_action_criteria(
 
 mock_block_a = 'block-v1:edx+1+1+type@done+block@aaaa'
 mock_block_b = 'block-v1:edx+1+1+type@done+block@bbbb'
+mock_block_a_older_version = 'block-v1:edx+1+0+type@done+block@aaaa'
 
 
 @pytest.mark.parametrize(
@@ -183,6 +184,10 @@ mock_block_b = 'block-v1:edx+1+1+type@done+block@bbbb'
         (mock_block_a, mock_block_b, False),
         # Failed: Pre-block_id event (NULL) never matches a blocks filter
         ([mock_block_a], None, False),
+        # Passed: Event block is the older-version key of a unit listed in two class versions
+        ([[mock_block_a_older_version, mock_block_a], mock_block_b], mock_block_a_older_version, True),
+        # Failed: A block of neither version
+        ([[mock_block_a_older_version, mock_block_a]], mock_block_b, False),
     ],
     ids=[
         'Passed: No blocks filter',
@@ -191,6 +196,8 @@ mock_block_b = 'block-v1:edx+1+1+type@done+block@bbbb'
         'Failed: Block outside list',
         'Failed: Single block string mismatch',
         'Failed: NULL block_id never matches',
+        'Passed: Older class version of a listed unit',
+        'Failed: Block in neither class version',
     ]
 )
 def test_one_rule_based_on_blocks_filter(

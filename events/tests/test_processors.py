@@ -262,3 +262,48 @@ def test_block_set_rule_is_met_by_whichever_unit_completes_the_set(
     assert dependencies['events'][DONE_EVENT]['count'] == 5
     assert dependencies['is_achieved'] is True
     assert dependencies['events'][DONE_EVENT]['achieved_at'] == _day(5).isoformat()
+
+
+def test_block_set_rule_counts_a_unit_once_whichever_class_version_it_was_marked_in(
+    done_configuration,
+    rule_factory,
+    achievement_rule_factory,
+    event_factory,
+    gamma_user_factory,
+):
+    """
+    Units listed in two versions of a class: work begun in the older version carries over
+    to the newer one, a unit marked in both versions counts once, and the goal is met, and
+    dated, when the last unit is marked in either version.
+    """
+    older_course, newer_course = 'course-v1:org+A+2021', 'course-v1:org+A+2024'
+    units = [
+        [f'block-v1:org+A+2021+type@done+block@{suffix}', f'block-v1:org+A+2024+type@done+block@{suffix}']
+        for suffix in 'abc'
+    ]
+    user = gamma_user_factory()
+    rule = rule_factory(
+        event_configuration=done_configuration,
+        action={DONE_EVENT: {'count': len(units)}},
+        filters={'course': [older_course, newer_course], 'blocks': units},
+    )
+    achievement_rule = achievement_rule_factory(rule=rule, dependencies={})
+    processor = CommonEventProcessor()
+
+    def feed(block_id, day):
+        event = event_factory(
+            configuration=done_configuration, username=user.user_uid, block_id=block_id, created_at=_day(day),
+            course_id=older_course if '+2021+' in block_id else newer_course,
+        )
+        dependencies = processor.process(achievement_rule, user, event)
+        achievement_rule.dependencies = dependencies
+        achievement_rule.save()
+        return dependencies['events'][DONE_EVENT], dependencies['is_achieved']
+
+    assert feed(units[0][0], 1) == ({'goal': 3, 'count': 1, 'last_updated': _day(1).isoformat()}, False)
+    assert feed(units[0][1], 2)[0]['count'] == 1           # the same unit again, in the newer version
+    assert feed(units[1][0], 3)[0]['count'] == 2
+    progress, achieved = feed(units[2][1], 4)              # the last unit, in the newer version
+    assert achieved is True
+    assert progress['count'] == 3
+    assert progress['achieved_at'] == _day(4).isoformat()

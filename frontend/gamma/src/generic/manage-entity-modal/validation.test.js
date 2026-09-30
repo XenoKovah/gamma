@@ -248,6 +248,21 @@ describe('validateFilters', () => {
       expect(errors.rules[0].filters.blocks).toMatch(/usage id/);
     });
 
+    it('accepts a group of usage keys for one unit in several class versions', () => {
+      const OLD_BLOCK = 'block-v1:OST2+Arch4001+2021+type@done+block@761ee26eb2ad47aea8a0582700ec9832';
+      const values = { rules: [{ filters: { blocks: [[OLD_BLOCK, VALID_BLOCK]] } }] };
+
+      expect(validateFilters(values, messages)).toEqual({});
+    });
+
+    it('rejects a group holding something that is not a block usage key', () => {
+      const values = { rules: [{ filters: { blocks: [[VALID_BLOCK, 'course-v1:OST2+Arch4001+2021']] } }] };
+
+      const errors = validateFilters(values, messages);
+
+      expect(errors.rules[0].filters.blocks).toMatch(/usage id/);
+    });
+
     it('requires at least one entry like any other filter', () => {
       const values = { rules: [{ filters: { blocks: '' } }] };
       const expectedErrors = {

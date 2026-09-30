@@ -1,7 +1,7 @@
 import logging
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import List, Optional, Sequence
+from typing import Dict, List, Optional, Sequence
 
 from django.db.models import Min, QuerySet
 from django.utils.timezone import make_aware, utc
@@ -23,6 +23,30 @@ def _parse_filter_datetime(value: Optional[str]) -> Optional[datetime]:
         return None
 
 
+def flatten_blocks(blocks) -> List[str]:
+    """
+    Every usage key in a ``blocks`` filter: one key, or a list of keys and of equivalent-key groups.
+    """
+    if isinstance(blocks, str):
+        return [blocks]
+    return [key for entry in blocks or () for key in ([entry] if isinstance(entry, str) else entry)]
+
+
+def block_units(blocks) -> Dict[str, int]:
+    """
+    Map each usage key in a ``blocks`` filter to the unit (entry) it stands for.
+
+    An entry is one unit the rule requires: a usage key, or a group of keys for the same
+    unit in several versions of a class, any one of which completes it.
+    """
+    entries = [blocks] if isinstance(blocks, str) else list(blocks or ())
+    return {
+        key: index
+        for index, entry in enumerate(entries)
+        for key in ([entry] if isinstance(entry, str) else entry)
+    }
+
+
 def events_matching_rule(rule: Rule) -> QuerySet:
     """
     Events (across all users) that count toward this rule, applying its filters.
@@ -41,10 +65,7 @@ def events_matching_rule(rule: Rule) -> QuerySet:
     if org := filters.get('org'):
         queryset = queryset.filter(org=org)
     if blocks := filters.get('blocks'):
-        if isinstance(blocks, (list, tuple)):
-            queryset = queryset.filter(block_id__in=blocks)
-        else:
-            queryset = queryset.filter(block_id=blocks)
+        queryset = queryset.filter(block_id__in=flatten_blocks(blocks))
 
     interval = filters.get('interval') or {}
     if start := _parse_filter_datetime(interval.get('start')):
@@ -67,8 +88,9 @@ class BlockSetProgress:
     """
     A learner's standing on a block-set rule.
 
-    ``count`` is how many distinct listed blocks they have completed; ``achieved_at`` is
-    when the goal-th of them was first completed, or None while the goal is unmet.
+    ``count`` is how many of the listed units they have completed (a unit listed in several
+    versions of a class counts once); ``achieved_at`` is when the goal-th of them was first
+    completed, or None while the goal is unmet.
     """
 
     count: int
@@ -79,23 +101,27 @@ def block_set_progress(rule: Rule, username: str, goal: Optional[int]) -> BlockS
     """
     Measure a learner's progress on a block-set rule from their stored events.
 
-    Counting distinct blocks in the learner's history, instead of advancing a counter per
+    Counting distinct units in the learner's history, instead of advancing a counter per
     incoming event, keeps the result independent of the order the units were marked in,
     includes units marked before the rule (or the learner's Achievement row) existed, and
-    never counts a block twice however many times it reached Gamma. For an "all of these
-    blocks" rule, ``achieved_at`` is the moment the last missing unit was marked, whichever
-    unit that was, and it stays correct when history is replayed out of order.
+    never counts a unit twice however many times, or in how many versions of the class, it
+    was marked. A unit is completed when it was first marked in any version. For an "all of
+    these units" rule, ``achieved_at`` is the moment the last missing unit was marked,
+    whichever unit that was, and it stays correct when history is replayed out of order.
     """
-    first_completions = sorted(
-        row['first_completed_at']
-        for row in (
-            events_matching_rule(rule)
-            .filter(username=username, block_id__isnull=False)
-            .order_by()
-            .values('block_id')
-            .annotate(first_completed_at=Min('created_at'))
-        )
-    )
+    unit_of = block_units(rule.filters.get('blocks'))
+    first_by_unit = {}
+    for row in (
+        events_matching_rule(rule)
+        .filter(username=username, block_id__isnull=False)
+        .order_by()
+        .values('block_id')
+        .annotate(first_completed_at=Min('created_at'))
+    ):
+        unit = unit_of.get(row['block_id'])
+        if unit is not None and (unit not in first_by_unit or row['first_completed_at'] < first_by_unit[unit]):
+            first_by_unit[unit] = row['first_completed_at']
+    first_completions = sorted(first_by_unit.values())
     achieved = goal is not None and 0 < goal <= len(first_completions)
     return BlockSetProgress(
         count=len(first_completions),
@@ -285,19 +311,16 @@ class RulesFilterService:
         """
         Check if the rule passes the blocks filter.
 
-        ``blocks`` is a list of block usage keys (or a single key); the event passes
-        when its block_id is one of them. Combined with an action count equal to the
-        list length the rule reads "all of these blocks" — the per-block event uid
-        dedup upstream means each block can advance the counter at most once. Events
-        that predate block_id (NULL) never match a blocks filter; the done-state
-        backfill repairs those rows.
+        ``blocks`` lists usage keys (or groups of equivalent keys, one unit in several
+        versions of a class); the event passes when its block_id is any of them. How far
+        it takes the learner is measured by block_set_progress. Events that predate
+        block_id (NULL) never match a blocks filter; the done-state backfill repairs
+        those rows.
         """
         blocks = rule.filters.get('blocks')
         if not blocks:
             return True
-        if isinstance(blocks, (list, tuple)):
-            return self.event.block_id in blocks
-        return self.event.block_id == blocks
+        return self.event.block_id in flatten_blocks(blocks)
 
     @staticmethod
     def parse_and_make_aware(date_str: str) -> datetime:

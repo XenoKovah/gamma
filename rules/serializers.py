@@ -10,6 +10,7 @@ from events.utils import SchemaRenderer
 
 from .constants import DATETIME_FORMAT
 from .models import Rule
+from .services import flatten_blocks
 
 
 class DateTimeFieldSerializer(serializers.CharField):
@@ -82,26 +83,45 @@ class CompletionWindowFilterSerializer(serializers.Serializer):
             raise serializers.ValidationError('max_weeks must be greater than min_weeks.')
 
         return attrs
+
+
 class BlocksFilterField(serializers.Field):
     """
-    Accept a single block usage key (string) or a list of usage keys.
+    Accept a block usage key, or a list whose entries are usage keys or groups of usage keys.
 
-    The list is the set of blocks the rule is about — e.g. every "Mark as complete"
-    block that makes up a badge — matched against each event's block_id. With the
-    action count equal to the list length the rule reads "all of these blocks". The
-    list is de-duplicated and sorted so equivalent filters dedupe to the same Rule.
+    Each entry is one unit the rule is about, e.g. one "Mark as complete" block of a course
+    section, matched against each event's block_id. A group (a list of keys) is the same unit
+    in several versions of a class, e.g. its 2021_v1 and 2024_v1 courses: completing it in
+    any of them completes the unit, once. With the action count equal to the number of
+    entries the rule reads "all of these units". Entries, and the keys inside a group, are
+    de-duplicated and sorted so equivalent filters dedupe to the same Rule; a one-key group
+    is stored as its plain key.
     """
+
+    INVALID = ('blocks must be a usage key or a non-empty list of usage keys '
+               '(an entry may itself be a list of equivalent usage keys).')
 
     def to_internal_value(self, data):
         if isinstance(data, str):
             data = [data]
-        if (
-            isinstance(data, (list, tuple))
-            and data
-            and all(isinstance(item, str) and item.strip() for item in data)
-        ):
-            return sorted({item.strip() for item in data})
-        raise serializers.ValidationError('blocks must be a usage key or a non-empty list of usage keys.')
+        if not isinstance(data, (list, tuple)) or not data:
+            raise serializers.ValidationError(self.INVALID)
+
+        entries = set()
+        for item in data:
+            group = [item] if isinstance(item, str) else item
+            if not (
+                isinstance(group, (list, tuple))
+                and group
+                and all(isinstance(key, str) and key.strip() for key in group)
+            ):
+                raise serializers.ValidationError(self.INVALID)
+            entries.add(tuple(sorted({key.strip() for key in group})))
+
+        keys = [key for entry in entries for key in entry]
+        if len(keys) != len(set(keys)):
+            raise serializers.ValidationError('A usage key may belong to only one blocks entry.')
+        return [entry[0] if len(entry) == 1 else list(entry) for entry in sorted(entries)]
 
     def to_representation(self, value):
         return value
@@ -128,12 +148,13 @@ class FiltersSerializer(serializers.Serializer):
         Course-scoped features (per-course badge lists, the course leaderboard's badge
         column) associate a badge with a course through its rules' course filter, so a
         block-set rule should carry the course(s) its blocks live in even when the
-        admin only entered block keys.
+        admin only entered block keys. Blocks spanning several versions of a class give
+        an OR group of all of them.
         """
         if attrs.get('blocks') and not attrs.get('course'):
             courses = sorted({
                 f'course-v1:{match.group("course")}'
-                for block in attrs['blocks']
+                for block in flatten_blocks(attrs['blocks'])
                 if (match := self.COURSE_FROM_BLOCK_KEY.match(block))
             })
             if courses:

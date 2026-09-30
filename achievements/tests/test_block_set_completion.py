@@ -83,3 +83,46 @@ def test_replayed_history_dates_the_section_badge_when_it_was_earned(
     achievement = _achievement(section_badge, user)
     assert achievement.all_rules_completed
     assert achievement.completed_at == _day(5)
+
+
+def test_section_badge_spanning_two_class_versions_is_granted_once(
+    done_configuration, rule_factory, badge_factory, event_factory, gamma_user_factory,
+):
+    """
+    Start a section in a class's older version and finish it in the newer one: the badge is
+    granted once, dated when its last unit was marked, and marking a unit again in the other
+    version changes nothing.
+    """
+    units = [
+        [f'block-v1:org+A+2021+type@done+block@{suffix}', f'block-v1:org+A+2024+type@done+block@{suffix}']
+        for suffix in 'abc'
+    ]
+    courses = ['course-v1:org+A+2021', 'course-v1:org+A+2024']
+    rule = rule_factory(
+        event_configuration=done_configuration,
+        action={DONE_EVENT: {'count': len(units)}},
+        filters={'course': courses, 'blocks': units},
+    )
+    badge = badge_factory(set_rules=rule, points=100)
+    user = gamma_user_factory()
+
+    def mark(block_id, day):
+        event_factory(
+            configuration=done_configuration, username=user.user_uid, block_id=block_id,
+            course_id=courses[0] if '+2021+' in block_id else courses[1], created_at=_day(day),
+        )
+
+    mark(units[0][0], 1)
+    mark(units[1][0], 2)
+    mark(units[0][1], 3)
+    assert _achievement(badge, user).completed_at is None
+
+    mark(units[2][1], 4)
+    mark(units[1][1], 5)
+
+    achievements = Achievement.objects.filter(
+        user=user, content_type=ContentType.objects.get_for_model(Badge), object_id=badge.id,
+    )
+    assert achievements.count() == 1
+    assert achievements.get().completed_at == _day(4)
+    assert achievements.get().completion_points_paid == 100

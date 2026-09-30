@@ -342,3 +342,47 @@ def test_recompute_dates_block_set_grant_when_the_set_was_completed(
     assert user.user_uid in result.granted
     achievement = Achievement.objects.get(object_id=badge.id, user=user)
     assert achievement.completed_at == day(5)
+
+
+def test_recompute_counts_units_across_class_versions(
+    done_configuration, badge_factory, rule_factory, event_factory, gamma_user_factory,
+):
+    """
+    Units split between two versions of a class complete the set; the same unit marked in
+    both versions counts once.
+    """
+    def day(n):
+        return datetime(2026, 1, n, 12, tzinfo=utc)
+
+    older, newer = 'course-v1:org+A+2021', 'course-v1:org+A+2024'
+    units = [
+        [f'block-v1:org+A+2021+type@done+block@{suffix}', f'block-v1:org+A+2024+type@done+block@{suffix}']
+        for suffix in 'abc'
+    ]
+    badge = badge_factory()
+    badge.rules.set([rule_factory(
+        event_configuration=done_configuration,
+        action={DONE_EVENT: {'count': len(units)}},
+        filters={'course': [older, newer], 'blocks': units},
+    )])
+
+    def mark(user, block_id, n):
+        event_factory(configuration=done_configuration, username=user.user_uid, block_id=block_id,
+                      course_id=older if '+2021+' in block_id else newer, created_at=day(n))
+
+    split = gamma_user_factory()
+    mark(split, units[0][0], 1)
+    mark(split, units[1][0], 2)
+    mark(split, units[2][1], 3)
+    repeated = gamma_user_factory()
+    mark(repeated, units[0][0], 1)
+    mark(repeated, units[0][1], 2)
+    mark(repeated, units[1][1], 3)
+
+    result = recompute_holders(badge)
+
+    assert split.user_uid in result.granted
+    assert Achievement.objects.get(object_id=badge.id, user=split).completed_at == day(3)
+    assert repeated.user_uid not in result.granted
+    progress = Achievement.objects.get(object_id=badge.id, user=repeated).achievement_rules.get().dependencies
+    assert progress['events'][DONE_EVENT]['count'] == 2

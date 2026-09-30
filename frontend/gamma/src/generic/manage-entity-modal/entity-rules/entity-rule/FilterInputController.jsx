@@ -16,6 +16,10 @@ const normalizeMultiValue = (values) => {
   return values;
 };
 
+// A blocks entry is one unit: a usage id, or a list of ids for the same unit in several
+// versions of a class (completing any of them counts once). Shown as one row.
+const blocksEntryLabel = (entry) => (Array.isArray(entry) ? entry.join(' = ') : entry);
+
 const FilterInputController = forwardRef(({
   name,
   type,
@@ -90,7 +94,7 @@ const FilterInputController = forwardRef(({
 
     const addPendingEntry = () => {
       const value = pendingEntry.trim();
-      if (value && !selected.includes(value)) {
+      if (value && !selected.some((entry) => [].concat(entry).includes(value))) {
         setFieldValue(fieldName, [...selected, value]);
         syncActionCount(selected.length + 1);
       }
@@ -133,10 +137,12 @@ const FilterInputController = forwardRef(({
         <Form.Text>
           Marked complete for every block below (AND) — paste each block&apos;s usage id, e.g.
           block-v1:ORG+Course+Run+type@done+block@… Lower the count for an &quot;any N of these&quot; rule.
+          A row with several ids joined by &quot;=&quot; is one unit in several versions of a class:
+          marking it in any of them counts once.
         </Form.Text>
         {selected.map((item) => (
-          <div key={item} className="d-flex align-items-center justify-content-between mt-1">
-            <span className="small text-truncate mr-2" title={item}>{item}</span>
+          <div key={blocksEntryLabel(item)} className="d-flex align-items-center justify-content-between mt-1">
+            <span className="small text-truncate mr-2" title={blocksEntryLabel(item)}>{blocksEntryLabel(item)}</span>
             <Button
               variant="outline-danger"
               size="sm"

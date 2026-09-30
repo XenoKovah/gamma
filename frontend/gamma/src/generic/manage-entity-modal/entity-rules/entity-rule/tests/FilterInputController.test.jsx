@@ -220,4 +220,44 @@ describe('FilterInputController free-text multi mode (blocks)', () => {
     const blockCalls = mockSetFieldValue.mock.calls.filter(([field]) => field === 'rules.0.filters.blocks');
     expect(blockCalls).toHaveLength(0);
   });
+
+  describe('a unit listed in several versions of a class', () => {
+    const BLOCK_A_2021 = 'block-v1:org+C1+2021+type@done+block@aaaa';
+    const group = [BLOCK_A_2021, BLOCK_A];
+    const props = {
+      ...blocksProps,
+      rule: { filters: { blocks: [group, BLOCK_B] }, action: { count: 2 } },
+    };
+
+    it('renders the group as one row and removes it as one unit', () => {
+      const { getAllByText, getByTitle } = renderWithProviders(<FilterInputController {...props} />);
+
+      expect(getByTitle(`${BLOCK_A_2021} = ${BLOCK_A}`)).toBeInTheDocument();
+
+      userEvent.click(getAllByText(removeButtonText)[0]);
+
+      expect(mockSetFieldValue).toHaveBeenCalledWith('rules.0.filters.blocks', [BLOCK_B]);
+      expect(mockSetFieldValue).toHaveBeenCalledWith('rules.0.action.count', 1);
+    });
+
+    it('keeps the group intact when another block is added', () => {
+      const { getByRole, getByText } = renderWithProviders(<FilterInputController {...props} />);
+
+      userEvent.type(getByRole('textbox'), BLOCK_C);
+      userEvent.click(getByText(addButtonText));
+
+      expect(mockSetFieldValue).toHaveBeenCalledWith('rules.0.filters.blocks', [group, BLOCK_B, BLOCK_C]);
+      expect(mockSetFieldValue).toHaveBeenCalledWith('rules.0.action.count', 3);
+    });
+
+    it('ignores a pasted key that is already part of a group', () => {
+      const { getByRole, getByText } = renderWithProviders(<FilterInputController {...props} />);
+
+      userEvent.type(getByRole('textbox'), BLOCK_A_2021);
+      userEvent.click(getByText(addButtonText));
+
+      const blockCalls = mockSetFieldValue.mock.calls.filter(([field]) => field === 'rules.0.filters.blocks');
+      expect(blockCalls).toHaveLength(0);
+    });
+  });
 });

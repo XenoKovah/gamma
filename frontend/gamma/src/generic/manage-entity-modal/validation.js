@@ -216,7 +216,8 @@ export const validateFilters = (values, messages) => {
             filterKey === 'blocks'
             && Array.isArray(filterValue)
             && filterValue.length > 0
-            && filterValue.some((block) => !BLOCK_USAGE_KEY_PATTERN.test(block))
+            // an entry is a usage id, or a list of ids for one unit in several class versions
+            && filterValue.some((entry) => [].concat(entry).some((block) => !BLOCK_USAGE_KEY_PATTERN.test(block)))
           ) {
             if (!errors.rules) {
               errors.rules = [];
