@@ -93,9 +93,9 @@ class BadgeViewSet(AdminUserPermissionMixin, viewsets.ModelViewSet):
         Body params:
             - user_uids (list[str]): GammaUser user_uids (edX usernames) to remove the badge from.
 
-        Each listed user loses the badge and, if it has ``points``, those points are deducted
-        from their total (floored at 0). Removing a badge a user does not have is a no-op for
-        that user, so the call is safe to retry.
+        Each listed user loses the badge and, if it has ``points``, the points they were paid
+        for it are reversed (the total may go below zero). Removing a badge a user does not
+        have is a no-op for that user, so the call is safe to retry.
 
         Returns HTTP 200 with ``{"removed": [...], "not_assigned": [...], "points_each": int}``.
         """

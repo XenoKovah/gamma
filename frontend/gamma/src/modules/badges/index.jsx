@@ -107,6 +107,18 @@ export const Badges = () => {
         variant: 'success',
         onClose: () => showToast(null),
       },
+      [TOAST_TYPES.SESSION_EXPIRED]: {
+        isShow: true,
+        text: intl.formatMessage(moduleMessages.toastSessionExpiredTitle),
+        variant: 'danger',
+        onClose: () => showToast(null),
+      },
+      [TOAST_TYPES.FORBIDDEN]: {
+        isShow: true,
+        text: intl.formatMessage(moduleMessages.toastForbiddenTitle),
+        variant: 'danger',
+        onClose: () => showToast(null),
+      },
       [TOAST_TYPES.ERROR]: {
         isShow: true,
         text: intl.formatMessage(moduleMessages.toastErrorTitle),

@@ -1,4 +1,4 @@
-import { groupBadgesByCategory, UNCATEGORIZED_KEY } from './utils';
+import { getErrorToastType, groupBadgesByCategory, UNCATEGORIZED_KEY } from './utils';
 
 describe('groupBadgesByCategory', () => {
   it('returns an empty array when there are no badges', () => {
@@ -44,5 +44,26 @@ describe('expiry date helpers', () => {
     const { formatExpiryDate } = jest.requireActual('./utils');
     expect(formatExpiryDate('2031-09-29T23:59:59Z', 'Never')).toBe('2031-09-29');
     expect(formatExpiryDate(null, 'Never')).toBe('Never');
+  });
+});
+
+describe('getErrorToastType', () => {
+  const types = { ERROR: 'error', SESSION_EXPIRED: 'session-expired', FORBIDDEN: 'forbidden' };
+  const err = (status, detail) => ({ response: { status, data: { detail } } });
+
+  it('reports a lapsed session for anonymous and CSRF 403s and for 401', () => {
+    expect(getErrorToastType(err(403, 'Authentication credentials were not provided.'), types)).toBe('session-expired');
+    expect(getErrorToastType(err(403, 'CSRF Failed: CSRF token missing or incorrect.'), types)).toBe('session-expired');
+    expect(getErrorToastType(err(401, ''), types)).toBe('session-expired');
+  });
+
+  it('reports a permission problem for other 403s', () => {
+    expect(getErrorToastType(err(403, 'You do not have permission to perform this action.'), types)).toBe('forbidden');
+  });
+
+  it('falls back to the generic error otherwise', () => {
+    expect(getErrorToastType(err(500, ''), types)).toBe('error');
+    expect(getErrorToastType(new Error('Network Error'), types)).toBe('error');
+    expect(getErrorToastType(undefined, types)).toBe('error');
   });
 });

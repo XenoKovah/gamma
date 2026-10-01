@@ -252,6 +252,16 @@ const messages = defineMessages({
     defaultMessage: 'Some error occurred.',
     description: 'The text displayed in the error toast message.',
   },
+  toastSessionExpiredTitle: {
+    id: 'modules.badges.toast.session-expired.text',
+    defaultMessage: 'Your sign-in session has expired, so this change was not saved. Reload the page and sign in again.',
+    description: 'The text displayed when a badge request is rejected because the admin is no longer signed in.',
+  },
+  toastForbiddenTitle: {
+    id: 'modules.badges.toast.forbidden.text',
+    defaultMessage: 'You do not have permission to do that. Only staff accounts can manage accomplishments.',
+    description: 'The text displayed when a badge request is rejected because the user lacks staff permission.',
+  },
   badgeCreatedTitle: {
     id: 'modules.badges.alert.badge-created.title',
     defaultMessage: 'Accomplishment successfully created',

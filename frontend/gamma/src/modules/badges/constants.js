@@ -3,6 +3,8 @@ export const DELETION_STATES = {
   START: 'pending',
   SUCCESS: 'complete',
   ERROR: 'error',
+  SESSION_EXPIRED: 'session-expired',
+  FORBIDDEN: 'forbidden',
 };
 
 export const DEFAULT_DELAY = 5000;

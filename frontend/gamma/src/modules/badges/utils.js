@@ -73,3 +73,27 @@ export const formatExpiryDate = (isoValue, neverLabel) => {
   }
   return new Date(isoValue).toISOString().slice(0, 10);
 };
+
+/**
+ * Picks the error toast for a failed badge-admin request.
+ *
+ * The API answers 403 both when the admin's session has lapsed (anonymous request, or a
+ * CSRF mismatch) and when a signed-in user simply lacks staff rights, so tell them apart
+ * by the DRF `detail` text rather than showing one generic message for everything.
+ *
+ * @param {Error} error - The (axios) error thrown by the request.
+ * @param {Object} toastTypes - The TOAST_TYPES map.
+ * @returns {string} The toast type to show.
+ */
+export const getErrorToastType = (error, toastTypes) => {
+  const status = error?.response?.status;
+  const detail = String(error?.response?.data?.detail || '');
+
+  if (status === 401 || (status === 403 && /^(CSRF Failed|Authentication credentials)/.test(detail))) {
+    return toastTypes.SESSION_EXPIRED;
+  }
+  if (status === 403) {
+    return toastTypes.FORBIDDEN;
+  }
+  return toastTypes.ERROR;
+};

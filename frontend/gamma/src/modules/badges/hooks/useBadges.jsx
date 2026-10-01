@@ -10,7 +10,7 @@ import {
 } from '../data';
 import { DELETION_STATES, DEFAULT_DELAY, TOAST_TYPES } from '../constants';
 import { deletionReducer } from '../reducers';
-import { setAutoClose } from '../utils';
+import { getErrorToastType, setAutoClose } from '../utils';
 
 export const useBadges = () => {
   const {
@@ -73,6 +73,8 @@ export const useBadges = () => {
     setAutoClose(() => setToast(null), DEFAULT_DELAY);
   };
 
+  const showErrorToast = (error) => showToast(getErrorToastType(error, TOAST_TYPES));
+
   const handleCreateNewBadge = async (values, resetForm, handleReset) => {
     setSubmitStatus(submitBtnStatuses.PENDING);
     try {
@@ -87,7 +89,7 @@ export const useBadges = () => {
         }
       });
     } catch (error) {
-      showToast(TOAST_TYPES.ERROR);
+      showErrorToast(error);
     } finally {
       setSubmitStatus(submitBtnStatuses.DEFAULT);
     }
@@ -101,7 +103,7 @@ export const useBadges = () => {
       showToast(TOAST_TYPES.BADGE.EDITED);
       handleReset(resetForm);
     } catch (error) {
-      showToast(TOAST_TYPES.ERROR);
+      showErrorToast(error);
     } finally {
       setSubmitStatus(submitBtnStatuses.DEFAULT);
     }
@@ -126,7 +128,7 @@ export const useBadges = () => {
       showToast(TOAST_TYPES.BADGE.DELETED);
     } catch (error) {
       dispatchDeletionStatus({ type: DELETION_STATES.ERROR });
-      showToast(TOAST_TYPES.ERROR);
+      showErrorToast(error);
     } finally {
       handleCloseAlertError();
     }
@@ -189,7 +191,7 @@ export const useBadges = () => {
       }
       handleCloseAssignModal();
     } catch (error) {
-      showToast(TOAST_TYPES.ERROR);
+      showErrorToast(error);
     } finally {
       setIsAssigning(false);
     }
