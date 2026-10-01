@@ -323,7 +323,7 @@ class RulesFilterService:
         Only clicks strictly before the event count, which both keeps the elapsed time
         non-negative and matches the question being asked ("how long did this take?").
         Only edx_done_toggled anchors — see WINDOW_ANCHOR_EVENT_TYPES; videos, answers,
-        bookmarks, forum posts, enrolments and certificates never start the clock. The
+        bookmarks, forum posts, enrollments and certificates never start the clock. The
         lookup is served by ``event_user_course_time_idx`` (username, course_id, created_at).
         """
         courses = self._course_scope(rule)

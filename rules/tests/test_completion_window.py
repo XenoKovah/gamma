@@ -140,7 +140,7 @@ def test_enrolment_never_anchors_the_window(window_setup):
 @pytest.mark.parametrize('event_name', NON_CLICK_EVENTS)
 def test_only_mark_as_complete_clicks_start_the_clock(window_setup, event_name):
     """
-    Videos, answers, bookmarks, forum posts, enrolments and earlier certificates never anchor.
+    Videos, answers, bookmarks, forum posts, enrollments and earlier certificates never anchor.
 
     With nothing but such activity before the certificate the pace is unmeasurable, so
     only the catch-all band claims it. The earlier certificate sits in the other run of
