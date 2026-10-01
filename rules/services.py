@@ -9,7 +9,7 @@ from django.utils.timezone import make_aware, utc
 from events.models import Event
 from rules.models import Rule
 
-from .constants import DATETIME_FORMAT, WINDOW_NON_ANCHOR_EVENT_TYPES
+from .constants import DATETIME_FORMAT, WINDOW_ANCHOR_EVENT_TYPES
 
 logger = logging.getLogger('rules.filters')
 
@@ -212,8 +212,8 @@ class RulesFilterService:
         Check the event lands inside the rule's completion window.
 
         The window grades how quickly a learner finished a class: it is measured from
-        their first real piece of work in it (see ``_window_anchor``) to the event being
-        processed — in practice the certificate. ``min_weeks`` is exclusive and
+        their first "Mark as complete" click in it (see ``_window_anchor``) to the event
+        being processed — in practice the certificate. ``min_weeks`` is exclusive and
         ``max_weeks`` inclusive, so consecutive bands tile without overlapping and a
         certificate satisfies exactly one tier:
 
@@ -261,16 +261,18 @@ class RulesFilterService:
 
     def _window_anchor(self, rule: Rule) -> Optional[datetime]:
         """
-        Return when the learner started this class: their earliest qualifying activity in it.
+        Return when the learner started this class: their first "Mark as complete" click in it.
 
         Scoped to the rule's ``course`` filter rather than to the event's own course id,
         so a multi-run class (one badge listing every accepted run) is treated as a single
         class — someone who began in the 2021 run and certified in the 2024 one is measured
         from when they actually started, not from when they switched runs.
 
-        Only activity strictly before the event counts, which both keeps the elapsed time
+        Only clicks strictly before the event count, which both keeps the elapsed time
         non-negative and matches the question being asked ("how long did this take?").
-        Certificates and enrolments never anchor — see WINDOW_NON_ANCHOR_EVENT_TYPES.
+        Only edx_done_toggled anchors — see WINDOW_ANCHOR_EVENT_TYPES; videos, answers,
+        bookmarks, forum posts, enrolments and certificates never start the clock. The
+        lookup is served by ``event_user_course_time_idx`` (username, course_id, created_at).
         """
         courses = self._course_scope(rule)
         if not courses:
@@ -284,8 +286,8 @@ class RulesFilterService:
                     username=self.event.username,
                     course_id__in=courses,
                     created_at__lt=self.event.created_at,
+                    configuration__event_type__name__in=WINDOW_ANCHOR_EVENT_TYPES,
                 )
-                .exclude(configuration__event_type__name__in=WINDOW_NON_ANCHOR_EVENT_TYPES)
                 .order_by('created_at')
                 .values_list('created_at', flat=True)
                 .first()

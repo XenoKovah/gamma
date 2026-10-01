@@ -2,6 +2,8 @@ from datetime import timedelta
 
 import pytest
 from django.contrib.contenttypes.models import ContentType
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
 from django.utils.timezone import now
 
 from achievements.models import Achievement
@@ -13,7 +15,13 @@ pytestmark = pytest.mark.django_db
 
 CERT_EVENT = 'edx_certificate_created'
 ENROLL_EVENT = 'edx_course_enrollment_activated'
+# A "Mark as complete" click: the only activity that starts a class's clock.
 ACTIVITY_EVENT = 'edx_done_toggled'
+VIDEO_EVENT = 'stop_video'
+PROBLEM_EVENT = 'edx_grades_problem_submitted'
+BOOKMARK_EVENT = 'edx_bookmark_added'
+FORUM_EVENT = 'edx_forum_thread_created'
+NON_CLICK_EVENTS = (VIDEO_EVENT, PROBLEM_EVENT, BOOKMARK_EVENT, FORUM_EVENT, ENROLL_EVENT, CERT_EVENT)
 
 GOLD = {'max_weeks': 2}
 SILVER = {'min_weeks': 2, 'max_weeks': 4}
@@ -36,9 +44,10 @@ def window_setup(event_configuration_factory, event_factory, rule_factory):
     """
     cert_configuration = event_configuration_factory(event_type__name=CERT_EVENT)
     configurations = {
-        ACTIVITY_EVENT: event_configuration_factory(event_type__name=ACTIVITY_EVENT),
-        ENROLL_EVENT: event_configuration_factory(event_type__name=ENROLL_EVENT),
+        name: event_configuration_factory(event_type__name=name)
+        for name in (ACTIVITY_EVENT, VIDEO_EVENT, PROBLEM_EVENT, BOOKMARK_EVENT, FORUM_EVENT, ENROLL_EVENT)
     }
+    configurations[CERT_EVENT] = cert_configuration
 
     def _setup(activity, certified_at=None, course=COURSE):
         certified_at = certified_at or now()
@@ -124,6 +133,70 @@ def test_enrolment_never_anchors_the_window(window_setup):
 
     assert RulesFilterService(certificate).does_event_pass_filters(make_rule(GOLD)) is True
     assert RulesFilterService(certificate).does_event_pass_filters(make_rule(BRONZE)) is False
+
+
+@pytest.mark.parametrize('event_name', NON_CLICK_EVENTS)
+def test_only_mark_as_complete_clicks_start_the_clock(window_setup, event_name):
+    """
+    Videos, answers, bookmarks, forum posts, enrolments and earlier certificates never anchor.
+
+    With nothing but such activity before the certificate the pace is unmeasurable, so
+    only the catch-all band claims it. The earlier certificate sits in the other run of
+    the class, which the rule's course filter includes.
+    """
+    certificate, make_rule = window_setup([(event_name, timedelta(days=3), COURSE_RERUN)])
+    both_runs = [COURSE, COURSE_RERUN]
+    rules = {tier: make_rule(window, course_filter=both_runs) for tier, window in ALL_TIERS}
+
+    service = RulesFilterService(certificate)
+    matched = [tier for tier, rule in rules.items() if service.does_event_pass_filters(rule)]
+
+    assert matched == ['plain']
+
+
+def test_first_click_anchors_even_after_earlier_other_activity(window_setup):
+    """
+    The clock starts at the first "Mark as complete" click, not at anything done before it.
+
+    A learner who watched videos and answered problems for months and then clicked
+    through the class in three days finished in three days.
+    """
+    certificate, make_rule = window_setup([
+        (ENROLL_EVENT, timedelta(weeks=50), COURSE),
+        (VIDEO_EVENT, timedelta(weeks=40), COURSE),
+        (PROBLEM_EVENT, timedelta(weeks=30), COURSE),
+        (FORUM_EVENT, timedelta(weeks=20), COURSE),
+        (ACTIVITY_EVENT, timedelta(days=3), COURSE),
+        (ACTIVITY_EVENT, timedelta(days=1), COURSE),
+    ])
+    rules = {tier: make_rule(window) for tier, window in ALL_TIERS}
+
+    service = RulesFilterService(certificate)
+    matched = [tier for tier, rule in rules.items() if service.does_event_pass_filters(rule)]
+
+    assert matched == ['gold']
+
+
+@pytest.mark.skipif(connection.vendor != 'sqlite', reason='reads the SQLite query plan')
+def test_anchor_lookup_uses_the_user_course_time_index(window_setup):
+    """
+    Restricting the anchor to clicks must not cost the (username, course_id, created_at) index.
+
+    The lookup runs inside the learner's row lock on every certificate, against a table of
+    millions of rows, so a full scan here would be felt live.
+    """
+    certificate, make_rule = window_setup([(ACTIVITY_EVENT, timedelta(days=3), COURSE)])
+    service = RulesFilterService(certificate)
+
+    with CaptureQueriesContext(connection) as queries:
+        service._window_anchor(make_rule(GOLD))
+    [anchor_query] = [q['sql'] for q in queries.captured_queries if 'events_event' in q['sql']]
+
+    with connection.cursor() as cursor:
+        cursor.execute('EXPLAIN QUERY PLAN ' + anchor_query)
+        plan = ' '.join(str(row) for row in cursor.fetchall())
+
+    assert 'event_user_course_time_idx' in plan
 
 
 def test_multi_run_class_anchors_on_the_earliest_run(window_setup):
