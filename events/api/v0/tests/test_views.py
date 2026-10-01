@@ -119,6 +119,22 @@ class TestEventsAPI:
         event.refresh_from_db()
         assert event.block_id == original_block_id
 
+    def test_create_event_stores_beta_completion(self, auth_client, event_request_data):
+        event_request_data['beta_completion'] = True
+
+        response = auth_client.post(self.endpoint, event_request_data)
+
+        assert response.status_code == 201
+        event = Event.objects.get(uid=event_request_data['uid'])
+        assert event.beta_completion is True
+
+    def test_create_event_without_beta_completion_defaults_to_false(self, auth_client, event_request_data):
+        response = auth_client.post(self.endpoint, event_request_data)
+
+        assert response.status_code == 201
+        event = Event.objects.get(uid=event_request_data['uid'])
+        assert event.beta_completion is False
+
     def test_create_event_honors_explicit_created_at(self, auth_client, event_request_data):
         event_request_data['created_at'] = '2025-03-04T05:06:07Z'
 

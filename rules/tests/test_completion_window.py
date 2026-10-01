@@ -10,6 +10,7 @@ from achievements.models import Achievement
 from badges.models import Badge
 from rules.serializers import FiltersSerializer
 from rules.services import RulesFilterService
+from users.models import GammaUser
 
 pytestmark = pytest.mark.django_db
 
@@ -49,7 +50,7 @@ def window_setup(event_configuration_factory, event_factory, rule_factory):
     }
     configurations[CERT_EVENT] = cert_configuration
 
-    def _setup(activity, certified_at=None, course=COURSE):
+    def _setup(activity, certified_at=None, course=COURSE, beta_completion=False):
         certified_at = certified_at or now()
         for event_name, delta, activity_course in activity:
             event_factory(
@@ -63,6 +64,7 @@ def window_setup(event_configuration_factory, event_factory, rule_factory):
             username=LEARNER,
             course_id=course,
             created_at=certified_at,
+            beta_completion=beta_completion,
         )
 
         def make_rule(window, course_filter=COURSE):
@@ -189,7 +191,7 @@ def test_anchor_lookup_uses_the_user_course_time_index(window_setup):
     service = RulesFilterService(certificate)
 
     with CaptureQueriesContext(connection) as queries:
-        service._window_anchor(make_rule(GOLD))
+        service._window_anchor(make_rule(GOLD))  # pylint: disable=protected-access
     [anchor_query] = [q['sql'] for q in queries.captured_queries if 'events_event' in q['sql']]
 
     with connection.cursor() as cursor:
@@ -267,17 +269,75 @@ def test_rule_without_a_window_is_unaffected(window_setup):
     assert RulesFilterService(certificate).does_event_pass_filters(make_rule(None)) is True
 
 
-def test_anchor_lookup_is_cached_across_tiers(window_setup, django_assert_num_queries):
+def test_history_lookups_are_cached_across_tiers(window_setup):
     """
-    Judging one certificate against three tiers must not repeat the history lookup.
+    Judging one certificate against three tiers must not repeat the anchor or held-tier lookup.
     """
     certificate, make_rule = window_setup([(ACTIVITY_EVENT, timedelta(days=3), COURSE)])
     rules = [make_rule(GOLD), make_rule(SILVER), make_rule(BRONZE)]
 
     service = RulesFilterService(certificate)
-    with django_assert_num_queries(1):
+    with CaptureQueriesContext(connection) as queries:
         for rule in rules:
             service.does_event_pass_filters(rule)
+    sql = [query['sql'] for query in queries.captured_queries]
+
+    assert sum('events_event' in query for query in sql) == 1  # the anchor
+    assert sum('achievements_achievement' in query for query in sql) == 1  # a tier already held
+
+
+@pytest.mark.parametrize(
+    'activity',
+    [
+        [],
+        [(ACTIVITY_EVENT, timedelta(days=3), COURSE)],
+        [(ACTIVITY_EVENT, timedelta(weeks=40), COURSE)],
+    ],
+    ids=['no clicks at all', 'clicked 3 days before', 'clicked 40 weeks before'],
+)
+def test_beta_completion_is_gold_whatever_the_pace(window_setup, activity):
+    """
+    A certificate allowlisted for completing the class's beta lands on Gold, and only Gold.
+
+    With no clicks the pace is unmeasurable, which would otherwise mean the Plain
+    catch-all; with slow clicks, timing alone would mean Plain too.
+    """
+    certificate, make_rule = window_setup(activity, beta_completion=True)
+    rules = {tier: make_rule(window) for tier, window in ALL_TIERS}
+
+    service = RulesFilterService(certificate)
+    matched = [tier for tier, rule in rules.items() if service.does_event_pass_filters(rule)]
+
+    assert matched == ['gold']
+
+
+def test_beta_completion_leaves_windowless_rules_alone(window_setup):
+    """
+    Multi-class Accomplishment rules (plain certificate rules, no window) still match.
+    """
+    certificate, make_rule = window_setup([], beta_completion=True)
+
+    assert RulesFilterService(certificate).does_event_pass_filters(make_rule(None)) is True
+
+
+def test_a_learner_holding_a_tier_earns_no_second_one(window_setup, achievement_factory, badge_factory):
+    """
+    A second certificate for a class (another run, or a re-issue) never adds a second tier.
+
+    The learner holds Plain from an earlier certificate. A beta-completion certificate in
+    the other run would be Gold on its own, but the class is already tiered. Rules without
+    a window are unaffected.
+    """
+    both_runs = [COURSE, COURSE_RERUN]
+    certificate, make_rule = window_setup([], course=COURSE_RERUN, beta_completion=True)
+    rules = {tier: make_rule(window, course_filter=both_runs) for tier, window in ALL_TIERS}
+    plain = badge_factory(set_rules=rules['plain'])
+    user, _ = GammaUser.objects.get_or_create(user_uid=LEARNER)
+    achievement_factory(user=user, object_id=plain.id, completed_at=now())
+
+    service = RulesFilterService(certificate)
+    assert [tier for tier, rule in rules.items() if service.does_event_pass_filters(rule)] == []
+    assert service.does_event_pass_filters(make_rule(None, course_filter=both_runs)) is True
 
 
 @pytest.mark.parametrize(
@@ -408,3 +468,65 @@ def test_completion_window_survives_serialisation():
     assert serializer.is_valid(), serializer.errors
 
     assert serializer.validated_data['completion_window'] == SILVER
+
+
+@pytest.fixture
+def tiered_class(event_configuration_factory, rule_factory, badge_factory):
+    """
+    Build the four real tier badges of one class (both runs), on a certificate paying 50 points.
+    """
+    cert_configuration = event_configuration_factory(event_type__name=CERT_EVENT, award=50)
+    tiers = {}
+    tier_points = (('gold', GOLD, 28500), ('silver', SILVER, 14250),
+                   ('bronze', BRONZE, 7125), ('plain', PLAIN, 2850))
+    for tier, window, points in tier_points:
+        rule = rule_factory(
+            event_configuration=cert_configuration,
+            action={CERT_EVENT: {'count': 1}},
+            filters={'course': [COURSE, COURSE_RERUN], 'completion_window': window},
+        )
+        tiers[tier] = badge_factory(set_rules=rule, points=points, is_active=True)
+    return cert_configuration, tiers
+
+
+def _earned_tiers(user, tiers):
+    badge_type = ContentType.objects.get_for_model(Badge)
+    return [
+        tier for tier, badge in tiers.items()
+        if Achievement.objects.filter(
+            user=user, content_type=badge_type, object_id=badge.id, completed_at__isnull=False,
+        ).exists()
+    ]
+
+
+def test_beta_completion_awards_gold_once_through_the_real_pipeline(tiered_class, event_factory, gamma_user_factory):
+    """
+    End-to-end: a beta completer's certificate, with no clicks at all, earns Gold and is paid once.
+    """
+    cert_configuration, tiers = tiered_class
+    user = gamma_user_factory()
+    points_before = user.points
+
+    event_factory(configuration=cert_configuration, username=user.user_uid, course_id=COURSE, beta_completion=True)
+
+    assert _earned_tiers(user, tiers) == ['gold']
+    user.refresh_from_db()
+    assert user.points - points_before - cert_configuration.award == 28500
+
+
+def test_second_certificate_keeps_one_tier_through_the_real_pipeline(tiered_class, event_factory, gamma_user_factory):
+    """
+    End-to-end: a learner already tiered on a class keeps that one tier when certified again.
+    """
+    cert_configuration, tiers = tiered_class
+    user = gamma_user_factory()
+    points_before = user.points
+
+    event_factory(configuration=cert_configuration, username=user.user_uid, course_id=COURSE)
+    event_factory(
+        configuration=cert_configuration, username=user.user_uid, course_id=COURSE_RERUN, beta_completion=True,
+    )
+
+    assert _earned_tiers(user, tiers) == ['plain']
+    user.refresh_from_db()
+    assert user.points - points_before - 2 * cert_configuration.award == 2850

@@ -3,9 +3,12 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Sequence
 
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Min, QuerySet
 from django.utils.timezone import make_aware, utc
 
+from achievements.models import Achievement
+from badges.models import Badge
 from events.models import Event
 from rules.models import Rule
 
@@ -136,10 +139,11 @@ class RulesFilterService:
 
     def __init__(self, event: Event):
         self.event = event
-        # Memo for _window_anchor, keyed by the class's course scope. A certificate is
-        # judged against every tier rule of the same class (2/4/12 weeks), which would
-        # otherwise repeat one identical history lookup per tier.
+        # Memos for _window_anchor and _holds_tier_of_class, keyed by the class's course
+        # scope. A certificate is judged against every tier rule of the same class
+        # (2/4/12 weeks), which would otherwise repeat identical lookups per tier.
         self._anchor_cache = {}
+        self._tier_held_cache = {}
 
     def filter_rules(self, rules: Sequence[Rule]) -> Sequence[Rule]:
         """
@@ -227,10 +231,27 @@ class RulesFilterService:
         learners whose pace cannot be established at all (no recorded work before the
         event). Without it such a learner matches no band and earns nothing. It belongs
         on exactly one band of a set — setting it on two would award both.
+
+        Two cases skip the timing:
+
+        * A learner who already holds a tier of this class earns no other: each
+          certificate lands on exactly one band, but a second certificate for the same
+          class (another run, or a re-issue) would otherwise add a second tier.
+        * A certificate the bridge flags ``beta_completion`` (allowlisted because the
+          learner completed the beta of this class) is graded Gold whatever the clicks
+          say. It is treated as an instant finish, which lands on the band containing
+          zero (Gold, which has no lower bound) and on no other, so the set still awards
+          exactly one tier and no rule data has to change.
         """
         window = rule.filters.get('completion_window')
         if not window:
             return True
+
+        if self._holds_tier_of_class(rule):
+            return False
+
+        if self.event.beta_completion:
+            return self._elapsed_in_band(window, timedelta(0))
 
         anchor_at = self._window_anchor(rule)
         if anchor_at is None:
@@ -248,7 +269,13 @@ class RulesFilterService:
             )
             return claims_unanchored
 
-        elapsed = self.event.created_at - anchor_at
+        return self._elapsed_in_band(window, self.event.created_at - anchor_at)
+
+    @staticmethod
+    def _elapsed_in_band(window: dict, elapsed: timedelta) -> bool:
+        """
+        Whether ``elapsed`` falls in the band: ``min_weeks`` exclusive, ``max_weeks`` inclusive.
+        """
         min_weeks = window.get('min_weeks')
         max_weeks = window.get('max_weeks')
 
@@ -258,6 +285,31 @@ class RulesFilterService:
             return False
 
         return True
+
+    def _holds_tier_of_class(self, rule: Rule) -> bool:
+        """
+        Whether the learner already holds a completion tier of this rule's class.
+
+        A class's tiers are the badges whose rules carry a ``completion_window`` over the
+        same course scope. The first tier earned stands; moving it (e.g. a beta completer's
+        earlier Plain to Gold) is a backfill job, which re-files the grant in place.
+        """
+        scope = tuple(self._course_scope(rule))
+        if scope not in self._tier_held_cache:
+            held_badges = Achievement.objects.filter(
+                user__user_uid=self.event.username,
+                content_type=ContentType.objects.get_for_model(Badge),
+                completed_at__isnull=False,
+            ).values('object_id')
+            held_tier_rules = Rule.objects.filter(
+                badge__id__in=held_badges,
+                event_configuration_id=rule.event_configuration_id,
+            ).only('filters')
+            self._tier_held_cache[scope] = any(
+                (held.filters or {}).get('completion_window') and tuple(self._course_scope(held)) == scope
+                for held in held_tier_rules
+            )
+        return self._tier_held_cache[scope]
 
     def _window_anchor(self, rule: Rule) -> Optional[datetime]:
         """
@@ -309,6 +361,7 @@ class RulesFilterService:
         if course:
             return [course]
         return [self.event.course_id] if self.event.course_id else []
+
     def _passes_blocks_filter(self, rule: Rule) -> bool:
         """
         Check if the rule passes the blocks filter.

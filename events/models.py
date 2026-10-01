@@ -99,6 +99,10 @@ class Event(models.Model):
     org = models.CharField(max_length=255, null=True, blank=True)
     course_id = models.CharField(max_length=255, null=True, blank=True)
     block_id = models.CharField(max_length=255, null=True, blank=True, db_index=True)
+    # Set by the bridge on a certificate allowlisted because the learner completed the
+    # beta of the class (gamma_bridge CourseCompletionStatement). Such a certificate is
+    # graded Gold whatever its timing; see RulesFilterService._passes_completion_window_filter.
+    beta_completion = models.BooleanField(default=False)
 
     class Meta:
         unique_together = ('uid', 'client', 'username')

@@ -73,6 +73,10 @@ class EventSerializer(serializers.ModelSerializer):
     # writable lets backfills date replayed events when the action really happened,
     # so interval-filtered rules see them in the right window. Live events omit it.
     created_at = serializers.DateTimeField(required=False)
+    # Optional: the bridge sends it (True) only on a certificate allowlisted for a beta
+    # completion. Older bridges omit it, and newer bridges' payloads are ignored by an
+    # older gamma (DRF drops undeclared fields), so the two can ship in either order.
+    beta_completion = serializers.BooleanField(required=False, default=False)
 
     class Meta:
         model = Event
@@ -85,6 +89,7 @@ class EventSerializer(serializers.ModelSerializer):
             'org',
             'course_id',
             'block_id',
+            'beta_completion',
             'configuration',
             'event_type',
         )
