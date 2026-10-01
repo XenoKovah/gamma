@@ -34,8 +34,8 @@ All work runs under the per-user row lock already held by the event signal, so t
 read-modify-write of the streak counters and points is safe against concurrent events.
 """
 from dataclasses import dataclass
-from datetime import date, datetime, timedelta
-from typing import List, Optional, Tuple
+from datetime import date, datetime, time, timedelta, timezone as dt_timezone
+from typing import Dict, Iterable, List, Optional, Tuple
 
 from django.conf import settings
 
@@ -204,7 +204,7 @@ def register_active_day(
 
     ``event_name`` is the triggering event's type; passive events (see
     :data:`PASSIVE_EVENT_NAMES`) never count. ``force`` bypasses the feature kill-switch
-    (used by the backfill command, which is an explicit admin action). Returns ``True``
+    (for smoke-testing the engine on a box where the feature is switched off). Returns ``True``
     when the day was newly counted, ``False`` when it was a no-op (feature off, passive
     event, or already counted today). Idempotent within a calendar day.
     """
@@ -306,3 +306,127 @@ def _trigger_streak_badge_evaluation(user, kind: StreakKind) -> None:
 
     if EventConfiguration.objects.filter(event_type__name=kind.event_name).exists():
         simulate_rgg_internal_event(user, kind.event_name)
+
+
+# Outcomes of a streak-badge backfill grant (see :func:`grant_streak_badge`).
+GRANTED = 'granted'
+ALREADY_HELD = 'already_held'
+EXCLUDED = 'excluded'
+OTHER_RULES = 'other_rules'
+
+
+def milestones_reached(active_days: Iterable[date], kind: StreakKind) -> Dict[int, date]:
+    """
+    Map each streak milestone ``kind`` reached in ``active_days`` to the day it was first reached.
+
+    Walks the days oldest first with the same continuation test the live engine applies
+    (:meth:`StreakKind.previous_expected_day`), so the weekday kind ignores weekends here
+    exactly as it does live. Only the *first* time a run reaches a milestone matters: that
+    is the day the learner would have earned the badge had the feature always been on.
+    """
+    goals = sorted(days for days, _bonus in STREAK_MILESTONES)
+    reached: Dict[int, date] = {}
+    run, previous = 0, None
+    for day in sorted(day for day in set(active_days) if kind.counts(day)):
+        run = run + 1 if previous is not None and previous == kind.previous_expected_day(day) else 1
+        previous = day
+        if run in goals and run not in reached:
+            reached[run] = day
+            if len(reached) == len(goals):
+                break
+    return reached
+
+
+def streak_badge_obstacle(user, badge, kind: StreakKind) -> Optional[str]:
+    """
+    Why ``badge`` cannot be backfilled to ``user`` (an outcome constant), or ``None`` if it can.
+
+    Read-only, so a dry run can predict every outcome without writing anything.
+    """
+    from django.contrib.contenttypes.models import ContentType
+
+    from achievements.models import Achievement
+
+    if Achievement.objects.filter(
+        user=user,
+        content_type=ContentType.objects.get_for_model(type(badge)),
+        object_id=badge.id,
+        completed_at__isnull=False,
+    ).exists():
+        return ALREADY_HELD
+    if any(rule.event_configuration.event_name != kind.event_name for rule in badge.rules.all()):
+        # Somebody gave the badge a requirement beyond the streak; we cannot vouch for it.
+        return OTHER_RULES
+    if badge.blocking_badges(user).exists():
+        return EXCLUDED
+    return None
+
+
+def grant_streak_badge(user, badge, kind: StreakKind, days: int, reached_on: date, silent: bool = True) -> str:
+    """
+    Award ``badge`` (the ``days``-long milestone of ``kind``) to ``user`` as if earned on ``reached_on``.
+
+    Used by the ``backfill_continuous_learning`` command, which computes milestones from
+    historical activity instead of replaying it. The result is indistinguishable from a
+    rule-driven completion, so the live engine carries on normally afterwards:
+
+    * Any in-progress Achievement (the ring the live engine keeps for every active learner)
+      is completed in place; otherwise one is created with its AchievementRule rows, as the
+      engine's create path would. ``Badge.award_to_user`` cannot be used for this: it
+      skips anyone who already has a row, and nearly every active learner has one.
+    * The streak rule is marked COMPLETED with its dependency at goal, dated ``reached_on``,
+      so the engine never re-evaluates it (it only touches ACTIVE rules).
+    * :class:`AchievementCompletionUseCase` dates the completion, pays ``Badge.points`` once,
+      records ``completion_points_paid`` and emits the internal "achievement obtained" event.
+    * ``silent`` marks the badge notification as seen, so learners are not toasted about a
+      streak that ended long ago.
+
+    The streak counters and the daily Continuous Learning points are left alone. Takes the
+    user's row lock, so it is safe to run alongside live events and in parallel shards.
+    Returns :data:`GRANTED` or the obstacle that prevented the grant.
+    """
+    from django.contrib.contenttypes.models import ContentType
+    from django.db import transaction
+    from django.utils.timezone import now
+
+    from achievements.models import Achievement, AchievementRule
+    from achievements.usecases import AchievementCompletionUseCase
+    from users.models import GammaUser
+
+    with transaction.atomic():
+        user = GammaUser.objects.select_for_update().get(pk=user.pk)
+        if obstacle := streak_badge_obstacle(user, badge, kind):
+            return obstacle
+
+        # End of the UTC day the milestone was reached (never in the future).
+        achieved_at = min(datetime.combine(reached_on, time(23, 59, 59), tzinfo=dt_timezone.utc), now())
+        stamp = achieved_at.isoformat()
+
+        achievement, _ = Achievement.objects.get_or_create(
+            user=user,
+            content_type=ContentType.objects.get_for_model(type(badge)),
+            object_id=badge.id,
+            defaults={'title': badge.title, 'description': badge.description},
+        )
+        for rule in badge.rules.all():
+            AchievementRule.objects.update_or_create(
+                achievement=achievement,
+                rule=rule,
+                defaults={
+                    'status': AchievementRule.Statuses.COMPLETED,
+                    'dependencies': {
+                        'events': {kind.event_name: {
+                            'goal': days, 'count': days, 'last_updated': stamp, 'achieved_at': stamp,
+                        }},
+                        'is_achieved': True,
+                    },
+                },
+            )
+
+        achievement.user = user
+        AchievementCompletionUseCase().execute(achievement, completed_at=achieved_at)
+        if silent:
+            Achievement.objects.filter(pk=achievement.pk, notification_seen_at__isnull=True).update(
+                notification_seen_at=now(),
+            )
+    return GRANTED

@@ -65,8 +65,8 @@ class GammaUser(models.Model):
         Update Gamma User progress dict.
 
         ``when`` overrides the day the points are credited to (defaults to today). It
-        lets the Continuous Learning backfill replay historical active days onto their
-        real dates; live callers leave it unset and get today's entry as before.
+        lets the Continuous Learning engine credit the active day it was given (only
+        ever today live; tests drive other days); other callers leave it unset.
         """
         current_progress = self.progress or {}
 
