@@ -8,7 +8,8 @@ from django.utils.timezone import utc
 from achievements.models import Achievement, AchievementRule
 from achievements.reconciliation import recompute_holders
 from badges.models import Badge
-from events.models import Event
+from events.enums import RggInternalEventTypes
+from events.models import Event, EventConfiguration
 from rules.signals import process_event_creation
 
 pytestmark = pytest.mark.django_db
@@ -386,3 +387,20 @@ def test_recompute_counts_units_across_class_versions(
     assert repeated.user_uid not in result.granted
     progress = Achievement.objects.get(object_id=badge.id, user=repeated).achievement_rules.get().dependencies
     assert progress['events'][DONE_EVENT]['count'] == 2
+
+
+def test_recompute_shows_no_points_progress_for_a_negative_total(
+    rule_factory, badge_factory, gamma_user_factory, event_factory, badge_content_type,
+):
+    points_event = RggInternalEventTypes.RGG_POINTS_DISTRIBUTION.value
+    configuration = EventConfiguration.objects.get(event_type__name=points_event)
+    badge = badge_factory(
+        set_rules=rule_factory(event_configuration=configuration, action={points_event: {'points': 100}}, filters={}),
+    )
+    user = gamma_user_factory(points=-500)
+    event_factory(configuration=configuration, username=user.user_uid)
+
+    recompute_holders(badge)
+
+    achievement = Achievement.objects.get(user=user, content_type=badge_content_type, object_id=badge.id)
+    assert achievement.achievement_rules.get().dependencies['events'][points_event] == {'goal': 100, 'count': 0}

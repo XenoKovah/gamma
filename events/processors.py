@@ -310,7 +310,9 @@ class RggPointsDistributionProcessor(BaseEventProcessor):
         updated_progress = types.GeneralProgress(
             goal=progress.action['points'],
             last_updated=event.created_at.isoformat(),
-            count=points,
+            # A negative total (penalty badges can push it below zero) is no progress,
+            # not negative progress: the ring would otherwise render as e.g. -474%.
+            count=max(points, 0),
         )
 
         return types.EventDependencies(

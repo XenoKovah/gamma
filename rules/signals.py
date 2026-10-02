@@ -56,4 +56,7 @@ def process_event_creation(sender, instance, created, **kwargs):
             # A common (point-earning) event means the learner was active today: award
             # the daily Continuous Learning points and advance their streak. Runs under
             # the same row lock and creates no Event, so it does not re-enter this signal.
-            register_active_day(user, event_name=configuration.event_name)
+            # Its points land after the pipeline's points re-evaluation above, so schedule
+            # another one for after commit.
+            if register_active_day(user, event_name=configuration.event_name):
+                user.refresh_points_progress()

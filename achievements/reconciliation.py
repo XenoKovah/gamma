@@ -309,7 +309,8 @@ class AchievementReconciliationService:
                 count, achieved_at = _count_progress(rule, user, goal)
         elif 'points' in action_value:
             goal = _as_int(action_value.get('points'))
-            count = user.points
+            # Same floor as RggPointsDistributionProcessor: a negative total is no progress.
+            count = max(user.points, 0)
         elif 'dependent_object_id' in action_value:
             goal = 1
             count = 1 if satisfied else 0

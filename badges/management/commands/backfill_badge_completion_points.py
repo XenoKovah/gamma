@@ -166,6 +166,8 @@ class Command(BaseCommand):
                         achievement.save(update_fields=('completion_points_paid',))
                         total_points += points
 
+                    if any(badge_points[achievement.object_id] for achievement in rows):
+                        user.refresh_points_progress()
                     paid_rows += len(rows)
 
                 processed += 1

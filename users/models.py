@@ -1,12 +1,15 @@
+import logging
 from datetime import date, datetime
 from typing import Dict, List, Optional, Union
 
-from django.db import models
+from django.db import models, transaction
 from django.utils.translation import gettext as _
 
 from events.enums import RggInternalEventTypes
 from events.models import Event, EventConfiguration
 from events.utils import simulate_rgg_internal_event
+
+logger = logging.getLogger(__name__)
 
 
 class GammaUser(models.Model):
@@ -68,6 +71,7 @@ class GammaUser(models.Model):
         lets the Continuous Learning backfill replay historical active days onto their
         real dates; live callers leave it unset and get today's entry as before.
         """
+        self.refresh_from_db(fields=('progress',))
         current_progress = self.progress or {}
 
         base = when if when is not None else datetime.now()
@@ -99,6 +103,7 @@ class GammaUser(models.Model):
         """
         Update Gamma User chart dict.
         """
+        self.refresh_from_db(fields=('chart',))
         self.chart = self.chart or {}
 
         event_chart_key = str(event_configuration.event_type)
@@ -119,6 +124,7 @@ class GammaUser(models.Model):
         (10/10/25/50) amounts all accumulate into a single ``continuous_learning`` bucket
         that a one-award-per-type EventConfiguration could not express.
         """
+        self.refresh_from_db(fields=('chart',))
         self.chart = self.chart or {}
 
         self.chart.setdefault(key, {'title': title, 'points': 0})
@@ -130,9 +136,39 @@ class GammaUser(models.Model):
     def update_user_points(self, points: int) -> None:
         """
         Update Gamma User points.
+
+        This and the other ``update_user_*`` methods re-read their field before changing
+        it. One event's processing works on several copies of the user row: the signal's
+        locked copy, a nested internal event's own copy, and an achievement's ``user``.
+        Writing from a stale copy would silently overwrite what the others added, e.g. the
+        points of a badge completed earlier in the same event.
         """
+        self.refresh_from_db(fields=('points',))
         self.points += points
         self.save(update_fields=('points',))
+
+    def refresh_points_progress(self) -> None:
+        """
+        Re-evaluate the user's points-total rules ("Points points points!") once the
+        current transaction commits.
+
+        Only point-earning events re-evaluate them on their own (``run_update_user_pipeline``).
+        Every other change to ``points`` (a badge's completion payout, a manual grant or
+        revoke, an anti-gaming dock, the daily Continuous Learning points) calls this, or
+        the points rings keep the total from the user's last point-earning event and a
+        threshold crossed since then is never awarded. Deferred to commit so it never runs
+        inside the caller's event processing, which holds its own copy of this user's row.
+        """
+        user_uid = self.user_uid
+
+        def refresh() -> None:
+            try:
+                simulate_rgg_internal_event(self, RggInternalEventTypes.RGG_POINTS_DISTRIBUTION.value)
+            except Exception:  # pylint: disable=broad-except
+                # Never fail the caller's (already committed) work over a ring refresh.
+                logger.exception('Failed to refresh the points rules of user %s', user_uid)
+
+        transaction.on_commit(refresh)
 
     def update_user_course_points(self, event: Event) -> None:
         """

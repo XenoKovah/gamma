@@ -254,6 +254,7 @@ class Badge(TimestampModelMixin, models.Model):
         if created and self.points:
             user.update_user_points(self.points)
             user.update_user_progress(self.points)
+            user.refresh_points_progress()
 
         return created
 
@@ -325,9 +326,9 @@ class Badge(TimestampModelMixin, models.Model):
         achievements.delete()
 
         if paid:
-            user.points -= paid
-            user.save(update_fields=('points',))
+            user.update_user_points(-paid)
             user.update_user_progress(-paid)
+            user.refresh_points_progress()
 
         return True
 

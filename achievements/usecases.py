@@ -279,6 +279,7 @@ class AchievementCompletionUseCase(UseCase):
             if completion_points:
                 achievement.user.update_user_points(completion_points)
                 achievement.user.update_user_progress(completion_points)
+                achievement.user.refresh_points_progress()
             # Record what was paid (including a deliberate 0) so the payment is auditable
             # and the backfill command can tell an unpaid achievement from a paid one.
             achievement.completion_points_paid = completion_points

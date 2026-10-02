@@ -157,6 +157,7 @@ class Command(BaseCommand):
         if delta:
             user.update_user_points(-delta)
             user.update_user_progress(-delta)
+            user.refresh_points_progress()
         penalty.points_docked = target_dock
         penalty.rushed_blocks = rushed_blocks
         penalty.longest_run = longest
@@ -174,5 +175,6 @@ class Command(BaseCommand):
         if penalty.points_docked:
             user.update_user_points(penalty.points_docked)
             user.update_user_progress(penalty.points_docked)
+            user.refresh_points_progress()
         penalty.delete()
         return True
