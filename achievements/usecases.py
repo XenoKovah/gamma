@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import List, Optional, Union
 
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import F
 from django.utils.timezone import now as timezone_now
 
 from achievements.exceptions import AchievementRuleProcessingException
@@ -16,7 +17,7 @@ from events.processors import EventProcessorFactory
 from events.types import EventDependencies
 from events.utils import simulate_rgg_internal_event
 from rules.models import Rule
-from users.models import GammaUser
+from users.models import GammaUser, GammaUserCoursePoints
 
 logger = logging.getLogger(__name__)
 
@@ -108,7 +109,7 @@ class CreateUserAchievementBasedOnEventUseCase(UseCase):
             ProcessFulfilledAchievementRulesUseCase().execute(fulfilled_rules)
 
         if achievement.all_rules_completed:
-            AchievementCompletionUseCase().execute(achievement, completed_at=completion_time(achievement))
+            AchievementCompletionUseCase().execute(achievement, completed_at=completion_time(achievement), event=event)
 
     def _create_achievement(self, instance: Union[Badge, Avatar], user: GammaUser) -> Achievement:
         """
@@ -184,7 +185,7 @@ class UpdateUserAchievementBasedOnEventUseCase(UseCase):
             ProcessFulfilledAchievementRulesUseCase().execute(fulfilled_rules)
 
         if achievement.all_rules_completed:
-            AchievementCompletionUseCase().execute(achievement, completed_at=completion_time(achievement))
+            AchievementCompletionUseCase().execute(achievement, completed_at=completion_time(achievement), event=event)
 
     def _get_user_achievement(self, instance: Union[Badge, Avatar], user: GammaUser) -> Achievement:
         """
@@ -258,7 +259,12 @@ class AchievementCompletionUseCase(UseCase):
     and issue an avatar to the user upon achievement completion.
     """
 
-    def execute(self, achievement: Achievement, completed_at: Optional[datetime] = None):
+    def execute(
+        self,
+        achievement: Achievement,
+        completed_at: Optional[datetime] = None,
+        event: Optional[Event] = None,
+    ):
         # Only the first completion records the moment, pays out completion
         # points, and emits the internal "achievement obtained" event. Later
         # events matching an already-complete achievement land here again (the
@@ -280,11 +286,32 @@ class AchievementCompletionUseCase(UseCase):
                 achievement.user.update_user_points(completion_points)
                 achievement.user.update_user_progress(completion_points)
                 achievement.user.refresh_points_progress()
+                self._credit_course_board(achievement, completion_points, event)
             # Record what was paid (including a deliberate 0) so the payment is auditable
             # and the backfill command can tell an unpaid achievement from a paid one.
             achievement.completion_points_paid = completion_points
             achievement.save(update_fields=('completion_points_paid',))
             simulate_rgg_internal_event(achievement.user, RggInternalEventTypes.RGG_ACHIEVEMENT_OBTAINED.value)
+
+    @staticmethod
+    def _credit_course_board(achievement: Achievement, points: int, event: Optional[Event]) -> None:
+        """
+        Count a Course Completion tier's points on the board of the course run it was earned in.
+
+        Tier badges are the ones whose rule carries a ``completion_window``. The event that completes
+        them is the learner's certificate, so its course id names the run, as the tier backfill does
+        for historical certificates. Other badges, multi-class ones included, aren't course-scoped.
+        """
+        badge = achievement.content_object
+        if points <= 0 or event is None or not event.course_id or not isinstance(badge, Badge):
+            return
+        if not any('completion_window' in (rule.filters or {}) for rule in badge.rules.all()):
+            return
+        board, created = GammaUserCoursePoints.objects.get_or_create(
+            gamma_user=achievement.user, course_id=event.course_id, defaults={'points': points},
+        )
+        if not created:
+            GammaUserCoursePoints.objects.filter(pk=board.pk).update(points=F('points') + points)
 
 
 class PendingBadgeNotificationsUseCase(UseCase):

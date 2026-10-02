@@ -530,3 +530,39 @@ def test_second_certificate_keeps_one_tier_through_the_real_pipeline(tiered_clas
     assert _earned_tiers(user, tiers) == ['plain']
     user.refresh_from_db()
     assert user.points - points_before - 2 * cert_configuration.award == 2850
+
+
+def _board(user, course):
+    from users.models import GammaUserCoursePoints
+    row = GammaUserCoursePoints.objects.filter(gamma_user=user, course_id=course).first()
+    return row.points if row else 0
+
+
+def test_a_live_tier_award_also_counts_on_the_course_board(tiered_class, event_factory, gamma_user_factory):
+    """
+    The certificate's +50 and the tier's points both land on the board of the certified run.
+    """
+    cert_configuration, tiers = tiered_class
+    user = gamma_user_factory()
+
+    event_factory(configuration=cert_configuration, username=user.user_uid, course_id=COURSE_RERUN, beta_completion=True)
+
+    assert _earned_tiers(user, tiers) == ['gold']
+    assert _board(user, COURSE_RERUN) == cert_configuration.award + 28500
+    assert _board(user, COURSE) == 0
+
+
+def test_a_badge_without_a_completion_window_leaves_the_course_board_alone(
+    event_configuration_factory, rule_factory, badge_factory, event_factory, gamma_user_factory,
+):
+    """
+    E.g. a multi-class badge: it completes on a certificate too, but isn't course-scoped.
+    """
+    cert_configuration = event_configuration_factory(event_type__name=CERT_EVENT, award=50)
+    rule = rule_factory(event_configuration=cert_configuration, action={CERT_EVENT: {'count': 1}}, filters={'course': COURSE})
+    badge_factory(set_rules=rule, points=10000, is_active=True)
+    user = gamma_user_factory()
+
+    event_factory(configuration=cert_configuration, username=user.user_uid, course_id=COURSE)
+
+    assert _board(user, COURSE) == cert_configuration.award
