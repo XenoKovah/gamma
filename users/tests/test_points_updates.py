@@ -83,6 +83,22 @@ def test_the_refresh_waits_for_the_transaction_to_commit(points_badge, gamma_use
     assert ring(user, points_badge) == (150, 100, True)
 
 
+def test_backfills_can_skip_the_refresh(points_badge, badge_factory, gamma_user_factory, settings):
+    """
+    RGG_SKIP_POINTS_REFRESH (set only in backfill processes) defers the re-check to the backfill's final pass.
+    """
+    settings.RGG_SKIP_POINTS_REFRESH = True
+    user = gamma_user_factory(points=0)
+
+    with after_commit():
+        badge_factory(points=150).award_to_user(user)
+        user.refresh_points_progress()
+
+    user.refresh_from_db()
+    assert user.points == 150
+    assert ring(user, points_badge) is None
+
+
 def test_a_manual_grant_reaches_the_points_badges(points_badge, badge_factory, gamma_user_factory):
     user = gamma_user_factory(points=0)
 

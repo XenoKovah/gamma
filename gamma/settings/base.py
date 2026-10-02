@@ -248,6 +248,12 @@ LEADERBOARD_INITIALIZATION_BATCH_SIZE = environ.get('LEADERBOARD_INITIALIZATION_
 # award + streak processing without a code change (see users.continuous_learning).
 RGG_CONTINUOUS_LEARNING_ENABLED = environ.get('RGG_CONTINUOUS_LEARNING_ENABLED', 'true').lower() == 'true'
 
+# Bulk backfills set this in their own processes only (`docker exec -e RGG_SKIP_POINTS_REFRESH=true …`).
+# A points change then skips its after-commit re-check of the points-total badges, because the backfill
+# re-checks every learner once at the end (see GammaUser.refresh_points_progress). Never set it for the
+# web or worker processes: live points badges would stop following the learner's total.
+RGG_SKIP_POINTS_REFRESH = environ.get('RGG_SKIP_POINTS_REFRESH', 'false').lower() == 'true'
+
 AUTHENTICATION_BACKENDS = (
     'auth_backends.backends.EdXOAuth2',
     'django.contrib.auth.backends.ModelBackend',

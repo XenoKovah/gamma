@@ -2,6 +2,7 @@ import logging
 from datetime import date, datetime
 from typing import Dict, List, Optional, Union
 
+from django.conf import settings
 from django.db import models, transaction
 from django.utils.translation import gettext as _
 
@@ -158,7 +159,12 @@ class GammaUser(models.Model):
         the points rings keep the total from the user's last point-earning event and a
         threshold crossed since then is never awarded. Deferred to commit so it never runs
         inside the caller's event processing, which holds its own copy of this user's row.
+
+        Skipped while ``RGG_SKIP_POINTS_REFRESH`` is on: a bulk backfill re-checks every learner
+        once at the end instead of once per change.
         """
+        if getattr(settings, 'RGG_SKIP_POINTS_REFRESH', False):
+            return
         user_uid = self.user_uid
 
         def refresh() -> None:
