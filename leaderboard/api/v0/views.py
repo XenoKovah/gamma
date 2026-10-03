@@ -13,7 +13,7 @@ from badges.models import Badge
 from core.authentication import KeySecretAuthentication
 from leaderboard.dataclasses import LeaderboardRetrievingContext
 from leaderboard.instructors import get_instructor_user_uids, is_instructor_badge_slug
-from leaderboard.subtitle_ranking import get_subtitle_lines, has_custom_ranking
+from leaderboard.subtitle_ranking import get_score_label, get_subtitle_lines, has_custom_ranking
 from leaderboard.repository import ORMLeaderboardMemberDataRepository, RedisLeaderboardRepository
 from leaderboard.usecases import GetPersonalizedLeaderboardUseCase
 from users.models import GammaUser, GammaUserCoursePoints
@@ -162,6 +162,11 @@ class BadgeLeaderBoardView(APIView):
         context = LeaderboardRetrievingContext(user_uid, signup_source, course_id)
 
         earners_data = self._build_members_data(ranked_earners[:self.MEMBERS_LIMIT], course_id, context)
+        if has_custom_ranking(badge.slug):
+            # The column shows what the board is ranked by, not the member's total points.
+            lines_by_uid = get_subtitle_lines()
+            for member_data in earners_data:
+                member_data["points"] = lines_by_uid.get(member_data["user_uid"], 0)
 
         top_in_progress = ranked_in_progress[:self.MEMBERS_LIMIT]
         in_progress_data = self._build_members_data(
@@ -182,6 +187,8 @@ class BadgeLeaderBoardView(APIView):
                 "description": badge.description or "",
                 "url": badge.image.url if badge.image else None,
                 "is_instructor_badge": is_instructor_badge,
+                # Header for the earners' score column when it is not "Total Points".
+                "score_label": get_score_label(badge.slug),
             },
             "top10": earners_data,
             "competitors": [],

@@ -42,6 +42,8 @@ def test_subtitle_superhero_board_is_ordered_by_lines(auth_client: APIClient, li
 
     assert [m["user_uid"] for m in data["top10"]] == ["many_lines", "mid_lines", "few_lines", "no_file_entry"]
     assert data["rank"] == 1
+    assert [m["points"] for m in data["top10"]] == [500, 100, 10, 0]
+    assert data["badge"]["score_label"] == "Subtitle Lines Changed"
 
 
 def test_other_badges_still_rank_by_points(auth_client: APIClient, lines) -> None:
@@ -52,3 +54,5 @@ def test_other_badges_still_rank_by_points(auth_client: APIClient, lines) -> Non
     data = auth_client.get(f"/api/v0/leaderboard/badge/{badge.slug}?username=x&signup_source=main").json()
 
     assert [m["user_uid"] for m in data["top10"]] == ["few_lines", "many_lines"]
+    assert [m["points"] for m in data["top10"]] == [900, 100]
+    assert data["badge"]["score_label"] is None
