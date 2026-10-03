@@ -13,6 +13,7 @@ from badges.models import Badge
 from core.authentication import KeySecretAuthentication
 from leaderboard.dataclasses import LeaderboardRetrievingContext
 from leaderboard.instructors import get_instructor_user_uids, is_instructor_badge_slug
+from leaderboard.subtitle_ranking import get_subtitle_lines, has_custom_ranking
 from leaderboard.repository import ORMLeaderboardMemberDataRepository, RedisLeaderboardRepository
 from leaderboard.usecases import GetPersonalizedLeaderboardUseCase
 from users.models import GammaUser, GammaUserCoursePoints
@@ -186,7 +187,7 @@ class BadgeLeaderBoardView(APIView):
             "competitors": [],
             "rank": _standard_competition_rank(
                 user_uid,
-                [(gamma_user.user_uid, self._member_points(gamma_user, course_id)) for gamma_user in ranked_earners],
+                [(gamma_user.user_uid, self._rank_score(badge, gamma_user, course_id)[0]) for gamma_user in ranked_earners],
             ),
             "in_progress": in_progress_data,
             "in_progress_rank": _standard_competition_rank(
@@ -243,7 +244,7 @@ class BadgeLeaderBoardView(APIView):
 
         ranked_earners = sorted(
             self._fetch_users(earners.keys(), course_id, hidden_user_uids),
-            key=lambda gamma_user: self._member_points(gamma_user, course_id),
+            key=lambda gamma_user: self._rank_score(badge, gamma_user, course_id),
             reverse=True,
         )
 
@@ -273,6 +274,19 @@ class BadgeLeaderBoardView(APIView):
         if course_id:
             users = users.prefetch_related("courses_points")
         return list(users)
+
+    @staticmethod
+    def _rank_score(badge: Badge, gamma_user: GammaUser, course_id: Optional[str]) -> Tuple[int, int]:
+        """
+        Provide the ``(primary, tie-breaker)`` score an earner is ranked by.
+
+        The Subtitle Superhero board ranks by subtitle lines contributed, with points as the
+        tie-breaker; every other badge ranks by points alone.
+        """
+        points = BadgeLeaderBoardView._member_points(gamma_user, course_id)
+        if has_custom_ranking(badge.slug):
+            return get_subtitle_lines().get(gamma_user.user_uid, 0), points
+        return points, 0
 
     @staticmethod
     def _member_points(gamma_user: GammaUser, course_id: Optional[str]) -> int:
