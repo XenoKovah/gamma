@@ -5,7 +5,8 @@ Seeds both kinds of streak badge (see users.continuous_learning.STREAK_KINDS):
 
   * "{N} day streak"     — N consecutive calendar days.
   * "{N} weekday streak" — N consecutive weekdays, for learners who study Mon-Fri and
-                           would otherwise reset every Monday.
+                           would otherwise reset every Monday. There is no 5 weekday
+                           badge: it is always earned together with the 5 day streak.
 
 Run once per environment as part of deploying the Continuous Learning feature, before
 (or alongside) enabling it, so that learners crossing a milestone have a badge to earn.
@@ -30,7 +31,6 @@ from rules.models import Rule
 from users.continuous_learning import (
     CONTINUOUS_LEARNING_CATEGORY,
     STREAK_KINDS,
-    STREAK_MILESTONES,
 )
 
 IMAGES_DIR = os.path.join(os.path.dirname(__file__), '_continuous_learning_images')
@@ -44,7 +44,7 @@ class Command(BaseCommand):
             self.stdout.write(f'{kind.key} streaks ({kind.event_name}):')
             streak_config = self._ensure_streak_event_configuration(kind)
 
-            for days, bonus in STREAK_MILESTONES:
+            for days, bonus in kind.milestones():
                 slug = kind.badge_slug(days)
 
                 badge, created = Badge.objects.get_or_create(

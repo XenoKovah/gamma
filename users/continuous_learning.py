@@ -95,6 +95,10 @@ class StreakKind:
     badge_noun: str
     unit_plural: str
     weekdays_only: bool
+    # Milestone lengths this kind does NOT offer a badge for. The weekday kind has no
+    # 5-weekday badge: any run of 5 weekdays is also 5 consecutive days, so the 5 day
+    # streak badge is always earned first and the weekday one would only duplicate it.
+    skipped_milestones: frozenset = frozenset()
 
     @property
     def event_name(self) -> str:
@@ -152,6 +156,10 @@ class StreakKind:
         setattr(user, self.last_date_field, day)
         return True
 
+    def milestones(self):
+        """``(days, bonus)`` pairs this kind offers a badge for."""
+        return tuple(m for m in STREAK_MILESTONES if m[0] not in self.skipped_milestones)
+
     def badge_slug(self, days: int) -> str:
         """Stable slug used to look up / create a milestone badge (matches slugify of title)."""
         return f'{days}-{self.badge_noun.replace(" ", "-")}'
@@ -181,6 +189,7 @@ WEEKDAY_STREAK = StreakKind(
     badge_noun='weekday streak',
     unit_plural='weekdays',
     weekdays_only=True,
+    skipped_milestones=frozenset({5}),
 )
 
 STREAK_KINDS: Tuple[StreakKind, ...] = (DAILY_STREAK, WEEKDAY_STREAK)

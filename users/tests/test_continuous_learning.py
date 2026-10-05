@@ -238,18 +238,17 @@ def test_streak_badge_awarded_and_progress_via_rules_engine(gamma_user_factory):
 
     badge5 = Badge.objects.get(slug=DAILY_STREAK.badge_slug(5))
     badge10 = Badge.objects.get(slug=DAILY_STREAK.badge_slug(10))
-    weekday_badge5 = Badge.objects.get(slug=WEEKDAY_STREAK.badge_slug(5))
 
     assert user.current_streak == 5
     # 5-day badge awarded by the rules engine.
     assert badge5.has_achievement(user) is True
-    # Mon-Fri is also 5 consecutive weekdays, so that milestone lands at the same time.
+    # Mon-Fri is also 5 consecutive weekdays, but there is no 5-weekday badge to pay twice.
     assert user.current_weekday_streak == 5
-    assert weekday_badge5.has_achievement(user) is True
+    assert not Badge.objects.filter(slug=WEEKDAY_STREAK.badge_slug(5)).exists()
     # Bonuses (Badge.points=10 each) go to the total, NOT the Continuous Learning bucket;
     # the bucket holds only the daily points (5 days * 5).
     assert _bucket(user)['points'] == 5 * DAILY_ACTIVE_POINTS
-    assert user.points == 5 * DAILY_ACTIVE_POINTS + 10 + 10
+    assert user.points == 5 * DAILY_ACTIVE_POINTS + 10
     # 10-day badge is in progress with the ring data reading current_streak (5/10).
     assert badge10.has_achievement(user) is True
     assert _streak_progress_count(user, badge10) == 5
@@ -270,12 +269,10 @@ def test_streak_badge_awarded_exactly_once(gamma_user_factory):
     # Ten calendar days from a Monday span one weekend, so only 8 of them are weekdays:
     # the weekday run reaches 8 and stops short of its own 10-day milestone.
     assert user.current_weekday_streak == 8
-    weekday_badge5 = Badge.objects.get(slug=WEEKDAY_STREAK.badge_slug(5))
     weekday_badge10 = Badge.objects.get(slug=WEEKDAY_STREAK.badge_slug(10))
-    assert weekday_badge5.has_achievement(user) is True
     assert _streak_progress_count(user, weekday_badge10, WEEKDAY_STREAK) == 8
-    # 10 daily*5 + 5-day(10) + 10-day(10) + 5-weekday(10); bucket holds only the daily points.
-    assert user.points == 10 * DAILY_ACTIVE_POINTS + 10 + 10 + 10
+    # 10 daily*5 + 5-day(10) + 10-day(10); bucket holds only the daily points.
+    assert user.points == 10 * DAILY_ACTIVE_POINTS + 10 + 10
     assert _bucket(user)['points'] == 10 * DAILY_ACTIVE_POINTS
 
 
@@ -307,7 +304,8 @@ def test_initialize_command_seeds_both_kinds_and_is_idempotent():
     call_command('initialize_continuous_learning_badges')  # re-running must not duplicate
 
     streak_badges = Badge.objects.filter(category='Continuous Learning')
-    assert streak_badges.count() == 8  # 4 milestones x 2 kinds
+    assert streak_badges.count() == 7  # 4 day milestones + 3 weekday (no 5-weekday badge)
+    assert not Badge.objects.filter(slug='5-weekday-streak').exists()
 
     day10 = Badge.objects.get(slug='10-day-streak')
     weekday10 = Badge.objects.get(slug='10-weekday-streak')
@@ -415,7 +413,7 @@ def test_reset_breaks_the_weekday_streak_after_a_missed_weekday(gamma_user_facto
     call_command('initialize_continuous_learning_badges')
     user = _new_user(gamma_user_factory)
     _register_days(user.pk, 5)  # Mon-Fri, weekday run at 5
-    weekday_badge5 = Badge.objects.get(slug=WEEKDAY_STREAK.badge_slug(5))
+    day_badge5 = Badge.objects.get(slug=DAILY_STREAK.badge_slug(5))
     weekday_badge10 = Badge.objects.get(slug=WEEKDAY_STREAK.badge_slug(10))
 
     # The learner skipped Monday; by Tuesday the weekday run is genuinely broken.
@@ -425,9 +423,9 @@ def test_reset_breaks_the_weekday_streak_after_a_missed_weekday(gamma_user_facto
     assert user.current_weekday_streak == 0
     # The still-unearned milestone's ring drops back to 0%...
     assert _streak_progress_count(user, weekday_badge10, WEEKDAY_STREAK) == 0
-    # ...while the badge already earned at 5 weekdays is kept, along with its points.
-    assert weekday_badge5.has_achievement(user) is True
-    assert user.points == 5 * DAILY_ACTIVE_POINTS + 10 + 10
+    # ...while the 5 day badge already earned is kept, along with its points.
+    assert day_badge5.has_achievement(user) is True
+    assert user.points == 5 * DAILY_ACTIVE_POINTS + 10
 
 
 def test_reset_is_noop_when_disabled(gamma_user_factory, settings):
