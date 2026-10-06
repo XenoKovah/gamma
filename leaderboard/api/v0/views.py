@@ -249,8 +249,14 @@ class BadgeLeaderBoardView(APIView):
             if percent > 0 and percent > in_progress_percents.get(user_uid, 0):
                 in_progress_percents[user_uid] = percent
 
+        earner_users = self._fetch_users(earners.keys(), course_id, hidden_user_uids)
+        if has_custom_ranking(badge.slug):
+            # A holder with no subtitle lines (staff excluded from their own classes, or a manual
+            # grant with no matching contributor) has nothing to be ranked by, so they are not listed.
+            lines_by_uid = get_subtitle_lines()
+            earner_users = [user for user in earner_users if lines_by_uid.get(user.user_uid, 0) > 0]
         ranked_earners = sorted(
-            self._fetch_users(earners.keys(), course_id, hidden_user_uids),
+            earner_users,
             key=lambda gamma_user: self._rank_score(badge, gamma_user, course_id),
             reverse=True,
         )

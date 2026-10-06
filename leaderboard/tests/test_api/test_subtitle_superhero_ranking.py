@@ -30,7 +30,7 @@ def lines(monkeypatch):
     return mapping
 
 
-def test_subtitle_superhero_board_is_ordered_by_lines(auth_client: APIClient, lines) -> None:
+def test_subtitle_superhero_board_is_ordered_by_lines_and_omits_holders_with_none(auth_client: APIClient, lines) -> None:
     badge = BadgeFactory(title="Subtitle Superhero")
     assert badge.slug == "subtitle-superhero"
     for uid, points in (("few_lines", 900), ("many_lines", 100), ("mid_lines", 500), ("no_file_entry", 999)):
@@ -40,9 +40,9 @@ def test_subtitle_superhero_board_is_ordered_by_lines(auth_client: APIClient, li
         "/api/v0/leaderboard/badge/subtitle-superhero?username=many_lines&signup_source=main"
     ).json()
 
-    assert [m["user_uid"] for m in data["top10"]] == ["many_lines", "mid_lines", "few_lines", "no_file_entry"]
+    assert [m["user_uid"] for m in data["top10"]] == ["many_lines", "mid_lines", "few_lines"]
     assert data["rank"] == 1
-    assert [m["points"] for m in data["top10"]] == [500, 100, 10, 0]
+    assert [m["points"] for m in data["top10"]] == [500, 100, 10]
     assert data["badge"]["score_label"] == "Subtitle Lines Changed"
 
 
